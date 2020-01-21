@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>PCD Annotator</title>
+		<meta charset="utf-8">
+		<link rel="icon" type="image/png" href="/static/icon2.png">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<script src="/static/js/lib/jquery-1.12.4.js"></script>
+		<link rel="stylesheet" href="/static/js/lib/jquery-ui-1.12.1/jquery-ui.min.css">
+		<script src="/static/js/lib/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+
+		<link type="text/css" rel="stylesheet" href="/static/css/main.css">
+
+	</head>
+
+	<body>
+		
+		<div id="container">			
+			<div id='select-box' ></div>
+			<svg width="100%" height="100%" id = "main-view-svg">
+			</svg>	
+		</div>
+		
+		<div id="info">			
+			<!-- text id="frame"></text-->
+			
+
+			<select id="scene-selector">
+				<option>--scene--</option>
+			</select>
+			<select id="frame-selector">
+					<option>--frame--</option>
+			</select>
+
+			<select id="camera-selector">
+					<option>--camera--</option>
+			</select>
+
+			<text id="changed-mark"></text>
+			<text id="box"></text>			
+			<text id="ref-obj"></text>
+		</div>
+		
+		<!-- div id="image"></div -->
+		
+		<div id="2Dlabels"></div>
+
+		<div id="obj-editor">
+				<div id="category-id-editor">
+					<select title="category" id="object-category-selector">							
+					</select>
+					<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input>
+				</div>
+				<div>
+					<text id="obj-label">cat-id</text>
+				</div>
+				<datalist id="obj-ids-of-scene">
+				</datalist>				
+				
+				<button id="label-copy" class="ui-button" title="copy (C-c)"><span class="ui-icon ui-icon-copy"></span></button>
+				<button id="label-paste" class="ui-button"  title="auto-adjust"><span class="ui-icon ui-icon-key"></span></button>
+				<button id="label-highlight" class="ui-button"  title="focus"><span class="ui-icon ui-icon-zoomin"></span></button>
+				<button id="label-edit" class="ui-button"  title="edit"><span class="ui-icon ui-icon-pencil"></span></button>
+				<button id="label-rotate" class="ui-button"  title="rotate (g)"><span class="ui-icon ui-icon-transferthick-e-w"></span></button>
+				<button id="label-reset" class="ui-button"  title="reset"><span class="ui-icon ui-icon-refresh"></span></button>				
+				<button id="label-del" class="ui-button"  title="delete (Del)"><span class="ui-icon ui-icon-trash"></span></button>
+
+		</div>
+
+
+		<div id="maincanvas-wrapper">
+			<canvas id="maincanvas" width="2048" height="1536"></canvas>
+			<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
+				<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
+				 xlink:href=""
+				/>
+				<g id="svg-boxes"></g>
+			</svg>
+		</div>
+		
+		</canvas>
+		<canvas id="canvas" width="320" height="240">cavas</canvas>		
+
+		<div class="view-manipulator"  id="z-view-manipulator"  tabindex="-1">
+			<svg width="100%" height="100%" id = "z-view-svg">
+				<rect x="70" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="z-line-left-handle"/>
+				<line x1="80" y1="40" x2="80" y2="200" class = "svg-line"  id="z-line-left" />
+
+				<rect x="90" y="30" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="z-line-top-handle"/>
+				<line x1="80" y1="40" x2="140" y2="40" class = "svg-line" id="z-line-top" />
+
+				<rect x="130" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="z-line-right-handle"/>
+				<line x1="140" y1="40" x2="140" y2="200" class = "svg-line" id="z-line-right" />
+
+				<rect x="90" y="190" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="z-line-bottom-handle"/>
+				<line x1="80" y1="200" x2="140" y2="200" class = "svg-line" id="z-line-bottom" />
+
+				<rect x="110" y="120" width="20" height="70", fill="#00000000" class="line-handle  ew-handle" id="z-line-direction-handle"/>
+				<line x1="110" y1="120" x2="110" y2="40" class = "svg-line" id="z-line-direction" />
+
+				<!-- corners -->
+				<rect x="60" y="40" width="20" height="20", fill="#00000000" class="line-handle  nw-handle" id="z-top-left-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  ne-handle" id="z-top-right-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  sw-handle" id="z-bottom-left-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  se-handle" id="z-bottom-right-handle"/>
+
+
+
+				<rect x="90" y="100" width="40" height="40", fill="#00000000" class="line-handle grab-handle" id="z-move-handle"/>
+
+			</svg>
+		</div>
+		<div class="view-manipulator" id="y-view-manipulator"  tabindex="-1">
+			<svg width="100%" height="100%" id = "y-view-svg">
+				<rect x="70" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="y-line-left-handle"/>
+				<line x1="80" y1="40" x2="80" y2="200" class = "svg-line"  id="y-line-left" />
+
+				<rect x="90" y="30" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="y-line-top-handle"/>
+				<line x1="80" y1="40" x2="140" y2="40" class = "svg-line" id="y-line-top" />
+
+				<rect x="130" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="y-line-right-handle"/>
+				<line x1="140" y1="40" x2="140" y2="200" class = "svg-line" id="y-line-right" />
+
+				<rect x="90" y="190" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="y-line-bottom-handle"/>
+				<line x1="80" y1="200" x2="140" y2="200" class = "svg-line" id="y-line-bottom" />
+
+				<rect x="110" y="120" width="20" height="70", fill="#00000000" class="line-handle  ew-handle" id="y-line-direction-handle"/>
+				<line x1="110" y1="120" x2="110" y2="40" class = "svg-line" id="y-line-direction" />
+
+				<!-- corners -->
+				<rect x="60" y="40" width="20" height="20", fill="#00000000" class="line-handle  nw-handle"   id="y-top-left-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  ne-handle" id="y-top-right-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  sw-handle" id="y-bottom-left-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  se-handle" id="y-bottom-right-handle"/>
+
+				<rect x="90" y="100" width="40" height="40", fill="#00000000" class="line-handle  grab-handle" id="y-move-handle"/>
+
+			</svg>
+		</div>
+
+		<div class="view-manipulator" id="x-view-manipulator" tabindex="-1">
+			<svg width="100%" height="100%" id = "x-view-svg">
+				<rect x="70" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="x-line-left-handle"/>
+				<line x1="80" y1="40" x2="80" y2="200" class = "svg-line"  id="x-line-left" />
+
+				<rect x="90" y="30" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="x-line-top-handle"/>
+				<line x1="80" y1="40" x2="140" y2="40" class = "svg-line" id="x-line-top" />
+
+				<rect x="130" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="x-line-right-handle"/>
+				<line x1="140" y1="40" x2="140" y2="200" class = "svg-line" id="x-line-right" />
+
+				<rect x="90" y="190" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="x-line-bottom-handle"/>
+				<line x1="80" y1="200" x2="140" y2="200" class = "svg-line" id="x-line-bottom" />
+
+				<rect x="110" y="120" width="20" height="70", fill="#00000000" class="line-handle  ew-handle" id="x-line-direction-handle"/>
+				<line x1="110" y1="120" x2="110" y2="40" class = "svg-line" id="x-line-direction" />
+
+				<!-- corners -->				
+				<rect x="60" y="40" width="20" height="20", fill="#00000000" class="line-handle  nw-handle"   id="x-top-left-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  ne-handle" id="x-top-right-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  sw-handle" id="x-bottom-left-handle"/>
+				<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  se-handle" id="x-bottom-right-handle"/>
+
+				<rect x="90" y="100" width="40" height="40", fill="#00000000" class="line-handle  grab-handle" id="x-move-handle"/>
+
+			</svg>
+		</div>
+
+		<div>
+			<div class="v-table-wrapper" id="z-v-table-translate">
+				<table>
+					<tr>
+						<td></td>
+						<td><div class="v-m-item-icon" id="z-v-up"><span class="ui-icon ui-icon-caret-1-n"></span></div></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><div class="v-m-item-icon" id="z-v-left"><span class="ui-icon ui-icon-caret-1-w"></span></div> </td>
+						<td></td>
+						<td><div class="v-m-item-icon" id="z-v-right"><span class="ui-icon ui-icon-caret-1-e"></span></div></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><div class="v-m-item-icon" id="z-v-down"><span class="ui-icon ui-icon-caret-1-s"></span></div></td>
+						<td></td>
+						</tr>
+				</table>
+			</div>
+			<div class="v-table-wrapper" id="z-v-table-scale">
+				<table>
+						<tr>
+							<td></td>
+							<td><div class="v-m-item-icon"  id="z-v-t-up"><span class="ui-icon ui-icon-plus"></span></div></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td><div class="v-m-item-icon" id="z-v-t-left"><span class="ui-icon ui-icon-minus"></span></div> </td>
+							<td></td>
+							<td><div class="v-m-item-icon" id="z-v-t-right"><span class="ui-icon ui-icon-plus"></span></div></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td><div class="v-m-item-icon" id="z-v-t-down"><span class="ui-icon ui-icon-minus"></span></div></td>
+							<td></td>
+							</tr>
+				</table>
+			</div>
+
+			<div class="v-table-wrapper" id="z-v-table-shrink">
+				<table>
+						<tr>
+							<td><div class="v-m-item-icon"  id="z-v-t-up"><span class="ui-icon ui-icon-arrow-1-se"></span></div></td>
+							<td><div class="v-m-item-icon"  id="z-v-t-up"><span class="ui-icon ui-icon-arrowstop-1-s"></span></div></td>
+							<td><div class="v-m-item-icon"  id="z-v-t-up"><span class="ui-icon ui-icon-arrow-1-sw"></span></div></td>
+						</tr>
+						<tr>
+							<td><div class="v-m-item-icon" id="z-v-shrink-left"><span class="ui-icon ui-icon-arrowstop-1-e"></span></div> </td>
+							<td></td>
+							<td><div class="v-m-item-icon" id="z-v-shrink-right"><span class="ui-icon ui-icon-arrowstop-1-w"></span></div></td>
+						</tr>
+						<tr>
+							<td><div class="v-m-item-icon"  id="z-v-t-up"><span class="ui-icon ui-icon-arrow-1-ne"></span></div></td>
+							<td><div class="v-m-item-icon"  id="z-v-t-up"><span class="ui-icon ui-icon-arrowstop-1-n"></span></div></td>
+							<td><div class="v-m-item-icon"  id="z-v-t-up"><span class="ui-icon ui-icon-arrow-1-nw"></span></div></td>
+						</tr>
+				</table>
+			</div>
+
+		</div>
+
+		<div id="context-menu-wrapper">
+		  <div id="context-menu">
+			<div class="menu-item menu-seperator"></div>
+			<div class="menu-item" id="cm-new">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-document"></span></div>
+				<div class="menu-item-text">New</div>
+			</div>
+			<div class="menu-item" id="cm-paste">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+				<div class="menu-item-text">Paste/Auto Adjust</div>
+			</div>
+
+			<div class="menu-item menu-seperator"></div>
+
+			<div class="menu-item" id="cm-prev-frame">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-w"></span></div>
+				<div class="menu-item-text">Previous frame (3)</div>
+			</div>
+		
+			<div class="menu-item" id="cm-next-frame">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-e"></span></div>
+				<div class="menu-item-text">Next frame (4)</div>
+			</div>
+
+			<div class="menu-item" id="cm-play">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-play"></span></div>
+				<div class="menu-item-text">Play</div>
+			</div>
+		
+			<div class="menu-item" id="cm-pause">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-pause"></span></div>
+				<div class="menu-item-text">Pause/Resume (Space)</div>				
+			</div>
+
+			<div class="menu-item" id="cm-stop">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-stop"></span></div>
+				<div class="menu-item-text">Stop</div>				
+			</div>
+
+			<div class="menu-item menu-seperator"></div>
+
+			<div class="menu-item" id="cm-prev-object">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-w"></span></div>
+				<div class="menu-item-text">Previous object (1)</div>
+			</div>
+		
+			<div class="menu-item" id="cm-next-object">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-e"></span></div>
+				<div class="menu-item-text">Next object (2)</div>
+			</div>
+			<div class="menu-item menu-seperator"></div>
+
+			<div class="menu-item" id="cm-save">
+				<div class="menu-item-icon"><span class="ui-icon ui-icon-disk"></span></div>
+				<div class="menu-item-text">Save (C-s)</div>				
+			</div>
+			
+		  </div>
+
+		  <div id="new-submenu">
+			
+		  </div>
+		</div>
+		
+		<script type="module"  src="/static/js/main.js"></script>		
+	</body>
+</html>

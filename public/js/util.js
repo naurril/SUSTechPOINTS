@@ -1,0 +1,346 @@
+
+
+
+
+
+// matrix (m*n), matrix(n*l), vl=n 
+// this matmul is row-wise multiplication. 'x' and result are row-vectors.
+// ret^T = m * x^T
+//
+function  matmul(m, x, vl)  //vl is vector length
+{
+    var ret=[];
+    var res_l = m.length/vl;
+    for (var vi =0; vi < x.length/vl; vi++){  //vector index
+        for (var r = 0; r<m.length/vl; r++){  //row of matrix
+            ret[vi*res_l+r] = 0;
+            for (var i = 0; i<vl; i++){
+                ret[vi*res_l+r] += m[r*vl+i]*x[vi*vl+i];
+            }
+        }
+    }
+
+    return ret;
+}
+
+function  matmul2(m, x, vl)  //vl is vector length
+{
+    var ret=[];
+    var rows = m.length/vl;
+    var cols = x.length/vl;
+    for (var r =0; r < rows; r++){
+        for (var c = 0; c < cols; c++){
+            ret[r*cols+c] = 0;
+            for (var i = 0; i<vl; i++){
+                ret[r*cols+c] += m[r*vl+i]*x[i*cols+c];
+            }
+        }
+    }
+
+    return ret;
+}
+
+// box(position, scale, rotation) to box corner corrdinates.
+// return 8 points, represented as (x,y,z,1)
+// note the vertices order cannot be changed, draw-box-on-image assumes
+//  the first 4 vertex is the front plane, so it knows box direction.
+function psr_to_xyz(p,s,r){
+    /*
+    var trans_matrix=[
+        Math.cos(r.z), -Math.sin(r.z), 0, p.x,
+        Math.sin(r.z), Math.cos(r.z),  0, p.y,
+        0,             0,              1, p.z,
+        0,             0,              0, 1,
+    ];
+    */
+   var trans_matrix = euler_angle_to_rotate_matrix(r, p);
+
+    var x=s.x/2;
+    var y=s.y/2;
+    var z=s.z/2;
+    var local_coord = [
+        -x, y, -z, 1,   x, y, -z, 1,  //front-left-bottom, front-right-bottom
+        x, y, z, 1,    -x, y, z, 1,  //front-right-top,   front-left-top
+
+        -x, -y, -z, 1,   x, -y, -z, 1,  
+        x, -y, z, 1,   -x, -y, z, 1,        
+        
+    ];
+
+    var world_coord = matmul(trans_matrix, local_coord, 4);
+    var w = world_coord;
+    return w;
+}
+
+function xyz_to_psr(vertices){
+    var ann = vertices;
+    var ROW=4;
+    var pos={x:0,y:0,z:0};
+    for (var i=0; i<8; i++){
+        pos.x+=ann[i*ROW];
+        pos.y+=ann[i*ROW+1];
+        pos.z+=ann[i*ROW+2];
+    }
+    pos.x /=8;
+    pos.y /=8;
+    pos.z /=8;
+
+
+
+    var scale={
+        x: Math.sqrt((ann[0]-ann[ROW])*(ann[0]-ann[ROW])+(ann[1]-ann[ROW+1])*(ann[1]-ann[ROW+1])),
+        y: Math.sqrt((ann[0]-ann[ROW*3])*(ann[0]-ann[ROW*3])+(ann[1]-ann[ROW*3+1])*(ann[1]-ann[ROW*3+1])),
+        z: ann[3*ROW+2]-ann[2],
+    };
+    
+    /*
+    1. atan2(y,x), not x,y
+    2. point order in xy plane
+        0   1
+        3   2
+    */
+
+    var angle = Math.atan2(ann[1*ROW+1]+ann[5*ROW+1]-2*pos.y, ann[1*ROW]+ann[5*ROW]-2*pos.x);
+
+    return {
+        position: pos,
+        scale:scale,
+        rotation:{x:0,y:0,z:angle},
+    }
+    return w;
+}
+
+
+function vector4to3(v)
+{
+    var ret=[];
+    for (var i=0; i<v.length; i++){
+        if ((i+1)% 4 != 0){
+            ret.push(v[i]);
+        }
+    }
+
+    return ret;
+}
+
+function vector_range(v){
+
+    if (v.length === 0){
+        return null;
+    }
+
+    var min, max;
+    min = [...v[0]];
+    max = [...v[0]];
+
+    for (var i=1; i<v.length; ++i){
+        for (var j=0; j<min.length; ++j){
+            if (min[j] > v[i][j]){
+                min[j] = v[i][j];
+            }
+
+            if (max[j] < v[i][j]){
+                max[j] = v[i][j];
+            }
+        }
+    }
+
+    return {
+        min: min, 
+        max: max,
+    }
+
+}
+
+// v is array of vector, vl is vector length
+function array_as_vector_range(v, vl){
+    
+    var n = v.length/vl;
+    
+    var min, max;
+    if (n === 0){
+        return null;
+    } else{
+        min = v.slice(0, vl);
+        max = v.slice(0, vl);
+    }
+
+    for (var i=1; i<n; ++i){
+        for (var j=0; j<vl; ++j){
+            if (min[j] > v[i*vl+j]){
+                min[j] = v[i*vl+j];
+            }
+
+            if (max[j] < v[i*vl+j]){
+                max[j] = v[i*vl+j];
+            }
+        }
+    }
+
+    return {
+        min: min, 
+        max: max,
+    }
+}
+
+// v is 1-d array of vector, vl is vector length, p is index into v.
+function array_as_vector_index_range(v, vl, p){
+    
+    var n = p.length;
+    
+    var min, max;
+    if (n === 0){
+        return null;
+    } else{
+        min = v.slice(p[0]*vl, (p[0]+1)*vl);
+        max = v.slice(p[0]*vl, (p[0]+1)*vl);
+    }
+
+    for (var i=1; i<n; ++i){
+        for (var j=0; j<vl; ++j){
+            if (min[j] > v[p[i]*vl+j]){
+                min[j] = v[p[i]*vl+j];
+            }
+
+            if (max[j] < v[p[i]*vl+j]){
+                max[j] = v[p[i]*vl+j];
+            }
+        }
+    }
+
+    return {
+        min: min, 
+        max: max,
+    }
+}
+
+
+
+function vector3_nomalize(m){
+    var ret=[];
+    for (var i=0; i<m.length/3; i++){
+        ret.push(m[i*3+0]/m[i*3+2]);
+        ret.push(m[i*3+1]/m[i*3+2]);
+    }
+
+    return ret;
+}
+
+
+
+function mat(m, s, x, y){
+    return m[x*s+y];
+}
+
+// m; matrix, vl: column vector length
+function transpose(m, cl){
+    var rl = m.length/cl;
+    for (var i = 0; i<cl; i++){
+        for(var j=i+1; j<rl; j++){
+            var t = m[i*rl + j];
+            m[i*rl + j] = m[j*cl+i];
+            m[j*cl+i] = t;
+        }
+    }
+
+    return m;
+}
+
+function euler_angle_to_rotate_matrix(eu, tr){
+    var theta = [eu.x, eu.y, eu.z];
+    // Calculate rotation about x axis
+    var R_x = [
+        1,       0,              0,
+        0,       Math.cos(theta[0]),   -Math.sin(theta[0]),
+        0,       Math.sin(theta[0]),   Math.cos(theta[0])
+    ];
+
+    // Calculate rotation about y axis
+    var R_y = [
+        Math.cos(theta[1]),      0,      Math.sin(theta[1]),
+        0,                       1,      0,
+        -Math.sin(theta[1]),     0,      Math.cos(theta[1])
+    ];
+
+    // Calculate rotation about z axis
+    var R_z = [
+        Math.cos(theta[2]),    -Math.sin(theta[2]),      0,
+        Math.sin(theta[2]),    Math.cos(theta[2]),       0,
+        0,               0,                  1];
+
+
+    //console.log(R_x, R_y, R_z);
+
+    // Combined rotation matrix
+    //var R = matmul(matmul(R_z, R_y, 3), R_x,3);
+    var R = matmul2(R_x, matmul2(R_y, R_z, 3), 3);
+    
+    return [
+        mat(R,3,0,0), mat(R,3,0,1), mat(R,3,0,2), tr.x,
+        mat(R,3,1,0), mat(R,3,1,1), mat(R,3,1,2), tr.y,
+        mat(R,3,2,0), mat(R,3,2,1), mat(R,3,2,2), tr.z,
+        0,          0,          0,          1,
+    ];
+}
+
+
+
+function rotation_matrix_to_euler_angle(m){ //m is 4* 4
+
+    /*
+
+    var sy = Math.sqrt(mat(m,4,0,0) * mat(m,4,0,0) +  mat(m,4,1,0) * mat(m,4, 1,0));
+ 
+
+    var z = Math.atan2(mat(m,4,2,1) , mat(m,4,2,2));
+    var y = Math.atan2(-mat(m,4,2,0), sy);
+    var x = Math.atan2(mat(m,4,1,0), mat(m,4,0,0));
+
+
+    return {
+        x: x,
+        y: y,
+        z: z,
+    };
+    */
+   var odd = false;
+   var res = [0,0,0];
+   var i=0,j=1,k=2;
+   
+   function coeff(x,y){return mat(m,4,x,y); }
+
+   function atan2(x,y) { return Math.atan2(x,y);}
+   var sin = Math.sin;
+   var cos = Math.cos;
+   function Scalar(x){return x;}
+
+   res[0] = atan2(coeff(j,k), coeff(k,k));
+   //var c2 = Vector2(coeff(i,i), coeff(i,j)).norm();
+   var c2 = Math.sqrt(coeff(i,i)*coeff(i,i) + coeff(i,j)*coeff(i,j));
+   if((odd && res[0]<Scalar(0)) || ((!odd) && res[0]>Scalar(0))) {
+     if(res[0] > Scalar(0)) {
+       res[0] -= Scalar(Math.PI);
+     }
+     else {
+       res[0] += Scalar(Math.PI);
+     }
+     res[1] = atan2(-coeff(i,k), -c2);
+   }
+   else
+     res[1] = atan2(-coeff(i,k), c2);
+   var s1 = sin(res[0]);
+   var c1 = cos(res[0]);
+   res[2] = atan2(s1*coeff(k,i)-c1*coeff(j,i), c1*coeff(j,j) - s1 * coeff(k,j));
+
+   if (!odd)
+      res = res.map(function(x){return -x;})
+
+   return {
+       x: res[0],
+       y: res[1],
+       z: res[2],
+   }
+}
+
+
+export {vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, transpose}

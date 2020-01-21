@@ -1,0 +1,29 @@
+body {
+	margin: 0;
+	background-color: #000;
+	color: #fff;
+	font-family: Monospace;
+	font-size: 13px;
+	line-height: 24px;
+}
+
+
+
+#info {
+	position: absolute;
+	top: 0px;
+	color: #ffff00;
+	font-size: 10px;
+	text-align: left;
+	z-index: 1; /* TODO Solve this in HTML */
+}
+
+td {
+    text-align: right;   
+}
+
+.selectBox {
+	border: 1px solid #55aaff;
+	background-color: rgba(75, 160, 255, 0.3);
+	position: fixed;
+}

@@ -1,0 +1,35 @@
+# Config file for GO-ICP
+
+# Mean Squared Error (MSE) convergence threshold
+mse_thresh: 0.001
+
+# Smallest rotation value along dimension X/Y/Z of rotation cube (radians)
+rot_min_x: 3.1416
+rot_min_y: 3.1416
+rot_min_z: 3.1416
+
+# Side length of each dimension of rotation cube (radians)
+rot_width: 6.2832
+
+# Smallest translation value along dimension X/Y/Z of translation cube
+trans_min_x: -0.5
+trans_min_y: -0.5
+trans_min_z: -0.5
+
+# Side length of each dimension of translation cube
+trnas_min_width: 1.0
+
+# Set to 0.0 for no trimming
+trim_fraction: 0.0
+
+# Nodes per dimension of distance transform
+dist_trans_size: 100
+
+# DistanceTransformWidth = ExpandFactor x WidthLargestDimension
+dist_trans_expand_factor: 2.0
+
+#target_pcd_filename: "1563421456.330479000.pcd"
+#source_pcd_filename: "1563421457.741678000.pcd"
+
+target_pcd_filename: "out551.pcd"
+source_pcd_filename: "out557.pcd"
