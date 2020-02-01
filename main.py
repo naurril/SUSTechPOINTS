@@ -171,7 +171,7 @@ class Root(object):
 
         # camera names
         image = []
-        image_ext = ".jpg"
+        image_ext = ""
         cam_path = "./data/"+s+"/image"
         if os.path.exists(cam_path):
           if os.path.exists(cam_path):
@@ -191,6 +191,8 @@ class Root(object):
                   if len(files)>=2:
                     _,image_ext = os.path.splitext(files[0])
 
+        if image_ext == "":
+          image_ext = ".jpg"
         scene["image_ext"] = image_ext
 
 
