@@ -18,6 +18,7 @@ import {init_mouse, onUpPosition, getIntersects, getMousePosition, get_mouse_loc
 
 import {view_handles, on_z_direction_changed}  from "./side_view_op.js"
 
+import {ml} from  './ml.js'
 
 var sideview_enabled = true;
 var container;
@@ -682,6 +683,26 @@ function init_gui(){
 
     //var dataFolder = gui.addFolder( 'Data' );
     //load_data_meta(dataFolder);
+
+
+    var toolsFolder = gui.addFolder( 'Tools' );
+    params['calibrate_axes'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    toolsFolder.add( params, 'calibrate_axes');
+
+    params['l-shape fit'] = function () {
+        let points = data.world.get_points_relative_coordinates_of_box(selected_box, 1.2);
+        points = points.map(function(p){
+            return [p[0],p[1]];
+        });
+
+        ml.l_shape_fit(points);
+        
+    };
+    toolsFolder.add( params, 'l-shape fit');
+
 
     gui.open();
 }

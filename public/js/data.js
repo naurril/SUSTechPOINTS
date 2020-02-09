@@ -585,6 +585,9 @@ var data = {
 
             },
             
+            get_all_pionts: function(){
+                return this.points.geometry.getAttribute("position");
+            },
             
             build_points_index: function(){
                 var ps = this.points.geometry.getAttribute("position");
@@ -782,6 +785,30 @@ var data = {
                 }
             },
 
+            reset_points: function(points){  // coordinates of points
+                
+                
+                var geometry = new THREE.BufferGeometry();
+                
+                
+                geometry.addAttribute( 'position', new THREE.Float32BufferAttribute(points, 3 ) );
+                geometry.computeBoundingSphere();               
+
+                var material = new THREE.PointsMaterial( { size: this.data.point_size} );
+
+                material.sizeAttenuation = false;
+
+                var mesh = new THREE.Points( geometry, material );                        
+                mesh.name = "pcd";
+
+                //swith geometry
+                this.scene.remove(this.points);
+                this.remove_all_points();
+
+                this.points = mesh;
+                this.scene.add(mesh);
+            },
+
             highlight_box_points: function(box){
                 if (this.points.highlighted_box){
                     //already highlighted.
@@ -921,6 +948,11 @@ var data = {
                     }
                 }
             },
+
+            get_points_relative_coordinates_of_box: function(box, scale_ratio){
+                return this._get_points_of_box(this.points, box, scale_ratio).position;
+            },
+
 
             _get_points_index_of_box: function(points, box, scale_ratio){
                 return this._get_points_of_box(points, box, scale_ratio).index;
@@ -1339,6 +1371,10 @@ var data = {
                     x.material.opacity = box_opacity;
                 });
             },
+            add_line: function(start, end, color){
+                var line = this.new_line(start, end, color);
+                this.scene.add(line);
+            },
 
             add_box: function(pos, scale, rotation, obj_type, track_id){
 
@@ -1370,6 +1406,21 @@ var data = {
                 box.material.dispose();
                 //selected_box.dispose();
                 this.boxes = this.boxes.filter(function(x){return x !=box;});
+            },
+
+            new_line: function(start, end, color){
+
+                var vertex = start.concat(end);
+                var line = new THREE.BufferGeometry();
+                line.addAttribute( 'position', new THREE.Float32BufferAttribute(vertex, 3 ) );
+                
+                if (!color){
+                    color = 0x00ff00;
+                }
+
+              
+                var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.box_opacity, transparent: true } );
+                return new THREE.LineSegments( line, material );                
             },
 
             new_bbox_cube: function(color){

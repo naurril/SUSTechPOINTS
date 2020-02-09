@@ -284,6 +284,41 @@ function euler_angle_to_rotate_matrix(eu, tr){
 }
 
 
+function euler_angle_to_rotate_matrix_3by3(eu){
+    var theta = [eu.x, eu.y, eu.z];
+    // Calculate rotation about x axis
+    var R_x = [
+        1,       0,              0,
+        0,       Math.cos(theta[0]),   -Math.sin(theta[0]),
+        0,       Math.sin(theta[0]),   Math.cos(theta[0])
+    ];
+
+    // Calculate rotation about y axis
+    var R_y = [
+        Math.cos(theta[1]),      0,      Math.sin(theta[1]),
+        0,                       1,      0,
+        -Math.sin(theta[1]),     0,      Math.cos(theta[1])
+    ];
+
+    // Calculate rotation about z axis
+    var R_z = [
+        Math.cos(theta[2]),    -Math.sin(theta[2]),      0,
+        Math.sin(theta[2]),    Math.cos(theta[2]),       0,
+        0,               0,                  1];
+
+
+    //console.log(R_x, R_y, R_z);
+
+    // Combined rotation matrix
+    //var R = matmul(matmul(R_z, R_y, 3), R_x,3);
+    var R = matmul2(R_x, matmul2(R_y, R_z, 3), 3);
+    
+    return [
+        mat(R,3,0,0), mat(R,3,0,1), mat(R,3,0,2),
+        mat(R,3,1,0), mat(R,3,1,1), mat(R,3,1,2),
+        mat(R,3,2,0), mat(R,3,2,1), mat(R,3,2,2),
+    ];
+}
 
 function rotation_matrix_to_euler_angle(m){ //m is 4* 4
 
@@ -343,4 +378,4 @@ function rotation_matrix_to_euler_angle(m){ //m is 4* 4
 }
 
 
-export {vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, transpose}
+export {vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_to_rotate_matrix_3by3, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, transpose}
