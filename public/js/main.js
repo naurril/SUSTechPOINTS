@@ -693,19 +693,49 @@ function init_gui(){
     toolsFolder.add( params, 'calibrate_axes');
 
     params['l-shape fit'] = function () {
-        let points = data.world.get_points_relative_coordinates_of_box(selected_box, 1.2);
+        let points = data.world.get_points_relative_coordinates_of_box(selected_box, 1.0);
         points = points.map(function(p){
             return [p[0],p[1]];
         });
 
-        ml.l_shape_fit(points);
+        var angle = ml.l_shape_fit(points);
+        selected_box.rotation.z += angle;
+        on_box_changed(selected_box);
         
     };
     toolsFolder.add( params, 'l-shape fit');
 
 
+    params['predict rotation'] = function () {
+        if (selected_box)
+            auto_direction_predict(selected_box);       
+    };
+
+
+    toolsFolder.add( params, 'predict rotation');
+
+
     gui.open();
 }
+
+
+function auto_direction_predict(box, callback){
+    let points = data.world.get_points_relative_coordinates_of_box(box, 1.0);
+
+        points = points.filter(function(p){
+            return p[2] > - box.scale.z/2 + 0.3;
+        })
+
+        //points is N*3 shape
+
+        var angle = ml.predict_rotation(points, function(angle){
+            on_z_direction_changed(angle, true);
+            if (callback){
+                callback();
+            }
+        });
+}
+
 
 function object_category_changed(event){
     if (selected_box){
@@ -869,12 +899,14 @@ function handleSelectRect(x,y,w,h){
     w *= 2;
     h *= 2;
     
+    /*
     console.log("main select rect", x,y,w,h);
 
     views[0].camera.updateProjectionMatrix();
     data.world.select_points_by_view_rect(x,y,w,h, views[0].camera);
     render();
     render_2d_image();
+    */
 
     var center_pos = get_screen_location_in_world(x+w/2, y+h/2);
     
@@ -886,12 +918,28 @@ function handleSelectRect(x,y,w,h){
     auto_shrink_box(box);
     
     // guess obj type here
+    
     box.obj_type = guess_obj_type_by_dimension(box.scale);
     
     floatLabelManager.add_label(box, function(){select_bbox(box);});
 
     select_bbox(box);
-    on_box_changed(box);    
+    on_box_changed(box);
+
+    auto_direction_predict(box, function(){
+        box.obj_type = guess_obj_type_by_dimension(box.scale);
+        floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
+        floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
+        on_box_changed(box);
+    });
+
+    
+    
+    //floatLabelManager.add_label(box, function(){select_bbox(box);});
+
+    
+
+    
 }
 
 function handleLeftClick(event) {
@@ -1799,6 +1847,7 @@ function add_global_obj_type(){
             grow_box(0.2, {x:1.2, y:1.2, z:3});
             auto_shrink_box(selected_box);
             on_box_changed(selected_box);
+            auto_direction_predict(selected_box);
             
         }
     }

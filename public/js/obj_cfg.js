@@ -35,7 +35,7 @@ function guess_obj_type_by_dimension(scale){
         }
     };
 
-
+    console.log("guess type", max_name);
     return max_name;
 }
 
