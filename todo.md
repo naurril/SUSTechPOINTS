@@ -2,25 +2,25 @@
 1. use left mouse down to revert bbox shape adjustment
 1. preset bus/car dimension
 1. remove bbox in bbox list when deleted.
-2. reverse the direction
-3. unselect when add new box
-4. edit on side view
+2. ~~reverse the direction~~
+3. ~~unselect when add new box~~
+4. ~~edit on side view~~
 5. add orthognal camera
-6. fix camera when selecting box by 1/2
-7. detach transform control before changing world.
-8. lock one box
-9. when pcd file doesnot exist
-10. when pcd file format not recognizable
-11. title text
-12. title icon
+6. ~~fix camera when selecting box by 1/2~~
+7. ~~detach transform control before changing world~~.
+8. ~~lock one box~~
+9. ~~when pcd file doesnot exist~~
+10. ~~when pcd file format not recognizable~~
+11. ~~title text~~
+12. ~~title icon~~
 13.  open new frame when playing
 14.  handle when loading pcd failed.
 15.  gui, add onchange function
 16.  read/write json files directly, don't rely on cherrypy to forward.
-17.  auto lock object
+17.  ~~auto lock object~~
 18.  combine all shots of an object in multiple frames, try annotate them in one view.
 19.  load data hierachically
-20.  allocate global tracking id, automatically
+20.  ~~allocate global tracking id, automatically~~
 21.  try more renderers.
 22.  let main canvas fit the dimension of image.
 23.  show left/right camera images.
@@ -57,3 +57,5 @@
 54.  should enlarge prototype dimension when creating new box.
 54.  add grid on screen, help rotating mainview.
 55.  boundary-aware rotation support on mainview.
+56.  try auto-adjust x,y rotation by minimizing projection area.
+57.  use sideview to decide object lower border.

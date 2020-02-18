@@ -11,7 +11,7 @@ import os
 import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'pointnet'))
+sys.path.append(os.path.join(BASE_DIR, '../pointnet'))
 import predict
 
 
@@ -60,7 +60,7 @@ class Root(object):
       
       data = json.loads(rawbody)
       
-      return {"angle": int(predict.predict(data["points"]))}
+      return {"angle": predict.predict(data["points"])}
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()

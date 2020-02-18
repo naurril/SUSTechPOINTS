@@ -949,8 +949,20 @@ var data = {
                 }
             },
 
+            //centered, but without rotation
+            get_points_relative_coordinates_of_box_wo_rotation: function(box, scale_ratio){
+                return this._get_points_of_box(this.points, box, scale_ratio).position_wo_rotation;
+            },
+
+
+            get_points_of_box: function(box, scale_ratio){
+                return this._get_points_of_box(this.points, box, scale_ratio);
+            },
+
+
             get_points_relative_coordinates_of_box: function(box, scale_ratio){
-                return this._get_points_of_box(this.points, box, scale_ratio).position;
+                var ret = this._get_points_of_box(this.points, box, scale_ratio);
+                return ret.position;
             },
 
 
@@ -968,6 +980,7 @@ var data = {
 
                 
                 var relative_position = [];
+                var relative_position_wo_rotation = [];
                 
                 var r = box.rotation;
                 var trans = transpose(euler_angle_to_rotate_matrix(r, {x:0, y:0, z:0}), 4);
@@ -1002,6 +1015,7 @@ var data = {
                     }
                     
                     relative_position.push([tp[0],tp[1],tp[2]]);
+                    relative_position_wo_rotation.push([p[0], p[1], p[2]])
                     
                 });
                 
@@ -1009,7 +1023,8 @@ var data = {
 
                 return {
                     index: indices,
-                    position: relative_position,                    
+                    position: relative_position,
+                    position_wo_rotation: relative_position_wo_rotation,
                 }
             },
 

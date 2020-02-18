@@ -4,7 +4,7 @@ import { GUI } from './lib/dat.gui.module.js';
 import {data} from './data.js'
 import {create_views, views} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
-import {matmul2, euler_angle_to_rotate_matrix} from "./util.js"
+import {matmul2, euler_angle_to_rotate_matrix, dotproduct} from "./util.js"
 import {header} from "./header.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
@@ -16,7 +16,7 @@ import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
 import {stop_play, pause_resume_play, play_current_scene_with_buffer} from "./play.js"
 import {init_mouse, onUpPosition, getIntersects, getMousePosition, get_mouse_location_in_world, get_screen_location_in_world} from "./mouse.js"
 
-import {view_handles, on_z_direction_changed}  from "./side_view_op.js"
+import {view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}  from "./side_view_op.js"
 
 import {ml} from  './ml.js'
 
@@ -711,8 +711,126 @@ function init_gui(){
             auto_direction_predict(selected_box);       
     };
 
-
     toolsFolder.add( params, 'predict rotation');
+
+
+    params['predict x rotation'] = function () {
+        if (selected_box){
+            var box = selected_box;
+            let points = data.world.get_points_of_box(box, 2.0);
+
+            // 1. find surounding points
+            var side_indices = []
+            var side_points = []
+            points.position.forEach(function(p, i){
+                if ((p[0] > box.scale.x/2 || p[0] < -box.scale.x/2) && (p[1] < box.scale.y/2 && p[1] > -box.scale.y/2)){
+                    side_indices.push(points.index[i]);
+                    side_points.push(points.position[i]);
+                }
+            })
+
+
+            var end_indices = []
+            var end_points = []
+            points.position.forEach(function(p, i){
+                if ((p[0] < box.scale.x/2 && p[0] > -box.scale.x/2) && (p[1] > box.scale.y/2 || p[1] < -box.scale.y/2)){
+                    end_indices.push(points.index[i]);
+                    end_points.push(points.position[i]);
+                }
+            })
+            
+
+            // 2. grid by 0.3 by 0.3
+
+            // compute slope (derivative)
+            // for side part (pitch/tilt), use y,z axis
+            // for end part (row), use x, z axis
+
+            
+
+            data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+            data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+            data.world.update_points_color();
+            render();
+
+            var x = side_points.map(function(x){return x[0]});
+            var y = side_points.map(function(x){return x[1]});
+            var z = side_points.map(function(x){return x[2]});
+            var z_mean = z.reduce(function(x,y){return x+y;}, 0)/z.length;
+            var z = z.map(function(x){return x-z_mean;});
+            var  theta =  Math.atan2(dotproduct(y,z), dotproduct(y,y));
+            console.log(theta);
+
+            on_x_direction_changed(theta, true);
+
+
+
+
+        }
+            
+    };
+
+    toolsFolder.add( params, 'predict x rotation');
+
+
+
+    params['predict y rotation'] = function () {
+        if (selected_box){
+            var box = selected_box;
+            let points = data.world.get_points_of_box(box, 2.0);
+
+            // 1. find surounding points
+            var side_indices = []
+            var side_points = []
+            points.position.forEach(function(p, i){
+                if ((p[0] > box.scale.x/2 || p[0] < -box.scale.x/2) && (p[1] < box.scale.y/2 && p[1] > -box.scale.y/2)){
+                    side_indices.push(points.index[i]);
+                    side_points.push(points.position[i]);
+                }
+            })
+
+
+            var end_indices = []
+            var end_points = []
+            points.position.forEach(function(p, i){
+                if ((p[0] < box.scale.x/2 && p[0] > -box.scale.x/2) && (p[1] > box.scale.y/2 || p[1] < -box.scale.y/2)){
+                    end_indices.push(points.index[i]);
+                    end_points.push(points.position[i]);
+                }
+            })
+            
+
+            // 2. grid by 0.3 by 0.3
+
+            // compute slope (derivative)
+            // for side part (pitch/tilt), use y,z axis
+            // for end part (row), use x, z axis
+
+            
+
+            data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+            data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+            data.world.update_points_color();
+            render();
+
+            var x = end_points.map(function(x){return x[0]});
+            //var y = side_points.map(function(x){return x[1]});
+            var z = end_points.map(function(x){return x[2]});
+            var z_mean = z.reduce(function(x,y){return x+y;}, 0)/z.length;
+            var z = z.map(function(x){return x-z_mean;});
+            var  theta =  Math.atan2(dotproduct(x,z), dotproduct(x,x));
+            console.log(theta);
+
+            on_y_direction_changed(theta, true);
+
+
+
+
+        }
+            
+    };
+
+    toolsFolder.add( params, 'predict y rotation');
 
 
     gui.open();
@@ -720,7 +838,7 @@ function init_gui(){
 
 
 function auto_direction_predict(box, callback){
-    let points = data.world.get_points_relative_coordinates_of_box(box, 1.0);
+    let points = data.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1.0);
 
         points = points.filter(function(p){
             return p[2] > - box.scale.z/2 + 0.3;
@@ -729,7 +847,25 @@ function auto_direction_predict(box, callback){
         //points is N*3 shape
 
         var angle = ml.predict_rotation(points, function(angle){
-            on_z_direction_changed(angle, true);
+            
+            var points_indices = data.world.get_points_indices_of_box(box);
+
+            box.rotation.x = angle[0];
+            box.rotation.y = angle[1];
+            box.rotation.z = angle[2];
+
+            var extreme = data.world.get_dimension_of_points(points_indices, box);
+
+            ['x','y', 'z'].forEach(function(axis){
+
+                translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+
+            }) 
+
+            
+            on_box_changed(box);
+            
             if (callback){
                 callback();
             }

@@ -181,7 +181,7 @@ var ml = {
             if (this.status == 200) {
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
-                callback(ret.angle*3 * Math.PI/180);
+                callback(ret.angle);
             }
             else{
                 console.log(this);

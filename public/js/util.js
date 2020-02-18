@@ -1,5 +1,13 @@
 
 
+function dotproduct(a, b){
+    var ret = 0;
+    for (let i = 0; i<a.length; i++){
+        ret += a[i]*b[i];
+    }
+
+    return ret;
+}
 
 
 
@@ -378,4 +386,4 @@ function rotation_matrix_to_euler_angle(m){ //m is 4* 4
 }
 
 
-export {vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_to_rotate_matrix_3by3, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, transpose}
+export {dotproduct, vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_to_rotate_matrix_3by3, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, transpose}
