@@ -1094,7 +1094,15 @@ function on_y_auto_rotate(){
     on_y_direction_changed(theta, true);
 }
 
-var y_view_handle = create_view_handler("y-", on_y_edge_changed, on_y_direction_changed, on_y_auto_shrink, on_y_moved, on_y_scaled, on_y_wheel, on_y_auto_rotate);
+function on_y_reset_rotate(){
+    selected_box.rotation.y = 0;
+    on_box_changed(selected_box);
+}
+
+var y_view_handle = create_view_handler("y-", on_y_edge_changed, 
+                                              on_y_direction_changed, on_y_auto_shrink, on_y_moved, on_y_scaled, on_y_wheel, 
+                                              on_y_auto_rotate,
+                                              on_y_reset_rotate);
 
 
 ///////////////////////////////////////////////////////////////////////////////////

@@ -148,6 +148,12 @@ function init() {
     view_handles.hide();
 
     install_grid()
+
+    window.onbeforeunload = function() {
+        return "Exit?";
+        //if we return nothing here (just calling return;) then there will be no pop-up question at all
+        //return;
+     };
     
 }
 
@@ -1571,6 +1577,7 @@ function keydown( ev ) {
         case 'v':
             change_transform_control_view();
             break;
+        /*
         case 'm':
         case 'M':
             smart_paste();
@@ -1586,6 +1593,7 @@ function keydown( ev ) {
             header.mark_changed_flag();
             on_box_changed(selected_box);
             break;
+        */
         case 'z': // X
             views[0].transform_control.showX = ! views[0].transform_control.showX;
             break;
@@ -1610,7 +1618,7 @@ function keydown( ev ) {
             views[ev.key-'4'].cameraHelper.visible = !views[ev.key-'4'].cameraHelper.visible;
             render();
             break;
-
+        /*
         case 'a':
             if (selected_box){
                 if (!operation_state.mouse_right_down){
@@ -1705,7 +1713,7 @@ function keydown( ev ) {
                 transform_bbox("z_scale_up");
             }
             break;
-
+        */
         case 'f':
             if (selected_box){                
                 //transform_bbox("z_rotate_right");                
