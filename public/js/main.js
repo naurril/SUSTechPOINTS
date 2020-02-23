@@ -4,7 +4,7 @@ import { GUI } from './lib/dat.gui.module.js';
 import {data} from './data.js'
 import {create_views, views} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
-import {matmul2, euler_angle_to_rotate_matrix, dotproduct} from "./util.js"
+import {matmul2, euler_angle_to_rotate_matrix, dotproduct, linalg_std} from "./util.js"
 import {header} from "./header.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
@@ -180,22 +180,22 @@ function install_fast_tool(){
     document.getElementById("label-del").onclick = function(){
         remove_selected_box();
         header.mark_changed_flag();
-        event.currentTarget.blur();
+        //event.currentTarget.blur();
     };
 
     document.getElementById("label-copy").onclick = function(event){
         mark_bbox();
-        event.currentTarget.blur();
+        //event.currentTarget.blur();
     }
 
     document.getElementById("label-paste").onclick = function(event){
         smart_paste();
-        event.currentTarget.blur();
+        //event.currentTarget.blur();
     }
 
     document.getElementById("label-edit").onclick = function(event){
         event.currentTarget.blur();
-        select_bbox(selected_box);        
+        select_bbox(selected_box);
     }
 
     document.getElementById("label-reset").onclick = function(event){
@@ -708,7 +708,7 @@ function init_gui(){
 
     params['predict rotation'] = function () {
         if (selected_box)
-            auto_direction_predict(selected_box);       
+            auto_direction_predict(selected_box);
     };
 
     toolsFolder.add( params, 'predict rotation');
@@ -839,37 +839,57 @@ function init_gui(){
 
 function auto_direction_predict(box, callback){
     let points = data.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1.0);
+    //let points = data.world.get_points_relative_coordinates_of_box(box, 1.0);
 
-        points = points.filter(function(p){
-            return p[2] > - box.scale.z/2 + 0.3;
-        })
+    points = points.filter(function(p){
+        return p[2] > - box.scale.z/2 + 0.3;
+    })
 
-        //points is N*3 shape
+    //points is N*3 shape
 
-        var angle = ml.predict_rotation(points, function(angle){
-            
-            var points_indices = data.world.get_points_indices_of_box(box);
+    var angle = ml.predict_rotation(points, function(angle){
+        
+        var points_indices = data.world.get_points_indices_of_box(box);
 
-            box.rotation.x = angle[0];
-            box.rotation.y = angle[1];
-            box.rotation.z = angle[2];
+        var euler_delta = {
+            x: angle[0],
+            y: angle[1],
+            z: angle[2]
+        };
 
-            var extreme = data.world.get_dimension_of_points(points_indices, box);
+        /*
+        var composite_angel = linalg_std.euler_angle_composite(box.rotation, euler_delta);
 
-            ['x','y', 'z'].forEach(function(axis){
+        console.log("orig ", box.rotation.x, box.rotation.y, box.rotation.z);
+        console.log("delt ", euler_delta.x, euler_delta.y, euler_delta.z);
+        console.log("comp ", composite_angel.x, composite_angel.y, composite_angel.z);
 
-                translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-                box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+        box.rotation.x = composite_angel.x;
+        box.rotation.y = composite_angel.y;
+        box.rotation.z = composite_angel.z;
+        */
+        
+        box.rotation.x = euler_delta.x;
+        box.rotation.y = euler_delta.y;
+        box.rotation.z = euler_delta.z;
+        
+       
+        var extreme = data.world.get_dimension_of_points(points_indices, box);
 
-            }) 
+        ['x','y', 'z'].forEach(function(axis){
 
-            
-            on_box_changed(box);
-            
-            if (callback){
-                callback();
-            }
-        });
+            translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+            box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+
+        }) 
+
+        
+        on_box_changed(box);
+        
+        if (callback){
+            callback();
+        }
+    });
 }
 
 
@@ -1298,7 +1318,10 @@ function onWindowResize() {
         windowHeight = window.innerHeight;
         renderer.setSize( windowWidth, windowHeight );
 
-        
+        // update sideview svg if there exists selected box
+        if (selected_box){
+            view_handles.update_view_handle(views[1].viewport, selected_box.scale);
+        }
     }
     
     render();

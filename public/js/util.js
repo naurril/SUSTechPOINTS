@@ -1,4 +1,4 @@
-
+import * as THREE from './lib/three.module.js';
 
 function dotproduct(a, b){
     var ret = 0;
@@ -328,7 +328,7 @@ function euler_angle_to_rotate_matrix_3by3(eu){
     ];
 }
 
-function rotation_matrix_to_euler_angle(m){ //m is 4* 4
+function rotation_matrix_to_euler_angle(m, msize){ //m is 4* 4
 
     /*
 
@@ -350,7 +350,11 @@ function rotation_matrix_to_euler_angle(m){ //m is 4* 4
    var res = [0,0,0];
    var i=0,j=1,k=2;
    
-   function coeff(x,y){return mat(m,4,x,y); }
+   if (!msize){
+       msize=4
+   }
+
+   function coeff(x,y){return mat(m,msize,x,y); }
 
    function atan2(x,y) { return Math.atan2(x,y);}
    var sin = Math.sin;
@@ -386,4 +390,66 @@ function rotation_matrix_to_euler_angle(m){ //m is 4* 4
 }
 
 
-export {dotproduct, vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_to_rotate_matrix_3by3, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, transpose}
+
+var linalg_std = {
+    euler_angle_to_rotation_matrix: function(euler){
+        var theta = [euler.x, euler.y, euler.z];
+        // Calculate rotation about x axis
+        var R_x = new THREE.Matrix4();
+        R_x.set(
+            1,                        0,                     0,   0,
+            0,       Math.cos(theta[0]),   -Math.sin(theta[0]),   0,
+            0,       Math.sin(theta[0]),   Math.cos(theta[0]) ,   0, 
+            0,                        0,                     0,   1,
+        );
+
+        // Calculate rotation about y axis
+        var R_y = new THREE.Matrix4();
+        R_y.set(
+            Math.cos(theta[1]),      0,      Math.sin(theta[1]), 0,
+            0,                       1,                       0, 0, 
+            -Math.sin(theta[1]),     0,      Math.cos(theta[1]), 0,
+            0,                       0,                       0, 1,
+        );
+
+        // Calculate rotation about z axis
+        var R_z = new THREE.Matrix4();
+        R_z.set(
+            Math.cos(theta[2]),    -Math.sin(theta[2]),      0,    0,
+            Math.sin(theta[2]),    Math.cos(theta[2]),       0,    0,
+            0,                     0,                        1,    0,
+            0,                     0,                        0,    1,
+        );
+
+        R_z.multiply(R_y);
+        R_z.multiply(R_x);
+
+        return R_z;
+    },
+
+    euler_angle_from_rotation_matrix: function(m){
+        var euler = new THREE.Euler();
+        euler.setFromRotationMatrix(m);
+        return euler;  
+    },
+
+    // {x:, y:, z:}
+    euler_angle_composite: function(current, delta){
+        var current_matrix = this.euler_angle_to_rotation_matrix(current);
+        var delta_matrix = this.euler_angle_to_rotation_matrix(delta);
+        var composite_matrix = new THREE.Matrix4();
+        composite_matrix.multiplyMatrices(delta_matrix, current_matrix);
+        
+        return this.euler_angle_from_rotation_matrix(composite_matrix);
+    }
+}
+
+
+
+
+
+export {dotproduct, vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, 
+    matmul2, 
+    euler_angle_to_rotate_matrix_3by3, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, 
+    linalg_std,
+    transpose}

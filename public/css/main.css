@@ -6,6 +6,8 @@ body {
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 	font-size: 13px;
 	line-height: 24px;
+	overflow-x: hidden;
+  	overflow-y: hidden;
 }
 
 a {
@@ -274,7 +276,9 @@ dynamic set obj-type css has higher priority than this one.
 	color: yellow;
 }
 
-
+.view-manipulator {
+	display: none;  /* default */
+}
 
 #z-view-manipulator {
 	position: absolute;
@@ -283,9 +287,7 @@ dynamic set obj-type css has higher priority than this one.
 	width: 20%;
 	height: 30%;
 	background-color: #00000000;
-	border-width: 0px;
-	display: inline-flex;
-	align-items: flex-end;	
+	border-width: 0px;	
 }
 
 #y-view-manipulator {
@@ -295,9 +297,7 @@ dynamic set obj-type css has higher priority than this one.
 	width: 20%;
 	height: 20%;
 	background-color: #00000000;
-	border-width: 0px;
-	display: inline-flex;
-	align-items: flex-end;	
+	border-width: 0px;		
 }
 
 
@@ -309,9 +309,9 @@ dynamic set obj-type css has higher priority than this one.
 	height: 20%;
 	background-color: #00000000;
 	border-width: 0px;
-	display: inline-flex;
-	align-items: flex-end;	
 }
+
+
 
 #view-manipulator:hover{
 	/* border-color: yellow; */
@@ -352,16 +352,6 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 
-
-.v-m-item-icon {
-	background-color: #00008822;
-}
-
-.v-m-item-icon:hover {
-	background-color: #888800;
-}
-
-
 td {
 	padding: 0px;
 }
@@ -376,7 +366,21 @@ td {
 }
 
 
+.subview-svg {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	top: 0%;
+	left: 0%;
+}
 
+.v-buttons-wrapper {
+	position: absolute;
+	bottom: 0%;
+	right: 0%;
+	background-color: #222;
+	margin: 1px;
+}
 #select-box {
 	display: none;
 	position: fixed;
