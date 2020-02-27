@@ -19,6 +19,7 @@ import {init_mouse, onUpPosition, getIntersects, getMousePosition, get_mouse_loc
 import {view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}  from "./side_view_op.js"
 
 import {ml} from  './ml.js'
+import { auto_rotate_xyz } from './box_op.js';
 
 var sideview_enabled = true;
 var container;
@@ -719,183 +720,7 @@ function init_gui(){
 
     toolsFolder.add( params, 'predict rotation');
 
-
-    params['predict x rotation'] = function () {
-        if (selected_box){
-            var box = selected_box;
-            let points = data.world.get_points_of_box(box, 2.0);
-
-            // 1. find surounding points
-            var side_indices = []
-            var side_points = []
-            points.position.forEach(function(p, i){
-                if ((p[0] > box.scale.x/2 || p[0] < -box.scale.x/2) && (p[1] < box.scale.y/2 && p[1] > -box.scale.y/2)){
-                    side_indices.push(points.index[i]);
-                    side_points.push(points.position[i]);
-                }
-            })
-
-
-            var end_indices = []
-            var end_points = []
-            points.position.forEach(function(p, i){
-                if ((p[0] < box.scale.x/2 && p[0] > -box.scale.x/2) && (p[1] > box.scale.y/2 || p[1] < -box.scale.y/2)){
-                    end_indices.push(points.index[i]);
-                    end_points.push(points.position[i]);
-                }
-            })
-            
-
-            // 2. grid by 0.3 by 0.3
-
-            // compute slope (derivative)
-            // for side part (pitch/tilt), use y,z axis
-            // for end part (row), use x, z axis
-
-            
-
-            data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-            data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-            data.world.update_points_color();
-            render();
-
-            var x = side_points.map(function(x){return x[0]});
-            var y = side_points.map(function(x){return x[1]});
-            var z = side_points.map(function(x){return x[2]});
-            var z_mean = z.reduce(function(x,y){return x+y;}, 0)/z.length;
-            var z = z.map(function(x){return x-z_mean;});
-            var  theta =  Math.atan2(dotproduct(y,z), dotproduct(y,y));
-            console.log(theta);
-
-            on_x_direction_changed(theta, true);
-
-
-
-
-        }
-            
-    };
-
-    toolsFolder.add( params, 'predict x rotation');
-
-
-
-    params['predict y rotation'] = function () {
-        if (selected_box){
-            var box = selected_box;
-            let points = data.world.get_points_of_box(box, 2.0);
-
-            // 1. find surounding points
-            var side_indices = []
-            var side_points = []
-            points.position.forEach(function(p, i){
-                if ((p[0] > box.scale.x/2 || p[0] < -box.scale.x/2) && (p[1] < box.scale.y/2 && p[1] > -box.scale.y/2)){
-                    side_indices.push(points.index[i]);
-                    side_points.push(points.position[i]);
-                }
-            })
-
-
-            var end_indices = []
-            var end_points = []
-            points.position.forEach(function(p, i){
-                if ((p[0] < box.scale.x/2 && p[0] > -box.scale.x/2) && (p[1] > box.scale.y/2 || p[1] < -box.scale.y/2)){
-                    end_indices.push(points.index[i]);
-                    end_points.push(points.position[i]);
-                }
-            })
-            
-
-            // 2. grid by 0.3 by 0.3
-
-            // compute slope (derivative)
-            // for side part (pitch/tilt), use y,z axis
-            // for end part (row), use x, z axis
-
-            
-
-            data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-            data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-            data.world.update_points_color();
-            render();
-
-            var x = end_points.map(function(x){return x[0]});
-            //var y = side_points.map(function(x){return x[1]});
-            var z = end_points.map(function(x){return x[2]});
-            var z_mean = z.reduce(function(x,y){return x+y;}, 0)/z.length;
-            var z = z.map(function(x){return x-z_mean;});
-            var  theta =  Math.atan2(dotproduct(x,z), dotproduct(x,x));
-            console.log(theta);
-
-            on_y_direction_changed(theta, true);
-
-
-
-
-        }
-            
-    };
-
-    toolsFolder.add( params, 'predict y rotation');
-
-
     gui.open();
-}
-
-
-function auto_direction_predict(box, callback){
-    let points = data.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1.0);
-    //let points = data.world.get_points_relative_coordinates_of_box(box, 1.0);
-
-    points = points.filter(function(p){
-        return p[2] > - box.scale.z/2 + 0.3;
-    })
-
-    //points is N*3 shape
-
-    var angle = ml.predict_rotation(points, function(angle){
-        
-        var points_indices = data.world.get_points_indices_of_box(box);
-
-        var euler_delta = {
-            x: angle[0],
-            y: angle[1],
-            z: angle[2]
-        };
-
-        /*
-        var composite_angel = linalg_std.euler_angle_composite(box.rotation, euler_delta);
-
-        console.log("orig ", box.rotation.x, box.rotation.y, box.rotation.z);
-        console.log("delt ", euler_delta.x, euler_delta.y, euler_delta.z);
-        console.log("comp ", composite_angel.x, composite_angel.y, composite_angel.z);
-
-        box.rotation.x = composite_angel.x;
-        box.rotation.y = composite_angel.y;
-        box.rotation.z = composite_angel.z;
-        */
-        
-        box.rotation.x = euler_delta.x;
-        box.rotation.y = euler_delta.y;
-        box.rotation.z = euler_delta.z;
-        
-       
-        var extreme = data.world.get_dimension_of_points(points_indices, box);
-
-        ['x','y', 'z'].forEach(function(axis){
-
-            translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
-
-        }) 
-
-        
-        on_box_changed(box);
-        
-        if (callback){
-            callback();
-        }
-    });
 }
 
 
@@ -1088,7 +913,7 @@ function handleSelectRect(x,y,w,h){
     select_bbox(box);
     on_box_changed(box);
 
-    auto_direction_predict(box, function(){
+    auto_rotate_xyz(box, function(){
         box.obj_type = guess_obj_type_by_dimension(box.scale);
         floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
         floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
@@ -1645,7 +1470,13 @@ function keydown( ev ) {
         case 'Q':
             transform_bbox("x_scale_up");
             break;
-            
+        */
+       case 's':
+            if (ev.ctrlKey){
+                save_annotation();
+            }
+            break;
+        /*
         case 's':
             if (ev.ctrlKey){
                 save_annotation();
@@ -2014,7 +1845,7 @@ function add_global_obj_type(){
             grow_box(0.2, {x:1.2, y:1.2, z:3});
             auto_shrink_box(selected_box);
             on_box_changed(selected_box);
-            auto_direction_predict(selected_box);
+            auto_rotate_xyz(selected_box);
             
         }
     }

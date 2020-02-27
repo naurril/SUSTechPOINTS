@@ -59,3 +59,4 @@
 55.  boundary-aware rotation support on mainview.
 56.  try auto-adjust x,y rotation by minimizing projection area.
 57.  use sideview to decide object lower border.
+58.  'escape' when drawing a rectangle

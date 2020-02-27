@@ -1,10 +1,10 @@
 
-import {transform_bbox, translate_box, on_box_changed, selected_box, update_subview_by_windowsize} from "./main.js"
+import {translate_box, on_box_changed, selected_box, update_subview_by_windowsize} from "./main.js"
 
 import {data} from "./data.js"
 import {views} from "./view.js"
-import {matmul2, dotproduct} from "./util.js"
-
+import {matmul2} from "./util.js"
+import {auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz} from "./box_op.js"
 
 import {
 	Quaternion,
@@ -918,10 +918,15 @@ function on_z_wheel(wheel_direction){
 }
 
 function on_z_auto_rotate(){
-
+    auto_rotate_xyz(selected_box, null, {x:false, y:false, z:true});
 }
 
-var z_view_handle = create_view_handler("z-", on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel, on_z_auto_rotate);
+function on_z_reset_rotate(){
+    selected_box.rotation.z = 0;
+    on_box_changed(selected_box);
+}
+
+var z_view_handle = create_view_handler("z-", on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel, on_z_auto_rotate, on_z_reset_rotate);
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -991,36 +996,8 @@ function on_y_moved(ratio){
 }
 
 function on_y_direction_changed(theta, sticky){
-    //selected_box.rotation.x += theta;
-    //on_box_changed(selected_box);
-    
-    var points_indices = data.world.get_points_indices_of_box(selected_box);
-    
-    var _tempQuaternion = new Quaternion();
-    var rotationAxis = new Vector3(0, 1, 0);
-
-    // NOTE: the front/end subview is different from top/side view, that we look at the reverse direction of y-axis
-    //       it's end view acturally.
-    //       we could project front-view, but the translation (left, right) will be in reverse direction of top view.
-    ///       that would be frustrating.
-    selected_box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, -theta ) ).normalize();
-
-    if (sticky){
-        var extreme = data.world.get_dimension_of_points(points_indices, selected_box);
-
-        ['x','z'].forEach(function(axis){
-
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
-
-        }) 
-    }
-
-
-    on_box_changed(selected_box);
+    change_rotation_y(selected_box, theta, sticky)
 }
-
-
 
 
 function on_y_scaled(ratio){
@@ -1046,57 +1023,13 @@ function on_y_wheel(wheel_direction){
     y_view_handle.update_view_handle(views[2].viewport, {x: selected_box.scale.x, y:selected_box.scale.z});
 }
 
-function on_y_auto_rotate(){
-    var box = selected_box;
-    let points = data.world.get_points_of_box(box, 2.0);
-
-    // 1. find surounding points
-    var side_indices = []
-    var side_points = []
-    points.position.forEach(function(p, i){
-        if ((p[0] > box.scale.x/2 || p[0] < -box.scale.x/2) && (p[1] < box.scale.y/2 && p[1] > -box.scale.y/2)){
-            side_indices.push(points.index[i]);
-            side_points.push(points.position[i]);
-        }
-    })
-
-
-    var end_indices = []
-    var end_points = []
-    points.position.forEach(function(p, i){
-        if ((p[0] < box.scale.x/2 && p[0] > -box.scale.x/2) && (p[1] > box.scale.y/2 || p[1] < -box.scale.y/2)){
-            end_indices.push(points.index[i]);
-            end_points.push(points.position[i]);
-        }
-    })
-    
-
-    // 2. grid by 0.3 by 0.3
-
-    // compute slope (derivative)
-    // for side part (pitch/tilt), use y,z axis
-    // for end part (row), use x, z axis
-
-    
-
-    data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-    data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-    data.world.update_points_color();
-    
-    var x = end_points.map(function(x){return x[0]});
-    //var y = side_points.map(function(x){return x[1]});
-    var z = end_points.map(function(x){return x[2]});
-    var z_mean = z.reduce(function(x,y){return x+y;}, 0)/z.length;
-    var z = z.map(function(x){return x-z_mean;});
-    var  theta =  Math.atan2(dotproduct(x,z), dotproduct(x,x));
-    console.log(theta);
-
-    on_y_direction_changed(theta, true);
-}
-
 function on_y_reset_rotate(){
     selected_box.rotation.y = 0;
     on_box_changed(selected_box);
+}
+
+function on_y_auto_rotate(){
+    auto_rotate_y(selected_box);
 }
 
 var y_view_handle = create_view_handler("y-", on_y_edge_changed, 
@@ -1171,28 +1104,7 @@ function on_x_moved(ratio){
 }
 
 function on_x_direction_changed(theta, sticky){
-    var points_indices = data.world.get_points_indices_of_box(selected_box);
-
-    //selected_box.rotation.x += theta;
-    //on_box_changed(selected_box);
-    var _tempQuaternion = new Quaternion();
-    var rotationAxis = new Vector3(1,0,0);
-    selected_box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, theta ) ).normalize();
-
-    if (sticky){
-        var extreme = data.world.get_dimension_of_points(points_indices, selected_box);
-
-        ['y','z'].forEach(function(axis){
-
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
-
-        }) 
-    }
-
-
-    on_box_changed(selected_box);
-
+    change_rotation_x(selected_box, theta, sticky)
 }
 
 function on_x_scaled(ratio){
@@ -1217,58 +1129,14 @@ function on_x_wheel(wheel_direction){
     x_view_handle.update_view_handle(views[3].viewport, {x: selected_box.scale.y, y:selected_box.scale.z});
 }
 
-function on_x_auto_rotate(){
-    console.log("x auto ratote");
-    var box = selected_box;
-    let points = data.world.get_points_of_box(box, 2.0);
-
-    // 1. find surounding points
-    var side_indices = []
-    var side_points = []
-    points.position.forEach(function(p, i){
-        if ((p[0] > box.scale.x/2 || p[0] < -box.scale.x/2) && (p[1] < box.scale.y/2 && p[1] > -box.scale.y/2)){
-            side_indices.push(points.index[i]);
-            side_points.push(points.position[i]);
-        }
-    })
-
-
-    var end_indices = []
-    var end_points = []
-    points.position.forEach(function(p, i){
-        if ((p[0] < box.scale.x/2 && p[0] > -box.scale.x/2) && (p[1] > box.scale.y/2 || p[1] < -box.scale.y/2)){
-            end_indices.push(points.index[i]);
-            end_points.push(points.position[i]);
-        }
-    })
-    
-
-    // 2. grid by 0.3 by 0.3
-
-    // compute slope (derivative)
-    // for side part (pitch/tilt), use y,z axis
-    // for end part (row), use x, z axis
-
-
-    data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-    data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-    data.world.update_points_color();
-    //render();
-
-    var x = side_points.map(function(x){return x[0]});
-    var y = side_points.map(function(x){return x[1]});
-    var z = side_points.map(function(x){return x[2]});
-    var z_mean = z.reduce(function(x,y){return x+y;}, 0)/z.length;
-    var z = z.map(function(x){return x-z_mean;});
-    var  theta =  Math.atan2(dotproduct(y,z), dotproduct(y,y));
-    console.log(theta);
-
-    on_x_direction_changed(theta, true);
-}
 
 function on_x_reset_rotate(){
     selected_box.rotation.x = 0;
     on_box_changed(selected_box);
+}
+
+function on_x_auto_rotate(){
+    auto_rotate_x(selected_box);
 }
 
 var x_view_handle = create_view_handler("x-", on_x_edge_changed, 
