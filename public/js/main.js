@@ -1853,7 +1853,7 @@ function on_box_changed(box){
 
 
 function restore_box_points_color(box){
-    if (data.color_obj){
+    if (data.config.color_obj){
         data.world.set_box_points_color(box, {x: data.point_brightness, y: data.point_brightness, z: data.point_brightness});
         data.world.update_points_color();
         render();
@@ -1861,7 +1861,7 @@ function restore_box_points_color(box){
 }
 
 function update_box_points_color(box){
-    if (data.color_obj){
+    if (data.config.color_obj){
         if (box.last_info){
             data.world.set_box_points_color(box.last_info, {x: data.point_brightness, y: data.point_brightness, z: data.point_brightness});
         }
