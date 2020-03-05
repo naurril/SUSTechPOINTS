@@ -268,14 +268,32 @@ function highlight_selected_box(){
 function install_context_menu(){
 
     document.getElementById("context-menu-wrapper").onclick = function(event){
-        event.currentTarget.style.display="none";
-    }
+        event.currentTarget.style.display="none"; 
+        event.preventDefault();
+        event.stopPropagation();             
+    };
 
     document.getElementById("context-menu-wrapper").oncontextmenu = function(event){
-        //event.currentTarget.style.display="none";
+        event.currentTarget.style.display="none"; 
         event.preventDefault();
-    }
+        event.stopPropagation();
+    };
     
+    /*    
+    document.getElementById("context-menu").onclick = function(enabled){
+        // some items clicked
+        document.getElementById("context-menu-wrapper").style.display = "none";
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
+    document.getElementById("new-submenu").onclick = function(enabled){
+        // some items clicked
+        document.getElementById("context-menu-wrapper").style.display = "none";
+        event.preventDefault();
+        event.stopPropagation();
+    };
+    */
 
     document.getElementById("cm-new").onclick = function(event){
         //add_bbox();
@@ -349,6 +367,11 @@ function install_context_menu(){
         select_previous_object();
     };
 
+    document.getElementById("cm-delete").onclick = function(event){      
+        remove_selected_box();
+        header.mark_changed_flag();
+    };
+    
 }
 
 function add_range_box(){
@@ -720,6 +743,33 @@ function init_gui(){
 
     toolsFolder.add( params, 'predict rotation');
 
+
+    var calAxisFolder = toolsFolder.addFolder( 'calibarate axis');
+    params['axis x +'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis x +');
+
+    params['axis x -'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis x -');
+
+    params['axis y +'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis y +');
+
+    params['axis y -'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis y -');
+
+
     gui.open();
 }
 
@@ -871,11 +921,62 @@ function update_subview_by_bbox(box){
 
 function handleRightClick(event){
 
-    var pos = getMousePosition(renderer.domElement, event.clientX, event.clientY );
-    document.getElementById("context-menu").style.left = event.clientX+"px";
-    document.getElementById("context-menu").style.top = event.clientY+"px";
-    document.getElementById("context-menu-wrapper").style.display = "block";
+    // select new object
 
+    if (!data.world){
+        return;
+    }
+
+
+    var intersects = getIntersects( onUpPosition, data.world.boxes );
+    if ( intersects.length > 0 ) {
+        //var object = intersects[ 0 ].object;
+        var object = intersects[ 0 ].object;
+        let target_obj = object.userData.object;
+        if ( target_obj == undefined ) {
+            // helper
+            target_obj = object;
+        }
+
+        if (target_obj != selected_box){
+            select_bbox(target_obj);
+        }
+
+        hide_world_context_menu();
+        show_object_context_menu(event.clientX, event.clientY);
+
+    } else {
+        // if no object is selected, popup context menu
+        //var pos = getMousePosition(renderer.domElement, event.clientX, event.clientY );
+        hide_object_context_menu();
+        show_world_context_menu(event.clientX, event.clientY);
+    }
+}
+
+function show_world_context_menu(posX, posY){
+    let menu = document.getElementById("context-menu");
+    menu.style.display = "inherit";
+    menu.style.left = posX+"px";
+    menu.style.top = posY+"px";
+    document.getElementById("context-menu-wrapper").style.display = "block";
+}
+
+function hide_world_context_menu(){
+    let menu = document.getElementById("context-menu");
+    menu.style.display = "none";
+}
+
+function show_object_context_menu(posX, posY){
+    let menu = document.getElementById("object-context-menu");
+    menu.style.display = "inherit";
+    menu.style.left = posX+"px";
+    menu.style.top = posY+"px";
+    document.getElementById("context-menu-wrapper").style.display = "block";
+}
+
+function hide_object_context_menu(){
+    let menu = document.getElementById("object-context-menu");
+    menu.style.display = "none";
 }
 
 
@@ -1662,7 +1763,7 @@ function on_load_world_finished(scene_name, frame){
 function load_world(scene_name, frame){
 
     //stop if current world is not ready!
-    if (data.world && !data.world.complete()){
+    if (data.world && !data.world.preload_finished()){
         console.log("current world is still loading.");
         return;
     }
@@ -1787,9 +1888,6 @@ function on_selected_box_changed(box){
         //render_2d_image();
     }
 
-      
-    
-    
 }
 
 

@@ -276,12 +276,15 @@ class Root(object):
 
       boxes = map(lambda f: file_2_objs(os.path.join(path, "label", f)), files)
 
+      # the following map makes the category-id pairs unique in scene
       all_objs={}
       for x in boxes:
           for o in x:
               all_objs[o["category"]+"-"+o["id"]]=o
+
       objs = [x for x in all_objs.values()]
-      objs.sort()
+      #print(objs)
+      #objs.sort()
       return objs
 
 if __name__ == '__main__':

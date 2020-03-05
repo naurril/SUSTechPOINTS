@@ -203,7 +203,7 @@ dynamic set obj-type css has higher priority than this one.
 	z-index: 10;
 }
 
-#context-menu {
+#context-menu, #object-context-menu {
 	position: absolute;
 	display: block;
 	width: 180px;

@@ -21,7 +21,7 @@ function load_obj_ids_of_scene(scene){
             var obj_id_option_list = ret.map(function(c){
                 return "<option value="+c.id+">"+c.category+"</option>";
             }).reduce(function(x,y){return x+y;}, 
-            "<option value='auto'></option>");
+            "<option value='auto'></option><option value='new'></option>");
 
             obj_id_list = ret.map(function(x){return x.id;});
 
