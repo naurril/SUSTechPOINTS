@@ -424,7 +424,7 @@ function render(){
 
     for ( var ii = 0; ii < views.length; ++ ii ) {
 
-        if ((ii > 0) && !sideview_enabled){
+        if ((ii > 0) && (!sideview_enabled)){ // || !selected_box)){
             break;
         }
 
@@ -437,6 +437,9 @@ function render(){
         var width = Math.ceil( window.innerWidth * view.width );
         var height = Math.ceil( window.innerHeight * view.height );
 
+        // update viewport, so the operating lines over these views 
+        // will be updated in time.
+        /*
         view.viewport={
             left: window.innerWidth * view.left,
             bottom: window.innerHeight-window.innerHeight * view.bottom,
@@ -444,6 +447,7 @@ function render(){
             height:window.innerHeight * view.height,
             zoom_ratio:view.zoom_ratio,
         };
+        */
 
         renderer.setViewport( left, bottom, width, height );
         renderer.setScissor( left, bottom, width, height );
@@ -1111,7 +1115,7 @@ function unselect_bbox(new_object, keep_lock){
 
                     // unselected finally
                     selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(selected_box.obj_type).color.slice(1)));
-                    selected_box.material.opacity = data.box_opacity;
+                    selected_box.material.opacity = data.config.box_opacity;
                     floatLabelManager.unselect_box(selected_box.obj_local_id, selected_box.obj_type);
                     floatLabelManager.update_position(selected_box, true);
 
@@ -1149,7 +1153,7 @@ function unselect_bbox(new_object, keep_lock){
             }
 
             selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(selected_box.obj_type).color.slice(1)));
-            selected_box.material.opacity = data.box_opacity;                
+            selected_box.material.opacity = data.config.box_opacity;                
             floatLabelManager.unselect_box(selected_box.obj_local_id);
             floatLabelManager.update_position(selected_box, true);
             image_manager.unselect_bbox(selected_box.obj_local_id, selected_box.obj_type);

@@ -56,7 +56,9 @@ label is the directory to save the annotation result.
 
 calib.txt is the calibration matrix from point cloud to image. it's optional, but if provided, the box is projected on the image so as to assist the annotation.
 
-## object type configuration
+## Object type configuration
+
+
 
 ## Operations
 

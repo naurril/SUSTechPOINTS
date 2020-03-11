@@ -820,6 +820,7 @@ function on_wheel(subview, wheel_direction){
         multiplier = 0.9;
     }
 
+    subview.viewport.zoom_ratio *= multiplier;
     subview.zoom_ratio *= multiplier;
 
     return;
