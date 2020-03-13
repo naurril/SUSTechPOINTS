@@ -35,8 +35,8 @@ class Root(object):
           
     @cherrypy.expose
     def save(self, scene, frame):
-      cl = cherrypy.request.headers['Content-Length']
-      rawbody = cherrypy.request.body.read(int(cl))
+      # cl = cherrypy.request.headers['Content-Length']
+      rawbody = cherrypy.request.body.readline()
       print(rawbody)
       with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
         f.write(rawbody)
