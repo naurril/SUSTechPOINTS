@@ -416,8 +416,22 @@ function animate() {
 }
 
 
+function update_side_view_port(){
+    views.slice(1).forEach(function(view){
+        view.viewport={
+            left: window.innerWidth * view.left,
+            bottom: window.innerHeight-window.innerHeight * view.bottom,
+            width:window.innerWidth * view.width,
+            height:window.innerHeight * view.height,
+            zoom_ratio:view.zoom_ratio,
+        };
+    })
+}
 
 function render(){
+
+    
+
 
     views[0].switch_camera(params["bird's eye view"]);
     //console.log(views[0].camera.rotation.z);
@@ -439,15 +453,9 @@ function render(){
 
         // update viewport, so the operating lines over these views 
         // will be updated in time.
-        /*
-        view.viewport={
-            left: window.innerWidth * view.left,
-            bottom: window.innerHeight-window.innerHeight * view.bottom,
-            width:window.innerWidth * view.width,
-            height:window.innerHeight * view.height,
-            zoom_ratio:view.zoom_ratio,
-        };
-        */
+        
+        
+        
 
         renderer.setViewport( left, bottom, width, height );
         renderer.setScissor( left, bottom, width, height );
@@ -1240,6 +1248,8 @@ function onWindowResize() {
     //camera.aspect = window.innerWidth / window.innerHeight;
     //camera.updateProjectionMatrix();
     //renderer.setSize( window.innerWidth, window.innerHeight );
+    
+    
 
     if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
 
@@ -1253,6 +1263,8 @@ function onWindowResize() {
         windowWidth = window.innerWidth;
         windowHeight = window.innerHeight;
         renderer.setSize( windowWidth, windowHeight );
+
+        update_side_view_port();
 
         // update sideview svg if there exists selected box
         if (selected_box){
