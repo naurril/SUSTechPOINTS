@@ -1,7 +1,8 @@
 # Point Cloud 3D Bounding Box Annotation Tool
-
-
 ![screenshot](./doc/pcd_label.png)
+
+## Note
+This project is still under heavy development, some features/algorithms need packages which are not uploaded yet, we will upload them soon.
 
 ## Features
 
@@ -26,7 +27,7 @@
 
 python, cherrypy
 
-## install
+## Install
 pip install cherrypy
 
 ## Start
@@ -79,6 +80,9 @@ left click on a box: select
 left click on a selected box: show transform control
 left click on non-box area: hide transform control if present, or unselect box
 
+Ctrl+mouse drag: add a new box
+
+
 when transform control if present:
 v: switch transform modes among resize/translate/rotate
 z/x/c: turan on/off x/y/z axis
@@ -101,7 +105,7 @@ double click on border: auto-shrink box by adjusting the border to nearest innne
 double click on corner: auto-shrink box by adjusting the corresponding borders to nearest innner point.
 
 click and drag border/corner/center: move border/corner/box.
-
+ctrl + drag border/corner: move border/corner/box with box auto-fitting
 
 ctrl+s  save current frame
 del/ctrl+d  remove selected box
