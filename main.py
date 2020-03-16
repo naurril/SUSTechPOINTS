@@ -10,9 +10,9 @@ env = Environment(loader=FileSystemLoader('./'))
 import os
 import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, '../pointnet'))
-import predict
+# sys.path.append(BASE_DIR)
+# sys.path.append(os.path.join(BASE_DIR, '../pointnet'))
+# import predict
 
 
 extract_object_exe = "~/code/pcltest/build/extract_object"
@@ -56,12 +56,13 @@ class Root(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def predict_rotation(self):
-      cl = cherrypy.request.headers['Content-Length']
-      rawbody = cherrypy.request.body.read(int(cl))
+      # cl = cherrypy.request.headers['Content-Length']
+      # rawbody = cherrypy.request.body.read(int(cl))
       
-      data = json.loads(rawbody)
+      # data = json.loads(rawbody)
       
-      return {"angle": predict.predict(data["points"])}
+      # return {"angle": predict.predict(data["points"])}
+      return {}
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()

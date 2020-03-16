@@ -24,8 +24,15 @@ function auto_rotate_xyz(box, callback, apply_mask){
 
     var angle = ml.predict_rotation(points, function(angle){
         
+        if (!angle){
+            console.log("prediction not implemented?");
+            return;
+        }
+
+
         var points_indices = data.world.get_points_indices_of_box(box);
 
+        
         var euler_delta = {
             x: angle[0],
             y: angle[1],
