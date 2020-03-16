@@ -245,23 +245,6 @@ function createFloatLabelManager(view) {
         },
 
 
-
-        toXYCoords: function(pos) {
-            var width = window.innerWidth, height = window.innerHeight;
-            var widthHalf = width / 2, heightHalf = height / 2;
-
-            var p = pos.clone().project(this.view.camera);
-
-            var ret={
-                x: ( p.x * widthHalf ) + widthHalf,
-                y: - ( p.y * heightHalf ) + heightHalf,
-                out_view: p.x>0.9 || p.x<-0.9 || p.y<-0.9 || p.y>0.9 || p.z< 0,
-            }
-
-            return ret;
-        },
-
-
         coord_to_pixel: function(p){
             var width = window.innerWidth, height = window.innerHeight;
             var widthHalf = width / 2, heightHalf = height / 2;
@@ -269,7 +252,8 @@ function createFloatLabelManager(view) {
             var ret={
                 x: ( p.x * widthHalf ) + widthHalf + 10,
                 y: - ( p.y * heightHalf ) + heightHalf - 10,
-                out_view: p.x>0.9 || p.x<-0.9 || p.y<-0.9 || p.y>0.9 || p.z< -1 || p.z > 1,
+                out_view: p.x>0.9 || p.x<-0.6 || p.y<-0.9 || p.y>0.9 || p.z< -1 || p.z > 1,
+                // p.x<-0.6 to prevent it from appearing ontop of sideviews.
             }
 
             return ret;

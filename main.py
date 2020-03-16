@@ -7,6 +7,13 @@ import json
 from jinja2 import Environment, FileSystemLoader
 env = Environment(loader=FileSystemLoader('./'))
 
+import os
+import sys
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
+sys.path.append(os.path.join(BASE_DIR, '../pointnet'))
+import predict
+
 
 extract_object_exe = "~/code/pcltest/build/extract_object"
 registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
@@ -35,13 +42,26 @@ class Root(object):
           
     @cherrypy.expose
     def save(self, scene, frame):
+
       # cl = cherrypy.request.headers['Content-Length']
-      rawbody = cherrypy.request.body.readline()
-      print(rawbody)
+      rawbody = cherrypy.request.body.readline().decode('UTF-8')
+
       with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
         f.write(rawbody)
       
       return "ok"
+
+
+    # data  N*3 numpy array
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def predict_rotation(self):
+      cl = cherrypy.request.headers['Content-Length']
+      rawbody = cherrypy.request.body.read(int(cl))
+      
+      data = json.loads(rawbody)
+      
+      return {"angle": predict.predict(data["points"])}
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
@@ -257,12 +277,15 @@ class Root(object):
 
       boxes = map(lambda f: file_2_objs(os.path.join(path, "label", f)), files)
 
+      # the following map makes the category-id pairs unique in scene
       all_objs={}
       for x in boxes:
           for o in x:
               all_objs[o["category"]+"-"+o["id"]]=o
+
       objs = [x for x in all_objs.values()]
-      objs.sort()
+      #print(objs)
+      #objs.sort()
       return objs
 
 if __name__ == '__main__':

@@ -5,48 +5,52 @@ import { PCDLoader } from './lib/PCDLoader.js';
 import { get_obj_cfg_by_type } from './obj_cfg.js';
 import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range} from "./util.js"
 import {settings} from "./settings.js"
+
+
 var data = {
     
     // point_size: 1.5,
 
     // increase_point_size: function(){
-    //     this.point_size*= 1.2;
+    //     this.config.point_size*= 1.2;
     //     if (this.world)
-    //         this.world.points.material.size = this.point_size;
+    //         this.world.points.material.size = this.config.point_size;
     // },
     
     // decrease_point_size: function(){
-    //     this.point_size/=1.2;
+    //     this.config.point_size/=1.2;
     //     if (this.world)
-    //         this.world.points.material.size = this.point_size;
+    //         this.world.points.material.size = this.config.point_size;
     // },
 
-    point_size: 1,
-    point_brightness: 0.6,
-    box_opacity: 1,
-    show_background: true,
-    color_obj: true,
-    
+    config: {
+        point_size: 1,
+        point_brightness: 0.6,
+        box_opacity: 1,
+        show_background: true,
+        color_obj: true,
+    },
+
     scale_point_size: function(v){
-        this.point_size *= v;
+        this.config.point_size *= v;
         if (this.world){
-            this.world.set_point_size(this.point_size);
+            this.world.set_point_size(this.config.point_size);
         }
     },
 
     scale_point_brightness: function(v){
-        this.point_brightness *= v;        
+        this.config.point_brightness *= v;        
     },
 
     toggle_box_opacity: function(){
-        this.box_opacity = 1- this.box_opacity;
-        this.world.set_box_opacity(this.box_opacity);
+        this.config.box_opacity = 1- this.config.box_opacity;
+        this.world.set_box_opacity(this.config.box_opacity);
     },
 
     toggle_background: function(){
-        this.show_background = !this.show_background;
+        this.config.show_background = !this.config.show_background;
 
-        if (this.show_background){
+        if (this.config.show_background){
             this.world.cancel_highlight();
         }
         else{
@@ -55,14 +59,14 @@ var data = {
     },
 
     toggle_color_obj: function(){
-        this.color_obj = !this.color_obj;
-        if (this.color_obj){
+        this.config.color_obj = !this.config.color_obj;
+        if (this.config.color_obj){
             this.world.color_points();
         } else {
             this.world.set_points_color({
-                x: this.point_brightness,
-                y: this.point_brightness,
-                z: this.point_brightness,
+                x: this.config.point_brightness,
+                y: this.config.point_brightness,
+                z: this.config.point_brightness,
             });            
         }
 
@@ -286,16 +290,11 @@ var data = {
                 }
             },
 
-            image_front: null,
-            image_left: null,
-            image_right: null,
-            image_loaded: false,
-            image_left_loaded: false,
-            image_right_loaded: false,
-            pcd_loaded: false,
 
-            complete: function(){
-                return this.pcd_loaded && this.boxes && this.images.loaded();
+            points_loaded: false,
+
+            preload_finished: function(){
+                return this.points_loaded && this.boxes && this.images.loaded();
             },
 
             reset: function(){this.points=null; this.boxes=null;},
@@ -346,7 +345,7 @@ var data = {
                 // color all points inside these boxes
                 var _self = this;
 
-                if (this.data.color_obj){
+                if (this.data.config.color_obj){
                     this.boxes.map(function(b){
                         _self.set_box_points_color(b);
                     })
@@ -356,7 +355,7 @@ var data = {
             },
 
             on_image_loaded: function(){
-                if (this.complete()){
+                if (this.preload_finished()){
                     this.color_points();
                     if (this.on_preload_finished){
                         this.on_preload_finished(this);
@@ -417,7 +416,7 @@ var data = {
                         else {
                             color = []
                             for (var i =0; i< position.length; ++i){                                
-                                color.push(_self.data.point_brightness);                                
+                                color.push(_self.data.config.point_brightness);                                
                             }
                             geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
                         }
@@ -425,7 +424,7 @@ var data = {
                         geometry.computeBoundingSphere();
                         // build material
 
-                        var material = new THREE.PointsMaterial( { size: _self.data.point_size, vertexColors: THREE.VertexColors } );
+                        var material = new THREE.PointsMaterial( { size: _self.data.config.point_size, vertexColors: THREE.VertexColors } );
 
                         /*
                         
@@ -455,11 +454,11 @@ var data = {
 
                         _self.build_points_index();
                         _self.points_load_time = new Date().getTime();
-                        _self.pcd_loaded = true;
+                        _self.points_loaded = true;
 
                         console.log(_self.points_load_time, _self.file_info.scene, _self.file_info.frame, "loaded pionts ", _self.points_load_time - _self.create_time, "ms");
 
-                        if (_self.complete()){
+                        if (_self.preload_finished()){
                             _self.color_points();
                             if (_self.on_preload_finished)
                                 _self.on_preload_finished(_self);
@@ -484,10 +483,10 @@ var data = {
                         //error
                         console.log("load pcd failed.");
 
-                        _self.pcd_loaded = true;
+                        _self.points_loaded = true;
                         
                         //go ahead, may load picture
-                        if (_self.complete()){
+                        if (_self.preload_finished()){
                             _self.color_points();
                             if (_self.on_preload_finished)
                                 _self.on_preload_finished(_self);
@@ -540,7 +539,7 @@ var data = {
                         
                         _self.sort_boxes();
 
-                        if (_self.complete()){
+                        if (_self.preload_finished()){
                             _self.color_points();
                             if (_self.on_preload_finished)
                                 _self.on_preload_finished(_self);
@@ -731,7 +730,7 @@ var data = {
                 
                 geometry.computeBoundingSphere();               
 
-                var material = new THREE.PointsMaterial( { size: _self.data.point_size, vertexColors: THREE.VertexColors } );
+                var material = new THREE.PointsMaterial( { size: _self.data.config.point_size, vertexColors: THREE.VertexColors } );
 
                 material.sizeAttenuation = false;
 
@@ -751,10 +750,10 @@ var data = {
             cancel_highlight: function(box){
                 if (this.points.points_backup){
                     
-                    this.set_box_opacity(this.data.box_opacity);
+                    this.set_box_opacity(this.data.config.box_opacity);
 
                     //copy colors, maybe changed.
-                    if (this.data.color_obj){
+                    if (this.data.config.color_obj){
                         var highlight_point_color = this.points.geometry.getAttribute("color");
                         var backup_point_color = this.points.points_backup.geometry.getAttribute("color");                    
                         
@@ -774,11 +773,11 @@ var data = {
                     if (box){
                         // in highlighted mode, the box my be moved outof the highlighted area, so 
                         // we need to color them again.
-                        if (this.data.color_obj)
+                        if (this.data.config.color_obj)
                             this.set_box_points_color(box);
                     }
 
-                    if (this.data.color_obj)
+                    if (this.data.config.color_obj)
                         this.update_points_color();
                         
                     this.scene.add(this.points);
@@ -794,7 +793,7 @@ var data = {
                 geometry.addAttribute( 'position', new THREE.Float32BufferAttribute(points, 3 ) );
                 geometry.computeBoundingSphere();               
 
-                var material = new THREE.PointsMaterial( { size: this.data.point_size} );
+                var material = new THREE.PointsMaterial( { size: this.data.config.point_size} );
 
                 material.sizeAttenuation = false;
 
@@ -857,7 +856,7 @@ var data = {
                 
                 geometry.computeBoundingSphere();               
 
-                var material = new THREE.PointsMaterial( { size: _self.data.point_size, vertexColors: THREE.VertexColors } );
+                var material = new THREE.PointsMaterial( { size: _self.data.config.point_size, vertexColors: THREE.VertexColors } );
 
                 material.sizeAttenuation = false;
 
@@ -949,8 +948,20 @@ var data = {
                 }
             },
 
+            //centered, but without rotation
+            get_points_relative_coordinates_of_box_wo_rotation: function(box, scale_ratio){
+                return this._get_points_of_box(this.points, box, scale_ratio).position_wo_rotation;
+            },
+
+
+            get_points_of_box: function(box, scale_ratio){
+                return this._get_points_of_box(this.points, box, scale_ratio);
+            },
+
+
             get_points_relative_coordinates_of_box: function(box, scale_ratio){
-                return this._get_points_of_box(this.points, box, scale_ratio).position;
+                var ret = this._get_points_of_box(this.points, box, scale_ratio);
+                return ret.position;
             },
 
 
@@ -968,6 +979,7 @@ var data = {
 
                 
                 var relative_position = [];
+                var relative_position_wo_rotation = [];
                 
                 var r = box.rotation;
                 var trans = transpose(euler_angle_to_rotate_matrix(r, {x:0, y:0, z:0}), 4);
@@ -1002,6 +1014,7 @@ var data = {
                     }
                     
                     relative_position.push([tp[0],tp[1],tp[2]]);
+                    relative_position_wo_rotation.push([p[0], p[1], p[2]])
                     
                 });
                 
@@ -1009,7 +1022,8 @@ var data = {
 
                 return {
                     index: indices,
-                    position: relative_position,                    
+                    position: relative_position,
+                    position_wo_rotation: relative_position_wo_rotation,
                 }
             },
 
@@ -1319,7 +1333,7 @@ var data = {
                 this.active = true;
                 this.destroy_old_world = destroy_old_world;
                 this.on_finished = on_finished;
-                if (this.complete()){
+                if (this.preload_finished()){
                     this.go();
                 }
             },
@@ -1327,9 +1341,9 @@ var data = {
             active: false,
             
             go: function(){
-                if (this.complete()){
+                if (this.preload_finished()){
 
-                    //this.points.material.size = data.point_size;
+                    //this.points.material.size = data.config.point_size;
                     
                     if (this.destroy_old_world){
                         this.destroy_old_world();
@@ -1351,7 +1365,7 @@ var data = {
                         _self.scene.add(b);
                     })
 
-                    if (!_self.data.show_background){
+                    if (!_self.data.config.show_background){
                         _self.hide_background();
                     }
 
@@ -1419,7 +1433,7 @@ var data = {
                 }
 
               
-                var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.box_opacity, transparent: true } );
+                var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.config.box_opacity, transparent: true } );
                 return new THREE.LineSegments( line, material );                
             },
 
@@ -1472,7 +1486,7 @@ var data = {
                 */
 
                 
-                var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.box_opacity, transparent: true } );
+                var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.config.box_opacity, transparent: true } );
                 var box = new THREE.LineSegments( bbox, material );
                 
                 box.scale.x=1.8;

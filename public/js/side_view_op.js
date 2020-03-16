@@ -1,16 +1,17 @@
 
-import {transform_bbox, translate_box, on_box_changed, selected_box, update_subview_by_windowsize} from "./main.js"
+import {translate_box, on_box_changed, selected_box, update_subview_by_windowsize} from "./main.js"
+
 import {data} from "./data.js"
 import {views} from "./view.js"
 import {matmul2} from "./util.js"
-
+import {auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz} from "./box_op.js"
 
 import {
 	Quaternion,
 	Vector3
 } from "./lib/three.module.js";
 
-function create_view_handler(view_prefix, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel){
+function create_view_handler(view_prefix, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate){
 
     var mouse_start_pos;
 
@@ -54,6 +55,11 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
 
         move: document.getElementById(view_prefix+"move-handle"),
     }
+
+    var buttons = {
+        auto_rotate: document.getElementById(view_prefix+"v-auto-rotate"),
+        reset_rotate: document.getElementById(view_prefix+"v-reset-rotate"),
+    };
 
     var viewport_info;
     
@@ -430,6 +436,19 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
             install_direction_handler("line-direction");
         }
     
+        buttons.auto_rotate.onclick = function(event){
+            //console.log("auto rotate button clicked.");
+            on_auto_rotate();
+            //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
+        }
+
+        buttons.reset_rotate.onclick = function(event){
+            //console.log("auto rotate button clicked.");
+            on_reset_rotate();
+            //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
+        }
+
+
         //install_move_handler();
 
         function install_edge_hanler(handle, lines, direction)
@@ -622,25 +641,34 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
         }
     
         function on_key_down(event){
-            event.preventDefault();
-            event.stopPropagation();
-            console.log("key down!")
+            
             switch(event.key){
                 case 'e':
+                    event.preventDefault();
+                    event.stopPropagation();
                     on_direction_changed(-0.005, event.ctrlKey);
-                    break;
+                    
+                    return true;
                 case 'q':
+                    event.preventDefault();
+                    event.stopPropagation();
                     on_direction_changed(0.005, event.ctrlKey);
                     break;
                 case 'f':
+                    event.preventDefault();
+                    event.stopPropagation();
                     on_direction_changed(-0.005, true);
                     break;
                 case 'r':                
+                    event.preventDefault();
+                    event.stopPropagation();
                     on_direction_changed(0.005, true);
                     break;
 
                 case 'w':
                 case 'ArrowUp':
+                    event.preventDefault();
+                    event.stopPropagation();
                     if (mouse_right_down){
                         //console.log("right mouse down!");
                         on_scale({x:0, y:0.01});
@@ -650,7 +678,21 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
                     }
                     break;
                 case 's':
+                    if (!event.ctrlKey){
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (mouse_right_down){
+                            //console.log("right mouse down!");
+                            on_scale({x:0, y:-0.01});
+                        }
+                        else
+                            on_moved({x:0, y:-0.01});
+                        break;    
+                    }
+                    break;
                 case 'ArrowDown':
+                    event.preventDefault();
+                    event.stopPropagation();
                     if (mouse_right_down){
                         //console.log("right mouse down!");
                         on_scale({x:0, y:-0.01});
@@ -660,6 +702,8 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
                     break;
                 case 'a':
                 case 'ArrowLeft':
+                    event.preventDefault();
+                    event.stopPropagation();
                     if (mouse_right_down)
                         on_scale({x:-0.01, y:0});
                     else
@@ -667,6 +711,8 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
                     break;
                 case 'd':
                 case 'ArrowRight':
+                    event.preventDefault();
+                    event.stopPropagation();
                     if (mouse_right_down)
                         on_scale({x:0.01, y:0});
                     else
@@ -675,6 +721,7 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
             }
         }
 
+        
         /*
         document.getElementById("z-view-manipulator").onmouseenter = function(){
             document.getElementById("z-v-table-translate").style.display="inherit";
@@ -689,31 +736,31 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
         };
         */
     
-        document.getElementById("z-v-shrink-left").onclick = function(event){
-            var points = data.world.get_points_of_box_in_box_coord(selected_box);
+        // document.getElementById("z-v-shrink-left").onclick = function(event){
+        //     var points = data.world.get_points_of_box_in_box_coord(selected_box);
     
-            if (points.length == 0){
-                return;
-            }
+        //     if (points.length == 0){
+        //         return;
+        //     }
     
-            var minx = 0;
-            for (var i in points){
-                if (points[i][0] < minx){
-                    minx = points[i][0];
-                }
-            }
+        //     var minx = 0;
+        //     for (var i in points){
+        //         if (points[i][0] < minx){
+        //             minx = points[i][0];
+        //         }
+        //     }
     
             
-            var delta = minx + selected_box.scale.x/2;
-            console.log(minx, delta);
-            translate_box(selected_box, 'x', delta/2 );
-            selected_box.scale.x -= delta;
-            on_box_changed(selected_box);
-        };
+        //     var delta = minx + selected_box.scale.x/2;
+        //     console.log(minx, delta);
+        //     translate_box(selected_box, 'x', delta/2 );
+        //     selected_box.scale.x -= delta;
+        //     on_box_changed(selected_box);
+        // };
     
-        document.getElementById("z-v-shrink-right").onclick = function(event){
-            auto_shrink("x",1);
-        }
+        // document.getElementById("z-v-shrink-right").onclick = function(event){
+        //     auto_shrink("x",1);
+        // }
         
     }
 
@@ -773,6 +820,7 @@ function on_wheel(subview, wheel_direction){
         multiplier = 0.9;
     }
 
+    subview.viewport.zoom_ratio *= multiplier;
     subview.zoom_ratio *= multiplier;
 
     return;
@@ -870,7 +918,16 @@ function on_z_wheel(wheel_direction){
     z_view_handle.update_view_handle(views[1].viewport, {x: selected_box.scale.x, y:selected_box.scale.y});
 }
 
-var z_view_handle = create_view_handler("z-", on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel);
+function on_z_auto_rotate(){
+    auto_rotate_xyz(selected_box, null, {x:false, y:false, z:true});
+}
+
+function on_z_reset_rotate(){
+    selected_box.rotation.z = 0;
+    on_box_changed(selected_box);
+}
+
+var z_view_handle = create_view_handler("z-", on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel, on_z_auto_rotate, on_z_reset_rotate);
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -940,31 +997,8 @@ function on_y_moved(ratio){
 }
 
 function on_y_direction_changed(theta, sticky){
-    //selected_box.rotation.x += theta;
-    //on_box_changed(selected_box);
-    
-    var points_indices = data.world.get_points_indices_of_box(selected_box);
-    
-    var _tempQuaternion = new Quaternion();
-    var rotationAxis = new Vector3(0, 1, 0);
-    selected_box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, -theta ) ).normalize();
-
-    if (sticky){
-        var extreme = data.world.get_dimension_of_points(points_indices, selected_box);
-
-        ['x','z'].forEach(function(axis){
-
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
-
-        }) 
-    }
-
-
-    on_box_changed(selected_box);
+    change_rotation_y(selected_box, theta, sticky)
 }
-
-
 
 
 function on_y_scaled(ratio){
@@ -990,7 +1024,19 @@ function on_y_wheel(wheel_direction){
     y_view_handle.update_view_handle(views[2].viewport, {x: selected_box.scale.x, y:selected_box.scale.z});
 }
 
-var y_view_handle = create_view_handler("y-", on_y_edge_changed, on_y_direction_changed, on_y_auto_shrink, on_y_moved, on_y_scaled, on_y_wheel);
+function on_y_reset_rotate(){
+    selected_box.rotation.y = 0;
+    on_box_changed(selected_box);
+}
+
+function on_y_auto_rotate(){
+    auto_rotate_y(selected_box);
+}
+
+var y_view_handle = create_view_handler("y-", on_y_edge_changed, 
+                                              on_y_direction_changed, on_y_auto_shrink, on_y_moved, on_y_scaled, on_y_wheel, 
+                                              on_y_auto_rotate,
+                                              on_y_reset_rotate);
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -1059,28 +1105,7 @@ function on_x_moved(ratio){
 }
 
 function on_x_direction_changed(theta, sticky){
-    var points_indices = data.world.get_points_indices_of_box(selected_box);
-
-    //selected_box.rotation.x += theta;
-    //on_box_changed(selected_box);
-    var _tempQuaternion = new Quaternion();
-    var rotationAxis = new Vector3(1,0,0);
-    selected_box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, theta ) ).normalize();
-
-    if (sticky){
-        var extreme = data.world.get_dimension_of_points(points_indices, selected_box);
-
-        ['y','z'].forEach(function(axis){
-
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
-
-        }) 
-    }
-
-
-    on_box_changed(selected_box);
-
+    change_rotation_x(selected_box, theta, sticky)
 }
 
 function on_x_scaled(ratio){
@@ -1104,7 +1129,25 @@ function on_x_wheel(wheel_direction){
     update_subview_by_windowsize(selected_box);
     x_view_handle.update_view_handle(views[3].viewport, {x: selected_box.scale.y, y:selected_box.scale.z});
 }
-var x_view_handle = create_view_handler("x-", on_x_edge_changed, on_x_direction_changed, on_x_auto_shrink, on_x_moved, on_x_scaled, on_x_wheel);
+
+
+function on_x_reset_rotate(){
+    selected_box.rotation.x = 0;
+    on_box_changed(selected_box);
+}
+
+function on_x_auto_rotate(){
+    auto_rotate_x(selected_box);
+}
+
+var x_view_handle = create_view_handler("x-", on_x_edge_changed, 
+                                              on_x_direction_changed, 
+                                              on_x_auto_shrink, 
+                                              on_x_moved, 
+                                              on_x_scaled, 
+                                              on_x_wheel, 
+                                              on_x_auto_rotate,
+                                              on_x_reset_rotate);
 
 
 
@@ -1137,4 +1180,4 @@ var view_handles = {
 }
 
 
-export {view_handles, on_z_direction_changed}
+export {view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}

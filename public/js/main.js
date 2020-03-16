@@ -4,7 +4,7 @@ import { GUI } from './lib/dat.gui.module.js';
 import {data} from './data.js'
 import {create_views, views} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
-import {matmul2, euler_angle_to_rotate_matrix} from "./util.js"
+import {matmul2, euler_angle_to_rotate_matrix, dotproduct, linalg_std} from "./util.js"
 import {header} from "./header.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
@@ -16,9 +16,10 @@ import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
 import {stop_play, pause_resume_play, play_current_scene_with_buffer} from "./play.js"
 import {init_mouse, onUpPosition, getIntersects, getMousePosition, get_mouse_location_in_world, get_screen_location_in_world} from "./mouse.js"
 
-import {view_handles, on_z_direction_changed}  from "./side_view_op.js"
+import {view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}  from "./side_view_op.js"
 
 import {ml} from  './ml.js'
+import { auto_rotate_xyz } from './box_op.js';
 
 var sideview_enabled = true;
 var container;
@@ -148,6 +149,12 @@ function init() {
     view_handles.hide();
 
     install_grid()
+
+    window.onbeforeunload = function() {
+        return "Exit?";
+        //if we return nothing here (just calling return;) then there will be no pop-up question at all
+        //return;
+     };
     
 }
 
@@ -180,22 +187,22 @@ function install_fast_tool(){
     document.getElementById("label-del").onclick = function(){
         remove_selected_box();
         header.mark_changed_flag();
-        event.currentTarget.blur();
+        //event.currentTarget.blur();
     };
 
     document.getElementById("label-copy").onclick = function(event){
         mark_bbox();
-        event.currentTarget.blur();
+        //event.currentTarget.blur();
     }
 
     document.getElementById("label-paste").onclick = function(event){
         smart_paste();
-        event.currentTarget.blur();
+        //event.currentTarget.blur();
     }
 
     document.getElementById("label-edit").onclick = function(event){
         event.currentTarget.blur();
-        select_bbox(selected_box);        
+        select_bbox(selected_box);
     }
 
     document.getElementById("label-reset").onclick = function(event){
@@ -261,14 +268,32 @@ function highlight_selected_box(){
 function install_context_menu(){
 
     document.getElementById("context-menu-wrapper").onclick = function(event){
-        event.currentTarget.style.display="none";
-    }
+        event.currentTarget.style.display="none"; 
+        event.preventDefault();
+        event.stopPropagation();             
+    };
 
     document.getElementById("context-menu-wrapper").oncontextmenu = function(event){
-        //event.currentTarget.style.display="none";
+        event.currentTarget.style.display="none"; 
         event.preventDefault();
-    }
+        event.stopPropagation();
+    };
     
+    /*    
+    document.getElementById("context-menu").onclick = function(enabled){
+        // some items clicked
+        document.getElementById("context-menu-wrapper").style.display = "none";
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
+    document.getElementById("new-submenu").onclick = function(enabled){
+        // some items clicked
+        document.getElementById("context-menu-wrapper").style.display = "none";
+        event.preventDefault();
+        event.stopPropagation();
+    };
+    */
 
     document.getElementById("cm-new").onclick = function(event){
         //add_bbox();
@@ -342,6 +367,11 @@ function install_context_menu(){
         select_previous_object();
     };
 
+    document.getElementById("cm-delete").onclick = function(event){      
+        remove_selected_box();
+        header.mark_changed_flag();
+    };
+    
 }
 
 function add_range_box(){
@@ -394,7 +424,7 @@ function render(){
 
     for ( var ii = 0; ii < views.length; ++ ii ) {
 
-        if ((ii > 0) && !sideview_enabled){
+        if ((ii > 0) && (!sideview_enabled)){ // || !selected_box)){
             break;
         }
 
@@ -407,6 +437,9 @@ function render(){
         var width = Math.ceil( window.innerWidth * view.width );
         var height = Math.ceil( window.innerHeight * view.height );
 
+        // update viewport, so the operating lines over these views 
+        // will be updated in time.
+        /*
         view.viewport={
             left: window.innerWidth * view.left,
             bottom: window.innerHeight-window.innerHeight * view.bottom,
@@ -414,6 +447,7 @@ function render(){
             height:window.innerHeight * view.height,
             zoom_ratio:view.zoom_ratio,
         };
+        */
 
         renderer.setViewport( left, bottom, width, height );
         renderer.setScissor( left, bottom, width, height );
@@ -693,19 +727,56 @@ function init_gui(){
     toolsFolder.add( params, 'calibrate_axes');
 
     params['l-shape fit'] = function () {
-        let points = data.world.get_points_relative_coordinates_of_box(selected_box, 1.2);
+        let points = data.world.get_points_relative_coordinates_of_box(selected_box, 1.0);
         points = points.map(function(p){
             return [p[0],p[1]];
         });
 
-        ml.l_shape_fit(points);
+        var angle = ml.l_shape_fit(points);
+        selected_box.rotation.z += angle;
+        on_box_changed(selected_box);
         
     };
     toolsFolder.add( params, 'l-shape fit');
 
 
+    params['predict rotation'] = function () {
+        if (selected_box)
+            auto_direction_predict(selected_box);
+    };
+
+    toolsFolder.add( params, 'predict rotation');
+
+
+    var calAxisFolder = toolsFolder.addFolder( 'calibarate axis');
+    params['axis x +'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis x +');
+
+    params['axis x -'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis x -');
+
+    params['axis y +'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis y +');
+
+    params['axis y -'] = function () {
+        ml.calibrate_axes(data.world.get_all_pionts());
+        render();
+    };
+    calAxisFolder.add( params, 'axis y -');
+
+
     gui.open();
 }
+
 
 function object_category_changed(event){
     if (selected_box){
@@ -854,11 +925,62 @@ function update_subview_by_bbox(box){
 
 function handleRightClick(event){
 
-    var pos = getMousePosition(renderer.domElement, event.clientX, event.clientY );
-    document.getElementById("context-menu").style.left = event.clientX+"px";
-    document.getElementById("context-menu").style.top = event.clientY+"px";
-    document.getElementById("context-menu-wrapper").style.display = "block";
+    // select new object
 
+    if (!data.world){
+        return;
+    }
+
+
+    var intersects = getIntersects( onUpPosition, data.world.boxes );
+    if ( intersects.length > 0 ) {
+        //var object = intersects[ 0 ].object;
+        var object = intersects[ 0 ].object;
+        let target_obj = object.userData.object;
+        if ( target_obj == undefined ) {
+            // helper
+            target_obj = object;
+        }
+
+        if (target_obj != selected_box){
+            select_bbox(target_obj);
+        }
+
+        hide_world_context_menu();
+        show_object_context_menu(event.clientX, event.clientY);
+
+    } else {
+        // if no object is selected, popup context menu
+        //var pos = getMousePosition(renderer.domElement, event.clientX, event.clientY );
+        hide_object_context_menu();
+        show_world_context_menu(event.clientX, event.clientY);
+    }
+}
+
+function show_world_context_menu(posX, posY){
+    let menu = document.getElementById("context-menu");
+    menu.style.display = "inherit";
+    menu.style.left = posX+"px";
+    menu.style.top = posY+"px";
+    document.getElementById("context-menu-wrapper").style.display = "block";
+}
+
+function hide_world_context_menu(){
+    let menu = document.getElementById("context-menu");
+    menu.style.display = "none";
+}
+
+function show_object_context_menu(posX, posY){
+    let menu = document.getElementById("object-context-menu");
+    menu.style.display = "inherit";
+    menu.style.left = posX+"px";
+    menu.style.top = posY+"px";
+    document.getElementById("context-menu-wrapper").style.display = "block";
+}
+
+function hide_object_context_menu(){
+    let menu = document.getElementById("object-context-menu");
+    menu.style.display = "none";
 }
 
 
@@ -869,12 +991,14 @@ function handleSelectRect(x,y,w,h){
     w *= 2;
     h *= 2;
     
+    /*
     console.log("main select rect", x,y,w,h);
 
     views[0].camera.updateProjectionMatrix();
     data.world.select_points_by_view_rect(x,y,w,h, views[0].camera);
     render();
     render_2d_image();
+    */
 
     var center_pos = get_screen_location_in_world(x+w/2, y+h/2);
     
@@ -886,12 +1010,28 @@ function handleSelectRect(x,y,w,h){
     auto_shrink_box(box);
     
     // guess obj type here
+    
     box.obj_type = guess_obj_type_by_dimension(box.scale);
     
     floatLabelManager.add_label(box, function(){select_bbox(box);});
 
     select_bbox(box);
-    on_box_changed(box);    
+    on_box_changed(box);
+
+    auto_rotate_xyz(box, function(){
+        box.obj_type = guess_obj_type_by_dimension(box.scale);
+        floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
+        floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
+        on_box_changed(box);
+    });
+
+    
+    
+    //floatLabelManager.add_label(box, function(){select_bbox(box);});
+
+    
+
+    
 }
 
 function handleLeftClick(event) {
@@ -975,7 +1115,7 @@ function unselect_bbox(new_object, keep_lock){
 
                     // unselected finally
                     selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(selected_box.obj_type).color.slice(1)));
-                    selected_box.material.opacity = data.box_opacity;
+                    selected_box.material.opacity = data.config.box_opacity;
                     floatLabelManager.unselect_box(selected_box.obj_local_id, selected_box.obj_type);
                     floatLabelManager.update_position(selected_box, true);
 
@@ -1013,7 +1153,7 @@ function unselect_bbox(new_object, keep_lock){
             }
 
             selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(selected_box.obj_type).color.slice(1)));
-            selected_box.material.opacity = data.box_opacity;                
+            selected_box.material.opacity = data.config.box_opacity;                
             floatLabelManager.unselect_box(selected_box.obj_local_id);
             floatLabelManager.update_position(selected_box, true);
             image_manager.unselect_bbox(selected_box.obj_local_id, selected_box.obj_type);
@@ -1114,7 +1254,10 @@ function onWindowResize() {
         windowHeight = window.innerHeight;
         renderer.setSize( windowWidth, windowHeight );
 
-        
+        // update sideview svg if there exists selected box
+        if (selected_box){
+            view_handles.update_view_handle(views[1].viewport, selected_box.scale);
+        }
     }
     
     render();
@@ -1364,6 +1507,7 @@ function keydown( ev ) {
         case 'v':
             change_transform_control_view();
             break;
+        /*
         case 'm':
         case 'M':
             smart_paste();
@@ -1379,6 +1523,7 @@ function keydown( ev ) {
             header.mark_changed_flag();
             on_box_changed(selected_box);
             break;
+        */
         case 'z': // X
             views[0].transform_control.showX = ! views[0].transform_control.showX;
             break;
@@ -1403,7 +1548,7 @@ function keydown( ev ) {
             views[ev.key-'4'].cameraHelper.visible = !views[ev.key-'4'].cameraHelper.visible;
             render();
             break;
-
+        /*
         case 'a':
             if (selected_box){
                 if (!operation_state.mouse_right_down){
@@ -1430,7 +1575,13 @@ function keydown( ev ) {
         case 'Q':
             transform_bbox("x_scale_up");
             break;
-            
+        */
+       case 's':
+            if (ev.ctrlKey){
+                save_annotation();
+            }
+            break;
+        /*
         case 's':
             if (ev.ctrlKey){
                 save_annotation();
@@ -1498,7 +1649,7 @@ function keydown( ev ) {
                 transform_bbox("z_scale_up");
             }
             break;
-
+        */
         case 'f':
             if (selected_box){                
                 //transform_bbox("z_rotate_right");                
@@ -1616,7 +1767,7 @@ function on_load_world_finished(scene_name, frame){
 function load_world(scene_name, frame){
 
     //stop if current world is not ready!
-    if (data.world && !data.world.complete()){
+    if (data.world && !data.world.preload_finished()){
         console.log("current world is still loading.");
         return;
     }
@@ -1706,17 +1857,17 @@ function on_box_changed(box){
 
 
 function restore_box_points_color(box){
-    if (data.color_obj){
-        data.world.set_box_points_color(box, {x: data.point_brightness, y: data.point_brightness, z: data.point_brightness});
+    if (data.config.color_obj){
+        data.world.set_box_points_color(box, {x: data.config.point_brightness, y: data.config.point_brightness, z: data.config.point_brightness});
         data.world.update_points_color();
         render();
     }
 }
 
 function update_box_points_color(box){
-    if (data.color_obj){
+    if (data.config.color_obj){
         if (box.last_info){
-            data.world.set_box_points_color(box.last_info, {x: data.point_brightness, y: data.point_brightness, z: data.point_brightness});
+            data.world.set_box_points_color(box.last_info, {x: data.config.point_brightness, y: data.config.point_brightness, z: data.config.point_brightness});
         }
 
         data.world.set_box_points_color(box);
@@ -1741,9 +1892,6 @@ function on_selected_box_changed(box){
         //render_2d_image();
     }
 
-      
-    
-    
 }
 
 
@@ -1799,6 +1947,7 @@ function add_global_obj_type(){
             grow_box(0.2, {x:1.2, y:1.2, z:3});
             auto_shrink_box(selected_box);
             on_box_changed(selected_box);
+            auto_rotate_xyz(selected_box);
             
         }
     }

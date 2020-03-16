@@ -67,7 +67,9 @@ calib is the calibration matrix from point cloud to image. it's optional, but if
 
 check examples in `./data/example`
 
-## object type configuration
+## Object type configuration
+
+
 
 ## Operations
 

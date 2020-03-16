@@ -60,6 +60,14 @@ function create_main_view(scene, dom, render, on_box_changed){
     camera.lookAt( 0, 0, 0 );
     view.camera_perspective = camera;
 
+    view.viewport={
+        left: window.innerWidth * view.left,
+        bottom: window.innerHeight-window.innerHeight * view.bottom,
+        width:window.innerWidth * view.width,
+        height:window.innerHeight * view.height,
+        zoom_ratio:view.zoom_ratio,
+    };
+
     //var cameraOrthoHelper = new THREE.CameraHelper( camera );
     //cameraOrthoHelper.visible=true;
     //scene.add( cameraOrthoHelper );
@@ -299,6 +307,15 @@ function create_top_view(scene){
     //camera.up.set( 0, 1, 0);
     //camera.lookAt( 0, 0, -3 );
     view.camera = camera;
+
+    view.viewport={
+        left: window.innerWidth * view.left,
+        bottom: window.innerHeight-window.innerHeight * view.bottom,
+        width:window.innerWidth * view.width,
+        height:window.innerHeight * view.height,
+        zoom_ratio:view.zoom_ratio,
+    };
+
 }
 
 function create_rear_view(scene){
@@ -329,6 +346,14 @@ function create_rear_view(scene){
         camera.rotation.z=0;
 
         view.camera = camera;
+
+        view.viewport={
+            left: window.innerWidth * view.left,
+            bottom: window.innerHeight-window.innerHeight * view.bottom,
+            width:window.innerWidth * view.width,
+            height:window.innerHeight * view.height,
+            zoom_ratio:view.zoom_ratio,
+        };
 }
 
 function create_side_view(scene){
@@ -356,6 +381,15 @@ function create_side_view(scene){
     camera.rotation.z=0;
 
     view.camera = camera;
+
+
+    view.viewport={
+        left: window.innerWidth * view.left,
+        bottom: window.innerHeight-window.innerHeight * view.bottom,
+        width:window.innerWidth * view.width,
+        height:window.innerHeight * view.height,
+        zoom_ratio:view.zoom_ratio,
+    };
 }
 
 

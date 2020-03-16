@@ -121,10 +121,19 @@ var ml = {
         //A = tf.expandDims(A, [0]);
 
         var theta = [];
+        var min = 0;
+        var min_index = 0;
         for (var  i =0; i<=90; i+=1){
             var obj = cal_objetive(A, i);
-            console.log(i, obj);
+
+            if (min==0 || min > obj){
+                min_index = i;
+                min = obj;
+            }
         }
+
+        console.log(min_index, min);
+        return min;
 
         //end of func
 
@@ -158,6 +167,30 @@ var ml = {
             return min_dist.sum().dataSync()[0];
         }
 
+    }
+    ,
+
+    predict_rotation: function(data, callback){
+        var xhr = new XMLHttpRequest();
+        // we defined the xhr
+        
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) 
+                return;
+        
+            if (this.status == 200) {
+                var ret = JSON.parse(this.responseText);
+                console.log(ret);
+                callback(ret.angle);
+            }
+            else{
+                console.log(this);
+            }
+
+        };
+        
+        xhr.open('POST', "/predict_rotation", true);
+        xhr.send(JSON.stringify({"points": data}));
     }
 }
 

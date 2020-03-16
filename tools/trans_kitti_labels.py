@@ -37,10 +37,14 @@ import json
 import math
 import numpy as np
 
-label_path = '../public/data/kitti/label_2'
-my_label_path = '../public/data/kitti/label'
-calib_path = "/home/lie/diskd/data/kitti/3d-obj-det/training/calib"
+# label_path = '../public/data/kitti/label_2'
+# my_label_path = '../public/data/kitti/label'
+# calib_path = "/home/lie/diskd/data/kitti/3d-obj-det/training/calib"
 
+label_path = '/home/lie/disk640/data/kitti/label_2'
+my_label_path = '/home/lie/disk640/data/kitti/sustechpoints_label'
+calib_path = "/home/lie/disk640/data/kitti/data_object_calib/training/calib"
+#pc_path="/home/lie/disk640/data/kitti/velodyne"
 
 
 def get_inv_matrix(frame):
