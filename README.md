@@ -118,3 +118,6 @@ del/ctrl+d  remove selected box
 5,6,7  show camera helper box of sideviews.
 
 ```
+
+## Other Doc
+[Deploy uwsgi](./doc/deploy_server.md)

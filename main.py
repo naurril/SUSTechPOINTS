@@ -290,5 +290,6 @@ class Root(object):
       return objs
 
 if __name__ == '__main__':
-  cherrypy.quickstart(Root(), '/', config="server.conf")
-
+    cherrypy.quickstart(Root(), '/', config="server.conf")
+else:
+    application = cherrypy.Application(Root(), '/', config="server.conf")
