@@ -1,4 +1,4 @@
-// size is the dimension of the object in x/y/z axis.
+// size is the dimension of the object in x/y/z axis, with unit meter.
 var obj_type_map = {
     Car:            {color: '#00ff00',  size:[1.8, 4.5, 1.5]},
     Van:            {color: '#00ff00',  size:[1.8, 4.5, 1.5]},

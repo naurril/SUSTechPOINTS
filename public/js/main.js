@@ -9,7 +9,7 @@ import {header} from "./header.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
 import {init_image_op, render_2d_image, update_image_box_projection, clear_canvas, clear_main_canvas, choose_best_camera_for_point, image_manager} from "./image.js"
-import {add_calib_gui}  from "./calib.js"
+import {install_calib_menu}  from "./calib.js"
 import {mark_bbox, paste_bbox, auto_adjust_bbox, smart_paste} from "./auto-adjust.js"
 import {save_annotation} from "./save.js"
 import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
@@ -554,12 +554,7 @@ function camera_changed(event){
 }
 
 
-
-
-function init_gui(){
-    var gui = new GUI();
-
-    // view
+function install_view_menu(gui){
     var cfgFolder = gui.addFolder( 'View' );
 
     params["toggle side views"] = function(){
@@ -584,10 +579,10 @@ function init_gui(){
         render();
     };
 
-    params["test2"] = function(){
-        grow_box(0.2, {x:1, y:1, z:3});
-        on_box_changed(selected_box);
-    };
+    // params["test2"] = function(){
+    //     grow_box(0.2, {x:1, y:1, z:3});
+    //     on_box_changed(selected_box);
+    // };
     
     params["reset main view"] = function(){
         views[0].reset_camera();
@@ -641,9 +636,7 @@ function init_gui(){
     cfgFolder.add( params, "point brightness+");
     cfgFolder.add( params, "point brightness-");
 
-
-    
-    cfgFolder.add( params, "test2");
+    //cfgFolder.add( params, "test2");
 
     cfgFolder.add( params, "toggle side views");
     //cfgFolder.add( params, "side view width");
@@ -669,37 +662,46 @@ function init_gui(){
     cfgFolder.add( params, "stop");
     cfgFolder.add( params, "previous frame");
     cfgFolder.add( params, "next frame");
+}
+
+
+
+function init_gui(){
+    var gui = new GUI();
+
+    // view
+    install_view_menu(gui);
 
     //edit
-    var editFolder = gui.addFolder( 'Edit' );
-    params['select-ref-bbox'] = function () {
-        mark_bbox();
-    };
+    // var editFolder = gui.addFolder( 'Edit' );
+    // params['select-ref-bbox'] = function () {
+    //     mark_bbox();
+    // };
     
-    params['auto-adjust'] = function () {
-        auto_adjust_bbox();
-    };
+    // params['auto-adjust'] = function () {
+    //     auto_adjust_bbox();
+    // };
 
-    params['paste'] = function () {
-        paste_bbox();
-    };
+    // params['paste'] = function () {
+    //     paste_bbox();
+    // };
 
-    params['smart-paste'] = function () {
-        if (!selected_box)
-            paste_bbox();
-        auto_adjust_bbox(function(){
-            save_annotation();
-        });
+    // params['smart-paste'] = function () {
+    //     if (!selected_box)
+    //         paste_bbox();
+    //     auto_adjust_bbox(function(){
+    //         save_annotation();
+    //     });
         
-    };
+    // };
     
-    editFolder.add( params, 'select-ref-bbox');
-    editFolder.add( params, 'paste');
-    editFolder.add( params, 'auto-adjust');
-    editFolder.add( params, 'smart-paste');
+    // editFolder.add( params, 'select-ref-bbox');
+    // editFolder.add( params, 'paste');
+    // editFolder.add( params, 'auto-adjust');
+    // editFolder.add( params, 'smart-paste');
 
 
-     add_calib_gui(gui);
+    
 
     //file
     var fileFolder = gui.addFolder( 'File' );
@@ -709,16 +711,16 @@ function init_gui(){
     fileFolder.add( params, 'save');
 
     
-    params['reload'] = function () {
-        load_world(data.world.file_info.scene, data.world.file_info.frame);
-    };
+    // params['reload'] = function () {
+    //     load_world(data.world.file_info.scene, data.world.file_info.frame);
+    // };
 
-    fileFolder.add( params, 'reload');
+    // fileFolder.add( params, 'reload');
 
-    params['clear'] = function () {
-        clear();
-    };
-    fileFolder.add( params, 'clear');
+    // params['clear'] = function () {
+    //     clear();
+    // };
+    // fileFolder.add( params, 'clear');
 
 
     //fileFolder.open();
@@ -727,59 +729,62 @@ function init_gui(){
     //load_data_meta(dataFolder);
 
 
-    var toolsFolder = gui.addFolder( 'Tools' );
-    params['calibrate_axes'] = function () {
-        ml.calibrate_axes(data.world.get_all_pionts());
-        render();
-    };
-    toolsFolder.add( params, 'calibrate_axes');
+    var toolsFolder = gui.addFolder( 'Experimental Tools' );
 
-    params['l-shape fit'] = function () {
-        let points = data.world.get_points_relative_coordinates_of_box(selected_box, 1.0);
-        points = points.map(function(p){
-            return [p[0],p[1]];
-        });
+    install_calib_menu(toolsFolder);
 
-        var angle = ml.l_shape_fit(points);
-        selected_box.rotation.z += angle;
-        on_box_changed(selected_box);
+    // params['calibrate_axes'] = function () {
+    //     ml.calibrate_axes(data.world.get_all_pionts());
+    //     render();
+    // };
+    // toolsFolder.add( params, 'calibrate_axes');
+
+    // params['l-shape fit'] = function () {
+    //     let points = data.world.get_points_relative_coordinates_of_box(selected_box, 1.0);
+    //     points = points.map(function(p){
+    //         return [p[0],p[1]];
+    //     });
+
+    //     var angle = ml.l_shape_fit(points);
+    //     selected_box.rotation.z += angle;
+    //     on_box_changed(selected_box);
         
-    };
-    toolsFolder.add( params, 'l-shape fit');
+    // };
+    // toolsFolder.add( params, 'l-shape fit');
 
 
-    params['predict rotation'] = function () {
-        if (selected_box)
-            auto_direction_predict(selected_box);
-    };
+    // params['predict rotation'] = function () {
+    //     if (selected_box)
+    //         auto_direction_predict(selected_box);
+    // };
 
-    toolsFolder.add( params, 'predict rotation');
+    // toolsFolder.add( params, 'predict rotation');
 
 
-    var calAxisFolder = toolsFolder.addFolder( 'calibarate axis');
-    params['axis x +'] = function () {
-        ml.calibrate_axes(data.world.get_all_pionts());
-        render();
-    };
-    calAxisFolder.add( params, 'axis x +');
+    // var calAxisFolder = toolsFolder.addFolder( 'calibarate axis');
+    // params['axis x +'] = function () {
+    //     ml.calibrate_axes(data.world.get_all_pionts());
+    //     render();
+    // };
+    // calAxisFolder.add( params, 'axis x +');
 
-    params['axis x -'] = function () {
-        ml.calibrate_axes(data.world.get_all_pionts());
-        render();
-    };
-    calAxisFolder.add( params, 'axis x -');
+    // params['axis x -'] = function () {
+    //     ml.calibrate_axes(data.world.get_all_pionts());
+    //     render();
+    // };
+    // calAxisFolder.add( params, 'axis x -');
 
-    params['axis y +'] = function () {
-        ml.calibrate_axes(data.world.get_all_pionts());
-        render();
-    };
-    calAxisFolder.add( params, 'axis y +');
+    // params['axis y +'] = function () {
+    //     ml.calibrate_axes(data.world.get_all_pionts());
+    //     render();
+    // };
+    // calAxisFolder.add( params, 'axis y +');
 
-    params['axis y -'] = function () {
-        ml.calibrate_axes(data.world.get_all_pionts());
-        render();
-    };
-    calAxisFolder.add( params, 'axis y -');
+    // params['axis y -'] = function () {
+    //     ml.calibrate_axes(data.world.get_all_pionts());
+    //     render();
+    // };
+    // calAxisFolder.add( params, 'axis y -');
 
 
     gui.open();
@@ -1441,27 +1446,27 @@ function transform_bbox(command){
 }
 
 
-function switch_bbox_type(target_type){
-    if (!selected_box)
-        return;
+// function switch_bbox_type(target_type){
+//     if (!selected_box)
+//         return;
 
-    if (!target_type){
-        target_type = get_next_obj_type_name(selected_box.obj_type);
-    }
+//     if (!target_type){
+//         target_type = get_next_obj_type_name(selected_box.obj_type);
+//     }
 
-    selected_box.obj_type = target_type;
-    var obj_cfg = get_obj_cfg_by_type(target_type);
-    selected_box.scale.x=obj_cfg.size[0];
-    selected_box.scale.y=obj_cfg.size[1];
-    selected_box.scale.z=obj_cfg.size[2];           
-
-    
-    floatLabelManager.set_object_type(selected_box.obj_local_id, selected_box.obj_type);
-    floatLabelManager.update_label_editor(selected_box.obj_type, selected_box.obj_track_id);
+//     selected_box.obj_type = target_type;
+//     var obj_cfg = get_obj_cfg_by_type(target_type);
+//     selected_box.scale.x=obj_cfg.size[0];
+//     selected_box.scale.y=obj_cfg.size[1];
+//     selected_box.scale.z=obj_cfg.size[2];           
 
     
+//     floatLabelManager.set_object_type(selected_box.obj_local_id, selected_box.obj_type);
+//     floatLabelManager.update_label_editor(selected_box.obj_type, selected_box.obj_track_id);
+
     
-}
+    
+// }
 
 function auto_shrink_box(box){
     var  extreme = data.world.get_points_dimmension_of_box(box);

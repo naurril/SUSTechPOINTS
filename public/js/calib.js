@@ -87,11 +87,11 @@ function calibrate(ax, value){
 }
 
 
-function add_calib_gui(parent_gui){
+function install_calib_menu(parent_gui){
     var params = {};
 
     //calibrate
-    var calibrateFolder = parent_gui.addFolder( 'Calibrate' );
+    var calibrateFolder = parent_gui.addFolder( 'Calibrate LiDAR-camera' );
     params['save cal'] = function () {
         save_calibration();
     };
@@ -125,4 +125,4 @@ function add_calib_gui(parent_gui){
         calibrateFolder.add(params, item_name);
     });
 }
-export {add_calib_gui}
+export {install_calib_menu}
