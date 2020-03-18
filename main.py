@@ -71,7 +71,7 @@ class Root(object):
       if (os.path.isfile(filename)):
         with open(filename,"r") as f:
           ann=json.load(f)
-          print(ann)          
+          #print(ann)
           return ann
       else:
         return []
@@ -185,7 +185,7 @@ class Root(object):
             calib_file = "./data/"+s+"/calib/" + c
             calib_name, _ = os.path.splitext(c)
             if os.path.isfile(calib_file):
-              print(calib_file)
+              #print(calib_file)
               with open(calib_file)  as f:
                 cal = json.load(f)
                 calib[calib_name] = cal
@@ -235,7 +235,7 @@ class Root(object):
             scene["image"] = image
 
 
-      print(data)
+      #print(data)
       return data
       # return [
       #         {

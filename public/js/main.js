@@ -808,7 +808,7 @@ function object_track_id_changed(event){
         var id = event.currentTarget.value;
 
 
-        if (id == "auto"){
+        if (id == "auto" || id == "new"){
             id = generate_new_unique_id();
             floatLabelManager.update_label_editor(selected_box.obj_type, id);
         }
