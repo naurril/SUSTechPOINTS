@@ -37,13 +37,13 @@ import json
 import math
 import numpy as np
 
-# label_path = '../public/data/kitti/label_2'
-# my_label_path = '../public/data/kitti/label'
-# calib_path = "/home/lie/diskd/data/kitti/3d-obj-det/training/calib"
+label_path = './data/kitti/label_2'
+my_label_path = './data/kitti/label'
+calib_path = "./data/kitti/calib_2"
 
-label_path = '/home/lie/disk640/data/kitti/label_2'
-my_label_path = '/home/lie/disk640/data/kitti/sustechpoints_label'
-calib_path = "/home/lie/disk640/data/kitti/data_object_calib/training/calib"
+#label_path = '/home/lie/disk640/data/kitti/label_2'
+#my_label_path = '/home/lie/disk640/data/kitti/sustechpoints_label'
+#calib_path = "/home/lie/disk640/data/kitti/data_object_calib/training/calib"
 #pc_path="/home/lie/disk640/data/kitti/velodyne"
 
 
@@ -97,15 +97,20 @@ for fname in files:
             #print(trans_pos)
 
             obj["obj_type"] = words[0]
-            obj["psr"] = {"scale": {"z":float(words[8]), "x":float(words[9]), "y":float(words[10])},
+            obj["psr"] = {"scale": 
+                           {"z":float(words[8]),    #height
+                             "x":float(words[10]),  #length
+                             "y":float(words[9])},  #width
                             "position": {"x":trans_pos[0], "y":trans_pos[1], "z":trans_pos[2]+float(words[8])/2},
-                            "rotation": {"x":0, "z":math.pi-float(words[14]), "y":0}}
+                            "rotation": {"x":0, 
+                                         "y":0,
+                                         "z": -math.pi/2 -float(words[14])}}
             obj["obj_id"] = ""
             return obj
  
         objs = map(parse_one_obj, lines)
-        filtered_objs = [x for x in filter(lambda obj: obj["obj_type"]!='DontCare', objs)]
-        print(filtered_objs)
+        filtered_objs = [x for x in objs]#[x for x in filter(lambda obj: obj["obj_type"]!='DontCare', objs)]
+        #print(filtered_objs)
 
         with open(os.path.join(my_label_path, frame + ".json"), 'w') as outfile:
             json.dump(filtered_objs, outfile)

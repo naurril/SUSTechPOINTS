@@ -66,6 +66,7 @@ function psr_to_xyz(p,s,r){
     var x=s.x/2;
     var y=s.y/2;
     var z=s.z/2;
+    /*
     var local_coord = [
         -x, y, -z, 1,   x, y, -z, 1,  //front-left-bottom, front-right-bottom
         x, y, z, 1,    -x, y, z, 1,  //front-right-top,   front-left-top
@@ -74,6 +75,16 @@ function psr_to_xyz(p,s,r){
         x, -y, z, 1,   -x, -y, z, 1,        
         
     ];
+    */
+
+   var local_coord = [
+    x, y, -z, 1,   x, -y, -z, 1,  //front-left-bottom, front-right-bottom
+    x, -y, z, 1,   x, y, z, 1,  //front-right-top,   front-left-top
+
+    -x, y, -z, 1,   -x, -y, -z, 1,  //rear-left-bottom, rear-right-bottom
+    -x, -y, z, 1,   -x, y, z, 1,  //rear-right-top,   rear-left-top
+    
+   ];
 
     var world_coord = matmul(trans_matrix, local_coord, 4);
     var w = world_coord;

@@ -1185,7 +1185,7 @@ var data = {
             },
 
             create_box_by_view_rect: function(x,y,w,h, camera, center){
-                var rotation_z = camera.rotation.z;
+                var rotation_z = camera.rotation.z + Math.PI/2;
 
                 var points = this.points;
                 var pos_array = points.geometry.getAttribute("position").array;
@@ -1461,9 +1461,9 @@ var data = {
                     -h,-h,h, -h,-h,-h,
 
                     //direction
-                    0, 0, h+0.1, 0, h, h+0.1,
-                    -h,h/2,h+0.1, 0, h, h+0.1,
-                    h,h/2,h+0.1, 0, h, h+0.1,
+                    0,   0,  h+0.1,  h, 0, h+0.1,
+                    h/2, -h, h+0.1,  h, 0, h+0.1,
+                    h/2,  h, h+0.1,  h, 0, h+0.1,
 
                     //side direction
                     // h, h/2, h,  h, h, 0,

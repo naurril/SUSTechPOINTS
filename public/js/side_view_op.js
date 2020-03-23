@@ -841,6 +841,12 @@ function on_z_auto_shrink(direction){
  
         })
     } else{
+        direction = {
+            x: direction.y,
+            y: -direction.x,
+            z: 0,
+        }
+
         auto_shrink(extreme, direction)
     }
     
@@ -851,9 +857,15 @@ function on_z_auto_shrink(direction){
 
 function on_z_edge_changed(ratio, direction){
 
-    var delta = {
-        x: selected_box.scale.x * ratio.x * direction.x,
-        y: selected_box.scale.y * ratio.y * direction.y,
+    var delta = {        
+        x: selected_box.scale.x * ratio.y * direction.y,
+        y: selected_box.scale.y * ratio.x * direction.x,
+        z: 0,
+    };
+
+    direction ={
+        x: direction.y,
+        y: -direction.x,
         z: 0,
     };
 
@@ -887,10 +899,14 @@ function on_z_direction_changed(theta, sticky){
 }
 
 
+//ratio.y  vertical
+//ratio.x  horizental
+// box.x  vertical
+// box.y  horizental
 function on_z_moved(ratio){
-    var delta = {
-        x: selected_box.scale.x*ratio.x,
-        y: selected_box.scale.y*ratio.y
+    var delta = {        
+        x: selected_box.scale.x*ratio.y,
+        y: -selected_box.scale.y*ratio.x,
     };
 
     
@@ -903,6 +919,12 @@ function on_z_moved(ratio){
 
 function on_z_scaled(ratio){
         
+    ratio = {
+        x: ratio.y,
+        y: ratio.x,
+        z: 0,
+    };
+
     for (var axis in ratio){
         if (ratio[axis] != 0){
             selected_box.scale[axis] *= 1+ratio[axis];
@@ -915,7 +937,7 @@ function on_z_scaled(ratio){
 function on_z_wheel(wheel_direction){
     on_wheel(views[1], wheel_direction);
     update_subview_by_windowsize(selected_box);
-    z_view_handle.update_view_handle(views[1].viewport, {x: selected_box.scale.x, y:selected_box.scale.y});
+    z_view_handle.update_view_handle(views[1].viewport, {x: selected_box.scale.y, y:selected_box.scale.x});
 }
 
 function on_z_auto_rotate(){
@@ -1161,7 +1183,7 @@ var view_handles = {
     },
 
     update_view_handle: function(){
-        z_view_handle.update_view_handle(views[1].viewport, {x: selected_box.scale.x, y:selected_box.scale.y});
+        z_view_handle.update_view_handle(views[1].viewport, {x: selected_box.scale.y, y:selected_box.scale.x});
         y_view_handle.update_view_handle(views[2].viewport, {x: selected_box.scale.x, y:selected_box.scale.z});
         x_view_handle.update_view_handle(views[3].viewport, {x: selected_box.scale.y, y:selected_box.scale.z});
     }, 
