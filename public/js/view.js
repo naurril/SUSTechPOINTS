@@ -306,6 +306,11 @@ function create_top_view(scene){
     camera.position.y = 0;
     //camera.up.set( 0, 1, 0);
     //camera.lookAt( 0, 0, -3 );
+
+    camera.rotation.x=0;
+    camera.rotation.y=0;
+    camera.rotation.z=-Math.PI/2;;
+
     view.camera = camera;
 
     view.viewport={

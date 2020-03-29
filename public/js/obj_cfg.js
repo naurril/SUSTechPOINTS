@@ -1,19 +1,19 @@
 // size is the dimension of the object in x/y/z axis, with unit meter.
 var obj_type_map = {
-    Car:            {color: '#00ff00',  size:[1.8, 4.5, 1.5]},
-    Van:            {color: '#00ff00',  size:[1.8, 4.5, 1.5]},
-    Bus:            {color: '#ffff00',  size:[3, 13, 3.5]},
-    Pedestrian:     {color: '#ff0000',  size:[0.5, 0.4, 1.7]},
-    Rider:          {color: '#ff8800',  size:[0.6, 1.6, 1.6]},
-    Cyclist:        {color: '#ff8800',  size:[0.6, 1.6, 1.6]},
-    Bicycle:        {color: '#88ff00',  size:[0.6, 1.6, 1.2]},
-    BicycleGroup:   {color: '#88ff00',  size:[0.6, 1.6, 1.2]},
-    Motor:          {color: '#aaaa00',  size:[0.6, 1.6, 1.2]},
-    Truck:          {color: '#00ffff',  size:[2.8, 10, 3]},
-    Tram:           {color: '#00ffff',  size:[2.8, 10, 3]},
-    Animal:         {color: '#00aaff',  size:[0.6, 1.6, 1.2]},
-    Misc:           {color: '#008888',  size:[1.8, 4.5, 1.5]},
-    Unknown:        {color: '#008888',  size:[1.8, 4.5, 1.5]},
+    Car:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+    Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+    Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
+    Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
+    Rider:          {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+    Cyclist:        {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+    Bicycle:        {color: '#88ff00',  size:[1.6, 0.6, 1.2]},
+    BicycleGroup:   {color: '#88ff00',  size:[1.6, 0.6, 1.2]},
+    Motor:          {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
+    Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
+    Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
+    Misc:           {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
 }
 
 

@@ -841,11 +841,13 @@ function update_subview_by_windowsize(box){
         var view_height = Math.floor( window.innerHeight * view.height );
 
         if (ii==1){
-            exp_camera_width = box.scale.x*1.5*view.zoom_ratio;
-            exp_camera_height = box.scale.y*1.5*view.zoom_ratio;
+            // width: y
+            // length: x
+            exp_camera_height = box.scale.x*1.5*view.zoom_ratio;
+            exp_camera_width = box.scale.y*1.5*view.zoom_ratio;
 
             exp_camera_clip = box.scale.z+0.8;
-        } else if (ii==2){
+        } else if (ii==2){            
             exp_camera_width = box.scale.x*1.5*view.zoom_ratio;
             exp_camera_height = box.scale.z*1.5*view.zoom_ratio;
 
@@ -892,7 +894,7 @@ function update_subview_by_bbox(box){
     //
     views[1].camera.rotation.x= r.x;
     views[1].camera.rotation.y= r.y;
-    views[1].camera.rotation.z= r.z;
+    views[1].camera.rotation.z= r.z-Math.PI/2;
 
     views[1].camera.position.x= p.x;
     views[1].camera.position.y= p.y;
@@ -1311,7 +1313,7 @@ function change_transform_control_view(){
 function add_bbox(obj_type){
     // todo: move to data.world
     var pos = get_mouse_location_in_world();
-    var rotation = {x:0, y:0, z:views[0].camera.rotation.z};
+    var rotation = {x:0, y:0, z:views[0].camera.rotation.z+Math.PI/2};
 
     var obj_cfg = get_obj_cfg_by_type(obj_type);
     var scale = {   
