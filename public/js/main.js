@@ -71,14 +71,14 @@ function init() {
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
-    //renderer.setSize( window.innerWidth, window.innerHeight );
+    //renderer.setSize( container.clientWidth, container.clientHeight );
     //renderer.shadowMap.enabled = true;
     //renderer.shadowMap.type = THREE.BasicShadowMap;
 
     //renderer.setClearColor( 0x000000, 0 );
-    //renderer.setViewport( 0, 0, window.innerWidth, window.innerHeight );
+    //renderer.setViewport( 0, 0, container.clientWidth, container.clientHeight );
     // renderer will set this eventually
-    //matLine.resolution.set( window.innerWidth, window.innerHeight ); // resolution of the viewport
+    //matLine.resolution.set( container.clientWidth, container.clientHeight ); // resolution of the viewport
     
 
     //container = document.createElement( 'container' );
@@ -298,19 +298,19 @@ function install_context_menu(){
     document.getElementById("cm-new").onclick = function(event){
         //add_bbox();
         //header.mark_changed_flag();
+
+        // all submenus of `new' will forward click event to here
+        // since they are children of `new'
+        // so we should 
         event.preventDefault();
         event.stopPropagation();
+
+
     };
 
     document.getElementById("cm-new").onmouseenter = function(event){
-        var parent_menu = document.getElementById("cm-new").getClientRects()[0];
-
         var item = document.getElementById("new-submenu");
-        item.style.display="block";
-        item.style.top = parent_menu.top + "px";
-        item.style.left = parent_menu.left + parent_menu.width + "px";
-
-        //console.log("enter new item");
+        item.style.display="inherit";
     };
 
     document.getElementById("cm-new").onmouseleave = function(event){
@@ -425,10 +425,10 @@ function animate() {
 function update_side_view_port(){
     views.slice(1).forEach(function(view){
         view.viewport={
-            left: window.innerWidth * view.left,
-            bottom: window.innerHeight-window.innerHeight * view.bottom,
-            width:window.innerWidth * view.width,
-            height:window.innerHeight * view.height,
+            left: container.clientWidth * view.left,
+            bottom: container.clientHeight-container.clientHeight * view.bottom,
+            width:container.clientWidth * view.width,
+            height:container.clientHeight * view.height,
             zoom_ratio:view.zoom_ratio,
         };
     })
@@ -452,10 +452,10 @@ function render(){
         var camera = view.camera;
         //view.updateCamera( camera, scene, mouseX, mouseY );
         
-        var left = Math.floor( window.innerWidth * view.left );
-        var bottom = Math.floor( window.innerHeight * view.bottom );
-        var width = Math.ceil( window.innerWidth * view.width );
-        var height = Math.ceil( window.innerHeight * view.height );
+        var left = Math.floor( container.clientWidth * view.left );
+        var bottom = Math.floor( container.clientHeight * view.bottom );
+        var width = Math.ceil( container.clientWidth * view.width );
+        var height = Math.ceil( container.clientHeight * view.height );
 
         // update viewport, so the operating lines over these views 
         // will be updated in time.
@@ -843,8 +843,8 @@ function update_subview_by_windowsize(box){
 
         view.width = 0.2;//params["side view width"];
 
-        var view_width = Math.floor( window.innerWidth * view.width );
-        var view_height = Math.floor( window.innerHeight * view.height );
+        var view_width = Math.floor( container.clientWidth * view.width );
+        var view_height = Math.floor( container.clientHeight * view.height );
 
         if (ii==1){
             // width: y
@@ -968,13 +968,13 @@ function handleRightClick(event){
         }
 
         hide_world_context_menu();
-        show_object_context_menu(event.clientX, event.clientY);
+        show_object_context_menu(event.layerX, event.layerY);
 
     } else {
         // if no object is selected, popup context menu
         //var pos = getMousePosition(renderer.domElement, event.clientX, event.clientY );
         hide_object_context_menu();
-        show_world_context_menu(event.clientX, event.clientY);
+        show_world_context_menu(event.layerX, event.layerY);
     }
 }
 
@@ -1258,13 +1258,14 @@ function select_bbox(object){
 
 
 function onWindowResize() {
-    //camera.aspect = window.innerWidth / window.innerHeight;
+    //camera.aspect = container.clientWidth / container.clientHeight;
     //camera.updateProjectionMatrix();
-    //renderer.setSize( window.innerWidth, window.innerHeight );
+    //renderer.setSize( container.clientWidth, container.clientHeight );
     
+    container = document.getElementById("container");
     
 
-    if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
+    if ( windowWidth != container.clientWidth || windowHeight != container.clientHeight ) {
 
         //update_mainview();
         views[0].onWindowResize();
@@ -1273,8 +1274,8 @@ function onWindowResize() {
             update_subview_by_windowsize(selected_box);
         }
 
-        windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
+        windowWidth = container.clientWidth;
+        windowHeight = container.clientHeight;
         renderer.setSize( windowWidth, windowHeight );
 
         update_side_view_port();
@@ -1966,6 +1967,11 @@ function add_global_obj_type(){
     // install click actions
     for (var o in obj_type_map){        
         document.getElementById("cm-new-"+o).onclick = function(event){
+
+            // hide context men
+            document.getElementById("context-menu-wrapper").style.display="none";
+
+            // process event
             var obj_type = event.currentTarget.getAttribute("uservalue");
             add_bbox(obj_type);
             //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
@@ -2007,4 +2013,4 @@ function interpolate_selected_object(){
 
 }
 
-export {selected_box, params, on_box_changed, select_bbox, scene, floatLabelManager, on_load_world_finished, operation_state, transform_bbox, translate_box, update_subview_by_windowsize}
+export {container, selected_box, params, on_box_changed, select_bbox, scene, floatLabelManager, on_load_world_finished, operation_state, transform_bbox, translate_box, update_subview_by_windowsize}

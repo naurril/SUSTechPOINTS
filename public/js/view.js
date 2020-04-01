@@ -2,6 +2,7 @@ import * as THREE from './lib/three.module.js';
 import { OrbitControls } from './lib/OrbitControls.js';
 import { OrthographicTrackballControls } from './lib/OrthographicTrackballControls.js';
 import { TransformControls } from './lib/TransformControls.js';
+import {container} from "./main.js"
 
 var views = [
     {
@@ -52,7 +53,7 @@ function create_views(webgl_scene, dom, render, on_box_changed){
 function create_main_view(scene, dom, render, on_box_changed){
     var view =views[0];
         
-    var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 800 );
+    var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
     camera.position.x = 0;
     camera.position.z = 50;
     camera.position.y = 0;
@@ -61,10 +62,10 @@ function create_main_view(scene, dom, render, on_box_changed){
     view.camera_perspective = camera;
 
     view.viewport={
-        left: window.innerWidth * view.left,
-        bottom: window.innerHeight-window.innerHeight * view.bottom,
-        width:window.innerWidth * view.width,
-        height:window.innerHeight * view.height,
+        left: container.clientWidth * view.left,
+        bottom: container.clientHeight-container.clientHeight * view.bottom,
+        width:container.clientWidth * view.width,
+        height:container.clientHeight * view.height,
         zoom_ratio:view.zoom_ratio,
     };
 
@@ -94,8 +95,8 @@ function create_main_view(scene, dom, render, on_box_changed){
 
 
 
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+    var width = container.clientWidth;
+    var height = container.clientHeight;
     var asp = width/height;
 
     //camera = new THREE.OrthographicCamera(-800*asp, 800*asp, 800, -800, -800, 800);       
@@ -105,7 +106,7 @@ function create_main_view(scene, dom, render, on_box_changed){
     // camera.up.set( 1, 0, 0);
     // camera.lookAt( 0, 0, -3 );
 
-    //camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -400, 400 );
+    //camera = new THREE.OrthographicCamera( container.clientWidth / - 2, container.clientWidth / 2, container.clientHeight / 2, container.clientHeight / - 2, -400, 400 );
     
     camera = new THREE.OrthographicCamera(-asp*200, asp*200, 200, -200, -200, 200 );
     camera.position.z = 50;
@@ -222,7 +223,7 @@ function create_main_view(scene, dom, render, on_box_changed){
 
         
 
-        var asp = window.innerWidth/window.innerHeight;
+        var asp = container.clientWidth/container.clientHeight;
         this.camera_orth.left = -asp*200;
         this.camera_orth.right = asp*200;
         this.camera_orth.top = 200;
@@ -232,7 +233,7 @@ function create_main_view(scene, dom, render, on_box_changed){
         this.orbit_orth.handleResize();
         this.orbit_orth.update();
         
-        this.camera_perspective.aspect = window.innerWidth / window.innerHeight;
+        this.camera_perspective.aspect = container.clientWidth / container.clientHeight;
         this.camera_perspective.updateProjectionMatrix();
         
     };
@@ -289,9 +290,9 @@ function create_main_view(scene, dom, render, on_box_changed){
 
 function create_top_view(scene){
     var view = views[ 1];
-    //var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 800 );
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+    //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+    var width = container.clientWidth;
+    var height = container.clientHeight;
     var asp = width/height;
 
     var camera = new THREE.OrthographicCamera( -3*asp, 3*asp, 3, -3, -3, 3 );
@@ -314,10 +315,10 @@ function create_top_view(scene){
     view.camera = camera;
 
     view.viewport={
-        left: window.innerWidth * view.left,
-        bottom: window.innerHeight-window.innerHeight * view.bottom,
-        width:window.innerWidth * view.width,
-        height:window.innerHeight * view.height,
+        left: container.clientWidth * view.left,
+        bottom: container.clientHeight-container.clientHeight * view.bottom,
+        width:container.clientWidth * view.width,
+        height:container.clientHeight * view.height,
         zoom_ratio:view.zoom_ratio,
     };
 
@@ -325,9 +326,9 @@ function create_top_view(scene){
 
 function create_rear_view(scene){
     var view = views[ 2];
-        //var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 800 );
-        var width = window.innerWidth;
-        var height = window.innerHeight;
+        //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+        var width = container.clientWidth;
+        var height = container.clientHeight;
         var asp = width/height;
 
         var camera = new THREE.OrthographicCamera( -3*asp, 3*asp, 3, -3, -3, 3 );
@@ -353,19 +354,19 @@ function create_rear_view(scene){
         view.camera = camera;
 
         view.viewport={
-            left: window.innerWidth * view.left,
-            bottom: window.innerHeight-window.innerHeight * view.bottom,
-            width:window.innerWidth * view.width,
-            height:window.innerHeight * view.height,
+            left: container.clientWidth * view.left,
+            bottom: container.clientHeight-container.clientHeight * view.bottom,
+            width:container.clientWidth * view.width,
+            height:container.clientHeight * view.height,
             zoom_ratio:view.zoom_ratio,
         };
 }
 
 function create_side_view(scene){
     var view = views[ 3];
-    //var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 800 );
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+    //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+    var width = container.clientWidth;
+    var height = container.clientHeight;
     var asp = width/height;
 
     var camera = new THREE.OrthographicCamera( -3*asp, 3*asp, 3, -3, -3, 3 );
@@ -389,10 +390,10 @@ function create_side_view(scene){
 
 
     view.viewport={
-        left: window.innerWidth * view.left,
-        bottom: window.innerHeight-window.innerHeight * view.bottom,
-        width:window.innerWidth * view.width,
-        height:window.innerHeight * view.height,
+        left: container.clientWidth * view.left,
+        bottom: container.clientHeight-container.clientHeight * view.bottom,
+        width:container.clientWidth * view.width,
+        height:container.clientHeight * view.height,
         zoom_ratio:view.zoom_ratio,
     };
 }

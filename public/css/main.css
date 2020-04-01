@@ -209,10 +209,15 @@ dynamic set obj-type css has higher priority than this one.
 	width: 180px;
 	background-color: #222;
 }
+#cm-new{
+	position:relative;
+}
 
 #new-submenu {
 	display: none;
 	position: absolute;	
+	left:100%;
+	top: 0%;
 	padding-left: 3px;
 	width: 120px;
 	background-color: #222;
@@ -401,3 +406,14 @@ td {
 	stroke-width: 1px;
 	stroke-opacity: 0.2;
 }
+
+#main-ui{
+	position: relative;
+}
+
+#batch-edit{
+	position: relative;
+	
+}
+
+

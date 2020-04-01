@@ -1,6 +1,6 @@
 
 import * as THREE from './lib/three.module.js';
-import {operation_state}  from "./main.js";
+import {operation_state, container}  from "./main.js";
 import {views} from "./view.js";
 
 var mouse = new THREE.Vector2();
@@ -98,8 +98,8 @@ function onMouseDown( event ) {
 
 function onMouseMove( event ) {
     event.preventDefault();
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    mouse.x = ( event.clientX / container.clientWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / container.clientHeight ) * 2 + 1;
    
     if (event.ctrlKey)
         console.log(mouse);   

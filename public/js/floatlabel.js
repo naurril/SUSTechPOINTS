@@ -4,7 +4,7 @@ import {vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_t
 import {
 	Vector3, Int8Attribute
 } from "./lib/three.module.js";
-
+import {container} from "./main.js"
 
 function createFloatLabelManager(view) {
 
@@ -246,7 +246,7 @@ function createFloatLabelManager(view) {
 
 
         coord_to_pixel: function(p){
-            var width = window.innerWidth, height = window.innerHeight;
+            var width = container.clientWidth, height = container.clientHeight;
             var widthHalf = width / 2, heightHalf = height / 2;
 
             var ret={
