@@ -515,7 +515,7 @@ function update_image_box_projection(box){
                     y: ctx.canvas.height/crop_area[3],
                 }
 
-                draw_box_on_image(ctx, box, imgfinal, trans_ratio, false);
+                draw_box_on_image(ctx, box, imgfinal, trans_ratio, true);
             }
         }
     }

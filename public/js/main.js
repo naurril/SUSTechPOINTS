@@ -371,6 +371,12 @@ function install_context_menu(){
         remove_selected_box();
         header.mark_changed_flag();
     };
+
+    document.getElementById("cm-interpolate").onclick = function(event){      
+        interpolate_selected_object();
+        header.mark_changed_flag();
+    };
+    
     
 }
 
@@ -1974,5 +1980,31 @@ function add_global_obj_type(){
 }
 
 
+function interpolate_selected_object(){
+
+    let scene = data.world.file_info.scene; 
+    let frame = data.world.file_info.frame;
+    let obj_id = selected_box.obj_track_id;
+
+
+    var xhr = new XMLHttpRequest();
+    // we defined the xhr
+    
+    xhr.onreadystatechange = function () {
+        if (this.readyState != 4) 
+            return;
+    
+        if (this.status == 200) {
+            var ret = JSON.parse(this.responseText);
+            console.log(ret);
+        }
+
+    };
+    
+    xhr.open('GET', "/interpolate?scene="+scene+"&frame="+frame+"&obj_id="+obj_id, true);
+    xhr.send();
+
+
+}
 
 export {selected_box, params, on_box_changed, select_bbox, scene, floatLabelManager, on_load_world_finished, operation_state, transform_bbox, translate_box, update_subview_by_windowsize}

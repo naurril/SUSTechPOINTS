@@ -8,7 +8,7 @@ function save_annotation(done){
     var bbox_annotations=[];
     console.log(data.world.boxes.length, "boxes");
     data.world.boxes.forEach(function(b){
-        var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
+        //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
 
         var b = {
             psr: {
@@ -33,7 +33,7 @@ function save_annotation(done){
            
             obj_type: b.obj_type,
             obj_id: b.obj_track_id,
-            vertices: vertices,
+            //vertices: vertices,
         };
 
         bbox_annotations.push(b);
