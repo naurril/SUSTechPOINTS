@@ -2,7 +2,6 @@ import * as THREE from './lib/three.module.js';
 import { OrbitControls } from './lib/OrbitControls.js';
 import { OrthographicTrackballControls } from './lib/OrthographicTrackballControls.js';
 import { TransformControls } from './lib/TransformControls.js';
-import {container} from "./main.js"
 
 var views = [
     {
@@ -40,9 +39,9 @@ var views = [
     }
 ];
 
-
-function create_views(webgl_scene, dom, render, on_box_changed){
-    
+var container;
+function create_views(main_ui_container, webgl_scene, dom, render, on_box_changed){
+    container = main_ui_container;
     create_main_view(webgl_scene, dom, render, on_box_changed);
     create_top_view(webgl_scene);
     create_rear_view(webgl_scene);

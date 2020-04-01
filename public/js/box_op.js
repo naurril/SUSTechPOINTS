@@ -5,14 +5,13 @@ import {
 } from "./lib/three.module.js";
 
 import{ml} from "./ml.js";
-import {translate_box, on_box_changed} from "./main.js"
 import {dotproduct} from "./util.js"
 import {data} from "./data.js"
 
 
 
 
-function auto_rotate_xyz(box, callback, apply_mask){
+function auto_rotate_xyz(box, callback, apply_mask, on_box_changed){
     let points = data.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1.0);
     //let points = data.world.get_points_relative_coordinates_of_box(box, 1.0);
 
@@ -92,8 +91,8 @@ function auto_rotate_xyz(box, callback, apply_mask){
 
         }) 
 
-        
-        on_box_changed(box);
+        if (on_box_changed)
+            on_box_changed(box);
         
         if (callback){
             callback();
@@ -103,7 +102,7 @@ function auto_rotate_xyz(box, callback, apply_mask){
 
 
 
-function change_rotation_y(box, theta, sticky){
+function change_rotation_y(box, theta, sticky, on_box_changed){
     //box.rotation.x += theta;
     //on_box_changed(box);
     
@@ -129,8 +128,8 @@ function change_rotation_y(box, theta, sticky){
         }) 
     }
 
-
-    on_box_changed(box);
+    if (on_box_changed)
+        on_box_changed(box);
 }
 
 
@@ -183,7 +182,7 @@ function auto_rotate_y(box){
 
 
 
-function change_rotation_x(box, theta, sticky){
+function change_rotation_x(box, theta, sticky, on_box_changed){
     var points_indices = data.world.get_points_indices_of_box(box);
 
     //box.rotation.x += theta;
@@ -203,8 +202,8 @@ function change_rotation_x(box, theta, sticky){
         }) 
     }
 
-
-    on_box_changed(box);
+    if (on_box_changed)
+        on_box_changed(box);
 
 }
 
@@ -259,5 +258,21 @@ function auto_rotate_x(box){
     change_rotation_x(box, theta, true);
 }
 
+function translate_box(box, axis, delta){
+    switch (axis){
+        case 'x':
+            box.position.x += delta*Math.cos(box.rotation.z);
+            box.position.y += delta*Math.sin(box.rotation.z);
+            break;
+        case 'y':
+            box.position.x += delta*Math.cos(Math.PI/2 + box.rotation.z);
+            box.position.y += delta*Math.sin(Math.PI/2 + box.rotation.z);  
+            break;
+        case 'z':
+            box.position.z += delta;
+            break;
 
-export {auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz}
+    }
+}
+
+export {translate_box, auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz}

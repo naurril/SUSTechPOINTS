@@ -1,6 +1,6 @@
 
 import {data} from "./data.js"
-import {params, selected_box, select_bbox } from "./main.js"
+
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
@@ -18,10 +18,12 @@ function to_polyline_attr(points){
     )
 }
 
-function init_image_op(){
+var get_selected_box;
+
+function init_image_op(func_get_selected_box){
     var c = document.getElementById("maincanvas-wrapper");
     c.onclick = on_click;
-
+    get_selected_box = func_get_selected_box;
     // var h = document.getElementById("resize-handle");
     // h.onmousedown = resize_mouse_down;
     
@@ -237,10 +239,10 @@ function render_2d_image(){
 
     clear_main_canvas();
 
-    if (params["hide image"]){
-        hide_canvas();
-        return;
-    }
+    // if (params["hide image"]){
+    //     hide_canvas();
+    //     return;
+    // }
 
     show_image();
 
@@ -282,7 +284,7 @@ function render_2d_image(){
         data.world.boxes.forEach(function(box){
             var imgfinal = box_to_2d_points(box, calib);
             if (imgfinal){
-                var box_svg = box_to_svg(box, imgfinal, trans_ratio, selected_box == box);
+                var box_svg = box_to_svg(box, imgfinal, trans_ratio, get_selected_box() == box);
                 svg.appendChild(box_svg);
             }
 

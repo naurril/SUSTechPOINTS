@@ -4,14 +4,14 @@ import {vector4to3, vector3_nomalize, psr_to_xyz, matmul, matmul2, euler_angle_t
 import {
 	Vector3, Int8Attribute
 } from "./lib/three.module.js";
-import {container} from "./main.js"
 
-function createFloatLabelManager(view) {
+
+function createFloatLabelManager(container_div, view) {
 
     var manager = 
     {
         view : view,  //access camera by view, since camera is dynamic
-        
+        container: container_div,
         id_enabled: true,
         category_enabled: true,
         html_labels: document.getElementById("2Dlabels"),
@@ -246,7 +246,7 @@ function createFloatLabelManager(view) {
 
 
         coord_to_pixel: function(p){
-            var width = container.clientWidth, height = container.clientHeight;
+            var width = this.container.clientWidth, height = this.container.clientHeight;
             var widthHalf = width / 2, heightHalf = height / 2;
 
             var ret={

@@ -16,16 +16,16 @@ import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
 import {stop_play, pause_resume_play, play_current_scene_with_buffer} from "./play.js"
 import {init_mouse, onUpPosition, getIntersects, getMousePosition, get_mouse_location_in_world, get_screen_location_in_world} from "./mouse.js"
 
-import {view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}  from "./side_view_op.js"
+import {init_side_view_op_module, view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}  from "./side_view_op.js"
 
 import {ml} from  './ml.js'
-import { auto_rotate_xyz } from './box_op.js';
+import {translate_box, auto_rotate_xyz } from './box_op.js';
 
 var sideview_enabled = true;
 var container;
 
 var scene, renderer;
-var selected_box;
+
 var windowWidth, windowHeight;
 
 var params={};
@@ -49,7 +49,7 @@ animate();
 render();
 //$( "#maincanvas" ).resizable();
 
-init_image_op();
+init_image_op(get_selected_box);
 
 load_data_meta();
 add_global_obj_type();
@@ -88,11 +88,11 @@ function init() {
     //document.body.appendChild( container );
     container.appendChild( renderer.domElement );
 
-    create_views(scene, container/*renderer.domElement*/, render, on_box_changed);
+    create_views(container, scene, container/*renderer.domElement*/, render, on_box_changed);
 
     add_range_box();
 
-    floatLabelManager = createFloatLabelManager(views[0]);
+    floatLabelManager = createFloatLabelManager(container, views[0]);
 
     init_gui();
     
@@ -110,7 +110,7 @@ function init() {
     container.addEventListener( 'mousedown', onMouseDown, true );
     set_mouse_handler(handleLeftClick, handleRightClick);
     */
-    init_mouse(container, handleLeftClick, handleRightClick, handleSelectRect);
+    init_mouse(operation_state, container, handleLeftClick, handleRightClick, handleSelectRect);
 
     //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
     //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -140,7 +140,7 @@ function init() {
     document.getElementById("camera-selector").onchange = camera_changed;
 
 
-    
+    init_side_view_op_module(get_selected_box, on_box_changed, update_subview_by_windowsize);
     install_fast_tool();
 
     install_context_menu();
@@ -156,6 +156,11 @@ function init() {
         //return;
      };
     
+}
+
+
+function get_selected_box(){
+    return selected_box;
 }
 
 function install_grid(){
@@ -832,7 +837,7 @@ function update_subview_by_windowsize(box){
     if (box === null)
         return;
 
-        view_handles.update_view_handle(views[1].viewport, selected_box.scale);
+    view_handles.update_view_handle(selected_box.scale);
     
     // side views
     var exp_camera_width, exp_camera_height, exp_camera_clip;
@@ -1282,7 +1287,7 @@ function onWindowResize() {
 
         // update sideview svg if there exists selected box
         if (selected_box){
-            view_handles.update_view_handle(views[1].viewport, selected_box.scale);
+            view_handles.update_view_handle(selected_box.scale);
         }
     }
     
@@ -1365,22 +1370,7 @@ function save_box_info(box){
 }
 
 
-function translate_box(box, axis, delta){
-    switch (axis){
-        case 'x':
-            box.position.x += delta*Math.cos(box.rotation.z);
-            box.position.y += delta*Math.sin(box.rotation.z);
-            break;
-        case 'y':
-            box.position.x += delta*Math.cos(Math.PI/2 + box.rotation.z);
-            box.position.y += delta*Math.sin(Math.PI/2 + box.rotation.z);  
-            break;
-        case 'z':
-            box.position.z += delta;
-            break;
 
-    }
-}
 
 // axix, xyz, action: scale, move, direction, up/down
 function transform_bbox(command){
@@ -1866,7 +1856,7 @@ function update_frame_info(scene, frame){
 function on_box_changed(box){
 
     update_subview_by_bbox(box);
-    view_handles.update_view_handle();
+    view_handles.update_view_handle(selected_box.scale);
     update_image_box_projection(box);
     
     //render_2d_image();
@@ -1909,7 +1899,7 @@ function on_selected_box_changed(box){
         update_image_box_projection(box)
         floatLabelManager.update_position(box, true);
         update_subview_by_bbox(box);
-        view_handles.update_view_handle(views[1].viewport, selected_box.scale);
+        view_handles.update_view_handle(selected_box.scale);
 
         image_manager.select_bbox(box.obj_local_id, box.obj_type);
     } else {
@@ -1978,7 +1968,7 @@ function add_global_obj_type(){
             grow_box(0.2, {x:1.2, y:1.2, z:3});
             auto_shrink_box(selected_box);
             on_box_changed(selected_box);
-            auto_rotate_xyz(selected_box);
+            auto_rotate_xyz(selected_box, null, null, on_box_changed);
             
         }
     }

@@ -1,15 +1,24 @@
 
-import {translate_box, on_box_changed, selected_box, update_subview_by_windowsize} from "./main.js"
-
 import {data} from "./data.js"
 import {views} from "./view.js"
 import {matmul2} from "./util.js"
-import {auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz} from "./box_op.js"
+import {translate_box, auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz} from "./box_op.js"
 
 import {
 	Quaternion,
 	Vector3
 } from "./lib/three.module.js";
+
+
+var get_selected_box;
+var on_box_changed;
+var update_subview_by_windowsize;
+
+function init_side_view_op_module(func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
+    get_selected_box = func_get_selected_box;
+    on_box_changed = func_on_box_changed;
+    update_subview_by_windowsize = func_update_subview_by_windowsize;
+}
 
 function create_view_handler(view_prefix, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate){
 
@@ -737,7 +746,7 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
         */
     
         // document.getElementById("z-v-shrink-left").onclick = function(event){
-        //     var points = data.world.get_points_of_box_in_box_coord(selected_box);
+        //     var points = data.world.get_points_of_box_in_box_coord(get_selected_box());
     
         //     if (points.length == 0){
         //         return;
@@ -751,11 +760,11 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
         //     }
     
             
-        //     var delta = minx + selected_box.scale.x/2;
+        //     var delta = minx + get_selected_box().scale.x/2;
         //     console.log(minx, delta);
-        //     translate_box(selected_box, 'x', delta/2 );
-        //     selected_box.scale.x -= delta;
-        //     on_box_changed(selected_box);
+        //     translate_box(get_selected_box(), 'x', delta/2 );
+        //     get_selected_box().scale.x -= delta;
+        //     on_box_changed(get_selected_box());
         // };
     
         // document.getElementById("z-v-shrink-right").onclick = function(event){
@@ -771,7 +780,7 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
 }
 
 function get_selected_obj_support_point(){
-    return data.world.get_points_dimmension_of_box(selected_box, true);
+    return data.world.get_points_dimmension_of_box(get_selected_box(), true);
 }
 
 
@@ -789,11 +798,11 @@ function auto_shrink(extreme, direction){
                 end = "min";
             }
 
-            var delta = selected_box.scale[axis]/2 - direction[axis]*extreme[end][axis];
+            var delta = get_selected_box().scale[axis]/2 - direction[axis]*extreme[end][axis];
 
             console.log(extreme, delta);
-            translate_box(selected_box, axis, -direction[axis]* delta/2 );
-            selected_box.scale[axis] -= delta;
+            translate_box(get_selected_box(), axis, -direction[axis]* delta/2 );
+            get_selected_box().scale[axis] -= delta;
         }
     }
 }
@@ -801,14 +810,14 @@ function auto_shrink(extreme, direction){
 function on_edge_changed(delta, direction){
     console.log(delta);
 
-    translate_box(selected_box, 'x', delta.x/2 * direction.x);
-    translate_box(selected_box, 'y', delta.y/2 * direction.y);
-    translate_box(selected_box, 'z', delta.z/2 * direction.z);
+    translate_box(get_selected_box(), 'x', delta.x/2 * direction.x);
+    translate_box(get_selected_box(), 'y', delta.y/2 * direction.y);
+    translate_box(get_selected_box(), 'z', delta.z/2 * direction.z);
 
-    selected_box.scale.x += delta.x;
-    selected_box.scale.y += delta.y;
-    selected_box.scale.z += delta.z;
-    on_box_changed(selected_box);
+    get_selected_box().scale.x += delta.x;
+    get_selected_box().scale.y += delta.y;
+    get_selected_box().scale.z += delta.z;
+    on_box_changed(get_selected_box());
 }
 
 
@@ -831,13 +840,13 @@ function on_wheel(subview, wheel_direction){
 ///////////////////////////////////////////////////////////////////////////////////
 // direction is null if triggered by dbclick on 'move' handler 
 function on_z_auto_shrink(direction){
-    var  extreme = data.world.get_points_dimmension_of_box(selected_box, true);
+    var  extreme = data.world.get_points_dimmension_of_box(get_selected_box(), true);
     
     if (!direction){
         ['x','y'].forEach(function(axis){
 
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+            translate_box(get_selected_box(), axis, (extreme.max[axis] + extreme.min[axis])/2);
+            get_selected_box().scale[axis] = extreme.max[axis] - extreme.min[axis];        
  
         })
     } else{
@@ -850,7 +859,7 @@ function on_z_auto_shrink(direction){
         auto_shrink(extreme, direction)
     }
     
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 
@@ -858,8 +867,8 @@ function on_z_auto_shrink(direction){
 function on_z_edge_changed(ratio, direction){
 
     var delta = {        
-        x: selected_box.scale.x * ratio.y * direction.y,
-        y: selected_box.scale.y * ratio.x * direction.x,
+        x: get_selected_box().scale.x * ratio.y * direction.y,
+        y: get_selected_box().scale.y * ratio.x * direction.x,
         z: 0,
     };
 
@@ -876,26 +885,26 @@ function on_z_edge_changed(ratio, direction){
 
 function on_z_direction_changed(theta, sticky){
     // points indices shall be obtained before rotation.
-    var points_indices = data.world.get_points_indices_of_box(selected_box);
+    var points_indices = data.world.get_points_indices_of_box(get_selected_box());
         
 
     var _tempQuaternion = new Quaternion();
     var rotationAxis = new Vector3(0,0,1);
-    selected_box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, theta ) ).normalize();
+    get_selected_box().quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, theta ) ).normalize();
 
     if (sticky){
     
-        var extreme = data.world.get_dimension_of_points(points_indices, selected_box);
+        var extreme = data.world.get_dimension_of_points(points_indices, get_selected_box());
 
         ['x','y'].forEach(function(axis){
 
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+            translate_box(get_selected_box(), axis, (extreme.max[axis] + extreme.min[axis])/2);
+            get_selected_box().scale[axis] = extreme.max[axis] - extreme.min[axis];        
 
         }) 
     }
 
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 
@@ -905,15 +914,15 @@ function on_z_direction_changed(theta, sticky){
 // box.y  horizental
 function on_z_moved(ratio){
     var delta = {        
-        x: selected_box.scale.x*ratio.y,
-        y: -selected_box.scale.y*ratio.x,
+        x: get_selected_box().scale.x*ratio.y,
+        y: -get_selected_box().scale.y*ratio.x,
     };
 
     
-    translate_box(selected_box, "x", delta.x);
-    translate_box(selected_box, "y", delta.y);
+    translate_box(get_selected_box(), "x", delta.x);
+    translate_box(get_selected_box(), "y", delta.y);
 
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 
@@ -927,26 +936,26 @@ function on_z_scaled(ratio){
 
     for (var axis in ratio){
         if (ratio[axis] != 0){
-            selected_box.scale[axis] *= 1+ratio[axis];
+            get_selected_box().scale[axis] *= 1+ratio[axis];
         }
     }
     
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 function on_z_wheel(wheel_direction){
     on_wheel(views[1], wheel_direction);
-    update_subview_by_windowsize(selected_box);
-    z_view_handle.update_view_handle(views[1].viewport, {x: selected_box.scale.y, y:selected_box.scale.x});
+    update_subview_by_windowsize(get_selected_box());
+    z_view_handle.update_view_handle(views[1].viewport, {x: get_selected_box().scale.y, y:get_selected_box().scale.x});
 }
 
 function on_z_auto_rotate(){
-    auto_rotate_xyz(selected_box, null, {x:false, y:false, z:true});
+    auto_rotate_xyz(get_selected_box(), null, {x:false, y:false, z:true}, on_box_changed);
 }
 
 function on_z_reset_rotate(){
-    selected_box.rotation.z = 0;
-    on_box_changed(selected_box);
+    get_selected_box().rotation.z = 0;
+    on_box_changed(get_selected_box());
 }
 
 var z_view_handle = create_view_handler("z-", on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel, on_z_auto_rotate, on_z_reset_rotate);
@@ -957,8 +966,8 @@ var z_view_handle = create_view_handler("z-", on_z_edge_changed, on_z_direction_
 function on_y_edge_changed(ratio, direction){
 
     var delta = {
-        x: selected_box.scale.x * ratio.x * direction.x,
-        z: selected_box.scale.z * ratio.y * direction.y,
+        x: get_selected_box().scale.x * ratio.x * direction.x,
+        z: get_selected_box().scale.z * ratio.y * direction.y,
         y: 0,
     };
 
@@ -975,11 +984,11 @@ function on_y_auto_shrink(direction){
     
     
     if (!direction){
-        var  extreme = data.world.get_points_dimmension_of_box(selected_box, false);
+        var  extreme = data.world.get_points_dimmension_of_box(get_selected_box(), false);
         ['x','z'].forEach(function(axis){
 
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis]-extreme.min[axis];        
+            translate_box(get_selected_box(), axis, (extreme.max[axis] + extreme.min[axis])/2);
+            get_selected_box().scale[axis] = extreme.max[axis]-extreme.min[axis];        
  
         })       
         
@@ -992,34 +1001,34 @@ function on_y_auto_shrink(direction){
         }
 
         if (direction.z != 0){
-            var  extreme = data.world.get_points_dimmension_of_box(selected_box, false);
+            var  extreme = data.world.get_points_dimmension_of_box(get_selected_box(), false);
             auto_shrink(extreme, direction)
         }else {
-            var  extreme = data.world.get_points_dimmension_of_box(selected_box, true);
+            var  extreme = data.world.get_points_dimmension_of_box(get_selected_box(), true);
             auto_shrink(extreme, direction)
         }
         
     }
     
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 
 function on_y_moved(ratio){
     var delta = {
-        x: selected_box.scale.x*ratio.x,
-        z: selected_box.scale.z*ratio.y
+        x: get_selected_box().scale.x*ratio.x,
+        z: get_selected_box().scale.z*ratio.y
     };
 
     
-    translate_box(selected_box, "x", delta.x);
-    translate_box(selected_box, "z", delta.z);
+    translate_box(get_selected_box(), "x", delta.x);
+    translate_box(get_selected_box(), "z", delta.z);
 
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 function on_y_direction_changed(theta, sticky){
-    change_rotation_y(selected_box, theta, sticky)
+    change_rotation_y(get_selected_box(), theta, sticky, on_box_changed)
 }
 
 
@@ -1033,26 +1042,26 @@ function on_y_scaled(ratio){
 
     for (var axis in ratio){
         if (ratio[axis] != 0){
-            selected_box.scale[axis] *= 1+ratio[axis];
+            get_selected_box().scale[axis] *= 1+ratio[axis];
         }
     }
     
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 function on_y_wheel(wheel_direction){
     on_wheel(views[2], wheel_direction);
-    update_subview_by_windowsize(selected_box);
-    y_view_handle.update_view_handle(views[2].viewport, {x: selected_box.scale.x, y:selected_box.scale.z});
+    update_subview_by_windowsize(get_selected_box());
+    y_view_handle.update_view_handle(views[2].viewport, {x: get_selected_box().scale.x, y:get_selected_box().scale.z});
 }
 
 function on_y_reset_rotate(){
-    selected_box.rotation.y = 0;
-    on_box_changed(selected_box);
+    get_selected_box().rotation.y = 0;
+    on_box_changed(get_selected_box());
 }
 
 function on_y_auto_rotate(){
-    auto_rotate_y(selected_box);
+    auto_rotate_y(get_selected_box());
 }
 
 var y_view_handle = create_view_handler("y-", on_y_edge_changed, 
@@ -1066,8 +1075,8 @@ var y_view_handle = create_view_handler("y-", on_y_edge_changed,
 function on_x_edge_changed(ratio, direction){
 
     var delta = {
-        y: selected_box.scale.y * ratio.x * direction.x,
-        z: selected_box.scale.z * ratio.y * direction.y,
+        y: get_selected_box().scale.y * ratio.x * direction.x,
+        z: get_selected_box().scale.z * ratio.y * direction.y,
         x: 0,
     };
 
@@ -1083,12 +1092,12 @@ function on_x_edge_changed(ratio, direction){
 
 function on_x_auto_shrink(direction){
     if (!direction){
-        var  extreme = data.world.get_points_dimmension_of_box(selected_box, false);
+        var  extreme = data.world.get_points_dimmension_of_box(get_selected_box(), false);
 
         ['y','z'].forEach(function(axis){
 
-            translate_box(selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            selected_box.scale[axis] = extreme.max[axis]-extreme.min[axis];        
+            translate_box(get_selected_box(), axis, (extreme.max[axis] + extreme.min[axis])/2);
+            get_selected_box().scale[axis] = extreme.max[axis]-extreme.min[axis];        
  
         })       
         
@@ -1101,33 +1110,33 @@ function on_x_auto_shrink(direction){
         }
 
         if (direction.z != 0){
-            var  extreme = data.world.get_points_dimmension_of_box(selected_box, false);
+            var  extreme = data.world.get_points_dimmension_of_box(get_selected_box(), false);
             auto_shrink(extreme, direction)
         } else {
-            var  extreme = data.world.get_points_dimmension_of_box(selected_box, true);
+            var  extreme = data.world.get_points_dimmension_of_box(get_selected_box(), true);
             auto_shrink(extreme, direction)
         }
     }
     
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 
 function on_x_moved(ratio){
     var delta = {
-        y: selected_box.scale.y*ratio.x,
-        z: selected_box.scale.z*ratio.y
+        y: get_selected_box().scale.y*ratio.x,
+        z: get_selected_box().scale.z*ratio.y
     };
 
     
-    translate_box(selected_box, "y", delta.y);
-    translate_box(selected_box, "z", delta.z);
+    translate_box(get_selected_box(), "y", delta.y);
+    translate_box(get_selected_box(), "z", delta.z);
 
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 function on_x_direction_changed(theta, sticky){
-    change_rotation_x(selected_box, theta, sticky)
+    change_rotation_x(get_selected_box(), theta, stick, on_box_changed)
 }
 
 function on_x_scaled(ratio){
@@ -1139,27 +1148,27 @@ function on_x_scaled(ratio){
 
     for (var axis in ratio){
         if (ratio[axis] != 0){
-            selected_box.scale[axis] *= 1+ratio[axis];
+            get_selected_box().scale[axis] *= 1+ratio[axis];
         }
     }
     
-    on_box_changed(selected_box);
+    on_box_changed(get_selected_box());
 }
 
 function on_x_wheel(wheel_direction){
     on_wheel(views[3], wheel_direction);
-    update_subview_by_windowsize(selected_box);
-    x_view_handle.update_view_handle(views[3].viewport, {x: selected_box.scale.y, y:selected_box.scale.z});
+    update_subview_by_windowsize(get_selected_box());
+    x_view_handle.update_view_handle(views[3].viewport, {x: get_selected_box().scale.y, y:get_selected_box().scale.z});
 }
 
 
 function on_x_reset_rotate(){
-    selected_box.rotation.x = 0;
-    on_box_changed(selected_box);
+    get_selected_box().rotation.x = 0;
+    on_box_changed(get_selected_box());
 }
 
 function on_x_auto_rotate(){
-    auto_rotate_x(selected_box);
+    auto_rotate_x(get_selected_box());
 }
 
 var x_view_handle = create_view_handler("x-", on_x_edge_changed, 
@@ -1182,10 +1191,10 @@ var view_handles = {
         x_view_handle.init_view_operation();
     },
 
-    update_view_handle: function(){
-        z_view_handle.update_view_handle(views[1].viewport, {x: selected_box.scale.y, y:selected_box.scale.x});
-        y_view_handle.update_view_handle(views[2].viewport, {x: selected_box.scale.x, y:selected_box.scale.z});
-        x_view_handle.update_view_handle(views[3].viewport, {x: selected_box.scale.y, y:selected_box.scale.z});
+    update_view_handle: function(scale){
+        z_view_handle.update_view_handle(views[1].viewport, {x: scale.y, y:scale.x});
+        y_view_handle.update_view_handle(views[2].viewport, {x: scale.x, y:scale.z});
+        x_view_handle.update_view_handle(views[3].viewport, {x: scale.y, y:scale.z});
     }, 
 
     hide: function(){
@@ -1202,4 +1211,4 @@ var view_handles = {
 }
 
 
-export {view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}
+export {init_side_view_op_module, view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}
