@@ -491,7 +491,7 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
                     y2 : parseInt(lines.right.getAttribute('y2')),
                 };
     
-                mouse_start_pos={x: event.clientX,y:event.clientY,};
+                mouse_start_pos={x: event.layerX,y:event.layerY,};
                 var mouse_cur_pos = {x: mouse_start_pos.x, y: mouse_start_pos.y};
     
                 console.log(mouse_start_pos);
@@ -530,7 +530,7 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
     
                 svg.onmousemove = function(event){
                     
-                    mouse_cur_pos={x: event.clientX,y:event.clientY,};
+                    mouse_cur_pos={x: event.layerX,y:event.layerY,};
                     
                     var handle_delta = {
                         x: mouse_cur_pos.x - mouse_start_pos.x,
@@ -586,10 +586,10 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
                 }
     
                 mouse_start_pos={
-                    x: event.clientX,
-                    y:event.clientY,
+                    x: event.layerX,
+                    y:event.layerY,
     
-                    handle_offset_x: handle_center.x - event.clientX,                
+                    handle_offset_x: handle_center.x - event.layerX,                
                 };
     
     
@@ -601,11 +601,11 @@ function create_view_handler(view_prefix, on_edge_changed, on_direction_changed,
     
                 svg.onmousemove = function(event){
                     
-                    mouse_cur_pos={x: event.clientX,y:event.clientY,};
+                    mouse_cur_pos={x: event.layerX,y:event.layerY,};
                     
                     var handle_center_cur_pos = {
-                        x: mouse_cur_pos.x + mouse_start_pos.handle_offset_x - view_port_pos.x,
-                        y: mouse_cur_pos.y - view_port_pos.y,
+                        x: mouse_cur_pos.x + mouse_start_pos.handle_offset_x,
+                        y: mouse_cur_pos.y,
                     };
     
                     
