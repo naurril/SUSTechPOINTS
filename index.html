@@ -84,6 +84,43 @@
 			</canvas>
 			<canvas id="canvas" width="320" height="240">cavas</canvas>		
 
+			<template id="view-manipulator-template">
+				<div class="view-manipulator"  id="view-manipulator"  tabindex="-1">
+				
+
+					<svg class="subview-svg" id = "view-svg">
+						<rect x="70" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="line-left-handle"/>
+						<line x1="80" y1="40" x2="80" y2="200" class = "svg-line"  id="z-line-left" />
+	
+						<rect x="90" y="30" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="line-top-handle"/>
+						<line x1="80" y1="40" x2="140" y2="40" class = "svg-line" id="z-line-top" />
+	
+						<rect x="130" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="line-right-handle"/>
+						<line x1="140" y1="40" x2="140" y2="200" class = "svg-line" id="z-line-right" />
+	
+						<rect x="90" y="190" width="40" height="20" fill="#00000000" class="line-handle ns-handle" id="line-bottom-handle"/>
+						<line x1="80" y1="200" x2="140" y2="200" class = "svg-line" id="z-line-bottom" />
+	
+						<rect x="110" y="120" width="20" height="70", fill="#00000000" class="line-handle  ew-handle" id="line-direction-handle"/>
+						<line x1="110" y1="120" x2="110" y2="40" class = "svg-line" id="z-line-direction" />
+	
+						<!-- corners -->
+						<rect x="60" y="40" width="20" height="20", fill="#00000000" class="line-handle  nw-handle" id="top-left-handle"/>
+						<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  ne-handle" id="top-right-handle"/>
+						<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  sw-handle" id="bottom-left-handle"/>
+						<rect x="110" y="120" width="20" height="20", fill="#00000000" class="line-handle  se-handle" id="bottom-right-handle"/>
+	
+	
+	
+						<rect x="90" y="100" width="40" height="40", fill="#00000000" class="line-handle grab-handle" id="move-handle"/>
+	
+					</svg>
+					<div class="v-buttons-wrapper" id="v-buttons">
+						<div id="v-auto-rotate" class="ui-button"  title="auto-rotate"><span class="ui-icon ui-icon-key"></span></div>
+						<div id="v-reset-rotate" class="ui-button"  title="reset-rotation"><span class="ui-icon ui-icon-refresh"></span></div>
+					</div>
+				</div>
+			</template>
 			<div class="view-manipulator"  id="z-view-manipulator"  tabindex="-1">
 				
 
@@ -265,6 +302,6 @@
 		  </div>  
 
 		<script src="/static/js/lib/ml/tf.min.js"></script>
-		<script type="module"  src="/static/js/editor_test.js"></script>		
+		<script type="module"  src="/static/js/editor_main.js"></script>		
 	</body>
 </html>

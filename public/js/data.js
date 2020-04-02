@@ -22,6 +22,10 @@ function make_data_object(){
         //     if (this.world)
         //         this.world.points.material.size = this.config.point_size;
         // },
+        webgl_scene: null,
+        set_webgl_scene:function(s){
+            this.webgl_scene = s;
+        },
 
         config: {
             point_size: 1,
@@ -1572,12 +1576,12 @@ function make_data_object(){
             this.future_world_buffer=[];
         },
 
-        activate_world: function(scene, world, on_finished){
+        activate_world: function(world, on_finished){
             var old_world = this.world;   // current world, should we get current world later?
             var _self= this;
             _self.world = world;  // swich when everything is ready. otherwise data.world is half-baked, causing mysterious problems.
 
-            world.activate(scene, 
+            world.activate(_self.webgl_scene, 
                 function(){
                     
                     if (old_world)

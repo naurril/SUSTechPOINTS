@@ -1,7 +1,5 @@
 
 import {data} from "./data.js"
-import {on_load_world_finished, scene} from "./main.js"
-
 
 var stop_play_flag=true;
 var pause_play_flag=false;
@@ -20,7 +18,7 @@ function stop_play(){
     pause_play_flag=false;
 }
 
-function play_current_scene_with_buffer(resume){
+function play_current_scene_with_buffer(resume, on_load_world_finished){
     
     if (!data.meta){
         console.log("no meta data! cannot play");
@@ -43,7 +41,7 @@ function play_current_scene_with_buffer(resume){
     //var start_frame_index = scene_meta.frames.findIndex(function(x){return x == data.world.file_info.frame;})
 
     preload_frame(scene_meta, data.world.file_info.frame);
-    play_frame(scene_meta, data.world.file_info.frame);
+    play_frame(scene_meta, data.world.file_info.frame, on_load_world_finished);
 
 
     function preload_frame(meta, frame){
@@ -68,14 +66,14 @@ function play_current_scene_with_buffer(resume){
     };
     
 
-    function play_frame(scene_meta, frame){
+    function play_frame(scene_meta, frame, on_load_world_finished){
         if (!stop_play_flag && !pause_play_flag)
         {
             var world = data.future_world_buffer.find(function(w){return w.file_info.frame == frame; });
 
             if (world)  //found, data ready
             {
-                data.activate_world(scene,  //this is webgl scene
+                data.activate_world(
                     world, 
                     function(){//on load finished
                         //views[0].detach_control();
@@ -90,7 +88,7 @@ function play_current_scene_with_buffer(resume){
                                 var next_frame = scene_meta.frames[frame_index+1];
                                 setTimeout(
                                     function(){                    
-                                        play_frame(scene_meta, next_frame);
+                                        play_frame(scene_meta, next_frame, on_load_world_finished);
                                     }, 
                                     500);
                             } 
@@ -108,7 +106,7 @@ function play_current_scene_with_buffer(resume){
 
                 setTimeout(
                     function(){                    
-                        play_frame(scene_meta, frame);
+                        play_frame(scene_meta, frame, on_load_world_finished);
                     }, 
                     100);
             } 
@@ -120,48 +118,48 @@ function play_current_scene_with_buffer(resume){
 
 
 
-function play_current_scene_without_buffer(){
+// function play_current_scene_without_buffer(){
     
-    if (!data.meta){
-        console.log("no meta data! cannot play");
-        return;
-    }
+//     if (!data.meta){
+//         console.log("no meta data! cannot play");
+//         return;
+//     }
 
-    if (stop_play_flag== false){
-        return;
-    }
+//     if (stop_play_flag== false){
+//         return;
+//     }
 
-    stop_play_flag = false;
+//     stop_play_flag = false;
 
-    var scene_meta = data.get_current_world_scene_meta();
-    var scene_name= scene_meta.scene;
+//     var scene_meta = data.get_current_world_scene_meta();
+//     var scene_name= scene_meta.scene;
     
-    play_frame(scene_meta, data.world.file_info.frame);
+//     play_frame(scene_meta, data.world.file_info.frame);
 
 
-    function play_frame(scene_meta, frame){
-        load_world(scene_name, frame);
+//     function play_frame(scene_meta, frame){
+//         load_world(scene_name, frame);
 
 
-        if (!stop_play_flag)
-        {   
-            var frame_index = scene_meta.frames.findIndex(function(x){return x == frame;});
-            if (frame_index+1 < scene_meta.frames.length)
-            {
-                next_frame = scene_meta.frames[frame_index+1];
-                setTimeout(
-                    function(){    
-                        play_frame(scene_meta, next_frame);                       
-                    }, 
-                    100);                   
-            } 
-            else{
-                stop_play_flag = true;
-            } 
+//         if (!stop_play_flag)
+//         {   
+//             var frame_index = scene_meta.frames.findIndex(function(x){return x == frame;});
+//             if (frame_index+1 < scene_meta.frames.length)
+//             {
+//                 next_frame = scene_meta.frames[frame_index+1];
+//                 setTimeout(
+//                     function(){    
+//                         play_frame(scene_meta, next_frame);                       
+//                     }, 
+//                     100);                   
+//             } 
+//             else{
+//                 stop_play_flag = true;
+//             } 
         
-        }
-    };
-}
+//         }
+//     };
+// }
 
 
 export {stop_play, pause_resume_play, play_current_scene_with_buffer};

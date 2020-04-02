@@ -6,7 +6,7 @@ import {
 } from "./lib/three.module.js";
 
 
-function createFloatLabelManager(container_div, view) {
+function createFloatLabelManager(container_div, view, func_on_label_clicked) {
 
     var manager = 
     {
@@ -18,7 +18,7 @@ function createFloatLabelManager(container_div, view) {
 
         style: document.createElement('style'),
         temp_style: document.createElement('style'),
-
+        on_label_clicked: func_on_label_clicked,
         init: function(){
             document.head.appendChild(this.style);            
             document.head.appendChild(this.temp_style);            
@@ -197,7 +197,7 @@ function createFloatLabelManager(container_div, view) {
                 label.remove();
         },
 
-        add_label: function(box, on_click){
+        add_label: function(box){
             
             var label = document.createElement('div');
             label.className = "float-label "+box.obj_type;
@@ -239,8 +239,10 @@ function createFloatLabelManager(container_div, view) {
             label.selected = false;
 
             document.getElementById("2Dlabels").appendChild(label);
+
+            let self = this;
             label.onclick = function(){
-                on_click();
+                this.on_label_clicked(box);
             };
         },
 

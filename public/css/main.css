@@ -8,9 +8,9 @@ html,body {
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 	font-size: 13px;
 	line-height: 24px;
-	/*overflow-x: hidden;
-	  overflow-y: hidden;
-	  */
+	overflow-x: hidden;
+	overflow-y: hidden;
+	
 }
 
 a {

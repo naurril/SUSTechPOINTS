@@ -12,6 +12,9 @@ import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
 import {header} from "./header.js"
 import {matmul2, euler_angle_to_rotate_matrix, dotproduct, linalg_std} from "./util.js"
 import {translate_box, auto_rotate_xyz } from './box_op.js';
+import {mark_bbox, paste_bbox, auto_adjust_bbox, smart_paste} from "./auto-adjust.js"
+import {stop_play, pause_resume_play, play_current_scene_with_buffer} from "./play.js"
+import {save_annotation} from "./save.js"
 
 function new_editor(container){
 
@@ -49,7 +52,7 @@ function new_editor(container){
         
             let self = this;
             this.scene = new THREE.Scene();
-        
+            data.set_webgl_scene(this.scene);
         
             this.renderer = new THREE.WebGLRenderer( { antialias: true } );
             this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -77,7 +80,7 @@ function new_editor(container){
         
             this.add_range_box();
         
-            this.floatLabelManager = createFloatLabelManager(this.container, views[0]);
+            this.floatLabelManager = createFloatLabelManager(this.container, views[0],function(box){self.select_bbox(box);});
         
             //this.init_gui();
             
@@ -239,18 +242,18 @@ function new_editor(container){
             };
 
             document.getElementById("label-copy").onclick = function(event){
-                _self.mark_bbox();
+                mark_bbox(_self.selected_box);
                 //event.currentTarget.blur();
             }
 
             document.getElementById("label-paste").onclick = function(event){
-                _self.smart_paste();
+                smart_paste(_self.selected_box);
                 //event.currentTarget.blur();
             }
 
             document.getElementById("label-edit").onclick = function(event){
                 event.currentTarget.blur();
-                _self.select_bbox(this.selected_box);
+                _self.select_bbox(_self.selected_box);
             }
 
             document.getElementById("label-reset").onclick = function(event){
@@ -264,11 +267,11 @@ function new_editor(container){
             document.getElementById("label-highlight").onclick = function(event){
                 event.currentTarget.blur();
                 if (_self.selected_box.in_highlight){
-                    _self.cancel_highlight_selected_box(this.selected_box);
+                    _self.cancel_highlight_selected_box(_self.selected_box);
                     _self.view_state.lock_obj_in_highlight = false
                 }
                 else {
-                    _self.highlight_selected_box();
+                    _self.highlight_selected_box(_self.selected_box);
                 }
             }
 
@@ -288,26 +291,26 @@ function new_editor(container){
             views[0].orbit.reset();
         },
 
-        highlight_selected_box: function(){
-            if (this.selected_box){
-                data.world.highlight_box_points(this.selected_box);
+        highlight_selected_box: function(box){
+            if (box){
+                data.world.highlight_box_points(box);
                 
                 this.floatLabelManager.hide_all();
                 views[0].orbit.saveState();
 
                 //views[0].camera.position.set(this.selected_box.position.x+this.selected_box.scale.x*3, this.selected_box.position.y+this.selected_box.scale.y*3, this.selected_box.position.z+this.selected_box.scale.z*3);
 
-                views[0].orbit.target.x = this.selected_box.position.x;
-                views[0].orbit.target.y = this.selected_box.position.y;
-                views[0].orbit.target.z = this.selected_box.position.z;
+                views[0].orbit.target.x = box.position.x;
+                views[0].orbit.target.y = box.position.y;
+                views[0].orbit.target.z = box.position.z;
 
-                views[0].restore_relative_orbit_state(this.selected_box.scale);
+                views[0].restore_relative_orbit_state(box.scale);
 
 
                 views[0].orbit.update();
 
                 this.render();
-                this.selected_box.in_highlight=true;
+                box.in_highlight=true;
                 this.view_state.lock_obj_in_highlight = true;
             }
         },
@@ -380,7 +383,7 @@ function new_editor(container){
 
 
             document.getElementById("cm-paste").onclick = function(event){
-                self.smart_paste();
+                smart_paste(self.selected_box);
             };
 
             document.getElementById("cm-prev-frame").onclick = function(event){      
@@ -392,18 +395,21 @@ function new_editor(container){
             };
 
             document.getElementById("cm-save").onclick = function(event){      
-                self.save_annotation();
+                save_annotation();
             };
 
 
             document.getElementById("cm-play").onclick = function(event){      
-                self.play_current_scene_with_buffer();
+                play_current_scene_with_buffer(false,
+                    function(s,f){
+                        self.on_load_world_finished(s,f)
+                    });
             };
             document.getElementById("cm-stop").onclick = function(event){      
-                self.stop_play();
+                stop_play();
             };
             document.getElementById("cm-pause").onclick = function(event){      
-                self.pause_resume_play();
+                pause_resume_play();
             };
 
 
@@ -507,7 +513,7 @@ function new_editor(container){
                 // will be updated in time.
                 
                 
-                
+                console.log(left,bottom, width, height);
 
                 this.renderer.setViewport( left, bottom, width, height );
                 this.renderer.setScissor( left, bottom, width, height );
@@ -603,6 +609,7 @@ function new_editor(container){
         },
 
         install_view_menu: function(gui){
+            var self=this;
             var cfgFolder = gui.addFolder( 'View' );
 
             params["toggle side views"] = function(){
@@ -701,7 +708,9 @@ function new_editor(container){
             cfgFolder.add( params, "rotate bird's eye view");
 
 
-            params["play"] = play_current_scene_with_buffer;
+            params["play"] = function(){
+                play_current_scene_with_buffer(flase, function(s,f){self.on_load_world_finished(s,f)});
+            }
             params["stop"] = stop_play;
             params["previous frame"] = previous_frame;
             params["next frame"] = next_frame;
@@ -842,7 +851,7 @@ function new_editor(container){
                 this.selected_box.obj_type = event.currentTarget.value;
                 this.floatLabelManager.set_object_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
                 header.mark_changed_flag();
-                update_box_points_color(this.selected_box);
+                this.update_box_points_color(this.selected_box);
                 image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
             }
         },
@@ -1062,27 +1071,27 @@ function new_editor(container){
             
             image_manager.add_box(box);
             
-            auto_shrink_box(box);
+            this.auto_shrink_box(box);
             
             // guess obj type here
             
             box.obj_type = guess_obj_type_by_dimension(box.scale);
             
-            this.floatLabelManager.add_label(box, function(){self.select_bbox(box);});
+            this.floatLabelManager.add_label(box);
 
             this.select_bbox(box);
             this.on_box_changed(box);
 
             auto_rotate_xyz(box, function(){
                 box.obj_type = guess_obj_type_by_dimension(box.scale);
-                this.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
-                this.floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
-                on_box_changed(box);
+                self.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
+                self.floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
+                self.on_box_changed(box);
             });
 
             
             
-            //floatLabelManager.add_label(box, function(){select_bbox(box);});
+            //floatLabelManager.add_label(box);
 
             
 
@@ -1137,10 +1146,10 @@ function new_editor(container){
                 })
 
                 if (box){
-                    select_bbox(box);
+                    this.select_bbox(box);
 
                     if (_self.view_state.lock_obj_in_highlight){
-                        highlight_selected_box();
+                        this.highlight_selected_box(box);
                     }
                 }
             }
@@ -1266,7 +1275,7 @@ function new_editor(container){
                 this.selected_box.material.opacity=1;
 
                 if (in_highlight){
-                    this.highlight_selected_box();
+                    this.highlight_selected_box(this.selected_box);
                 }
                 
                 
@@ -1350,9 +1359,7 @@ function new_editor(container){
             }
         },
 
-
-
-        add_bbox: function(obj_type){
+        add_box_on_mouse_pos: function(obj_type){
             // todo: move to data.world
             var pos = get_mouse_location_in_world();
             var rotation = {x:0, y:0, z:views[0].camera.rotation.z+Math.PI/2};
@@ -1364,18 +1371,23 @@ function new_editor(container){
                 z: obj_cfg.size[2]
             };
 
-            var box = data.world.add_box(pos, scale, rotation, obj_type, "");
+            this.add_box(pos, scale, rotation, obj_type, "");
+            
+            return box;
+        },
+        
+        add_box: function(pos, scale, rotation, obj_type, obj_track_id){
+            var box = data.world.add_box(pos, scale, rotation, obj_type, obj_track_id);
 
             this.scene.add(box);
 
-            this.floatLabelManager.add_label(box, function(){select_bbox(box);});
+            this.floatLabelManager.add_label(box);
             
             image_manager.add_box(box);
 
             this.select_bbox(box);
-            
-            return box;
         },
+
 
         // 
         save_box_info: function(box){
@@ -1485,7 +1497,7 @@ function new_editor(container){
 
             }
 
-            on_box_changed(this.selected_box);    
+            this.on_box_changed(this.selected_box);    
             
         },
 
@@ -1527,13 +1539,14 @@ function new_editor(container){
 
         grow_box: function(min_distance, init_scale_ratio){
 
+            let self=this;
             var extreme = data.world.grow_box(this.selected_box, min_distance, init_scale_ratio);
 
             if (extreme){
 
                 ['x','y', 'z'].forEach(function(axis){
-                    translate_box(this.selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-                    this.selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+                    self.translate_box(self.selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                    self.selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
                 }) 
             }
 
@@ -1593,7 +1606,7 @@ function new_editor(container){
                     break;
                 case 'c': // Z
                     if (ev.ctrlKey){
-                        this.mark_bbox();
+                        this.mark_bbox(this.selected_box);
                     } else {
                         views[0].transform_control.showZ = ! views[0].transform_control.showZ;
                     }
@@ -1639,7 +1652,7 @@ function new_editor(container){
                 */
             case 's':
                     if (ev.ctrlKey){
-                        this.save_annotation();
+                        save_annotation();
                     }
                     break;
                 /*
@@ -1836,7 +1849,7 @@ function new_editor(container){
             var world = data.make_new_world(
                 scene_name, 
                 frame);
-            data.activate_world(this.scene, 
+            data.activate_world(
                 world, 
                 function(){self.on_load_world_finished(scene_name, frame);}
             );
@@ -1847,17 +1860,17 @@ function new_editor(container){
         remove_selected_box: function(){
             if (this.selected_box){
                 var target_box = this.selected_box;
-                unselect_bbox(null);
-                unselect_bbox(null); //twice to safely unselect.
+                this.unselect_bbox(null);
+                this.unselect_bbox(null); //twice to safely unselect.
                 //transform_control.detach();
                 
                 // restroe color
-                restore_box_points_color(target_box);
+                this.restore_box_points_color(target_box);
 
                 image_manager.remove_box(target_box.obj_local_id);
 
                 this.floatLabelManager.remove_box(target_box);
-                scene.remove(target_box);        
+                this.scene.remove(target_box);        
                 
                 //this.selected_box.dispose();
                 data.world.remove_box(target_box);
@@ -1876,8 +1889,8 @@ function new_editor(container){
             header.clear_box_info();
             //document.getElementById("image").innerHTML = '';
             
-            unselect_bbox(null);
-            unselect_bbox(null);
+            this.unselect_bbox(null);
+            this.unselect_bbox(null);
 
             header.clear_frame_info();
 
@@ -1962,7 +1975,7 @@ function new_editor(container){
             this.floatLabelManager.remove_all_labels();
             var self=this;
             data.world.boxes.forEach(function(b){
-                self.floatLabelManager.add_label(b, function(){self.select_bbox(b);});
+                self.floatLabelManager.add_label(b);
             })
 
             if (this.selected_box){
@@ -2012,12 +2025,12 @@ function new_editor(container){
 
                     // process event
                     var obj_type = event.currentTarget.getAttribute("uservalue");
-                    self.add_bbox(obj_type);
+                    self.add_box_on_mouse_pos(obj_type);
                     //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
                     self.grow_box(0.2, {x:1.2, y:1.2, z:3});
-                    self.auto_shrink_box(this.selected_box);
-                    self.on_box_changed(this.selected_box);
-                    auto_rotate_xyz(this.selected_box, null, null, function(b){
+                    self.auto_shrink_box(self.selected_box);
+                    self.on_box_changed(self.selected_box);
+                    auto_rotate_xyz(self.selected_box, null, null, function(b){
                         self.on_box_changed(b);
                     });
                     

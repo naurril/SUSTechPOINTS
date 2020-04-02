@@ -67,7 +67,7 @@ function init() {
 
 
     scene = new THREE.Scene();
-
+    data.set_webgl_scene(scene);
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -196,12 +196,12 @@ function install_fast_tool(){
     };
 
     document.getElementById("label-copy").onclick = function(event){
-        mark_bbox();
+        mark_bbox(selected_box);
         //event.currentTarget.blur();
     }
 
     document.getElementById("label-paste").onclick = function(event){
-        smart_paste();
+        smart_paste(selected_box, add_box_on_mouse_pos, save_annotation, on_box_changed);
         //event.currentTarget.blur();
     }
 
@@ -337,7 +337,7 @@ function install_context_menu(){
 
 
     document.getElementById("cm-paste").onclick = function(event){
-        smart_paste();
+        smart_paste(selected_box);
     };
 
     document.getElementById("cm-prev-frame").onclick = function(event){      
@@ -354,7 +354,7 @@ function install_context_menu(){
 
 
     document.getElementById("cm-play").onclick = function(event){      
-        play_current_scene_with_buffer();
+        play_current_scene_with_buffer(false, on_load_world_finished);
     };
     document.getElementById("cm-stop").onclick = function(event){      
         stop_play();
@@ -664,7 +664,7 @@ function install_view_menu(gui){
     cfgFolder.add( params, "rotate bird's eye view");
 
 
-    params["play"] = play_current_scene_with_buffer;
+    params["play"] = function(){play_current_scene_with_buffer(false, on_load_world_finished);};
     params["stop"] = stop_play;
     params["previous frame"] = previous_frame;
     params["next frame"] = next_frame;
@@ -1039,7 +1039,7 @@ function handleSelectRect(x,y,w,h){
     
     box.obj_type = guess_obj_type_by_dimension(box.scale);
     
-    floatLabelManager.add_label(box, function(){select_bbox(box);});
+    floatLabelManager.add_label(box);
 
     select_bbox(box);
     on_box_changed(box);
@@ -1053,7 +1053,7 @@ function handleSelectRect(x,y,w,h){
 
     
     
-    //floatLabelManager.add_label(box, function(){select_bbox(box);});
+    //floatLabelManager.add_label(box);
 
     
 
@@ -1322,7 +1322,7 @@ function change_transform_control_view(){
 
 
 
-function add_bbox(obj_type){
+function add_box_on_mouse_pos(obj_type){
     // todo: move to data.world
     var pos = get_mouse_location_in_world();
     var rotation = {x:0, y:0, z:views[0].camera.rotation.z+Math.PI/2};
@@ -1334,17 +1334,22 @@ function add_bbox(obj_type){
         z: obj_cfg.size[2]
     };
 
-    var box = data.world.add_box(pos, scale, rotation, obj_type, "");
+    add_box(pos, scale, rotation, obj_type, "");
+    
+    return box;
+}
+
+
+function add_box(pos, scale, rotation, obj_type, obj_track_id){
+    var box = data.world.add_box(pos, scale, rotation, obj_type, obj_track_id);
 
     scene.add(box);
 
-    floatLabelManager.add_label(box, function(){select_bbox(box);});
+    floatLabelManager.add_label(box);
     
     image_manager.add_box(box);
 
     select_bbox(box);
-    
-    return box;
 }
 
 // 
@@ -1548,7 +1553,7 @@ function keydown( ev ) {
             break;
         case 'c': // Z
             if (ev.ctrlKey){
-                mark_bbox();
+                mark_bbox(selected_box);
             } else {
                 views[0].transform_control.showZ = ! views[0].transform_control.showZ;
             }
@@ -1791,7 +1796,7 @@ function load_world(scene_name, frame){
     var world = data.make_new_world(
         scene_name, 
         frame);
-    data.activate_world(scene, 
+    data.activate_world(
         world, 
         function(){on_load_world_finished(scene_name, frame);}
     );
@@ -1915,7 +1920,7 @@ function render_2d_labels(){
     floatLabelManager.remove_all_labels();
 
     data.world.boxes.forEach(function(b){
-        floatLabelManager.add_label(b, function(){select_bbox(b);});
+        floatLabelManager.add_label(b);
     })
 
     if (selected_box){
@@ -1963,7 +1968,7 @@ function add_global_obj_type(){
 
             // process event
             var obj_type = event.currentTarget.getAttribute("uservalue");
-            add_bbox(obj_type);
+            add_box_on_mouse_pos(obj_type);
             //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
             grow_box(0.2, {x:1.2, y:1.2, z:3});
             auto_shrink_box(selected_box);

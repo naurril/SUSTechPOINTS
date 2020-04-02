@@ -1,5 +1,4 @@
 
-import {selected_box, on_box_changed, select_bbox, scene, floatLabelManager} from "./main.js"
 import {get_mouse_location_in_world} from "./mouse.js"
 import {data} from "./data.js"
 import {header} from "./header.js"
@@ -8,16 +7,16 @@ import {save_annotation} from "./save.js"
 var marked_object = null;
 
 // mark bbox, which will be used as reference-bbox of an object.
-function mark_bbox(){
-    if (selected_box){
+function mark_bbox(box){
+    if (box){
         marked_object = {
             frame: data.world.file_info.frame,
             scene: data.world.file_info.scene,
-            obj_type: selected_box.obj_type,
-            obj_track_id: selected_box.obj_track_id,
-            position: selected_box.position,  //todo, copy x,y,z, not object
-            scale: selected_box.scale,
-            rotation: selected_box.rotation,
+            obj_type: box.obj_type,
+            obj_track_id: box.obj_track_id,
+            position: box.position,  //todo, copy x,y,z, not object
+            scale: box.scale,
+            rotation: box.rotation,
         }
 
         console.log(marked_object);
@@ -26,32 +25,24 @@ function mark_bbox(){
     }
 }
 
-function paste_bbox(pos){
+function paste_bbox(pos, add_box_on_pos){
 
     if (!pos)
        pos = marked_object.position;
     else
        pos.z = marked_object.position.z;
 
-    var box = data.world.add_box(pos, marked_object.scale, marked_object.rotation, marked_object.obj_type, marked_object.obj_track_id);
-
-    scene.add(box);
-
-    floatLabelManager.add_label(box, function(){select_bbox(box);});
-    
-    select_bbox(box);
-    
-    return box;
+    return  add_box_on_pos(pos);    
 }
 
 
-function auto_adjust_bbox(done){
+function auto_adjust_bbox(box, done, on_box_changed){
 
     save_annotation(function(){
-        do_adjust();
+        do_adjust(box, on_box_changed);
     });
 
-    function do_adjust(){
+    function do_adjust(box, on_box_changed){
         console.log("auto adjust highlighted bbox");
 
         var xhr = new XMLHttpRequest();
@@ -62,13 +53,13 @@ function auto_adjust_bbox(done){
         
             if (this.status == 200) {
                 console.log(this.responseText)
-                console.log(selected_box.position);
-                console.log(selected_box.rotation);
+                console.log(box.position);
+                console.log(box.rotation);
 
 
                 var trans_mat = JSON.parse(this.responseText);
 
-                var rotation = Math.atan2(trans_mat[4], trans_mat[0]) + selected_box.rotation.z;
+                var rotation = Math.atan2(trans_mat[4], trans_mat[0]) + box.rotation.z;
                 var transform = {
                     x: -trans_mat[3],
                     y: -trans_mat[7],
@@ -88,22 +79,22 @@ function auto_adjust_bbox(done){
                 };
 
 
-                selected_box.position.x += new_pos.x;
-                selected_box.position.y += new_pos.y;
-                selected_box.position.z += new_pos.z;
+                box.position.x += new_pos.x;
+                box.position.y += new_pos.y;
+                box.position.z += new_pos.z;
                 
                 
 
-                selected_box.scale.x = marked_object.scale.x;
-                selected_box.scale.y = marked_object.scale.y;
-                selected_box.scale.z = marked_object.scale.z;
+                box.scale.x = marked_object.scale.x;
+                box.scale.y = marked_object.scale.y;
+                box.scale.z = marked_object.scale.z;
 
-                selected_box.rotation.z -= Math.atan2(trans_mat[4], trans_mat[0]);
+                box.rotation.z -= Math.atan2(trans_mat[4], trans_mat[0]);
 
-                console.log(selected_box.position);
-                console.log(selected_box.rotation);
+                console.log(box.position);
+                console.log(box.rotation);
 
-                on_box_changed(selected_box);
+                on_box_changed(box);
         
                 header.mark_changed_flag();
 
@@ -125,18 +116,15 @@ function auto_adjust_bbox(done){
     }
 }
 
-function smart_paste(){
-    if (!selected_box){
-        paste_bbox(get_mouse_location_in_world());
-        auto_adjust_bbox(function(){
-            save_annotation();
-        });
+function smart_paste(selected_box, add_box_on_pos, save_annotation, on_box_changed){
+    var box = selected_box;
+    if (!box){
+        box = paste_bbox(get_mouse_location_in_world(), add_box_on_pos);
     }
-    else{
-        auto_adjust_bbox(function(){
-            save_annotation();
-        });
-    }
+    
+    auto_adjust_bbox(box,
+            function(){save_annotation();},
+            on_box_changed);
 
     header.mark_changed_flag();
 }

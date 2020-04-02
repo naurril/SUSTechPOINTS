@@ -140,7 +140,7 @@ class Root(object):
       all_objs={}
       for x in boxes:
           for o in x:
-              all_objs[o["category"]+"-"+o["id"]]=o
+              all_objs[o["category"]+"-"+str(o["id"])]=o
 
       objs = [x for x in all_objs.values()]
       #print(objs)

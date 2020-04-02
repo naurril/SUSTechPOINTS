@@ -133,7 +133,7 @@ function change_rotation_y(box, theta, sticky, on_box_changed){
 }
 
 
-function auto_rotate_y(box){
+function auto_rotate_y(box, on_box_changed){
     let points = data.world.get_points_of_box(box, 2.0);
 
     // 1. find surounding points
@@ -177,7 +177,7 @@ function auto_rotate_y(box){
     var  theta =  Math.atan2(dotproduct(x,z), dotproduct(x,x));
     console.log(theta);
 
-    change_rotation_y(box, theta, true);
+    change_rotation_y(box, theta, true, on_box_changed);
 }
 
 
@@ -208,7 +208,7 @@ function change_rotation_x(box, theta, sticky, on_box_changed){
 }
 
 
-function auto_rotate_x(box){
+function auto_rotate_x(box, on_box_changed){
     console.log("x auto ratote");
     
     let points = data.world.get_points_of_box(box, 2.0);
@@ -255,7 +255,7 @@ function auto_rotate_x(box){
     var  theta =  Math.atan2(dotproduct(y,z), dotproduct(y,y));
     console.log(theta);
 
-    change_rotation_x(box, theta, true);
+    change_rotation_x(box, theta, true, on_box_changed);
 }
 
 function translate_box(box, axis, delta){

@@ -1061,7 +1061,7 @@ function on_y_reset_rotate(){
 }
 
 function on_y_auto_rotate(){
-    auto_rotate_y(get_selected_box());
+    auto_rotate_y(get_selected_box(), on_box_changed);
 }
 
 var y_view_handle = create_view_handler("y-", on_y_edge_changed, 
@@ -1136,7 +1136,7 @@ function on_x_moved(ratio){
 }
 
 function on_x_direction_changed(theta, sticky){
-    change_rotation_x(get_selected_box(), theta, stick, on_box_changed)
+    change_rotation_x(get_selected_box(), theta, sticky, on_box_changed)
 }
 
 function on_x_scaled(ratio){
@@ -1168,7 +1168,7 @@ function on_x_reset_rotate(){
 }
 
 function on_x_auto_rotate(){
-    auto_rotate_x(get_selected_box());
+    auto_rotate_x(get_selected_box(), on_box_changed);
 }
 
 var x_view_handle = create_view_handler("x-", on_x_edge_changed, 
