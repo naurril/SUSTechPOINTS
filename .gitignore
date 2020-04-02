@@ -2,3 +2,4 @@ data/*
 .vscode
 temp
 *.pyc
+**.h5
