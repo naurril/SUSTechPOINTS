@@ -1,3 +1,4 @@
 tensorflow>=2.1
 jinja2
 cherrypy
+filterpy
