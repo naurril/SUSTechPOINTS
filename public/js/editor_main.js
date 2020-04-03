@@ -6,6 +6,22 @@ document.body.addEventListener('keydown', event => {
     }
 })
 
-let container = document.getElementById("container");
-let editor = new_editor(container)
-editor.run();
+
+var maindiv  = document.querySelector("#main-div");
+
+var template = document.querySelector('#main-ui-template');
+
+if (true){
+  let main_ui = template.content.cloneNode(true);
+  maindiv.appendChild(main_ui); // input parameter is changed after `append`
+  let editor = new_editor(maindiv.lastElementChild)
+  editor.run();
+}
+
+
+if (true){
+  let main_ui = template.content.cloneNode(true);
+  maindiv.appendChild(main_ui); // input parameter is changed after `append`
+  let editor = new_editor(maindiv.lastElementChild)
+  editor.run();
+}

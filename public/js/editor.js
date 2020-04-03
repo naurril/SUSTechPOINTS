@@ -16,11 +16,12 @@ import {mark_bbox, paste_bbox, auto_adjust_bbox, smart_paste} from "./auto-adjus
 import {stop_play, pause_resume_play, play_current_scene_with_buffer} from "./play.js"
 import {save_annotation} from "./save.js"
 
-function new_editor(container){
+function new_editor(editor_ui){
 
     var editor_obj = {
 
         sideview_enabled:true,
+        editor_ui:null,
         container:null,
 
         scene:null,
@@ -39,7 +40,7 @@ function new_editor(container){
             lock_obj_in_highlight : false,
         },
 
-        init: function() {
+        init: function(editor_ui) {
             // document.body.addEventListener('keydown', event => {
             //     if (event.ctrlKey && 'asdv'.indexOf(event.key) !== -1) {
             //     event.preventDefault()
@@ -51,7 +52,11 @@ function new_editor(container){
             // };
         
             let self = this;
+            this.editor_ui = editor_ui;
+            
             this.scene = new THREE.Scene();
+
+
             data.set_webgl_scene(this.scene);
         
             this.renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -67,11 +72,11 @@ function new_editor(container){
             
         
             //container = document.createElement( 'container' );
-            //container = document.getElementById("container");
+            //container = this.editor_ui.querySelector("#container");
             
         
             //document.body.appendChild( container );
-            this.container = container;
+            this.container = editor_ui.querySelector("#container");
             this.container.appendChild( this.renderer.domElement );
         
             create_views(this.container, this.scene, this.container/*renderer.domElement*/, 
@@ -80,7 +85,7 @@ function new_editor(container){
         
             this.add_range_box();
         
-            this.floatLabelManager = createFloatLabelManager(this.container, views[0],function(box){self.select_bbox(box);});
+            this.floatLabelManager = createFloatLabelManager(this.editor_ui, this.container, views[0],function(box){self.select_bbox(box);});
         
             //this.init_gui();
             
@@ -108,12 +113,12 @@ function new_editor(container){
             //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
             //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
         
-            document.getElementById("object-category-selector").onchange = function(ev){self.object_category_changed(ev);};
-            document.getElementById("object-track-id-editor").onchange = function(ev){self.object_track_id_changed(ev);};
-            document.getElementById("object-track-id-editor").addEventListener("keydown", function(e){
+            this.editor_ui.querySelector("#object-category-selector").onchange = function(ev){self.object_category_changed(ev);};
+            this.editor_ui.querySelector("#object-track-id-editor").onchange = function(ev){self.object_track_id_changed(ev);};
+            this.editor_ui.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
                 e.stopPropagation();});
             
-            document.getElementById("object-track-id-editor").addEventListener("keyup", function(e){
+            this.editor_ui.querySelector("#object-track-id-editor").addEventListener("keyup", function(e){
                 e.stopPropagation();
         
                 if (this.selected_box){
@@ -121,16 +126,16 @@ function new_editor(container){
                     this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
                 }
             });
-            //document.getElementById("header-row").addEventListener('mousedown', function(e){e.preventDefault();});
-            //document.getElementById("header-row").addEventListener('mousemove', function(e){e.preventDefault();});
+            //this.editor_ui.querySelector("#header-row").addEventListener('mousedown', function(e){e.preventDefault();});
+            //this.editor_ui.querySelector("#header-row").addEventListener('mousemove', function(e){e.preventDefault();});
             
-            document.getElementById("scene-selector").onchange = function(event){
+            this.editor_ui.querySelector("#scene-selector").onchange = function(event){
                 self.scene_changed(event.currentTarget.value);        
                 event.currentTarget.blur();
             };
         
-            document.getElementById("frame-selector").onchange = function(e){self.frame_changed(e)};
-            document.getElementById("camera-selector").onchange = function(e){self.camera_changed(e)};
+            this.editor_ui.querySelector("#frame-selector").onchange = function(e){self.frame_changed(e)};
+            this.editor_ui.querySelector("#camera-selector").onchange = function(e){self.camera_changed(e)};
         
         
             init_side_view_op_module(
@@ -143,8 +148,8 @@ function new_editor(container){
         
             this.install_context_menu();
         
-            view_handles.init_view_operation();
-            view_handles.hide();
+            //view_handles.init_view_operation();
+            //view_handles.hide();
         
             this.install_grid()
         
@@ -209,7 +214,7 @@ function new_editor(container){
 
         install_grid: function(){
             
-            var svg = document.getElementById("main-view-svg");
+            var svg = this.editor_ui.querySelector("#main-view-svg");
 
             for (var i=1; i<10; i++){
                 const line = document. createElementNS("http://www.w3.org/2000/svg", "line");
@@ -235,28 +240,28 @@ function new_editor(container){
 
         install_fast_tool: function(){
             let _self=this;
-            document.getElementById("label-del").onclick = function(){
+            this.editor_ui.querySelector("#label-del").onclick = function(){
                 _self.remove_selected_box();
                 header.mark_changed_flag();
                 //event.currentTarget.blur();
             };
 
-            document.getElementById("label-copy").onclick = function(event){
+            this.editor_ui.querySelector("#label-copy").onclick = function(event){
                 mark_bbox(_self.selected_box);
                 //event.currentTarget.blur();
             }
 
-            document.getElementById("label-paste").onclick = function(event){
+            this.editor_ui.querySelector("#label-paste").onclick = function(event){
                 smart_paste(_self.selected_box);
                 //event.currentTarget.blur();
             }
 
-            document.getElementById("label-edit").onclick = function(event){
+            this.editor_ui.querySelector("#label-edit").onclick = function(event){
                 event.currentTarget.blur();
                 _self.select_bbox(_self.selected_box);
             }
 
-            document.getElementById("label-reset").onclick = function(event){
+            this.editor_ui.querySelector("#label-reset").onclick = function(event){
                 event.currentTarget.blur();
                 if (_self.selected_box){
                     //switch_bbox_type(this.selected_box.obj_type);
@@ -264,7 +269,7 @@ function new_editor(container){
                 }        
             }
 
-            document.getElementById("label-highlight").onclick = function(event){
+            this.editor_ui.querySelector("#label-highlight").onclick = function(event){
                 event.currentTarget.blur();
                 if (_self.selected_box.in_highlight){
                     _self.cancel_highlight_selected_box(_self.selected_box);
@@ -275,7 +280,7 @@ function new_editor(container){
                 }
             }
 
-            document.getElementById("label-rotate").onclick = function(event){
+            this.editor_ui.querySelector("#label-rotate").onclick = function(event){
                 event.currentTarget.blur();
                 _self.transform_bbox("z_rotate_reverse");        
             }
@@ -318,35 +323,35 @@ function new_editor(container){
         install_context_menu: function(){
 
             var self=this;
-            document.getElementById("context-menu-wrapper").onclick = function(event){
+            this.editor_ui.querySelector("#context-menu-wrapper").onclick = function(event){
                 event.currentTarget.style.display="none"; 
                 event.preventDefault();
                 event.stopPropagation();             
             };
 
-            document.getElementById("context-menu-wrapper").oncontextmenu = function(event){
+            this.editor_ui.querySelector("#context-menu-wrapper").oncontextmenu = function(event){
                 event.currentTarget.style.display="none"; 
                 event.preventDefault();
                 event.stopPropagation();
             };
             
             /*    
-            document.getElementById("context-menu").onclick = function(enabled){
+            this.editor_ui.querySelector("#context-menu").onclick = function(enabled){
                 // some items clicked
-                document.getElementById("context-menu-wrapper").style.display = "none";
+                this.editor_ui.querySelector("#context-menu-wrapper").style.display = "none";
                 event.preventDefault();
                 event.stopPropagation();
             };
 
-            document.getElementById("new-submenu").onclick = function(enabled){
+            this.editor_ui.querySelector("#new-submenu").onclick = function(enabled){
                 // some items clicked
-                document.getElementById("context-menu-wrapper").style.display = "none";
+                this.editor_ui.querySelector("#context-menu-wrapper").style.display = "none";
                 event.preventDefault();
                 event.stopPropagation();
             };
             */
 
-            document.getElementById("cm-new").onclick = function(event){
+            this.editor_ui.querySelector("#cm-new").onclick = function(event){
                 //add_bbox();
                 //header.mark_changed_flag();
 
@@ -359,74 +364,74 @@ function new_editor(container){
 
             };
 
-            document.getElementById("cm-new").onmouseenter = function(event){
-                var item = document.getElementById("new-submenu");
+            this.editor_ui.querySelector("#cm-new").onmouseenter = function(event){
+                var item = self.editor_ui.querySelector("#new-submenu");
                 item.style.display="inherit";
             };
 
-            document.getElementById("cm-new").onmouseleave = function(event){
-                document.getElementById("new-submenu").style.display="none";
+            this.editor_ui.querySelector("#cm-new").onmouseleave = function(event){
+                self.editor_ui.querySelector("#new-submenu").style.display="none";
                 //console.log("leave  new item");
             };
 
 
-            document.getElementById("new-submenu").onmouseenter=function(event){
-                var item = document.getElementById("new-submenu");
+            this.editor_ui.querySelector("#new-submenu").onmouseenter=function(event){
+                var item = self.editor_ui.querySelector("#new-submenu");
                 item.style.display="block";
             }
 
-            document.getElementById("new-submenu").onmouseleave=function(event){
-                var item = document.getElementById("new-submenu");
+            this.editor_ui.querySelector("#new-submenu").onmouseleave=function(event){
+                var item = self.editor_ui.querySelector("#new-submenu");
                 item.style.display="none";
             }
 
 
 
-            document.getElementById("cm-paste").onclick = function(event){
+            self.editor_ui.querySelector("#cm-paste").onclick = function(event){
                 smart_paste(self.selected_box);
             };
 
-            document.getElementById("cm-prev-frame").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-prev-frame").onclick = function(event){      
                 self.previous_frame();
             };
 
-            document.getElementById("cm-next-frame").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-next-frame").onclick = function(event){      
                 self.next_frame();
             };
 
-            document.getElementById("cm-save").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-save").onclick = function(event){      
                 save_annotation();
             };
 
 
-            document.getElementById("cm-play").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-play").onclick = function(event){      
                 play_current_scene_with_buffer(false,
                     function(s,f){
                         self.on_load_world_finished(s,f)
                     });
             };
-            document.getElementById("cm-stop").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-stop").onclick = function(event){      
                 stop_play();
             };
-            document.getElementById("cm-pause").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-pause").onclick = function(event){      
                 pause_resume_play();
             };
 
 
-            document.getElementById("cm-prev-object").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-prev-object").onclick = function(event){      
                 self.select_previous_object();
             };
 
-            document.getElementById("cm-next-object").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-next-object").onclick = function(event){      
                 self.select_previous_object();
             };
 
-            document.getElementById("cm-delete").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-delete").onclick = function(event){      
                 self.remove_selected_box();
                 header.mark_changed_flag();
             };
 
-            document.getElementById("cm-interpolate").onclick = function(event){      
+            self.editor_ui.querySelector("#cm-interpolate").onclick = function(event){      
                 self.interpolate_selected_object();
                 header.mark_changed_flag();
             };
@@ -513,7 +518,7 @@ function new_editor(container){
                 // will be updated in time.
                 
                 
-                console.log(left,bottom, width, height);
+                //console.log(left,bottom, width, height);
 
                 this.renderer.setViewport( left, bottom, width, height );
                 this.renderer.setScissor( left, bottom, width, height );
@@ -548,7 +553,7 @@ function new_editor(container){
                         return "<option value="+c.scene +">"+c.scene + "</option>";
                     }).reduce(function(x,y){return x+y;}, "<option>--scene--</option>");
 
-                    document.getElementById("scene-selector").innerHTML = scene_selector_str;
+                    this.editor_ui.querySelector("#scene-selector").innerHTML = scene_selector_str;
                 }
 
             };
@@ -572,21 +577,21 @@ function new_editor(container){
                 return "<option value="+f+">"+f + "</option>";
             }).reduce(function(x,y){return x+y;}, "<option>--frame--</option>");
 
-            document.getElementById("frame-selector").innerHTML = frame_selector_str;
+            this.editor_ui.querySelector("#frame-selector").innerHTML = frame_selector_str;
             
             
             if (meta.image){
                 var camera_selector_str = meta.image.map(function(c){
                     return '<option value="'+c+'">'+c+'</option>';
                 }).reduce(function(x,y){return x+y;}, "<option>--camera--</option>");
-                document.getElementById("camera-selector").innerHTML = camera_selector_str;
+                this.editor_ui.querySelector("#camera-selector").innerHTML = camera_selector_str;
             }
 
             load_obj_ids_of_scene(scene_name);
         },
 
         frame_changed: function(event){
-            var scene_name = document.getElementById("scene-selector").value;
+            var scene_name = this.editor_ui.querySelector("#scene-selector").value;
 
             if (scene_name.length == 0){
                 return;
@@ -1022,28 +1027,28 @@ function new_editor(container){
         },
 
         show_world_context_menu: function(posX, posY){
-            let menu = document.getElementById("context-menu");
+            let menu = this.editor_ui.querySelector("#context-menu");
             menu.style.display = "inherit";
             menu.style.left = posX+"px";
             menu.style.top = posY+"px";
-            document.getElementById("context-menu-wrapper").style.display = "block";
+            this.editor_ui.querySelector("#context-menu-wrapper").style.display = "block";
         },
 
         hide_world_context_menu: function(){
-            let menu = document.getElementById("context-menu");
+            let menu = this.editor_ui.querySelector("#context-menu");
             menu.style.display = "none";
         },
 
         show_object_context_menu: function(posX, posY){
-            let menu = document.getElementById("object-context-menu");
+            let menu = this.editor_ui.querySelector("#object-context-menu");
             menu.style.display = "inherit";
             menu.style.left = posX+"px";
             menu.style.top = posY+"px";
-            document.getElementById("context-menu-wrapper").style.display = "block";
+            this.editor_ui.querySelector("#context-menu-wrapper").style.display = "block";
         },
 
         hide_object_context_menu: function(){
-            let menu = document.getElementById("object-context-menu");
+            let menu = this.editor_ui.querySelector("#object-context-menu");
             menu.style.display = "none";
         },
 
@@ -1259,7 +1264,7 @@ function new_editor(container){
                     var image_changed = data.set_active_image(best_iamge);
 
                     if (image_changed){
-                        document.getElementById("camera-selector").value=best_iamge;
+                        this.editor_ui.querySelector("#camera-selector").value=best_iamge;
                         image_manager.display_image();
                     }
                 }
@@ -1306,7 +1311,7 @@ function new_editor(container){
             //camera.updateProjectionMatrix();
             //renderer.setSize( container.clientWidth, container.clientHeight );
             
-            //container = document.getElementById("container");
+            //container = this.editor_ui.querySelector("#container");
             
 
             if ( this.windowWidth != this.container.clientWidth || this.windowHeight != this.container.clientHeight ) {
@@ -1336,7 +1341,7 @@ function new_editor(container){
 
             //dirLightShadowMapViewer.updateForWindowResize();
 
-            //document.getElementById("maincanvas").parentElement.style.left="20%";
+            //this.editor_ui.querySelector("#maincanvas").parentElement.style.left="20%";
 
         },
 
@@ -1887,7 +1892,7 @@ function new_editor(container){
         clear: function(){
 
             header.clear_box_info();
-            //document.getElementById("image").innerHTML = '';
+            //this.editor_ui.querySelector("#image").innerHTML = '';
             
             this.unselect_bbox(null);
             this.unselect_bbox(null);
@@ -2005,7 +2010,7 @@ function new_editor(container){
                 options += '<option value="'+o+'" class="' +o+ '">'+o+ '</option>';        
             }
 
-            document.getElementById("object-category-selector").innerHTML = options;
+            this.editor_ui.querySelector("#object-category-selector").innerHTML = options;
 
 
             // submenu of new
@@ -2014,14 +2019,14 @@ function new_editor(container){
                 items += '<div class="menu-item cm-new-item ' + o + '" id="cm-new-'+o+'" uservalue="' +o+ '"><div class="menu-item-text">'+o+ '</div></div>';        
             }
 
-            document.getElementById("new-submenu").innerHTML = items;
+            this.editor_ui.querySelector("#new-submenu").innerHTML = items;
 
             // install click actions
             for (var o in obj_type_map){        
-                document.getElementById("cm-new-"+o).onclick = function(event){
+                this.editor_ui.querySelector("#cm-new-"+o).onclick = function(event){
 
                     // hide context men
-                    document.getElementById("context-menu-wrapper").style.display="none";
+                    this.editor_ui.querySelector("#context-menu-wrapper").style.display="none";
 
                     // process event
                     var obj_type = event.currentTarget.getAttribute("uservalue");
@@ -2070,7 +2075,7 @@ function new_editor(container){
 
     }
 
-    editor_obj.init();
+    editor_obj.init(editor_ui);
     return editor_obj;
 };
 

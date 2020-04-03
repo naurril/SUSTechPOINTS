@@ -4,6 +4,10 @@ import {data} from './data.js'
 
 var header={
 
+    editor_ui:null,
+    init(editor_ui){
+        this.editor_ui = editor_ui;
+    },
     clear_box_info: function(){
         document.getElementById("box").innerHTML = '';
     },

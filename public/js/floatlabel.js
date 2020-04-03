@@ -6,15 +6,16 @@ import {
 } from "./lib/three.module.js";
 
 
-function createFloatLabelManager(container_div, view, func_on_label_clicked) {
+function createFloatLabelManager(editor_ui, container_div, view, func_on_label_clicked) {
 
     var manager = 
     {
         view : view,  //access camera by view, since camera is dynamic
+        editor_ui: editor_ui,
         container: container_div,
         id_enabled: true,
         category_enabled: true,
-        html_labels: document.getElementById("2Dlabels"),
+        html_labels: editor_ui.querySelector("#2Dlabels"),
 
         style: document.createElement('style'),
         temp_style: document.createElement('style'),
@@ -108,16 +109,16 @@ function createFloatLabelManager(container_div, view, func_on_label_clicked) {
         },
 
         update_obj_editor_position: function(local_id){
-            var label = document.getElementById("obj-local-"+local_id);
+            var label = this.editor_ui.querySelector("#obj-local-"+local_id);
             
             if (label){
-                document.getElementById("obj-editor").style.top = label.style.top;
-                document.getElementById("obj-editor").style.left = label.style.left;
+                this.editor_ui.querySelector("#obj-editor").style.top = label.style.top;
+                this.editor_ui.querySelector("#obj-editor").style.left = label.style.left;
             }
         },
 
         select_box: function(local_id){
-            var label = document.getElementById("obj-local-"+local_id);
+            var label = this.editor_ui.querySelector("#obj-local-"+local_id);
 
             
             if (label){                
@@ -126,33 +127,33 @@ function createFloatLabelManager(container_div, view, func_on_label_clicked) {
                     label.hidden = true;
                     label.selected = true;                
                     
-                    document.getElementById("obj-editor").style.display = "inline-block";
+                    this.editor_ui.querySelector("#obj-editor").style.display = "inline-block";
 
-                    document.getElementById("category-id-editor").style.display = "inherit";//"none";
-                    document.getElementById("obj-label").style.display = "none";
-                    document.getElementById("obj-label").innerText = label.innerText;
+                    this.editor_ui.querySelector("#category-id-editor").style.display = "inherit";//"none";
+                    this.editor_ui.querySelector("#obj-label").style.display = "none";
+                    this.editor_ui.querySelector("#obj-label").innerText = label.innerText;
                     
                 }
             }
         },
 
         unselect_box: function(local_id){
-            var label = document.getElementById("obj-local-"+local_id);
+            var label = this.editor_ui.querySelector("#obj-local-"+local_id);
             if (label){                
                 label.className = "float-label" + " " + label.obj_type;
                 label.hidden = false;
                 label.selected = false;
-                document.getElementById("obj-editor").style.display = "none";
+                this.editor_ui.querySelector("#obj-editor").style.display = "none";
             }
         },
 
         update_label_editor: function(obj_type, obj_track_id){
-            document.getElementById("object-category-selector").value = obj_type;
-            document.getElementById("object-track-id-editor").value = obj_track_id;
+            this.editor_ui.querySelector("#object-category-selector").value = obj_type;
+            this.editor_ui.querySelector("#object-track-id-editor").value = obj_track_id;
         },
         
         set_object_type: function(local_id, obj_type){
-            var label = document.getElementById("obj-local-"+local_id);
+            var label = this.editor_ui.querySelector("#obj-local-"+local_id);
             if (label){
                 label.obj_type = obj_type;
                 label.update_text();
@@ -161,7 +162,7 @@ function createFloatLabelManager(container_div, view, func_on_label_clicked) {
 
         
         set_object_track_id: function(local_id, track_id){
-            var label = document.getElementById("obj-local-"+local_id);
+            var label = this.editor_ui.querySelector("#obj-local-"+local_id);
 
             if (label){
                 label.obj_track_id = track_id;
@@ -170,7 +171,7 @@ function createFloatLabelManager(container_div, view, func_on_label_clicked) {
         },
 
         update_position: function(box, refresh){
-            var label = document.getElementById("obj-local-"+box.obj_local_id);
+            var label = this.editor_ui.querySelector("#obj-local-"+box.obj_local_id);
             
             if (label){
                label.vertices = psr_to_xyz(box.position, box.scale, box.rotation);  //vector 4
@@ -191,7 +192,7 @@ function createFloatLabelManager(container_div, view, func_on_label_clicked) {
         },
 
         remove_box: function(box){
-            var label = document.getElementById("obj-local-"+box.obj_local_id);
+            var label = this.editor_ui.querySelector("#obj-local-"+box.obj_local_id);
 
             if (label)
                 label.remove();
@@ -238,7 +239,7 @@ function createFloatLabelManager(container_div, view, func_on_label_clicked) {
 
             label.selected = false;
 
-            document.getElementById("2Dlabels").appendChild(label);
+            this.editor_ui.querySelector("#2Dlabels").appendChild(label);
 
             let self = this;
             label.onclick = function(){

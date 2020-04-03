@@ -32,7 +32,7 @@ function save_annotation(done){
             */
            
             obj_type: b.obj_type,
-            obj_id: b.obj_track_id,
+            obj_id: String(b.obj_track_id),
             //vertices: vertices,
         };
 
