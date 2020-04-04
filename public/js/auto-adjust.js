@@ -1,13 +1,12 @@
 
 import {get_mouse_location_in_world} from "./mouse.js"
 import {data} from "./data.js"
-import {header} from "./header.js"
 import {save_annotation} from "./save.js"
 
 var marked_object = null;
 
 // mark bbox, which will be used as reference-bbox of an object.
-function mark_bbox(box){
+function mark_bbox(box, header){
     if (box){
         marked_object = {
             frame: data.world.file_info.frame,
@@ -42,7 +41,7 @@ function auto_adjust_bbox(box, done, on_box_changed){
         do_adjust(box, on_box_changed);
     });
 
-    function do_adjust(box, on_box_changed){
+    function do_adjust(box, header, on_box_changed){
         console.log("auto adjust highlighted bbox");
 
         var xhr = new XMLHttpRequest();
@@ -116,7 +115,7 @@ function auto_adjust_bbox(box, done, on_box_changed){
     }
 }
 
-function smart_paste(selected_box, add_box_on_pos, save_annotation, on_box_changed){
+function smart_paste(selected_box, header, add_box_on_pos, save_annotation, on_box_changed){
     var box = selected_box;
     if (!box){
         box = paste_bbox(get_mouse_location_in_world(), add_box_on_pos);

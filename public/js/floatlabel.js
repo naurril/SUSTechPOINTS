@@ -15,7 +15,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
         container: container_div,
         id_enabled: true,
         category_enabled: true,
-        html_labels: editor_ui.querySelector("#2Dlabels"),
+        html_labels: editor_ui.querySelector("#floating-labels"),
 
         style: document.createElement('style'),
         temp_style: document.createElement('style'),
@@ -239,7 +239,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
 
             label.selected = false;
 
-            this.editor_ui.querySelector("#2Dlabels").appendChild(label);
+            this.html_labels.appendChild(label);
 
             let self = this;
             label.onclick = function(){

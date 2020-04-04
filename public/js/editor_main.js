@@ -19,9 +19,9 @@ if (true){
 }
 
 
-if (true){
-  let main_ui = template.content.cloneNode(true);
-  maindiv.appendChild(main_ui); // input parameter is changed after `append`
-  let editor = new_editor(maindiv.lastElementChild)
-  editor.run();
-}
+// if (true){
+//   let main_ui = template.content.cloneNode(true);
+//   maindiv.appendChild(main_ui); // input parameter is changed after `append`
+//   let editor = new_editor(maindiv.lastElementChild)
+//   editor.run();
+// }

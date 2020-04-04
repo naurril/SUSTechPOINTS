@@ -2,7 +2,7 @@
 import {psr_to_xyz} from "./util.js"
 import {data} from "./data.js"
 import {load_obj_ids_of_scene} from "./obj_id_list.js"
-import {header} from "./header.js"
+
 
 function save_annotation(done){
     var bbox_annotations=[];
@@ -63,10 +63,6 @@ function save_annotation(done){
     var b = JSON.stringify(bbox_annotations);
     //console.log(b);
     xhr.send(b);
-
-    // unmark changed flag
-    //document.getElementById("frame").innerHTML = data.world.file_info.scene+"/"+data.world.file_info.frame;
-    header.unmark_changed_flag();
 }
 
 

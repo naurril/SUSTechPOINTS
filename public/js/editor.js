@@ -9,7 +9,7 @@ import {init_image_op, render_2d_image, update_image_box_projection, clear_canva
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 import {data} from './data.js'
 import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
-import {header} from "./header.js"
+import {Header} from "./header.js"
 import {matmul2, euler_angle_to_rotate_matrix, dotproduct, linalg_std} from "./util.js"
 import {translate_box, auto_rotate_xyz } from './box_op.js';
 import {mark_bbox, paste_bbox, auto_adjust_bbox, smart_paste} from "./auto-adjust.js"
@@ -39,6 +39,7 @@ function new_editor(editor_ui){
             lock_obj_track_id : "",
             lock_obj_in_highlight : false,
         },
+        header: null,
 
         init: function(editor_ui) {
             // document.body.addEventListener('keydown', event => {
@@ -53,7 +54,7 @@ function new_editor(editor_ui){
         
             let self = this;
             this.editor_ui = editor_ui;
-            
+            this.header = new Header(editor_ui.querySelector("#info"));
             this.scene = new THREE.Scene();
 
 
@@ -239,50 +240,50 @@ function new_editor(editor_ui){
         },
 
         install_fast_tool: function(){
-            let _self=this;
+            let self=this;
             this.editor_ui.querySelector("#label-del").onclick = function(){
-                _self.remove_selected_box();
-                header.mark_changed_flag();
+                self.remove_selected_box();
+                self.header.mark_changed_flag();
                 //event.currentTarget.blur();
             };
 
             this.editor_ui.querySelector("#label-copy").onclick = function(event){
-                mark_bbox(_self.selected_box);
+                mark_bbox(self.selected_box, self.header);
                 //event.currentTarget.blur();
             }
 
             this.editor_ui.querySelector("#label-paste").onclick = function(event){
-                smart_paste(_self.selected_box);
+                smart_paste(self.selected_box);
                 //event.currentTarget.blur();
             }
 
             this.editor_ui.querySelector("#label-edit").onclick = function(event){
                 event.currentTarget.blur();
-                _self.select_bbox(_self.selected_box);
+                self.select_bbox(self.selected_box);
             }
 
             this.editor_ui.querySelector("#label-reset").onclick = function(event){
                 event.currentTarget.blur();
-                if (_self.selected_box){
+                if (self.selected_box){
                     //switch_bbox_type(this.selected_box.obj_type);
-                    _self.transform_bbox("reset");
+                    self.transform_bbox("reset");
                 }        
             }
 
             this.editor_ui.querySelector("#label-highlight").onclick = function(event){
                 event.currentTarget.blur();
-                if (_self.selected_box.in_highlight){
-                    _self.cancel_highlight_selected_box(_self.selected_box);
-                    _self.view_state.lock_obj_in_highlight = false
+                if (self.selected_box.in_highlight){
+                    self.cancel_highlight_selected_box(self.selected_box);
+                    self.view_state.lock_obj_in_highlight = false
                 }
                 else {
-                    _self.highlight_selected_box(_self.selected_box);
+                    self.highlight_selected_box(self.selected_box);
                 }
             }
 
             this.editor_ui.querySelector("#label-rotate").onclick = function(event){
                 event.currentTarget.blur();
-                _self.transform_bbox("z_rotate_reverse");        
+                self.transform_bbox("z_rotate_reverse");        
             }
         },
 
@@ -400,7 +401,9 @@ function new_editor(editor_ui){
             };
 
             self.editor_ui.querySelector("#cm-save").onclick = function(event){      
-                save_annotation();
+                save_annotation(function(){
+                    self.header.unmark_changed_flag();
+                });
             };
 
 
@@ -428,12 +431,12 @@ function new_editor(editor_ui){
 
             self.editor_ui.querySelector("#cm-delete").onclick = function(event){      
                 self.remove_selected_box();
-                header.mark_changed_flag();
+                self.header.mark_changed_flag();
             };
 
             self.editor_ui.querySelector("#cm-interpolate").onclick = function(event){      
                 self.interpolate_selected_object();
-                header.mark_changed_flag();
+                self.header.mark_changed_flag();
             };
             
             
@@ -538,7 +541,8 @@ function new_editor(editor_ui){
 
         load_data_meta: function(){    
 
-            var xhr = new XMLHttpRequest();
+            let self=this;
+            let xhr = new XMLHttpRequest();
             // we defined the xhr
             
             xhr.onreadystatechange = function () {
@@ -553,7 +557,7 @@ function new_editor(editor_ui){
                         return "<option value="+c.scene +">"+c.scene + "</option>";
                     }).reduce(function(x,y){return x+y;}, "<option>--scene--</option>");
 
-                    this.editor_ui.querySelector("#scene-selector").innerHTML = scene_selector_str;
+                    self.editor_ui.querySelector("#scene-selector").innerHTML = scene_selector_str;
                 }
 
             };
@@ -855,7 +859,7 @@ function new_editor(editor_ui){
                 
                 this.selected_box.obj_type = event.currentTarget.value;
                 this.floatLabelManager.set_object_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
-                header.mark_changed_flag();
+                self.header.mark_changed_flag();
                 this.update_box_points_color(this.selected_box);
                 image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
             }
@@ -1144,16 +1148,16 @@ function new_editor(editor_ui){
 
 
         select_locked_object: function(){
-            var _self=this;
+            var self=this;
             if (this.view_state.lock_obj_track_id != ""){
                 var box = data.world.boxes.find(function(x){
-                    return x.obj_track_id == _self.view_state.lock_obj_track_id;
+                    return x.obj_track_id == self.view_state.lock_obj_track_id;
                 })
 
                 if (box){
                     this.select_bbox(box);
 
-                    if (_self.view_state.lock_obj_in_highlight){
+                    if (self.view_state.lock_obj_in_highlight){
                         this.highlight_selected_box(box);
                     }
                 }
@@ -1599,7 +1603,7 @@ function new_editor(editor_ui){
                 case 'B':
                 case 'b':
                     switch_bbox_type();
-                    header.mark_changed_flag();
+                    self.header.mark_changed_flag();
                     on_box_changed(this.selected_box);
                     break;
                 */
@@ -1611,7 +1615,7 @@ function new_editor(editor_ui){
                     break;
                 case 'c': // Z
                     if (ev.ctrlKey){
-                        this.mark_bbox(this.selected_box);
+                        this.mark_bbox(this.selected_box, this.header);
                     } else {
                         views[0].transform_control.showZ = ! views[0].transform_control.showZ;
                     }
@@ -1703,7 +1707,7 @@ function new_editor(editor_ui){
                         }
                         else if (ev.ctrlKey){
                             remove_selected_box();
-                            header.mark_changed_flag();
+                            self.header.mark_changed_flag();
                         }else{
                             this.transform_bbox("z_move_down");
                         }
@@ -1751,7 +1755,7 @@ function new_editor(editor_ui){
                 
                 case 'Delete':
                     this.remove_selected_box();
-                    header.mark_changed_flag();
+                    this.header.mark_changed_flag();
                     break;
                 case 'Escape':
                     if (this.selected_box){
@@ -1839,7 +1843,7 @@ function new_editor(editor_ui){
             this.update_frame_info(scene_name, frame);
 
             this.select_locked_object();
-            header.unmark_changed_flag();
+            this.header.unmark_changed_flag();
             load_obj_ids_of_scene(scene_name);
         },
 
@@ -1891,13 +1895,13 @@ function new_editor(editor_ui){
 
         clear: function(){
 
-            header.clear_box_info();
+            this.header.clear_box_info();
             //this.editor_ui.querySelector("#image").innerHTML = '';
             
             this.unselect_bbox(null);
             this.unselect_bbox(null);
 
-            header.clear_frame_info();
+            this.header.clear_frame_info();
 
             clear_main_canvas();
             clear_canvas();
@@ -1912,9 +1916,9 @@ function new_editor(editor_ui){
 
 
         update_frame_info: function(scene, frame){
-            var _self = this;
-            header.set_frame_info(scene, frame, function(scene_name){
-                _self.scene_changed(scene_name)});
+            var self = this;
+            this.header.set_frame_info(scene, frame, function(scene_name){
+                self.scene_changed(scene_name)});
         },
 
         //box edited
@@ -1927,9 +1931,9 @@ function new_editor(editor_ui){
             //render_2d_image();
             image_manager.update_box(box);
 
-            header.update_box_info(box);
+            this.header.update_box_info(box);
             //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
-            header.mark_changed_flag();
+            this.header.mark_changed_flag();
             this.update_box_points_color(box);
             this.save_box_info(box);
 
@@ -1960,7 +1964,7 @@ function new_editor(editor_ui){
         on_selected_box_changed: function(box){
 
             if (box){        
-                header.update_box_info(box);
+                this.header.update_box_info(box);
                 update_image_box_projection(box)
                 this.floatLabelManager.update_position(box, true);
                 this.update_subview_by_bbox(box);
@@ -1968,7 +1972,7 @@ function new_editor(editor_ui){
 
                 image_manager.select_bbox(box.obj_local_id, box.obj_type);
             } else {
-                header.clear_box_info();
+                this.header.clear_box_info();
                 //clear_canvas();
                 //render_2d_image();
             }
