@@ -1,5 +1,5 @@
 
-import {data} from './data.js'
+
 import {matmul, euler_angle_to_rotate_matrix_3by3, transpose, matmul2} from "./util.js"
 
 var ml = {

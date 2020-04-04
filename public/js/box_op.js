@@ -6,8 +6,6 @@ import {
 
 import{ml} from "./ml.js";
 import {dotproduct} from "./util.js"
-import {data} from "./data.js"
-
 
 
 
@@ -275,4 +273,28 @@ function translate_box(box, axis, delta){
     }
 }
 
-export {translate_box, auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz}
+
+function rotate_z(box, theta, sticky){
+    // points indices shall be obtained before rotation.
+    var points_indices = data.world.get_points_indices_of_box(box);
+        
+
+    var _tempQuaternion = new Quaternion();
+    var rotationAxis = new Vector3(0,0,1);
+    box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, theta ) ).normalize();
+
+    if (sticky){
+    
+        var extreme = data.world.get_dimension_of_points(points_indices, box);
+
+        ['x','y'].forEach(function(axis){
+
+            translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+            box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+
+        }) 
+    }
+}
+
+
+export {rotate_z, translate_box, auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz}

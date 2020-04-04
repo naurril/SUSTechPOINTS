@@ -1,9 +1,7 @@
 
-import {data} from './data.js'
+var Header=function(parentUi, data){
 
-
-var Header=function(parentUi){
-    
+    this.data =  data;
     this.boxUi = parentUi.querySelector("#box");
     this.refObjUi = parentUi.querySelector("#ref-obj");
     this.sceneSelectorUi = parentUi.querySelector("#scene-selector");
@@ -18,7 +16,7 @@ var Header=function(parentUi){
         var scale = box.scale;
         var pos = box.position;
         var rotation = box.rotation;
-        var points_number = data.world.get_box_points_number(box);
+        var points_number = this.data.world.get_box_points_number(box);
 
         this.boxUi.innerHTML = "| "+pos.x.toFixed(2) +" "+pos.y.toFixed(2) + " " + pos.z.toFixed(2) + " | " +
                                                     scale.x.toFixed(2) +" "+scale.y.toFixed(2) + " " + scale.z.toFixed(2) + " | " +

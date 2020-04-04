@@ -1,5 +1,5 @@
 
-import {data} from "./data.js"
+
 
 var stop_play_flag=true;
 var pause_play_flag=false;

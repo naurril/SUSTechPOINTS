@@ -1,8 +1,6 @@
 
 import * as THREE from './lib/three.module.js';
 
-import {views} from "./view.js";
-
 var mouse = new THREE.Vector2();
 
 var raycaster;
@@ -19,8 +17,10 @@ var select_start_pos;
 var select_end_pos;
 var container;
 var operation_state;
+var views;
 
-function init_mouse(op_state, mainui_container, on_left_click, on_right_click, on_select_rect){
+function init_mouse(allviews, op_state, mainui_container, on_left_click, on_right_click, on_select_rect){
+    views=allviews;
     container = mainui_container;
     operation_state = op_state;
     raycaster = new THREE.Raycaster();

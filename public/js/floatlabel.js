@@ -242,7 +242,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
             this.html_labels.appendChild(label);
 
             let self = this;
-            label.onclick = function(){
+            label.onclick = ()=>{
                 this.on_label_clicked(box);
             };
         },

@@ -6,7 +6,7 @@ import { get_obj_cfg_by_type } from './obj_cfg.js';
 import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range} from "./util.js"
 import {settings} from "./settings.js"
 
-function make_data_object(){
+function Data(){
     var data = {
         
         // point_size: 1.5,
@@ -1611,7 +1611,5 @@ function make_data_object(){
 };
 
 
-var data = make_data_object();
-
-export {data};
+export {Data};
 

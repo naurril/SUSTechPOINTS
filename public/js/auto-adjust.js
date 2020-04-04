@@ -1,6 +1,5 @@
 
 import {get_mouse_location_in_world} from "./mouse.js"
-import {data} from "./data.js"
 import {save_annotation} from "./save.js"
 
 var marked_object = null;

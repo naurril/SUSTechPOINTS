@@ -1,6 +1,5 @@
 
-import {psr_to_xyz} from "./util.js"
-import {data} from "./data.js"
+
 import {load_obj_ids_of_scene} from "./obj_id_list.js"
 
 

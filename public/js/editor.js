@@ -1,17 +1,17 @@
 import * as THREE from './lib/three.module.js';
 import { GUI } from './lib/dat.gui.module.js';
 
-import {create_views, views} from "./view.js"
+import {create_views} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
 import {init_mouse, onUpPosition, getIntersects, getMousePosition, get_mouse_location_in_world, get_screen_location_in_world} from "./mouse.js"
-import {init_side_view_op_module, view_handles, on_x_direction_changed, on_y_direction_changed, on_z_direction_changed}  from "./side_view_op.js"
-import {init_image_op, render_2d_image, update_image_box_projection, clear_canvas, clear_main_canvas, choose_best_camera_for_point, image_manager} from "./image.js"
+import {ProjectiveViewOps}  from "./side_view_op.js"
+import {ImageContext} from "./image.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
-import {data} from './data.js'
+import {Data} from './data.js'
 import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
 import {Header} from "./header.js"
 import {matmul2, euler_angle_to_rotate_matrix, dotproduct, linalg_std} from "./util.js"
-import {translate_box, auto_rotate_xyz } from './box_op.js';
+import {rotate_z, translate_box, auto_rotate_xyz } from './box_op.js';
 import {mark_bbox, paste_bbox, auto_adjust_bbox, smart_paste} from "./auto-adjust.js"
 import {stop_play, pause_resume_play, play_current_scene_with_buffer} from "./play.js"
 import {save_annotation} from "./save.js"
@@ -24,6 +24,7 @@ function new_editor(editor_ui){
         editor_ui:null,
         container:null,
 
+        data:null,
         scene:null,
         renderer:null,
         selected_box:null,
@@ -40,7 +41,7 @@ function new_editor(editor_ui){
             lock_obj_in_highlight : false,
         },
         header: null,
-
+        imageContext:null,
         init: function(editor_ui) {
             // document.body.addEventListener('keydown', event => {
             //     if (event.ctrlKey && 'asdv'.indexOf(event.key) !== -1) {
@@ -54,11 +55,12 @@ function new_editor(editor_ui){
         
             let self = this;
             this.editor_ui = editor_ui;
-            this.header = new Header(editor_ui.querySelector("#info"));
+            this.data = Data();
+            this.header = new Header(editor_ui.querySelector("#info"), this.data);
             this.scene = new THREE.Scene();
 
-
-            data.set_webgl_scene(this.scene);
+            
+            this.data.set_webgl_scene(this.scene);
         
             this.renderer = new THREE.WebGLRenderer( { antialias: true } );
             this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -80,13 +82,14 @@ function new_editor(editor_ui){
             this.container = editor_ui.querySelector("#container");
             this.container.appendChild( this.renderer.domElement );
         
-            create_views(this.container, this.scene, this.container/*renderer.domElement*/, 
+            this.views = create_views(this.container, this.scene, this.container/*renderer.domElement*/, 
                          function(){self.render();}, 
                          function(box){self.on_box_changed(box)});
-        
+            this.imageContext = new ImageContext(this.data);
+
             this.add_range_box();
         
-            this.floatLabelManager = createFloatLabelManager(this.editor_ui, this.container, views[0],function(box){self.select_bbox(box);});
+            this.floatLabelManager = createFloatLabelManager(this.editor_ui, this.container, this.views[0],function(box){self.select_bbox(box);});
         
             //this.init_gui();
             
@@ -105,6 +108,7 @@ function new_editor(editor_ui){
             set_mouse_handler(handleLeftClick, handleRightClick);
             */
             init_mouse(
+                 this.views,
                  this.operation_state,
                  this.container, 
                  function(ev){self.handleLeftClick(ev);}, 
@@ -139,7 +143,9 @@ function new_editor(editor_ui){
             this.editor_ui.querySelector("#camera-selector").onchange = function(e){self.camera_changed(e)};
         
         
-            init_side_view_op_module(
+            this.projectiveViewOps = new ProjectiveViewOps(
+                this.editor_ui,
+                this.views,
                 function(){return self.selected_box;},
                 function(b){return self.on_box_changed(b);},
                 function(b){return self.update_subview_by_windowsize(b);}
@@ -149,8 +155,8 @@ function new_editor(editor_ui){
         
             this.install_context_menu();
         
-            //view_handles.init_view_operation();
-            //view_handles.hide();
+            this.projectiveViewOps.init_view_operation();
+            //this.projectiveViewOps.hide();
         
             this.install_grid()
         
@@ -163,12 +169,12 @@ function new_editor(editor_ui){
         },
 
         run: function(){
-            this.animate();
+            //this.animate();
             this.render();
             //$( "#maincanvas" ).resizable();
             
             let self = this;
-            init_image_op(function(){
+            this.imageContext.init_image_op(function(){
                 return self.selected_box;
             });
 
@@ -291,29 +297,29 @@ function new_editor(editor_ui){
             
             box.in_highlight = false;
             //view_state.lock_obj_in_highlight = false; // when user unhighlight explicitly, set it to false
-            data.world.cancel_highlight(box);
+            this.data.world.cancel_highlight(box);
             this.floatLabelManager.restore_all();
-            views[0].save_orbit_state(box.scale);
-            views[0].orbit.reset();
+            this.views[0].save_orbit_state(box.scale);
+            this.views[0].orbit.reset();
         },
 
         highlight_selected_box: function(box){
             if (box){
-                data.world.highlight_box_points(box);
+                this.data.world.highlight_box_points(box);
                 
                 this.floatLabelManager.hide_all();
-                views[0].orbit.saveState();
+                this.views[0].orbit.saveState();
 
-                //views[0].camera.position.set(this.selected_box.position.x+this.selected_box.scale.x*3, this.selected_box.position.y+this.selected_box.scale.y*3, this.selected_box.position.z+this.selected_box.scale.z*3);
+                //this.views[0].camera.position.set(this.selected_box.position.x+this.selected_box.scale.x*3, this.selected_box.position.y+this.selected_box.scale.y*3, this.selected_box.position.z+this.selected_box.scale.z*3);
 
-                views[0].orbit.target.x = box.position.x;
-                views[0].orbit.target.y = box.position.y;
-                views[0].orbit.target.z = box.position.z;
+                this.views[0].orbit.target.x = box.position.x;
+                this.views[0].orbit.target.y = box.position.y;
+                this.views[0].orbit.target.z = box.position.z;
 
-                views[0].restore_relative_orbit_state(box.scale);
+                this.views[0].restore_relative_orbit_state(box.scale);
 
 
-                views[0].orbit.update();
+                this.views[0].orbit.update();
 
                 this.render();
                 box.in_highlight=true;
@@ -481,16 +487,16 @@ function new_editor(editor_ui){
         animate: function() {
             let self=this;
             requestAnimationFrame( function(){self.animate();} );
-            views[0].orbit_orth.update();
+            this.views[0].orbit_orth.update();
         },
 
         update_side_view_port: function(){
-            views.slice(1).forEach(function(view){
+            this.views.slice(1).forEach((view)=>{
                 view.viewport={
-                    left: container.clientWidth * view.left,
-                    bottom: container.clientHeight-container.clientHeight * view.bottom,
-                    width:container.clientWidth * view.width,
-                    height:container.clientHeight * view.height,
+                    left: this.container.clientWidth * view.left,
+                    bottom: this.container.clientHeight-this.container.clientHeight * view.bottom,
+                    width:this.container.clientWidth * view.width,
+                    height:this.container.clientHeight * view.height,
                     zoom_ratio:view.zoom_ratio,
                 };
             })
@@ -498,24 +504,24 @@ function new_editor(editor_ui){
 
         render: function(){
 
-            //views[0].switch_camera(params["bird's eye view"]);
-            views[0].switch_camera(false);
-            //console.log(views[0].camera.rotation.z);
+            //this.views[0].switch_camera(params["bird's eye view"]);
+            this.views[0].switch_camera(false);
+            //console.log(this.views[0].camera.rotation.z);
 
-            for ( var ii = 0; ii < views.length; ++ ii ) {
+            for ( var ii = 0; ii < this.views.length; ++ ii ) {
 
                 if ((ii > 0) && (!this.sideview_enabled)){ // || !this.selected_box)){
                     break;
                 }
 
-                var view = views[ ii ];
+                var view = this.views[ ii ];
                 var camera = view.camera;
                 //view.updateCamera( camera, scene, mouseX, mouseY );
                 
-                var left = Math.floor( container.clientWidth * view.left );
-                var bottom = Math.floor( container.clientHeight * view.bottom );
-                var width = Math.ceil( container.clientWidth * view.width );
-                var height = Math.ceil( container.clientHeight * view.height );
+                var left = Math.floor( this.container.clientWidth * view.left );
+                var bottom = Math.floor( this.container.clientHeight * view.bottom );
+                var width = Math.ceil( this.container.clientWidth * view.width );
+                var height = Math.ceil( this.container.clientHeight * view.height );
 
                 // update viewport, so the operating lines over these views 
                 // will be updated in time.
@@ -551,7 +557,7 @@ function new_editor(editor_ui){
             
                 if (this.status == 200) {
                     var ret = JSON.parse(this.responseText);
-                    data.meta = ret;                               
+                    self.data.meta = ret;                               
 
                     var scene_selector_str = ret.map(function(c){
                         return "<option value="+c.scene +">"+c.scene + "</option>";
@@ -575,7 +581,7 @@ function new_editor(editor_ui){
             }
             
             console.log("choose scene_name " + scene_name);
-            var meta = data.get_meta_by_scene_name(scene_name);
+            var meta = this.data.get_meta_by_scene_name(scene_name);
 
             var frame_selector_str = meta.frames.map(function(f){
                 return "<option value="+f+">"+f + "</option>";
@@ -611,7 +617,7 @@ function new_editor(editor_ui){
         camera_changed: function(event){
             var camera_name = event.currentTarget.value;
 
-            data.set_active_image(camera_name);
+            this.data.set_active_image(camera_name);
             render_2d_image();
 
             event.currentTarget.blur();
@@ -623,24 +629,24 @@ function new_editor(editor_ui){
 
             params["toggle side views"] = function(){
                 sideview_enabled = !sideview_enabled;
-                this.render();
+                self.render();
             };  
 
             params["bird's eye view"] = false;
             params["hide image"] = false;
                 
             params["toggle id"] = function(){
-                this.floatLabelManager.toggle_id();
+                self.floatLabelManager.toggle_id();
                 
             };
             params["toggle category"] = function(){
-                this.floatLabelManager.toggle_category();
+                self.floatLabelManager.toggle_category();
                 
             };
 
             params["toggle background"] = function(){
-                data.toggle_background();
-                this.render();
+                self.data.toggle_background();
+                self.render();
             };
 
             // params["test2"] = function(){
@@ -649,50 +655,50 @@ function new_editor(editor_ui){
             // };
             
             params["reset main view"] = function(){
-                views[0].reset_camera();
-                views[0].reset_birdseye();
+                this.views[0].reset_camera();
+                this.views[0].reset_birdseye();
                 //render();
             };
 
             params["rotate bird's eye view"] = function(){
-                views[0].rotate_birdseye();
+                this.views[0].rotate_birdseye();
                 this.render();
             };
             
             //params["side view width"] = 0.2;
 
             params["point size+"] = function(){
-                data.scale_point_size(1.2);
-                this.render();
+                self.data.scale_point_size(1.2);
+                self.render();
             };
             
             params["point size-"] = function(){
-                data.scale_point_size(0.8);
-                this.render();
+                self.data.scale_point_size(0.8);
+                self.render();
             };
 
             params["point brightness+"] = function(){
-                data.scale_point_brightness(1.2);
-                load_world(data.world.file_info.scene, data.world.file_info.frame);
+                self.data.scale_point_brightness(1.2);
+                load_world(self.data.world.file_info.scene, self.data.world.file_info.frame);
             };
             
             params["point brightness-"] = function(){
-                data.scale_point_brightness(0.8);
-                load_world(data.world.file_info.scene, data.world.file_info.frame);
+                self.data.scale_point_brightness(0.8);
+                load_world(self.data.world.file_info.scene, self.data.world.file_info.frame);
             };
 
             params["toggle box"] = function(){
-                data.toggle_box_opacity();
-                if (this.selected_box){
-                    this.selected_box.material.opacity = 1;                
+                self.data.toggle_box_opacity();
+                if (self.selected_box){
+                    self.selected_box.material.opacity = 1;                
                 }
 
-                this.render();
+                self.render();
             }
 
             params["toggle obj color"] = function(){
-                data.toggle_color_obj();
-                this.render();
+                self.data.toggle_color_obj();
+                self.render();
             }
 
             cfgFolder.add( params, "point size+");
@@ -859,9 +865,9 @@ function new_editor(editor_ui){
                 
                 this.selected_box.obj_type = event.currentTarget.value;
                 this.floatLabelManager.set_object_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
-                self.header.mark_changed_flag();
+                this.header.mark_changed_flag();
                 this.update_box_points_color(this.selected_box);
-                image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
+                this.imageContext.image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
             }
         },
 
@@ -877,7 +883,7 @@ function new_editor(editor_ui){
 
                 this.selected_box.obj_track_id = id;
                 this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
-                header.mark_changed_flag();
+                this.header.mark_changed_flag();
             }
         },
 
@@ -886,19 +892,19 @@ function new_editor(editor_ui){
             if (box === null)
                 return;
 
-                view_handles.update_view_handle(this.selected_box.scale);
+            this.projectiveViewOps.update_view_handle(this.selected_box);
             
             // side views
             var exp_camera_width, exp_camera_height, exp_camera_clip;
 
-            for ( var ii = 1; ii < views.length; ++ ii ) {
-                var view = views[ ii ];
+            for ( var ii = 1; ii < this.views.length; ++ ii ) {
+                var view = this.views[ ii ];
                 var camera = view.camera;
 
                 view.width = 0.2;//params["side view width"];
 
-                var view_width = Math.floor( container.clientWidth * view.width );
-                var view_height = Math.floor( container.clientHeight * view.height );
+                var view_width = Math.floor( this.container.clientWidth * view.width );
+                var view_height = Math.floor( this.container.clientHeight * view.height );
 
                 if (ii==1){
                     // width: y
@@ -952,46 +958,46 @@ function new_editor(editor_ui){
             var r = box.rotation;
             //console.log(r);
             //
-            views[1].camera.rotation.x= r.x;
-            views[1].camera.rotation.y= r.y;
-            views[1].camera.rotation.z= r.z-Math.PI/2;
+            this.views[1].camera.rotation.x= r.x;
+            this.views[1].camera.rotation.y= r.y;
+            this.views[1].camera.rotation.z= r.z-Math.PI/2;
 
-            views[1].camera.position.x= p.x;
-            views[1].camera.position.y= p.y;
-            views[1].camera.position.z= p.z;
-            views[1].camera.updateProjectionMatrix();
-            views[1].cameraHelper.update(); 
+            this.views[1].camera.position.x= p.x;
+            this.views[1].camera.position.y= p.y;
+            this.views[1].camera.position.z= p.z;
+            this.views[1].camera.updateProjectionMatrix();
+            this.views[1].cameraHelper.update(); 
             
 
             var trans_matrix = euler_angle_to_rotate_matrix(r, p);
 
 
-            views[2].camera.position.x= p.x;
-            views[2].camera.position.y= p.y;
-            views[2].camera.position.z= p.z;
+            this.views[2].camera.position.x= p.x;
+            this.views[2].camera.position.y= p.y;
+            this.views[2].camera.position.z= p.z;
 
             var up = matmul2(trans_matrix, [0, 0, 1, 0], 4);
-            views[2].camera.up.set( up[0], up[1], up[2]);
+            this.views[2].camera.up.set( up[0], up[1], up[2]);
             var at = matmul2(trans_matrix, [0, 1, 0, 1], 4);
-            views[2].camera.lookAt( at[0], at[1], at[2] );
+            this.views[2].camera.lookAt( at[0], at[1], at[2] );
             
             
-            views[2].camera.updateProjectionMatrix();
-            views[2].cameraHelper.update();
+            this.views[2].camera.updateProjectionMatrix();
+            this.views[2].cameraHelper.update();
             
 
-            views[3].camera.position.x= p.x;
-            views[3].camera.position.y= p.y;
-            views[3].camera.position.z= p.z;
+            this.views[3].camera.position.x= p.x;
+            this.views[3].camera.position.y= p.y;
+            this.views[3].camera.position.z= p.z;
 
             var up3 = matmul2(trans_matrix, [0, 0, 1, 0], 4);
-            views[3].camera.up.set( up3[0], up3[1], up3[2]);
+            this.views[3].camera.up.set( up3[0], up3[1], up3[2]);
             var at3 = matmul2(trans_matrix, [-1, 0, 0, 1], 4);
-            views[3].camera.lookAt( at3[0], at3[1], at3[2] );
+            this.views[3].camera.lookAt( at3[0], at3[1], at3[2] );
             
 
-            views[3].camera.updateProjectionMatrix();
-            views[3].cameraHelper.update();        
+            this.views[3].camera.updateProjectionMatrix();
+            this.views[3].cameraHelper.update();        
 
             this.update_subview_by_windowsize(box);  // render() is called inside this func
         },
@@ -1000,12 +1006,12 @@ function new_editor(editor_ui){
 
             // select new object
 
-            if (!data.world){
+            if (!this.data.world){
                 return;
             }
 
 
-            var intersects = getIntersects( onUpPosition, data.world.boxes );
+            var intersects = getIntersects( onUpPosition, this.data.world.boxes );
             if ( intersects.length > 0 ) {
                 //var object = intersects[ 0 ].object;
                 var object = intersects[ 0 ].object;
@@ -1066,8 +1072,8 @@ function new_editor(editor_ui){
             /*
             console.log("main select rect", x,y,w,h);
 
-            views[0].camera.updateProjectionMatrix();
-            data.world.select_points_by_view_rect(x,y,w,h, views[0].camera);
+            this.views[0].camera.updateProjectionMatrix();
+            this.data.world.select_points_by_view_rect(x,y,w,h, this.views[0].camera);
             render();
             render_2d_image();
             */
@@ -1075,10 +1081,10 @@ function new_editor(editor_ui){
             var self=this;
             var center_pos = get_screen_location_in_world(x+w/2, y+h/2);
             
-            var box = data.world.create_box_by_view_rect(x,y,w,h, views[0].camera, center_pos);
+            var box = this.data.world.create_box_by_view_rect(x,y,w,h, this.views[0].camera, center_pos);
             this.scene.add(box);
             
-            image_manager.add_box(box);
+            this.imageContext.image_manager.add_box(box);
             
             this.auto_shrink_box(box);
             
@@ -1115,12 +1121,12 @@ function new_editor(editor_ui){
                 }
                 else{
                     //select box /unselect box
-                    if (!data.world || !data.world.boxes){
+                    if (!this.data.world || !this.data.world.boxes){
                         return;
                     }
                 
                 
-                    var intersects = getIntersects( onUpPosition, data.world.boxes );
+                    var intersects = getIntersects( onUpPosition, this.data.world.boxes );
 
                     if ( intersects.length > 0 ) {
 
@@ -1150,7 +1156,7 @@ function new_editor(editor_ui){
         select_locked_object: function(){
             var self=this;
             if (this.view_state.lock_obj_track_id != ""){
-                var box = data.world.boxes.find(function(x){
+                var box = this.data.world.boxes.find(function(x){
                     return x.obj_track_id == self.view_state.lock_obj_track_id;
                 })
 
@@ -1168,10 +1174,10 @@ function new_editor(editor_ui){
         unselect_bbox: function(new_object, keep_lock){
 
             if (new_object==null){
-                if (views[0].transform_control.visible)
+                if (this.views[0].transform_control.visible)
                 {
                     //unselect first time
-                    views[0].transform_control.detach();
+                    this.views[0].transform_control.detach();
                 }else{
                     //unselect second time
                     if (this.selected_box){
@@ -1189,7 +1195,7 @@ function new_editor(editor_ui){
 
                             // unselected finally
                             this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
-                            this.selected_box.material.opacity = data.config.box_opacity;
+                            this.selected_box.material.opacity = this.data.config.box_opacity;
                             this.floatLabelManager.unselect_box(this.selected_box.obj_local_id, this.selected_box.obj_type);
                             this.floatLabelManager.update_position(this.selected_box, true);
 
@@ -1197,9 +1203,9 @@ function new_editor(editor_ui){
                                 this.view_state.lock_obj_track_id = "";
                             }
 
-                            image_manager.unselect_bbox(this.selected_box.obj_local_id, this.selected_box.obj_type);
+                            this.imageContext.image_manager.unselect_bbox(this.selected_box.obj_local_id, this.selected_box.obj_type);
                             this.selected_box = null;
-                            view_handles.hide();
+                            this.projectiveViewOps.hide();
 
                             this.on_selected_box_changed(null);
                         }
@@ -1212,7 +1218,7 @@ function new_editor(editor_ui){
             else{
                 // selected other box
                 //unselect all
-                views[0].transform_control.detach();
+                this.views[0].transform_control.detach();
 
                 
                 if (this.selected_box){
@@ -1227,13 +1233,13 @@ function new_editor(editor_ui){
                     }
 
                     this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
-                    this.selected_box.material.opacity = data.config.box_opacity;                
+                    this.selected_box.material.opacity = this.data.config.box_opacity;                
                     this.floatLabelManager.unselect_box(this.selected_box.obj_local_id);
                     this.floatLabelManager.update_position(this.selected_box, true);
-                    image_manager.unselect_bbox(this.selected_box.obj_local_id, this.selected_box.obj_type);
+                    this.imageContext.image_manager.unselect_bbox(this.selected_box.obj_local_id, this.selected_box.obj_type);
 
                     this.selected_box = null;
-                    view_handles.hide();
+                    this.projectiveViewOps.hide();
                     if (!keep_lock)
                         this.view_state.lock_obj_track_id = "";
                 }
@@ -1261,15 +1267,15 @@ function new_editor(editor_ui){
                 // select me, the first time
                 this.selected_box = object;
 
-                var best_iamge = choose_best_camera_for_point(this.selected_box.position.x, this.selected_box.position.y, this.selected_box.position.z);
+                var best_iamge = this.imageContext.choose_best_camera_for_point(this.selected_box.position.x, this.selected_box.position.y, this.selected_box.position.z);
 
                 if (best_iamge){
                     
-                    var image_changed = data.set_active_image(best_iamge);
+                    var image_changed = this.data.set_active_image(best_iamge);
 
                     if (image_changed){
                         this.editor_ui.querySelector("#camera-selector").value=best_iamge;
-                        image_manager.display_image();
+                        this.imageContext.image_manager.display_image();
                     }
                 }
 
@@ -1291,12 +1297,12 @@ function new_editor(editor_ui){
             }
             else {
                 //reselect the same box
-                if (views[0].transform_control.visible){
+                if (this.views[0].transform_control.visible){
                     this.change_transform_control_view();
                 }
                 else{
                     //select me the second time
-                    views[0].transform_control.attach( object );
+                    this.views[0].transform_control.attach( object );
                 }
             }
 
@@ -1305,7 +1311,7 @@ function new_editor(editor_ui){
 
             this.on_selected_box_changed(object);
 
-            view_handles.show();
+            this.projectiveViewOps.show();
         },
 
 
@@ -1321,7 +1327,7 @@ function new_editor(editor_ui){
             if ( this.windowWidth != this.container.clientWidth || this.windowHeight != this.container.clientHeight ) {
 
                 //update_mainview();
-                views[0].onWindowResize();
+                this.views[0].onWindowResize();
 
                 if (this.selected_box){
                     this.update_subview_by_windowsize(this.selected_box);
@@ -1334,9 +1340,10 @@ function new_editor(editor_ui){
                 this.update_side_view_port();
 
                 // update sideview svg if there exists selected box
-                if (this.selected_box){
-                    view_handles.update_view_handle(this.selected_box.scale);
-                }
+                // the following update is called in update_subview_by_windowsize
+                // if (this.selected_box){
+                //     this.projectiveViewOps.update_view_handle(this.selected_box);
+                // }
             }
             
             this.render();
@@ -1350,28 +1357,28 @@ function new_editor(editor_ui){
         },
 
         change_transform_control_view: function(){
-            if (views[0].transform_control.mode=="scale"){
-                views[0].transform_control.setMode( "translate" );
-                views[0].transform_control.showY=true;
-                views[0].transform_control.showX=true;
-                views[0].transform_control.showz=true;
-            }else if (views[0].transform_control.mode=="translate"){
-                views[0].transform_control.setMode( "rotate" );
-                views[0].transform_control.showY=false;
-                views[0].transform_control.showX=false;
-                views[0].transform_control.showz=true;
-            }else if (views[0].transform_control.mode=="rotate"){
-                views[0].transform_control.setMode( "scale" );
-                views[0].transform_control.showY=true;
-                views[0].transform_control.showX=true;
-                views[0].transform_control.showz=true;
+            if (this.views[0].transform_control.mode=="scale"){
+                this.views[0].transform_control.setMode( "translate" );
+                this.views[0].transform_control.showY=true;
+                this.views[0].transform_control.showX=true;
+                this.views[0].transform_control.showz=true;
+            }else if (this.views[0].transform_control.mode=="translate"){
+                this.views[0].transform_control.setMode( "rotate" );
+                this.views[0].transform_control.showY=false;
+                this.views[0].transform_control.showX=false;
+                this.views[0].transform_control.showz=true;
+            }else if (this.views[0].transform_control.mode=="rotate"){
+                this.views[0].transform_control.setMode( "scale" );
+                this.views[0].transform_control.showY=true;
+                this.views[0].transform_control.showX=true;
+                this.views[0].transform_control.showz=true;
             }
         },
 
         add_box_on_mouse_pos: function(obj_type){
-            // todo: move to data.world
+            // todo: move to this.data.world
             var pos = get_mouse_location_in_world();
-            var rotation = {x:0, y:0, z:views[0].camera.rotation.z+Math.PI/2};
+            var rotation = {x:0, y:0, z:this.views[0].camera.rotation.z+Math.PI/2};
 
             var obj_cfg = get_obj_cfg_by_type(obj_type);
             var scale = {   
@@ -1386,13 +1393,13 @@ function new_editor(editor_ui){
         },
         
         add_box: function(pos, scale, rotation, obj_type, obj_track_id){
-            var box = data.world.add_box(pos, scale, rotation, obj_type, obj_track_id);
+            var box = this.data.world.add_box(pos, scale, rotation, obj_type, obj_track_id);
 
             this.scene.add(box);
 
             this.floatLabelManager.add_label(box);
             
-            image_manager.add_box(box);
+            this.imageContext.image_manager.add_box(box);
 
             this.select_bbox(box);
         },
@@ -1534,7 +1541,7 @@ function new_editor(editor_ui){
         // }
 
         auto_shrink_box: function(box){
-            var  extreme = data.world.get_points_dimmension_of_box(box);
+            var  extreme = this.data.world.get_points_dimmension_of_box(box);
             
             
             ['x', 'y','z'].forEach(function(axis){
@@ -1549,7 +1556,7 @@ function new_editor(editor_ui){
         grow_box: function(min_distance, init_scale_ratio){
 
             let self=this;
-            var extreme = data.world.grow_box(this.selected_box, min_distance, init_scale_ratio);
+            var extreme = this.data.world.grow_box(this.selected_box, min_distance, init_scale_ratio);
 
             if (extreme){
 
@@ -1567,11 +1574,11 @@ function new_editor(editor_ui){
             switch ( ev.key) {
                 case '+':
                 case '=':
-                    data.scale_point_size(1.2);
+                    this.data.scale_point_size(1.2);
                     this.render();
                     break;
                 case '-':
-                    data.scale_point_size(0.8);
+                    this.data.scale_point_size(0.8);
                     this.render();
                     break;
                 case '1': 
@@ -1608,27 +1615,27 @@ function new_editor(editor_ui){
                     break;
                 */
                 case 'z': // X
-                    views[0].transform_control.showX = ! views[0].transform_control.showX;
+                    this.views[0].transform_control.showX = ! this.views[0].transform_control.showX;
                     break;
                 case 'x': // Y
-                    views[0].transform_control.showY = ! views[0].transform_control.showY;
+                    this.views[0].transform_control.showY = ! this.views[0].transform_control.showY;
                     break;
                 case 'c': // Z
                     if (ev.ctrlKey){
                         this.mark_bbox(this.selected_box, this.header);
                     } else {
-                        views[0].transform_control.showZ = ! views[0].transform_control.showZ;
+                        this.views[0].transform_control.showZ = ! this.views[0].transform_control.showZ;
                     }
                     break;            
                 case ' ': // Spacebar
-                    //views[0].transform_control.enabled = ! views[0].transform_control.enabled;
+                    //this.views[0].transform_control.enabled = ! this.views[0].transform_control.enabled;
                     this.pause_resume_play();
                     break;
                     
                 case '5':            
                 case '6':
                 case '7':
-                    views[ev.key-'4'].cameraHelper.visible = !views[ev.key-'4'].cameraHelper.visible;
+                    this.views[ev.key-'4'].cameraHelper.visible = !this.views[ev.key-'4'].cameraHelper.visible;
                     this.render();
                     break;
                 /*
@@ -1736,13 +1743,15 @@ function new_editor(editor_ui){
                 case 'f':
                     if (this.selected_box){                
                         //this.transform_bbox("z_rotate_right");                
-                        on_z_direction_changed(-0.005, true);
+                        rotate_z(this.selected_box, -0.005, true);
+                        on_box_changed(this.selected_box);
                     }
                     break;
                 case 'r':
                     if (this.selected_box){
                         //this.transform_bbox("z_rotate_left");
-                        on_z_direction_changed(0.005, true);
+                        rotate_z(this.selected_box, 0.005, true);
+                        on_box_changed(this.selected_box);
                     }
                     break;
                 
@@ -1767,16 +1776,16 @@ function new_editor(editor_ui){
 
         previous_frame: function(){
 
-            if (!data.meta)
+            if (!this.data.meta)
                 return;
 
-            var scene_meta = data.meta.find(function(x){
-                return x.scene == data.world.file_info.scene;
+            var scene_meta = this.data.meta.find(function(x){
+                return x.scene == this.data.world.file_info.scene;
             });
 
             var num_frames = scene_meta.frames.length;
 
-            var frame_index = (data.world.file_info.frame_index-1 + num_frames) % num_frames;
+            var frame_index = (this.data.world.file_info.frame_index-1 + num_frames) % num_frames;
 
             this.load_world(scene_meta.scene, scene_meta.frames[frame_index]);
 
@@ -1786,14 +1795,14 @@ function new_editor(editor_ui){
 
         next_frame: function(){
 
-            if (!data.meta)
+            if (!this.data.meta)
                 return;
                 
-            var scene_meta = data.get_current_world_scene_meta();
+            var scene_meta = this.data.get_current_world_scene_meta();
 
             var num_frames = scene_meta.frames.length;
 
-            var frame_index = (data.world.file_info.frame_index +1) % num_frames;
+            var frame_index = (this.data.world.file_info.frame_index +1) % num_frames;
 
             this.load_world(scene_meta.scene, scene_meta.frames[frame_index]);
         },
@@ -1801,44 +1810,44 @@ function new_editor(editor_ui){
         select_next_object: function(){
 
             var self=this;
-            if (data.world.boxes.length<=0)
+            if (this.data.world.boxes.length<=0)
                 return;
 
             if (this.selected_box){
-                this.operation_state.box_navigate_index = data.world.boxes.findIndex(function(x){
+                this.operation_state.box_navigate_index = this.data.world.boxes.findIndex(function(x){
                     return self.selected_box == x;
                 });
             }
             
             this.operation_state.box_navigate_index += 1;            
-            this.operation_state.box_navigate_index %= data.world.boxes.length;    
+            this.operation_state.box_navigate_index %= this.data.world.boxes.length;    
             
-            this.select_bbox(data.world.boxes[this.operation_state.box_navigate_index]);
+            this.select_bbox(this.data.world.boxes[this.operation_state.box_navigate_index]);
 
         },
 
         select_previous_object: function(){
             var self=this;
-            if (data.world.boxes.length<=0)
+            if (this.data.world.boxes.length<=0)
                 return;
 
             if (this.selected_box){
-                this.operation_state.box_navigate_index = data.world.boxes.findIndex(function(x){
+                this.operation_state.box_navigate_index = this.data.world.boxes.findIndex(function(x){
                     return self.selected_box == x;
                 });
             }
             
-            this.operation_state.box_navigate_index += data.world.boxes.length-1;            
-            this.operation_state.box_navigate_index %= data.world.boxes.length;    
+            this.operation_state.box_navigate_index += this.data.world.boxes.length-1;            
+            this.operation_state.box_navigate_index %= this.data.world.boxes.length;    
             
-            this.select_bbox(data.world.boxes[this.operation_state.box_navigate_index]);
+            this.select_bbox(this.data.world.boxes[this.operation_state.box_navigate_index]);
         },
 
         on_load_world_finished: function(scene_name, frame){
             this.unselect_bbox(null, true);
             this.unselect_bbox(null, true);
             this.render();
-            render_2d_image();
+            this.imageContext.render_2d_image();
             this.render_2d_labels();
             this.update_frame_info(scene_name, frame);
 
@@ -1850,15 +1859,15 @@ function new_editor(editor_ui){
         load_world: function(scene_name, frame){
             var self=this;
             //stop if current world is not ready!
-            if (data.world && !data.world.preload_finished()){
+            if (this.data.world && !this.data.world.preload_finished()){
                 console.log("current world is still loading.");
                 return;
             }
 
-            var world = data.make_new_world(
+            var world = this.data.make_new_world(
                 scene_name, 
                 frame);
-            data.activate_world(
+                this.data.activate_world(
                 world, 
                 function(){self.on_load_world_finished(scene_name, frame);}
             );
@@ -1876,13 +1885,13 @@ function new_editor(editor_ui){
                 // restroe color
                 this.restore_box_points_color(target_box);
 
-                image_manager.remove_box(target_box.obj_local_id);
+                this.imageContext.image_manager.remove_box(target_box.obj_local_id);
 
                 this.floatLabelManager.remove_box(target_box);
                 this.scene.remove(target_box);        
                 
                 //this.selected_box.dispose();
-                data.world.remove_box(target_box);
+                this.data.world.remove_box(target_box);
 
                 
                 this.selected_box = null;
@@ -1903,12 +1912,12 @@ function new_editor(editor_ui){
 
             this.header.clear_frame_info();
 
-            clear_main_canvas();
-            clear_canvas();
+            this.imageContext.clear_main_canvas();
+            this.imageContext.clear_canvas();
 
 
-            data.world.destroy();
-            data.world= null; //dump it
+            this.data.world.destroy();
+            this.data.world= null; //dump it
             this.floatLabelManager.remove_all_labels();
             this.render();
         },
@@ -1925,11 +1934,11 @@ function new_editor(editor_ui){
         on_box_changed: function(box){
 
             this.update_subview_by_bbox(box);
-            view_handles.update_view_handle(box.scale);
-            update_image_box_projection(box);
+            this.projectiveViewOps.update_view_handle(box);
+            this.imageContext.update_image_box_projection(box);
             
             //render_2d_image();
-            image_manager.update_box(box);
+            this.imageContext.image_manager.update_box(box);
 
             this.header.update_box_info(box);
             //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
@@ -1942,21 +1951,21 @@ function new_editor(editor_ui){
 
 
         restore_box_points_color: function(box){
-            if (data.config.color_obj){
-                data.world.set_box_points_color(box, {x: data.config.point_brightness, y: data.config.point_brightness, z: data.config.point_brightness});
-                data.world.update_points_color();
+            if (this.data.config.color_obj){
+                this.data.world.set_box_points_color(box, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
+                this.data.world.update_points_color();
                 this.render();
             }
         },
 
         update_box_points_color: function(box){
-            if (data.config.color_obj){
+            if (this.data.config.color_obj){
                 if (box.last_info){
-                    data.world.set_box_points_color(box.last_info, {x: data.config.point_brightness, y: data.config.point_brightness, z: data.config.point_brightness});
+                    this.data.world.set_box_points_color(box.last_info, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
                 }
 
-                data.world.set_box_points_color(box);
-                data.world.update_points_color();
+                this.data.world.set_box_points_color(box);
+                this.data.world.update_points_color();
                 this.render();
             }
         },
@@ -1965,12 +1974,12 @@ function new_editor(editor_ui){
 
             if (box){        
                 this.header.update_box_info(box);
-                update_image_box_projection(box)
+                this.imageContext.update_image_box_projection(box)
                 this.floatLabelManager.update_position(box, true);
                 this.update_subview_by_bbox(box);
-                view_handles.update_view_handle(this.selected_box.scale);
+                this.projectiveViewOps.update_view_handle(this.selected_box);
 
-                image_manager.select_bbox(box.obj_local_id, box.obj_type);
+                this.imageContext.image_manager.select_bbox(box.obj_local_id, box.obj_type);
             } else {
                 this.header.clear_box_info();
                 //clear_canvas();
@@ -1983,7 +1992,7 @@ function new_editor(editor_ui){
         render_2d_labels: function(){
             this.floatLabelManager.remove_all_labels();
             var self=this;
-            data.world.boxes.forEach(function(b){
+            this.data.world.boxes.forEach(function(b){
                 self.floatLabelManager.add_label(b);
             })
 
@@ -2051,8 +2060,8 @@ function new_editor(editor_ui){
 
         interpolate_selected_object: function(){
 
-            let scene = data.world.file_info.scene; 
-            let frame = data.world.file_info.frame;
+            let scene = this.data.world.file_info.scene; 
+            let frame = this.data.world.file_info.frame;
             let obj_id = this.selected_box.obj_track_id;
 
 

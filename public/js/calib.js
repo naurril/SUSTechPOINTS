@@ -1,6 +1,6 @@
-import {data} from "./data.js"
+
 import {rotation_matrix_to_euler_angle,euler_angle_to_rotate_matrix} from "./util.js"
-import {render_2d_image, update_image_box_projection} from "./image.js"
+//import {render_2d_image, update_image_box_projection} from "./image.js"
 import {selected_box} from "./main.js"
 
 var euler_angle={x:0, y:0, y:0};
