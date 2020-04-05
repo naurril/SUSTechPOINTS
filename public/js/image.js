@@ -3,7 +3,7 @@ import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
 
-function ImageContext(data){
+function ImageContext(data, parentUi){
 
     this.init_image_op = init_image_op;
     this.render_2d_image = render_2d_image;
@@ -14,6 +14,7 @@ function ImageContext(data){
     //this.image_manager = image_manager;
 
     //internal
+    //var parentUi = parentUi;
     var drawing = false;
     var points = [];
     var polyline;
@@ -31,10 +32,10 @@ function ImageContext(data){
     var get_selected_box;
 
     function init_image_op(func_get_selected_box){
-        var c = document.getElementById("maincanvas-wrapper");
+        var c = parentUi.querySelector("#maincanvas-wrapper");
         c.onclick = on_click;
         get_selected_box = func_get_selected_box;
-        // var h = document.getElementById("resize-handle");
+        // var h = parentUi.querySelector("#resize-handle");
         // h.onmousedown = resize_mouse_down;
         
         c.onresize = on_resize;
@@ -46,7 +47,7 @@ function ImageContext(data){
 
 
     function to_viewbox_coord(x,y){
-        var div = document.getElementById("maincanvas-svg");
+        var div = parentUi.querySelector("#maincanvas-svg");
         
         x = Math.round(x*2048/div.clientWidth);
         y = Math.round(y*1536/div.clientHeight);
@@ -63,7 +64,7 @@ function ImageContext(data){
 
             if (e.ctrlKey){
                 drawing = true;
-                var svg = document.getElementById("maincanvas-svg");
+                var svg = parentUi.querySelector("#maincanvas-svg");
                 //svg.style.position = "absolute";
                 
                 polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
@@ -75,7 +76,7 @@ function ImageContext(data){
                 polyline.setAttribute("class", "maincanvas-line")
                 polyline.setAttribute("points", to_polyline_attr(points));
 
-                var c = document.getElementById("maincanvas-wrapper");
+                var c = parentUi.querySelector("#maincanvas-wrapper");
                 c.onmousemove = on_move;
                 c.ondblclick = on_dblclick;   
                 c.onkeydown = on_key;    
@@ -114,7 +115,7 @@ function ImageContext(data){
             drawing = false;
             points = [];
 
-            var c = document.getElementById("maincanvas-wrapper");
+            var c = parentUi.querySelector("#maincanvas-wrapper");
             c.onmousemove = null;
             c.ondblclick = null;
             c.onkeypress = null;
@@ -127,7 +128,7 @@ function ImageContext(data){
 
                 drawing = false;
                 points = [];
-                var c = document.getElementById("maincanvas-wrapper");
+                var c = parentUi.querySelector("#maincanvas-wrapper");
                 c.onmousemove = null;
                 c.ondblclick = null;
                 c.onkeypress = null;
@@ -147,12 +148,12 @@ function ImageContext(data){
     // all boxes
     function clear_main_canvas(){
 
-        //var c = document.getElementById("maincanvas");
+        //var c = parentUi.querySelector("#maincanvas");
         //var ctx = c.getContext("2d");
                     
         //ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        var boxes = document.getElementById("svg-boxes").children;
+        var boxes = parentUi.querySelector("#svg-boxes").children;
         
         if (boxes.length>0){
             for (var c=boxes.length-1; c >= 0; c--){
@@ -234,7 +235,7 @@ function ImageContext(data){
     }
 
     function show_image(){
-        var svgimage = document.getElementById("svg-image");
+        var svgimage = parentUi.querySelector("#svg-image");
 
         // active img is set by global, it's not set sometimes.
         var img = data.world.images.active_image();
@@ -260,11 +261,11 @@ function ImageContext(data){
 
         function hide_canvas(){
             //document.getElementsByClassName("ui-wrapper")[0].style.display="none";
-            document.getElementById("maincanvas-wrapper").style.display="none";
+            parentUi.querySelector("#maincanvas-wrapper").style.display="none";
         }
 
         function show_canvas(){
-            document.getElementById("maincanvas-wrapper").style.display="inline";
+            parentUi.querySelector("#maincanvas-wrapper").style.display="inline";
         }
 
 
@@ -288,7 +289,7 @@ function ImageContext(data){
                 return;
             }
 
-            var svg = document.getElementById("svg-boxes");
+            var svg = parentUi.querySelector("#svg-boxes");
 
             // draw boxes
             data.world.boxes.forEach(function(box){
@@ -464,10 +465,10 @@ function ImageContext(data){
 
 
     function clear_canvas(){
-        var c = document.getElementById("canvas");
+        var c = parentUi.querySelector("#canvas");
         var ctx = c.getContext("2d");
                     
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, c.width, c.height);
     }
 
 
@@ -501,7 +502,7 @@ function ImageContext(data){
             var pos = box.position;
             var rotation = box.rotation;
 
-            var img = data.world.images.active_image(); //document.getElementById("camera");
+            var img = data.world.images.active_image(); //parentUi.querySelector("#camera");
             if (img && (img.naturalWidth > 0)){
 
                 clear_canvas();
@@ -512,7 +513,7 @@ function ImageContext(data){
 
                 if (imgfinal != null){  // if projection is out of range of the image, stop drawing.
                     
-                    var c = document.getElementById("canvas");
+                    var c = parentUi.querySelector("#canvas");
                     var ctx = c.getContext("2d");
                     ctx.lineWidth = 0.5;
 
@@ -608,7 +609,7 @@ function ImageContext(data){
                     })
 
                     var svg_box = box_to_svg(box, imgfinal, trans_ratio);
-                    var svg = document.getElementById("svg-boxes");
+                    var svg = parentUi.querySelector("#svg-boxes");
                     svg.appendChild(svg_box);
                 }
             }
@@ -616,7 +617,7 @@ function ImageContext(data){
 
 
         select_bbox: function(box_obj_local_id, obj_type){
-            var b = document.getElementById("svg-box-local-"+box_obj_local_id);
+            var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
             if (b){
                 b.setAttribute("class", "box-svg-selected");
             }
@@ -624,14 +625,14 @@ function ImageContext(data){
 
 
         unselect_bbox: function(box_obj_local_id, obj_type){
-            var b = document.getElementById("svg-box-local-"+box_obj_local_id);
+            var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
                 b.setAttribute("class", obj_type);
         },
 
         remove_box: function(box_obj_local_id){
-            var b = document.getElementById("svg-box-local-"+box_obj_local_id);
+            var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
                 b.remove();
@@ -642,7 +643,7 @@ function ImageContext(data){
         },
         
         update_box: function(box){
-            var b = document.getElementById("svg-box-local-"+box.obj_local_id);
+            var b = parentUi.querySelector("#svg-box-local-"+box.obj_local_id);
             if (!b){
                 return;
             }

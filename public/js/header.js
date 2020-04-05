@@ -35,7 +35,7 @@ var Header=function(parentUi, data){
             on_scene_changed(scene);
         }
 
-        this.sceneSelectorUi.value = frame;
+        this.frameSelectorUi.value = frame;
     },
 
     this.clear_frame_info = function(scene, frame){

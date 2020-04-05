@@ -11,6 +11,7 @@ html,body {
 	overflow-x: hidden;
 	overflow-y: hidden;
 	
+	
 }
 
 a {
@@ -32,7 +33,14 @@ canvas {
 	display: block;
 }
 
-#main-ui{
+#main-div{
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+
+.editor-ui{
 	position: relative;
 	width: 100%;
 	height: 100%;

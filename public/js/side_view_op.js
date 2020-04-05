@@ -1,20 +1,19 @@
 
 import {matmul2} from "./util.js"
-import {translate_box, auto_rotate_x, auto_rotate_y, change_rotation_y, change_rotation_x, auto_rotate_xyz, rotate_z} from "./box_op.js"
 
 import {
 	Quaternion,
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
+function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
 
     this.parentUi = parentUi;
     this.get_selected_box = func_get_selected_box;
     this.on_box_changed = func_on_box_changed;
     this.update_subview_by_windowsize = func_update_subview_by_windowsize;
     this.views = views;
-
+    this.boxOp = boxOp;
     //internals
 
     function create_view_handler(ui, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate){
@@ -350,37 +349,37 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
         
         function init_view_operation(){
             /*
-            document.getElementById("z-v-up").onclick = function(){
+            this.parentUi.querySelector("#z-v-up").onclick = function(){
                 transform_bbox("y_move_up");
             };
         
-            document.getElementById("z-v-down").onclick = function(){
+            this.parentUi.querySelector("#z-v-down").onclick = function(){
                 transform_bbox("y_move_down");
             };
         
-            document.getElementById("z-v-left").onclick = function(){
+            this.parentUi.querySelector("#z-v-left").onclick = function(){
                 transform_bbox("x_move_down");
             };
         
-            document.getElementById("z-v-right").onclick = function(){
+            this.parentUi.querySelector("#z-v-right").onclick = function(){
                 transform_bbox("x_move_up");
             };
         
         
         
-            document.getElementById("z-v-t-up").onclick = function(){
+            this.parentUi.querySelector("#z-v-t-up").onclick = function(){
                 transform_bbox("y_scale_up");
             };
         
-            document.getElementById("z-v-t-down").onclick = function(){
+            this.parentUi.querySelector("#z-v-t-down").onclick = function(){
                 transform_bbox("y_scale_down");
             };
         
-            document.getElementById("z-v-t-left").onclick = function(){
+            this.parentUi.querySelector("#z-v-t-left").onclick = function(){
                 transform_bbox("x_scale_down");
             };
         
-            document.getElementById("z-v-t-right").onclick = function(){
+            this.parentUi.querySelector("#z-v-t-right").onclick = function(){
                 transform_bbox("x_scale_up");
             };
             */
@@ -729,20 +728,20 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     
             
             /*
-            document.getElementById("z-view-manipulator").onmouseenter = function(){
-                document.getElementById("z-v-table-translate").style.display="inherit";
-                document.getElementById("z-v-table-scale").style.display="inherit";
-                document.getElementById("z-v-table-shrink").style.display="inherit";
+            this.parentUi.querySelector("#z-view-manipulator").onmouseenter = function(){
+                this.parentUi.querySelector("#z-v-table-translate").style.display="inherit";
+                this.parentUi.querySelector("#z-v-table-scale").style.display="inherit";
+                this.parentUi.querySelector("#z-v-table-shrink").style.display="inherit";
             };
         
-            document.getElementById("z-view-manipulator").onmouseleave = function(){
-                document.getElementById("z-v-table-translate").style.display="none";
-                document.getElementById("z-v-table-scale").style.display="none";
-                document.getElementById("z-v-table-shrink").style.display="none";
+            this.parentUi.querySelector("#z-view-manipulator").onmouseleave = function(){
+                this.parentUi.querySelector("#z-v-table-translate").style.display="none";
+                this.parentUi.querySelector("#z-v-table-scale").style.display="none";
+                this.parentUi.querySelector("#z-v-table-shrink").style.display="none";
             };
             */
         
-            // document.getElementById("z-v-shrink-left").onclick = function(event){
+            // this.parentUi.querySelector("#z-v-shrink-left").onclick = function(event){
             //     var points = data.world.get_points_of_box_in_box_coord(scope.box);
         
             //     if (points.length == 0){
@@ -764,7 +763,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
             //     on_box_changed(scope.box);
             // };
         
-            // document.getElementById("z-v-shrink-right").onclick = function(event){
+            // this.parentUi.querySelector("#z-v-shrink-right").onclick = function(event){
             //     auto_shrink("x",1);
             // }
             
@@ -801,7 +800,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
                 var delta = scope.box.scale[axis]/2 - direction[axis]*extreme[end][axis];
 
                 console.log(extreme, delta);
-                translate_box(scope.box, axis, -direction[axis]* delta/2 );
+                scope.boxOp.translate_box(scope.box, axis, -direction[axis]* delta/2 );
                 scope.box.scale[axis] -= delta;
             }
         }
@@ -810,9 +809,9 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     function on_edge_changed(delta, direction){
         console.log(delta);
 
-        translate_box(scope.box, 'x', delta.x/2 * direction.x);
-        translate_box(scope.box, 'y', delta.y/2 * direction.y);
-        translate_box(scope.box, 'z', delta.z/2 * direction.z);
+        scope.boxOp.translate_box(scope.box, 'x', delta.x/2 * direction.x);
+        scope.boxOp.translate_box(scope.box, 'y', delta.y/2 * direction.y);
+        scope.boxOp.translate_box(scope.box, 'z', delta.z/2 * direction.z);
 
         scope.box.scale.x += delta.x;
         scope.box.scale.y += delta.y;
@@ -845,7 +844,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
         if (!direction){
             ['x','y'].forEach(function(axis){
 
-                translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                scope.boxOp.translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
                 scope.box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
     
             })
@@ -886,7 +885,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     function on_z_direction_changed(theta, sticky){
         // points indices shall be obtained before rotation.
         let box = scope.box;
-        rotate_z(box, theta, sticky)
+        scope.boxOp.rotate_z(box, theta, sticky)
         scope.on_box_changed(box);
     }
 
@@ -902,8 +901,8 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
         };
 
         
-        translate_box(scope.box, "x", delta.x);
-        translate_box(scope.box, "y", delta.y);
+        scope.boxOp.translate_box(scope.box, "x", delta.x);
+        scope.boxOp.translate_box(scope.box, "y", delta.y);
 
         scope.on_box_changed(scope.box);
     }
@@ -927,13 +926,13 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     }
 
     function on_z_wheel(wheel_direction){
-        on_wheel(this.views[1], wheel_direction);
+        on_wheel(scope.views[1], wheel_direction);
         scope.update_subview_by_windowsize(scope.box);
-        z_view_handle.update_view_handle(this.views[1].viewport, {x: scope.box.scale.y, y:scope.box.scale.x});
+        z_view_handle.update_view_handle(scope.views[1].viewport, {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
     function on_z_auto_rotate(){
-        auto_rotate_xyz(scope.box, null, {x:false, y:false, z:true}, scope.on_box_changed);
+        scope.boxOp.auto_rotate_xyz(scope.box, null, {x:false, y:false, z:true}, scope.on_box_changed);
     }
 
     function on_z_reset_rotate(){
@@ -970,7 +969,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
             var  extreme = data.world.get_points_dimmension_of_box(scope.box, false);
             ['x','z'].forEach(function(axis){
 
-                translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                scope.boxOp.translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
                 scope.box.scale[axis] = extreme.max[axis]-extreme.min[axis];        
     
             })       
@@ -1004,14 +1003,14 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
         };
 
         
-        translate_box(scope.box, "x", delta.x);
-        translate_box(scope.box, "z", delta.z);
+        scope.boxOp.translate_box(scope.box, "x", delta.x);
+        scope.boxOp.translate_box(scope.box, "z", delta.z);
 
         scope.on_box_changed(scope.box);
     }
 
     function on_y_direction_changed(theta, sticky){
-        change_rotation_y(scope.box, theta, sticky, scope.on_box_changed)
+        scope.boxOp.change_rotation_y(scope.box, theta, sticky, scope.on_box_changed)
     }
 
 
@@ -1033,9 +1032,9 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     }
 
     function on_y_wheel(wheel_direction){
-        on_wheel(this.views[2], wheel_direction);
+        on_wheel(scope.views[2], wheel_direction);
         scope.update_subview_by_windowsize(scope.box);
-        y_view_handle.update_view_handle(this.views[2].viewport, {x: scope.box.scale.x, y:scope.box.scale.z});
+        y_view_handle.update_view_handle(scope.views[2].viewport, {x: scope.box.scale.x, y:scope.box.scale.z});
     }
 
     function on_y_reset_rotate(){
@@ -1044,7 +1043,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     }
 
     function on_y_auto_rotate(){
-        auto_rotate_y(scope.box, scope.on_box_changed);
+        scope.boxOp.auto_rotate_y(scope.box, scope.on_box_changed);
     }
 
     var y_view_handle = create_view_handler(scope.parentUi.querySelector("#y-view-manipulator"), on_y_edge_changed, 
@@ -1079,7 +1078,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
 
             ['y','z'].forEach(function(axis){
 
-                translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                scope.boxOp.translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
                 scope.box.scale[axis] = extreme.max[axis]-extreme.min[axis];        
     
             })       
@@ -1112,14 +1111,14 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
         };
 
         
-        translate_box(scope.box, "y", delta.y);
-        translate_box(scope.box, "z", delta.z);
+        scope.boxOp.translate_box(scope.box, "y", delta.y);
+        scope.boxOp.translate_box(scope.box, "z", delta.z);
 
         scope.on_box_changed(scope.box);
     }
 
     function on_x_direction_changed(theta, sticky){
-        change_rotation_x(scope.box, theta, sticky, scope.on_box_changed)
+        scope.boxOp.change_rotation_x(scope.box, theta, sticky, scope.on_box_changed)
     }
 
     function on_x_scaled(ratio){
@@ -1139,9 +1138,9 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     }
 
     function on_x_wheel(wheel_direction){
-        on_wheel(this.views[3], wheel_direction);
+        on_wheel(scope.views[3], wheel_direction);
         scope.update_subview_by_windowsize(scope.box);
-        x_view_handle.update_view_handle(this.views[3].viewport, {x: scope.box.scale.y, y:scope.box.scale.z});
+        x_view_handle.update_view_handle(scope.views[3].viewport, {x: scope.box.scale.y, y:scope.box.scale.z});
     }
 
 
@@ -1151,7 +1150,7 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     }
 
     function on_x_auto_rotate(){
-        auto_rotate_x(scope.box, scope.on_box_changed);
+        scope.boxOp.auto_rotate_x(scope.box, scope.on_box_changed);
     }
 
     var x_view_handle = create_view_handler(scope.parentUi.querySelector("#x-view-manipulator"), on_x_edge_changed, 
@@ -1174,15 +1173,15 @@ function ProjectiveViewOps(parentUi, views, func_get_selected_box, func_on_box_c
     }
 
     this.show = function(){
-        document.getElementById("z-view-manipulator").style.display="inline-flex";
-        document.getElementById("y-view-manipulator").style.display="inline-flex";
-        document.getElementById("x-view-manipulator").style.display="inline-flex";
+        this.parentUi.querySelector("#z-view-manipulator").style.display="inline-flex";
+        this.parentUi.querySelector("#y-view-manipulator").style.display="inline-flex";
+        this.parentUi.querySelector("#x-view-manipulator").style.display="inline-flex";
     };
 
     this.hide = function(){
-        document.getElementById("z-view-manipulator").style.display="none";
-        document.getElementById("y-view-manipulator").style.display="none";
-        document.getElementById("x-view-manipulator").style.display="none";
+        this.parentUi.querySelector("#z-view-manipulator").style.display="none";
+        this.parentUi.querySelector("#y-view-manipulator").style.display="none";
+        this.parentUi.querySelector("#x-view-manipulator").style.display="none";
     }
 
     this.init_view_operation = function(){

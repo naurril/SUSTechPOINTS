@@ -1,4 +1,4 @@
-import{new_editor} from "./editor.js"
+import{Editor} from "./editor.js"
 
 document.body.addEventListener('keydown', event => {
     if (event.ctrlKey && 'asdv'.indexOf(event.key) !== -1) {
@@ -14,14 +14,14 @@ var template = document.querySelector('#main-ui-template');
 if (true){
   let main_ui = template.content.cloneNode(true);
   maindiv.appendChild(main_ui); // input parameter is changed after `append`
-  let editor = new_editor(maindiv.lastElementChild)
+  let editor = new Editor(maindiv.lastElementChild)
   editor.run();
 }
 
 
-if (true){
-  let main_ui = template.content.cloneNode(true);
-  maindiv.appendChild(main_ui); // input parameter is changed after `append`
-  let editor = new_editor(maindiv.lastElementChild)
-  editor.run();
-}
+// if (true){
+//   let main_ui = template.content.cloneNode(true);
+//   maindiv.appendChild(main_ui); // input parameter is changed after `append`
+//   let editor = new Editor(maindiv.lastElementChild)
+//   editor.run();
+// }
