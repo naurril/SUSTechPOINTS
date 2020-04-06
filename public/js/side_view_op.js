@@ -6,13 +6,13 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
+function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
 
-    this.parentUi = parentUi;
+    this.ui = ui;
     this.cfg = editorCfg;
     this.get_selected_box = func_get_selected_box;
     this.on_box_changed = func_on_box_changed;
-    this.update_subview_by_windowsize = func_update_subview_by_windowsize;
+    this.updateSubviewRangeByWindowResize = func_update_subview_by_windowsize;
     this.views = views;
     this.boxOp = boxOp;
     this.data = data;
@@ -350,42 +350,7 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
         
         
         function init_view_operation(){
-            /*
-            this.parentUi.querySelector("#z-v-up").onclick = function(){
-                transform_bbox("y_move_up");
-            };
-        
-            this.parentUi.querySelector("#z-v-down").onclick = function(){
-                transform_bbox("y_move_down");
-            };
-        
-            this.parentUi.querySelector("#z-v-left").onclick = function(){
-                transform_bbox("x_move_down");
-            };
-        
-            this.parentUi.querySelector("#z-v-right").onclick = function(){
-                transform_bbox("x_move_up");
-            };
-        
-        
-        
-            this.parentUi.querySelector("#z-v-t-up").onclick = function(){
-                transform_bbox("y_scale_up");
-            };
-        
-            this.parentUi.querySelector("#z-v-t-down").onclick = function(){
-                transform_bbox("y_scale_down");
-            };
-        
-            this.parentUi.querySelector("#z-v-t-left").onclick = function(){
-                transform_bbox("x_scale_down");
-            };
-        
-            this.parentUi.querySelector("#z-v-t-right").onclick = function(){
-                transform_bbox("x_scale_up");
-            };
-            */
-        
+            
             var mouse_right_down = false;
     
             div.onkeydown = on_key_down;
@@ -732,45 +697,6 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
             }
     
             
-            /*
-            this.parentUi.querySelector("#z-view-manipulator").onmouseenter = function(){
-                this.parentUi.querySelector("#z-v-table-translate").style.display="inherit";
-                this.parentUi.querySelector("#z-v-table-scale").style.display="inherit";
-                this.parentUi.querySelector("#z-v-table-shrink").style.display="inherit";
-            };
-        
-            this.parentUi.querySelector("#z-view-manipulator").onmouseleave = function(){
-                this.parentUi.querySelector("#z-v-table-translate").style.display="none";
-                this.parentUi.querySelector("#z-v-table-scale").style.display="none";
-                this.parentUi.querySelector("#z-v-table-shrink").style.display="none";
-            };
-            */
-        
-            // this.parentUi.querySelector("#z-v-shrink-left").onclick = function(event){
-            //     var points = data.world.get_points_of_box_in_box_coord(scope.box);
-        
-            //     if (points.length == 0){
-            //         return;
-            //     }
-        
-            //     var minx = 0;
-            //     for (var i in points){
-            //         if (points[i][0] < minx){
-            //             minx = points[i][0];
-            //         }
-            //     }
-        
-                
-            //     var delta = minx + scope.box.scale.x/2;
-            //     console.log(minx, delta);
-            //     translate_box(scope.box, 'x', delta/2 );
-            //     scope.box.scale.x -= delta;
-            //     on_box_changed(scope.box);
-            // };
-        
-            // this.parentUi.querySelector("#z-v-shrink-right").onclick = function(event){
-            //     auto_shrink("x",1);
-            // }
             
         }
     
@@ -827,7 +753,7 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
             multiplier = 0.9;
         }
 
-        subview.viewport.zoom_ratio *= multiplier;
+        //subview.viewport.zoom_ratio *= multiplier;
         subview.zoom_ratio *= multiplier;
 
         return;
@@ -926,8 +852,8 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
 
     function on_z_wheel(wheel_direction){
         on_wheel(scope.views[1], wheel_direction);
-        scope.update_subview_by_windowsize(scope.box);
-        z_view_handle.update_view_handle(scope.views[1].viewport, {x: scope.box.scale.y, y:scope.box.scale.x});
+        scope.updateSubviewRangeByWindowResize(scope.box);
+        z_view_handle.update_view_handle(scope.views[1].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
     function on_z_auto_rotate(){
@@ -939,7 +865,7 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
         scope.on_box_changed(scope.box);
     }
 
-    var z_view_handle = create_view_handler(scope.parentUi.querySelector("#z-view-manipulator"), on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel, on_z_auto_rotate, on_z_reset_rotate);
+    var z_view_handle = create_view_handler(scope.ui.querySelector("#z-view-manipulator"), on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel, on_z_auto_rotate, on_z_reset_rotate);
 
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -1032,8 +958,8 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
 
     function on_y_wheel(wheel_direction){
         on_wheel(scope.views[2], wheel_direction);
-        scope.update_subview_by_windowsize(scope.box);
-        y_view_handle.update_view_handle(scope.views[2].viewport, {x: scope.box.scale.x, y:scope.box.scale.z});
+        scope.updateSubviewRangeByWindowResize(scope.box);
+        y_view_handle.update_view_handle(scope.views[2].getViewPort(), {x: scope.box.scale.x, y:scope.box.scale.z});
     }
 
     function on_y_reset_rotate(){
@@ -1045,7 +971,7 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
         scope.boxOp.auto_rotate_y(scope.box, scope.on_box_changed);
     }
 
-    var y_view_handle = create_view_handler(scope.parentUi.querySelector("#y-view-manipulator"), on_y_edge_changed, 
+    var y_view_handle = create_view_handler(scope.ui.querySelector("#y-view-manipulator"), on_y_edge_changed, 
                                                 on_y_direction_changed, on_y_auto_shrink, on_y_moved, on_y_scaled, on_y_wheel, 
                                                 on_y_auto_rotate,
                                                 on_y_reset_rotate);
@@ -1138,8 +1064,8 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
 
     function on_x_wheel(wheel_direction){
         on_wheel(scope.views[3], wheel_direction);
-        scope.update_subview_by_windowsize(scope.box);
-        x_view_handle.update_view_handle(scope.views[3].viewport, {x: scope.box.scale.y, y:scope.box.scale.z});
+        scope.updateSubviewRangeByWindowResize(scope.box);
+        x_view_handle.update_view_handle(scope.views[3].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.z});
     }
 
 
@@ -1152,7 +1078,7 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
         scope.boxOp.auto_rotate_x(scope.box, scope.on_box_changed);
     }
 
-    var x_view_handle = create_view_handler(scope.parentUi.querySelector("#x-view-manipulator"), on_x_edge_changed, 
+    var x_view_handle = create_view_handler(scope.ui.querySelector("#x-view-manipulator"), on_x_edge_changed, 
                                                 on_x_direction_changed, 
                                                 on_x_auto_shrink, 
                                                 on_x_moved, 
@@ -1172,15 +1098,11 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
     }
 
     this.show = function(){
-        this.parentUi.querySelector("#z-view-manipulator").style.display="inline-flex";
-        this.parentUi.querySelector("#y-view-manipulator").style.display="inline-flex";
-        this.parentUi.querySelector("#x-view-manipulator").style.display="inline-flex";
+        this.ui.style.display="block";
     };
 
     this.hide = function(){
-        this.parentUi.querySelector("#z-view-manipulator").style.display="none";
-        this.parentUi.querySelector("#y-view-manipulator").style.display="none";
-        this.parentUi.querySelector("#x-view-manipulator").style.display="none";
+        this.ui.style.display="none";
     }
 
     this.init_view_operation = function(){
@@ -1192,9 +1114,9 @@ function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_sel
     this.update_view_handle = function(box){
         this.box = box;
 
-        z_view_handle.update_view_handle(this.views[1].viewport, {x: box.scale.y, y:box.scale.x});
-        y_view_handle.update_view_handle(this.views[2].viewport, {x: box.scale.x, y:box.scale.z});
-        x_view_handle.update_view_handle(this.views[3].viewport, {x: box.scale.y, y:box.scale.z});
+        z_view_handle.update_view_handle(this.views[1].getViewPort(), {x: box.scale.y, y:box.scale.x});
+        y_view_handle.update_view_handle(this.views[2].getViewPort(), {x: box.scale.x, y:box.scale.z});
+        x_view_handle.update_view_handle(this.views[3].getViewPort(), {x: box.scale.y, y:box.scale.z});
     };
 
 };

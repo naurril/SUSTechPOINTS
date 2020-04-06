@@ -5,7 +5,7 @@ import { TransformControls } from './lib/TransformControls.js';
 
 
 
-function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg){
+function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc, on_box_changed, cfg){
 
     let subviewWidth = 0.2;
 
@@ -15,36 +15,17 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
 
     let viewCfg = [
         {
-            left: 0,
-            bottom: 0,
-            width: 1.0,
-            height: 1.0,
-            background: new THREE.Color( 0.0, 0.0, 0.0 ),
+            backgroundColor: new THREE.Color( 0.0, 0.0, 0.0 ),
+        },
+        {
+            backgroundColor: new THREE.Color( 0.1, 0.1, 0.2 ),
+        },
+        {
+            backgroundColor: new THREE.Color( 0.1, 0.2, 0.1 ),
             
         },
         {
-            left: 0,
-            bottom: 0.7,
-            width: subviewWidth,
-            height: 0.3,
-            background: new THREE.Color( 0.1, 0.1, 0.2 ),
-            
-        },
-        {
-            left: 0,
-            bottom: 0.5,
-            width: subviewWidth,
-            height: 0.2,
-            background: new THREE.Color( 0.1, 0.2, 0.1 ),
-            
-        },
-        {
-            left: 0,
-            bottom: 0.3,
-            width: subviewWidth,
-            height: 0.2,
-            background: new THREE.Color( 0.2, 0.1, 0.1 ),
-            
+            backgroundColor: new THREE.Color( 0.2, 0.1, 0.1 ),
         }
     ];
 
@@ -52,30 +33,18 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
 
     this.container = main_ui_container;
     this.views= [
-        cfg.disableMainView?null:create_main_view(viewCfg[0], webgl_scene,  this.container, render, on_box_changed),
-        create_top_view(viewCfg[1], webgl_scene),
-        create_rear_view(viewCfg[2], webgl_scene),
-        create_side_view(viewCfg[3], webgl_scene),   
+        cfg.disableMainView?null:create_main_view(viewCfg[0].backgroundColor, webgl_scene,  renderer, globalRenderFunc, this.container, on_box_changed),
+        createTopView(viewCfg[1].backgroundColor, webgl_scene),
+        createSideView(viewCfg[2].backgroundColor, webgl_scene),
+        createBackView(viewCfg[3].backgroundColor, webgl_scene, renderer, container),   
     ];
-
-    this.updateViewPort= function(){
-        this.views.slice(1).forEach((view)=>{
-            view.viewport={
-                left: this.container.scrollWidth * view.viewCfg.left,
-                bottom: this.container.scrollHeight-this.container.scrollHeight * view.viewCfg.bottom,
-                width:this.container.scrollWidth * view.viewCfg.width,
-                height:this.container.scrollHeight * view.viewCfg.height,
-                zoom_ratio:view.zoom_ratio,
-            };
-        })
-    };
 
 
     // no code after this line
         
-    function create_main_view(viewCfg, scene, dom, render, on_box_changed){
+    function create_main_view(backgroundColor, scene, renderer, globalglobalRenderFunc, dom, on_box_changed){
         var view ={};
-        view.viewCfg=viewCfg;
+        view.backgroundColor=backgroundColor;
         view.zoom_ratio = 1.0; //useless for mainview
             
         var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
@@ -85,28 +54,49 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
         camera.up.set( 0, 0, 1);
         camera.lookAt( 0, 0, 0 );
         view.camera_perspective = camera;
+        view.container = dom;
+        view.renderer = renderer;
+        view.scene = scene;
 
-        view.viewport={
-            left: container.clientWidth * viewCfg.left,
-            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
-            width:container.clientWidth * viewCfg.width,
-            height:container.clientHeight * viewCfg.height,
-            zoom_ratio:view.zoom_ratio,
-        };
 
         //var cameraOrthoHelper = new THREE.CameraHelper( camera );
         //cameraOrthoHelper.visible=true;
         //scene.add( cameraOrthoHelper );
 
+        view.render=function(){
+            this.switch_camera(false);
+
+            
+            //view.updateCamera( camera, scene, mouseX, mouseY );
+            
+            var left = 0;
+            var bottom = 0;
+            var width = this.container.scrollWidth;
+            var height = this.container.scrollHeight;
+
+            // update viewport, so the operating lines over these views 
+            // will be updated in time.
+            
+            
+            //console.log(left,bottom, width, height);
+
+            this.renderer.setViewport( left, bottom, width, height );
+            this.renderer.setScissor( left, bottom, width, height );
+            this.renderer.setClearColor(view.backgroundColor );
+            this.renderer.setScissorTest( true );
+
+            this.renderer.render( this.scene, this.camera );
+        };
+
         var orbit_perspective = new OrbitControls( view.camera_perspective, dom );
         orbit_perspective.update();
-        orbit_perspective.addEventListener( 'change', render );
+        orbit_perspective.addEventListener( 'change', globalRenderFunc );
         orbit_perspective.enabled = false;
         view.orbit_perspective = orbit_perspective;
 
         var transform_control = new TransformControls(camera, dom );
         transform_control.setSpace("local");
-        transform_control.addEventListener( 'change', render );
+        transform_control.addEventListener( 'change', globalRenderFunc );
         transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);});
         
         transform_control.addEventListener( 'dragging-changed', function ( event ) {
@@ -160,13 +150,13 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
         
         orbit_orth.dynamicDampingFactor = 0.3;
         orbit_orth.keys = [ 65, 83, 68 ];
-        orbit_orth.addEventListener( 'change', render );
+        orbit_orth.addEventListener( 'change', globalRenderFunc );
         orbit_orth.enabled=true;
         view.orbit_orth = orbit_orth;
         
         transform_control = new TransformControls(view.camera_orth, dom );
         transform_control.setSpace("local");
-        transform_control.addEventListener( 'change', render );
+        transform_control.addEventListener( 'change', globalRenderFunc );
         transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);} );
         
         
@@ -309,14 +299,19 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
             // target is set 
         }
 
+
         return view;
     }
 
 
-    function create_top_view(viewCfg, scene){
+    function createTopView(backgroundColor, scene){
         var view = {};
-        view.viewCfg=viewCfg;
         view.zoom_ratio = 1.0;
+        view.backgroundColor = backgroundColor;
+        view.container = container;
+        view.scene = scene;
+        view.renderer = renderer;
+        view.placeHolderUi = container.offsetParent.querySelector("#z-view-manipulator");
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -341,20 +336,85 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
 
         view.camera = camera;
 
-        view.viewport={
-            left: container.clientWidth * viewCfg.left,
-            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
-            width:container.clientWidth * viewCfg.width,
-            height:container.clientHeight * viewCfg.height,
-            zoom_ratio:view.zoom_ratio,
+        view.getViewPort = function(){
+            return {
+                left : view.placeHolderUi.offsetLeft,
+                bottom : view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight),
+                width : view.placeHolderUi.clientWidth,
+                height : view.placeHolderUi.clientHeight,
+                zoom_ratio: this.zoom_ratio,
+            }
         };
+
+        view.updateCameraRange=function(box){
+
+            var exp_camera_width, exp_camera_height, exp_camera_clip;
+            
+            //view.width = 0.2;//params["side view width"];
+
+            var view_width = view.placeHolderUi.clientWidth;
+            var view_height = view.placeHolderUi.clientHeight;
+
+            exp_camera_height = box.scale.x*1.5*view.zoom_ratio;
+            exp_camera_width = box.scale.y*1.5*view.zoom_ratio;
+            exp_camera_clip = box.scale.z+0.8;
+
+            if (exp_camera_width/exp_camera_height > view_width/view_height){
+                //increase height
+                exp_camera_height = exp_camera_width * view_height/view_width;
+            }
+            else
+            {
+                exp_camera_width = exp_camera_height * view_width/view_height;
+            }
+
+            this.camera.top = exp_camera_height/2;
+            this.camera.bottom = exp_camera_height/-2;
+            this.camera.right = exp_camera_width/2;
+            this.camera.left = exp_camera_width/-2;
+
+            this.camera.near = exp_camera_clip/-2;
+            this.camera.far = exp_camera_clip/2;
+            
+            //camera.aspect = view_width / view_height;
+            this.camera.updateProjectionMatrix();
+            this.cameraHelper.update();
+        },
+
+        view.render=function(){
+            //view.updateCamera( camera, scene, mouseX, mouseY );
+            
+            let left = view.placeHolderUi.offsetLeft;
+            let bottom = view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight);
+            let width = view.placeHolderUi.clientWidth;
+            let height = view.placeHolderUi.clientHeight;
+
+            // update viewport, so the operating lines over these views 
+            // will be updated in time.
+            
+            
+            //console.log(left,bottom, width, height);
+
+            this.renderer.setViewport( left, bottom, width, height );
+            this.renderer.setScissor( left, bottom, width, height );
+            this.renderer.setClearColor(view.backgroundColor );
+            this.renderer.setScissorTest( true );
+
+            this.renderer.render( this.scene, this.camera );
+        };
+
+
         return view;
     }
 
-    function create_rear_view(viewCfg, scene){
+    function createSideView(backgroundColor, scene){
         var view = {};
         view.zoom_ratio = 1.0;
-        view.viewCfg=viewCfg;
+        view.backgroundColor=backgroundColor;
+        view.container = container;
+        view.scene = scene;
+        view.renderer = renderer;
+        view.placeHolderUi = container.offsetParent.querySelector("#y-view-manipulator");
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -382,21 +442,85 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
 
         view.camera = camera;
 
-        view.viewport={
-            left: container.clientWidth * viewCfg.left,
-            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
-            width:container.clientWidth * viewCfg.width,
-            height:container.clientHeight * viewCfg.height,
-            zoom_ratio:view.zoom_ratio,
+        view.getViewPort = function(){
+            return {
+                left : view.placeHolderUi.offsetLeft,
+                bottom : view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight),
+                width : view.placeHolderUi.clientWidth,
+                height : view.placeHolderUi.clientHeight,
+                zoom_ratio: this.zoom_ratio,
+            }
         };
+
+        view.updateCameraRange=function(box){
+
+            var exp_camera_width, exp_camera_height, exp_camera_clip;
+            
+            //view.width = 0.2;//params["side view width"];
+
+            var view_width = view.placeHolderUi.clientWidth;
+            var view_height = view.placeHolderUi.clientHeight;
+
+            exp_camera_width = box.scale.x*1.5*view.zoom_ratio;
+            exp_camera_height = box.scale.z*1.5*view.zoom_ratio;
+
+            exp_camera_clip = box.scale.y*1.2;
+            
+            if (exp_camera_width/exp_camera_height > view_width/view_height){
+                //increase height
+                exp_camera_height = exp_camera_width * view_height/view_width;
+            }
+            else
+            {
+                exp_camera_width = exp_camera_height * view_width/view_height;
+            }
+
+            this.camera.top = exp_camera_height/2;
+            this.camera.bottom = exp_camera_height/-2;
+            this.camera.right = exp_camera_width/2;
+            this.camera.left = exp_camera_width/-2;
+
+            this.camera.near = exp_camera_clip/-2;
+            this.camera.far = exp_camera_clip/2;
+            
+            //camera.aspect = view_width / view_height;
+            this.camera.updateProjectionMatrix();
+            this.cameraHelper.update();
+        },
+
+        view.render=function(){
+            let left = view.placeHolderUi.offsetLeft;
+            let bottom = view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight);
+            let width = view.placeHolderUi.clientWidth;
+            let height = view.placeHolderUi.clientHeight;
+
+            // update viewport, so the operating lines over these views 
+            // will be updated in time.
+            
+            
+            //console.log(left,bottom, width, height);
+
+            this.renderer.setViewport( left, bottom, width, height );
+            this.renderer.setScissor( left, bottom, width, height );
+            this.renderer.setClearColor(view.backgroundColor );
+            this.renderer.setScissorTest( true );
+
+            this.renderer.render( this.scene, this.camera );
+        };
+
+
 
         return view;
     }
 
-    function create_side_view(viewCfg, scene){
+    function createBackView(backgroundColor, scene, renderer, container){
         var view = {};
         view.zoom_ratio = 1.0;
-        view.viewCfg=viewCfg;
+        view.backgroundColor=backgroundColor;
+        view.container = container;
+        view.scene = scene;
+        view.renderer = renderer;
+        view.placeHolderUi = container.offsetParent.querySelector("#x-view-manipulator");
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -422,13 +546,65 @@ function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg
         view.camera = camera;
 
 
-        view.viewport={
-            left: container.clientWidth * viewCfg.left,
-            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
-            width:container.clientWidth * viewCfg.width,
-            height:container.clientHeight * viewCfg.height,
-            zoom_ratio:view.zoom_ratio,
+        view.getViewPort = function(){
+            return {
+                left : view.placeHolderUi.offsetLeft,
+                bottom : view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight),
+                width : view.placeHolderUi.clientWidth,
+                height : view.placeHolderUi.clientHeight,
+                zoom_ratio: this.zoom_ratio,
+            }
         };
+
+        view.updateCameraRange=function(box){
+
+            var exp_camera_width, exp_camera_height, exp_camera_clip;
+            
+            //view.width = 0.2;//params["side view width"];
+
+            var view_width = view.placeHolderUi.clientWidth;
+            var view_height = view.placeHolderUi.clientHeight;
+
+            exp_camera_width = box.scale.y*1.5*view.zoom_ratio;
+            exp_camera_height = box.scale.z*1.5*view.zoom_ratio;
+            exp_camera_clip = box.scale.x*1.2;
+            
+            if (exp_camera_width/exp_camera_height > view_width/view_height){
+                //increase height
+                exp_camera_height = exp_camera_width * view_height/view_width;
+            }
+            else
+            {
+                exp_camera_width = exp_camera_height * view_width/view_height;
+            }
+
+            this.camera.top = exp_camera_height/2;
+            this.camera.bottom = exp_camera_height/-2;
+            this.camera.right = exp_camera_width/2;
+            this.camera.left = exp_camera_width/-2;
+
+            this.camera.near = exp_camera_clip/-2;
+            this.camera.far = exp_camera_clip/2;
+            
+            //camera.aspect = view_width / view_height;
+            this.camera.updateProjectionMatrix();
+            this.cameraHelper.update();
+        },
+
+        view.render=function(){
+            let left = view.placeHolderUi.offsetLeft;
+            let bottom = view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight);
+            let width = view.placeHolderUi.clientWidth;
+            let height = view.placeHolderUi.clientHeight;
+
+            this.renderer.setViewport( left, bottom, width, height );
+            this.renderer.setScissor( left, bottom, width, height );
+            this.renderer.setClearColor(view.backgroundColor );
+            this.renderer.setScissorTest( true );
+
+            this.renderer.render( this.scene, this.camera );
+        };
+
 
         return view;
     }

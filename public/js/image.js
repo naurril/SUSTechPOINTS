@@ -18,9 +18,9 @@ function ImageContext(data, parentUi, cfg){
         c.style.display="none";
     }
 
-    if (cfg.subviewWidth){
-        parentUi.querySelector("#focuscanvas").style.width=String(cfg.subviewWidth*100)+"%";
-    }
+    // if (cfg.subviewWidth){
+    //     parentUi.querySelector("#focuscanvas").style.width=String(cfg.subviewWidth*100)+"%";
+    // }
 
     //internal
     //var parentUi = parentUi;

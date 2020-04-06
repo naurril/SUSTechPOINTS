@@ -191,11 +191,8 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 #focuscanvas {
-	position: absolute;
-	top: 70%;
-	left: 0%;
 	color: #ffff00;
-	width: 20%;
+	width: 100%;
 	height: 30%;
 	padding: 0px;
 	box-sizing: border-box;
@@ -309,40 +306,31 @@ dynamic set obj-type css has higher priority than this one.
 	color: yellow;
 }
 
+
+#sub-views {
+	top: 0%;
+    position: absolute;
+    width: 20%;
+    height: 100%;
+}
+
+
 .view-manipulator {
-	display: none;  /* default */
-	width: 20%;
+	width: 100%;		
+	background-color: #00000000;
+	border-width: 0px;
 }
 
 #z-view-manipulator {
-	position: absolute;
-	top: 0%;
-	left: 0%;
-	
-	height: 30%;
-	background-color: #00000000;
-	border-width: 0px;	
+	height: 30%;	
 }
 
-#y-view-manipulator {
-	position: absolute;
-	top: 30%;
-	left: 0%;
-	
+#y-view-manipulator {	
 	height: 20%;
-	background-color: #00000000;
-	border-width: 0px;		
 }
-
 
 #x-view-manipulator {
-	position: absolute;
-	top: 50%;
-	left: 0%;
-	
 	height: 20%;
-	background-color: #00000000;
-	border-width: 0px;
 }
 
 

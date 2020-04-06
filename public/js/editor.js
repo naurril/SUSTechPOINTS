@@ -74,7 +74,7 @@ function Editor(editorUi, editorCfg, metaData){
         this.container = editorUi.querySelector("#container");
         this.container.appendChild( this.renderer.domElement );        
 
-        this.viewManager = new ViewManager(this.container, this.scene,
+        this.viewManager = new ViewManager(this.container, this.scene, this.renderer, 
             function(){self.render();}, 
             function(box){self.on_box_changed(box)},
             this.editorCfg);
@@ -136,14 +136,14 @@ function Editor(editorUi, editorCfg, metaData){
 
     
         this.projectiveViewOps = new ProjectiveViewOps(
-            this.editorUi,
+            this.editorUi.querySelector("#sub-views"),
             this.editorCfg,
             this.data,
             this.views,
             this.boxOp,
             function(){return self.selected_box;},
             function(b){return self.on_box_changed(b);},
-            function(b){return self.update_subview_by_windowsize(b);}
+            function(b){return self.updateSubviewRangeByWindowResize(b);}
         );
 
         this.install_fast_tool();
@@ -457,47 +457,8 @@ function Editor(editorUi, editorCfg, metaData){
 
     this.render= function(){
 
-        //this.views[0].switch_camera(params["bird's eye view"]);
+        this.views.forEach(v=>v.render());
 
-        if (this.views[0])
-            this.views[0].switch_camera(false);
-        //console.log(this.views[0].camera.rotation.z);
-
-        for ( var ii = 0; ii < this.views.length; ++ ii ) {
-
-            if ((ii > 0) && (!this.sideview_enabled)){ // || !this.selected_box)){
-                break;
-            }
-
-            var view = this.views[ii];
-
-            if (!view){
-                continue;
-            }
-
-            var camera = view.camera;
-            //view.updateCamera( camera, scene, mouseX, mouseY );
-            
-            var left = Math.floor( this.container.scrollWidth * view.viewCfg.left );
-            var bottom = Math.floor( this.container.scrollHeight * view.viewCfg.bottom );
-            var width = Math.ceil( this.container.scrollWidth * view.viewCfg.width );
-            var height = Math.ceil( this.container.scrollHeight * view.viewCfg.height );
-
-            // update viewport, so the operating lines over these views 
-            // will be updated in time.
-            
-            
-            //console.log(left,bottom, width, height);
-
-            this.renderer.setViewport( left, bottom, width, height );
-            this.renderer.setScissor( left, bottom, width, height );
-            this.renderer.setClearColor(view.viewCfg.background );
-            this.renderer.setScissorTest( true );
-
-            this.renderer.render( this.scene, camera );
-        }   
-
-        
         this.floatLabelManager.update_all_position();
         if (this.selected_box){
             this.floatLabelManager.update_obj_editor_position(this.selected_box.obj_local_id);
@@ -822,73 +783,21 @@ function Editor(editorUi, editorCfg, metaData){
         }
     };
 
-    this.update_subview_by_windowsize= function(box){
+    this.updateSubviewRangeByWindowResize= function(box){
 
         if (box === null)
             return;
 
         this.projectiveViewOps.update_view_handle(this.selected_box);
         
-        // side views
-        var exp_camera_width, exp_camera_height, exp_camera_clip;
-
-        for ( var ii = 1; ii < this.views.length; ++ ii ) {
-            var view = this.views[ ii ];
-            var camera = view.camera;
-
-            //view.width = 0.2;//params["side view width"];
-
-            var view_width = Math.floor( this.container.scrollWidth * view.viewCfg.width);
-            var view_height = Math.floor( this.container.scrollHeight * view.viewCfg.height);
-
-            if (ii==1){
-                // width: y
-                // length: x
-                exp_camera_height = box.scale.x*1.5*view.zoom_ratio;
-                exp_camera_width = box.scale.y*1.5*view.zoom_ratio;
-
-                exp_camera_clip = box.scale.z+0.8;
-            } else if (ii==2){            
-                exp_camera_width = box.scale.x*1.5*view.zoom_ratio;
-                exp_camera_height = box.scale.z*1.5*view.zoom_ratio;
-
-                exp_camera_clip = box.scale.y*1.2;
-            }else if (ii==3){
-                exp_camera_width = box.scale.y*1.5*view.zoom_ratio;
-                exp_camera_height = box.scale.z*1.5*view.zoom_ratio;
-
-                exp_camera_clip = box.scale.x*1.2;
-            }
-
-
-            if (exp_camera_width/exp_camera_height > view_width/view_height){
-                //increase height
-                exp_camera_height = exp_camera_width * view_height/view_width;
-            }
-            else
-            {
-                exp_camera_width = exp_camera_height * view_width/view_height;
-            }
-
-            camera.top = exp_camera_height/2;
-            camera.bottom = exp_camera_height/-2;
-            camera.right = exp_camera_width/2;
-            camera.left = exp_camera_width/-2;
-
-            camera.near = exp_camera_clip/-2;
-            camera.far = exp_camera_clip/2;
-            
-            //camera.aspect = view_width / view_height;
-            camera.updateProjectionMatrix();
-            view.cameraHelper.update();
-            
-            
-        }
+        this.views[1].updateCameraRange(box);
+        this.views[2].updateCameraRange(box);
+        this.views[3].updateCameraRange(box);
 
         this.render();
     };
 
-    this.update_subview_by_bbox= function(box){
+    this.updateSubviewByBox= function(box){
         var p = box.position;
         var r = box.rotation;
         //console.log(r);
@@ -934,7 +843,7 @@ function Editor(editorUi, editorCfg, metaData){
         this.views[3].camera.updateProjectionMatrix();
         this.views[3].cameraHelper.update();        
 
-        this.update_subview_by_windowsize(box);  // render() is called inside this func
+        this.updateSubviewRangeByWindowResize(box);  // render() is called inside this func
     };
 
     this.handleRightClick= function(event){
@@ -1244,9 +1153,10 @@ function Editor(editorUi, editorCfg, metaData){
         this.save_box_info(object); // this is needed since when a frame is loaded, all box haven't saved anything.
                             // we could move this to when a frame is loaded.
 
+        this.projectiveViewOps.show();
         this.onSelectedBoxChanged(object);
 
-        this.projectiveViewOps.show();
+        
     };
 
     this.onWindowResize= function() {
@@ -1260,17 +1170,17 @@ function Editor(editorUi, editorCfg, metaData){
                 this.views[0].onWindowResize();
 
             if (this.selected_box){
-                this.update_subview_by_windowsize(this.selected_box);
+                this.updateSubviewRangeByWindowResize(this.selected_box);
             }
 
             this.windowWidth = this.container.clientWidth;
             this.windowHeight = this.container.clientHeight;
             this.renderer.setSize( this.windowWidth, this.windowHeight );
 
-            this.viewManager.updateViewPort();
+            //this.viewManager.updateViewPort();
 
             // update sideview svg if there exists selected box
-            // the following update is called in update_subview_by_windowsize
+            // the following update is called in updateSubviewRangeByWindowResize
             // if (this.selected_box){
             //     this.projectiveViewOps.update_view_handle(this.selected_box);
             // }
@@ -1746,15 +1656,14 @@ function Editor(editorUi, editorCfg, metaData){
         this.select_bbox(this.data.world.boxes[this.operation_state.box_navigate_index]);
     };
 
-    this.centerMainView =function(){
-        let offset = this.data.world.coordinatesOffset;
-        this.views[0].orbit.target.x += offset[0];
-        this.views[0].orbit.target.y += offset[1];
-        this.views[0].orbit.target.z += offset[2];        
-    };
+    // this.centerMainView =function(){
+    //     let offset = this.data.world.coordinatesOffset;
+    //     this.views[0].orbit.target.x += offset[0];
+    //     this.views[0].orbit.target.y += offset[1];
+    //     this.views[0].orbit.target.z += offset[2];        
+    // };
 
     this.on_load_world_finished= function(scene_name, frame){
-        this.centerMainView(); // should center camera before activate focus mode
         this.unselect_bbox(null, true);
         this.unselect_bbox(null, true);
         this.render();
@@ -1842,7 +1751,7 @@ function Editor(editorUi, editorCfg, metaData){
     //box edited
     this.on_box_changed= function(box){
 
-        this.update_subview_by_bbox(box);
+        this.updateSubviewByBox(box);
         this.projectiveViewOps.update_view_handle(box);
         this.imageContext.updateFocusedImageContext(box);
         
@@ -1884,7 +1793,7 @@ function Editor(editorUi, editorCfg, metaData){
             this.header.update_box_info(box);
             this.imageContext.updateFocusedImageContext(box)
             this.floatLabelManager.update_position(box, true);
-            this.update_subview_by_bbox(box);
+            this.updateSubviewByBox(box);
             this.projectiveViewOps.update_view_handle(this.selected_box);
 
             this.imageContext.image_manager.select_bbox(box.obj_local_id, box.obj_type);
