@@ -25,7 +25,7 @@
 					</svg>	
 				</div>
 				
-				<div id="info">			
+				<div id="info">
 					<!-- text id="frame"></text-->
 
 					<select id="scene-selector">
@@ -80,7 +80,7 @@
 					</svg>
 				</div>
 				
-				<canvas id="canvas" width="320" height="240">cavas</canvas>		
+				<canvas id="focuscanvas" width="320" height="240">cavas</canvas>		
 
 				<div class="view-manipulator"  id="z-view-manipulator"  tabindex="-1">
 
@@ -257,7 +257,9 @@
 				</div>
 		</div></template>
 
-
+		<div id="batch-editor">
+			<template id="template-subeditor-wrapper" ><div class="subeditor-wrapper"></div></template>
+		</div>
 		<script src="/static/js/lib/ml/tf.min.js"></script>
 		<script type="module"  src="/static/js/editor_main.js"></script>		
 	</body>

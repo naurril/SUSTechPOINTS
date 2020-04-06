@@ -59,13 +59,15 @@ canvas {
 	position: absolute;
 	top: 0px;
 	color: #ffff00;
-	background-color: #222;
+	background-color: #2227;
 	width: inherit;
 	font-size: inherit;
 	padding: 0px;
 	box-sizing: border-box;
 	text-align: left;	
 	z-index: 3; /* TODO Solve this in HTML */
+	font-size: smaller;
+
 }
 
 #object-category-selector, #object-track-id-editor, #scene-selector, #frame-selector, #camera-selector, #obj-ids-of-scene
@@ -188,13 +190,13 @@ dynamic set obj-type css has higher priority than this one.
 	padding: inherit;
 }
 
-#canvas {
+#focuscanvas {
 	position: absolute;
 	top: 70%;
 	left: 0%;
 	color: #ffff00;
 	width: 20%;
-	height: auto;
+	height: 30%;
 	padding: 0px;
 	box-sizing: border-box;
 	text-align: left;
@@ -309,13 +311,14 @@ dynamic set obj-type css has higher priority than this one.
 
 .view-manipulator {
 	display: none;  /* default */
+	width: 20%;
 }
 
 #z-view-manipulator {
 	position: absolute;
 	top: 0%;
 	left: 0%;
-	width: 20%;
+	
 	height: 30%;
 	background-color: #00000000;
 	border-width: 0px;	
@@ -325,7 +328,7 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	top: 30%;
 	left: 0%;
-	width: 20%;
+	
 	height: 20%;
 	background-color: #00000000;
 	border-width: 0px;		
@@ -336,7 +339,7 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	top: 50%;
 	left: 0%;
-	width: 20%;
+	
 	height: 20%;
 	background-color: #00000000;
 	border-width: 0px;
@@ -445,11 +448,22 @@ batch editor
 
 
 #batch-editor{
-	position: relative;
+	display: inherit;
+	position: absolute;
 	left: 10%;
 	top: 10%;
-	height: 80%;
-	width: 80;
+	/*height: 80%;
+	width: 80%;*/
 }
 
 
+.subeditor-wrapper{
+	display: inline-block;
+	position: relative;
+	height: 400px;
+	width: 150px;
+}
+
+.subeditor-wrapper .editor-ui .view-manipulator{
+	width: 100%;
+}

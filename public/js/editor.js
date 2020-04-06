@@ -1,7 +1,7 @@
 import * as THREE from './lib/three.module.js';
 import { GUI } from './lib/dat.gui.module.js';
 
-import {create_views} from "./view.js"
+import {ViewManager} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
 import {Mouse} from "./mouse.js"
 import {ProjectiveViewOps}  from "./side_view_op.js"
@@ -16,8 +16,9 @@ import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
 import {save_annotation} from "./save.js"
 
-function Editor(editorUi){
+function Editor(editorUi, editorCfg, metaData){
 
+    this.editorCfg = editorCfg;
     this.sideview_enabled = true;
     this.editorUi = editorUi;
     this.container = null;
@@ -36,8 +37,13 @@ function Editor(editorUi){
         };
     this.view_state = {
         lock_obj_track_id : "",
-        lock_obj_in_highlight : false,
+        lock_obj_in_highlight : false,  // focus mode
+        autoLock: function(trackid, focus){
+            this.lock_obj_track_id = trackid;
+            this.lock_obj_in_highlight = focus;
+        }
     };
+
     this.header = null;
     this.imageContext = null;
     this.boxOp = null;
@@ -46,9 +52,16 @@ function Editor(editorUi){
     
         let self = this;
         this.editorUi = editorUi;
-        this.data = Data();
+        this.data = new Data(metaData);
         this.playControl = new PlayControl(this.data);
-        this.header = new Header(editorUi.querySelector("#info"), this.data);
+        this.header = new Header(editorUi.querySelector("#info"), this.data, this.editorCfg,
+            (e)=>{
+                this.scene_changed(e.currentTarget.value);
+                //event.currentTarget.blur();
+            },        
+            (e)=>{this.frame_changed(e)},
+            (e)=>{this.camera_changed(e)}        
+        );
         this.scene = new THREE.Scene();
 
         
@@ -59,16 +72,18 @@ function Editor(editorUi){
         this.renderer.setPixelRatio( window.devicePixelRatio );
         
         this.container = editorUi.querySelector("#container");
-        this.container.appendChild( this.renderer.domElement );
-        this.container.onresize=()=>{this.onWindowResize()};
-        this.container.onscroll=()=>{this.onWindowResize()};
+        this.container.appendChild( this.renderer.domElement );        
 
-        this.views = create_views(this.container, this.scene, this.container/*renderer.domElement*/, 
-                        function(){self.render();}, 
-                        function(box){self.on_box_changed(box)});
-        this.imageContext = new ImageContext(this.data, this.editorUi);
+        this.viewManager = new ViewManager(this.container, this.scene,
+            function(){self.render();}, 
+            function(box){self.on_box_changed(box)},
+            this.editorCfg);
+        this.views = this.viewManager.views;
 
-        this.add_range_box();
+        this.imageContext = new ImageContext(this.data, this.editorUi, this.editorCfg);
+
+        if (!this.editorCfg.disableRangeCircle)
+            this.addRangeCircle();
     
         this.floatLabelManager = createFloatLabelManager(this.editorUi, this.container, this.views[0],function(box){self.select_bbox(box);});
     
@@ -80,16 +95,19 @@ function Editor(editorUi){
     
         window.addEventListener( 'resize', function(){self.onWindowResize();}, false );
         
-        this.container.onmouseenter = (event)=>{
-            this.container.focus();
-        };
 
-        this.container.onmouseleave = (event)=>{
-            this.container.blur();                
-        };
+        if (!this.editorCfg.disableMainViewKeyDown){
+            this.container.onmouseenter = (event)=>{
+                this.container.focus();
+            };
 
-        this.container.addEventListener( 'keydown', function(e){self.keydown(e);} );
-    
+            this.container.onmouseleave = (event)=>{
+                this.container.blur();                
+            };
+
+            this.container.addEventListener( 'keydown', function(e){self.keydown(e);} );
+        }
+
         this.mouse = new Mouse(
                 this.views,
                 this.operation_state,
@@ -115,17 +133,11 @@ function Editor(editorUi){
             }
         });
 
-        this.editorUi.querySelector("#scene-selector").onchange = function(event){
-            self.scene_changed(event.currentTarget.value);        
-            event.currentTarget.blur();
-        };
-    
-        this.editorUi.querySelector("#frame-selector").onchange = function(e){self.frame_changed(e)};
-        this.editorUi.querySelector("#camera-selector").onchange = function(e){self.camera_changed(e)};
-    
+
     
         this.projectiveViewOps = new ProjectiveViewOps(
             this.editorUi,
+            this.editorCfg,
             this.data,
             this.views,
             this.boxOp,
@@ -141,7 +153,8 @@ function Editor(editorUi){
         this.projectiveViewOps.init_view_operation();
         //this.projectiveViewOps.hide();
     
-        this.installGridLines()
+        if (!this.editorCfg.disableGrid)
+            this.installGridLines()
     
         window.onbeforeunload = function() {
             return "Exit?";
@@ -161,11 +174,12 @@ function Editor(editorUi){
             return self.selected_box;
         });
 
-        this.load_data_meta();
         this.add_global_obj_type();
     };
 
-    this.add_range_box = function(){
+
+    this.addRangeCircle= function(){
+        
         var h = 1;
                         
         var body = [
@@ -197,9 +211,8 @@ function Editor(editorUi){
         box.position.z=0;
         box.computeLineDistances();
 
-        scene.add(box);
+        this.scene.add(box);
     };
-
 
     this.installGridLines= function(){
         
@@ -261,11 +274,11 @@ function Editor(editorUi){
         this.editorUi.querySelector("#label-highlight").onclick = function(event){
             event.currentTarget.blur();
             if (self.selected_box.in_highlight){
-                self.cancel_highlight_selected_box(self.selected_box);
+                self.cancelFocus(self.selected_box);
                 self.view_state.lock_obj_in_highlight = false
             }
             else {
-                self.highlight_selected_box(self.selected_box);
+                self.focusOnSelectedBox(self.selected_box);
             }
         }
 
@@ -275,7 +288,7 @@ function Editor(editorUi){
         }
     };
 
-    this.cancel_highlight_selected_box= function(box){
+    this.cancelFocus= function(box){
         
         box.in_highlight = false;
         //view_state.lock_obj_in_highlight = false; // when user unhighlight explicitly, set it to false
@@ -285,7 +298,10 @@ function Editor(editorUi){
         this.views[0].orbit.reset();
     };
 
-    this.highlight_selected_box= function(box){
+    this.focusOnSelectedBox= function(box){
+        if (this.editorCfg.disableMainView)
+            return;
+
         if (box){
             this.data.world.highlight_box_points(box);
             
@@ -389,7 +405,7 @@ function Editor(editorUi){
         };
 
         self.editorUi.querySelector("#cm-save").onclick = function(event){      
-            save_annotation(function(){
+            save_annotation(self.data, function(){
                 self.header.unmark_changed_flag();
             });
         };
@@ -430,41 +446,6 @@ function Editor(editorUi){
         
     };
 
-    this.add_range_box= function(){
-        
-        var h = 1;
-                        
-        var body = [
-        ];
-        
-        var segments=64;
-        for (var i = 0; i<segments; i++){
-            var theta1 = (2*Math.PI/segments) * i;
-            var x1 = Math.cos(theta1);
-            var y1 = Math.sin(theta1);
-
-            var theta2 = 2*Math.PI/segments * ((i+1)%segments);
-            var x2 = Math.cos(theta2);
-            var y2 = Math.sin(theta2);
-
-            body.push(x1,y1,h,x2,y2,h);
-        }
-
-        var bbox = new THREE.BufferGeometry();
-        bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
-        
-        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x444444, linewidth: 1 } ) );    
-        
-        box.scale.x=50;
-        box.scale.y=50;
-        box.scale.z=-3;
-        box.position.x=0;
-        box.position.y=0;
-        box.position.z=0;
-        box.computeLineDistances();
-
-        this.scene.add(box);
-    };
 
     this.animate= function() {
         let self=this;
@@ -472,22 +453,14 @@ function Editor(editorUi){
         this.views[0].orbit_orth.update();
     };
 
-    this.update_side_view_port= function(){
-        this.views.slice(1).forEach((view)=>{
-            view.viewport={
-                left: this.container.scrollWidth * view.left,
-                bottom: this.container.scrollHeight-this.container.scrollHeight * view.bottom,
-                width:this.container.scrollWidth * view.width,
-                height:this.container.scrollHeight * view.height,
-                zoom_ratio:view.zoom_ratio,
-            };
-        })
-    };
+
 
     this.render= function(){
 
         //this.views[0].switch_camera(params["bird's eye view"]);
-        this.views[0].switch_camera(false);
+
+        if (this.views[0])
+            this.views[0].switch_camera(false);
         //console.log(this.views[0].camera.rotation.z);
 
         for ( var ii = 0; ii < this.views.length; ++ ii ) {
@@ -496,14 +469,19 @@ function Editor(editorUi){
                 break;
             }
 
-            var view = this.views[ ii ];
+            var view = this.views[ii];
+
+            if (!view){
+                continue;
+            }
+
             var camera = view.camera;
             //view.updateCamera( camera, scene, mouseX, mouseY );
             
-            var left = Math.floor( this.container.scrollWidth * view.left );
-            var bottom = Math.floor( this.container.scrollHeight * view.bottom );
-            var width = Math.ceil( this.container.scrollWidth * view.width );
-            var height = Math.ceil( this.container.scrollHeight * view.height );
+            var left = Math.floor( this.container.scrollWidth * view.viewCfg.left );
+            var bottom = Math.floor( this.container.scrollHeight * view.viewCfg.bottom );
+            var width = Math.ceil( this.container.scrollWidth * view.viewCfg.width );
+            var height = Math.ceil( this.container.scrollHeight * view.viewCfg.height );
 
             // update viewport, so the operating lines over these views 
             // will be updated in time.
@@ -513,7 +491,7 @@ function Editor(editorUi){
 
             this.renderer.setViewport( left, bottom, width, height );
             this.renderer.setScissor( left, bottom, width, height );
-            this.renderer.setClearColor(view.background );
+            this.renderer.setClearColor(view.viewCfg.background );
             this.renderer.setScissorTest( true );
 
             this.renderer.render( this.scene, camera );
@@ -527,32 +505,7 @@ function Editor(editorUi){
 
     };
 
-    this.load_data_meta= function(){    
-
-        let self=this;
-        let xhr = new XMLHttpRequest();
-        // we defined the xhr
-        
-        xhr.onreadystatechange = function () {
-            if (this.readyState != 4) 
-                return;
-        
-            if (this.status == 200) {
-                var ret = JSON.parse(this.responseText);
-                self.data.meta = ret;                               
-
-                var scene_selector_str = ret.map(function(c){
-                    return "<option value="+c.scene +">"+c.scene + "</option>";
-                }).reduce(function(x,y){return x+y;}, "<option>--scene--</option>");
-
-                self.editorUi.querySelector("#scene-selector").innerHTML = scene_selector_str;
-            }
-
-        };
-        
-        xhr.open('GET', "/datameta", true);
-        xhr.send();
-    };
+    
 
     this.scene_changed= function(scene_name){
         
@@ -600,7 +553,7 @@ function Editor(editorUi){
         var camera_name = event.currentTarget.value;
 
         this.data.set_active_image(camera_name);
-        render_2d_image();
+        this.imageContext.render_2d_image();
 
         event.currentTarget.blur();
     };
@@ -661,12 +614,12 @@ function Editor(editorUi){
 
         params["point brightness+"] = function(){
             self.data.scale_point_brightness(1.2);
-            load_world(self.data.world.file_info.scene, self.data.world.file_info.frame);
+            load_world(self.data.world.frameInfo.scene, self.data.world.frameInfo.frame);
         };
         
         params["point brightness-"] = function(){
             self.data.scale_point_brightness(0.8);
-            load_world(self.data.world.file_info.scene, self.data.world.file_info.frame);
+            load_world(self.data.world.frameInfo.scene, self.data.world.frameInfo.frame);
         };
 
         params["toggle box"] = function(){
@@ -757,14 +710,14 @@ function Editor(editorUi){
 
         //file
         var fileFolder = gui.addFolder( 'File' );
-        params['save'] = function () {
-            save_annotation();
+        params['save'] = ()=> {
+            save_annotation(this.data);
         };
         fileFolder.add( params, 'save');
 
         
         // params['reload'] = function () {
-        //     load_world(data.world.file_info.scene, data.world.file_info.frame);
+        //     load_world(data.world.frameInfo.scene, data.world.frameInfo.frame);
         // };
 
         // fileFolder.add( params, 'reload');
@@ -848,7 +801,7 @@ function Editor(editorUi){
             this.selected_box.obj_type = event.currentTarget.value;
             this.floatLabelManager.set_object_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
             this.header.mark_changed_flag();
-            this.update_box_points_color(this.selected_box);
+            this.updateBoxPointsColor(this.selected_box);
             this.imageContext.image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
         }
     };
@@ -883,10 +836,10 @@ function Editor(editorUi){
             var view = this.views[ ii ];
             var camera = view.camera;
 
-            view.width = 0.2;//params["side view width"];
+            //view.width = 0.2;//params["side view width"];
 
-            var view_width = Math.floor( this.container.scrollWidth * view.width );
-            var view_height = Math.floor( this.container.scrollHeight * view.height );
+            var view_width = Math.floor( this.container.scrollWidth * view.viewCfg.width);
+            var view_height = Math.floor( this.container.scrollHeight * view.viewCfg.height);
 
             if (ii==1){
                 // width: y
@@ -1145,7 +1098,7 @@ function Editor(editorUi){
                 this.select_bbox(box);
 
                 if (self.view_state.lock_obj_in_highlight){
-                    this.highlight_selected_box(box);
+                    this.focusOnSelectedBox(box);
                 }
             }
         }
@@ -1155,7 +1108,7 @@ function Editor(editorUi){
     this.unselect_bbox= function(new_object, keep_lock){
 
         if (new_object==null){
-            if (this.views[0].transform_control.visible)
+            if (this.views[0] && this.views[0].transform_control.visible)
             {
                 //unselect first time
                 this.views[0].transform_control.detach();
@@ -1167,7 +1120,7 @@ function Editor(editorUi){
                     
                     // restore from highlight
                     if (this.selected_box.in_highlight){
-                        this.cancel_highlight_selected_box(this.selected_box);    
+                        this.cancelFocus(this.selected_box);    
 
                         if (!keep_lock){
                             this.view_state.lock_obj_in_highlight = false;
@@ -1188,7 +1141,7 @@ function Editor(editorUi){
                         this.selected_box = null;
                         this.projectiveViewOps.hide();
 
-                        this.on_selected_box_changed(null);
+                        this.onSelectedBoxChanged(null);
                     }
                 }
 
@@ -1207,7 +1160,7 @@ function Editor(editorUi){
                 // restore from highlight
                 
                 if (this.selected_box.in_highlight){
-                    cancel_highlight_selected_box(this.selected_box); 
+                    this.cancelFocus(this.selected_box); 
                     if (!keep_lock){
                         view_state.lock_obj_in_highlight = false;
                     }
@@ -1248,7 +1201,8 @@ function Editor(editorUi){
             // select me, the first time
             this.selected_box = object;
 
-            var best_iamge = this.imageContext.choose_best_camera_for_point(this.selected_box.position.x, this.selected_box.position.y, this.selected_box.position.z);
+            var best_iamge = this.imageContext.choose_best_camera_for_point(
+                this.selected_box.getTruePosition());
 
             if (best_iamge){
                 
@@ -1271,7 +1225,7 @@ function Editor(editorUi){
             this.selected_box.material.opacity=1;
 
             if (in_highlight){
-                this.highlight_selected_box(this.selected_box);
+                this.focusOnSelectedBox(this.selected_box);
             }
             
             
@@ -1290,7 +1244,7 @@ function Editor(editorUi){
         this.save_box_info(object); // this is needed since when a frame is loaded, all box haven't saved anything.
                             // we could move this to when a frame is loaded.
 
-        this.on_selected_box_changed(object);
+        this.onSelectedBoxChanged(object);
 
         this.projectiveViewOps.show();
     };
@@ -1302,17 +1256,18 @@ function Editor(editorUi){
         if ( this.windowWidth != this.container.clientWidth || this.windowHeight != this.container.clientHeight ) {
 
             //update_mainview();
-            this.views[0].onWindowResize();
+            if (this.views[0])
+                this.views[0].onWindowResize();
 
             if (this.selected_box){
                 this.update_subview_by_windowsize(this.selected_box);
             }
 
-            this.windowWidth = this.container.scrollWidth;
-            this.windowHeight = this.container.scrollHeight;
+            this.windowWidth = this.container.clientWidth;
+            this.windowHeight = this.container.clientHeight;
             this.renderer.setSize( this.windowWidth, this.windowHeight );
 
-            this.update_side_view_port();
+            this.viewManager.updateViewPort();
 
             // update sideview svg if there exists selected box
             // the following update is called in update_subview_by_windowsize
@@ -1616,7 +1571,7 @@ function Editor(editorUi){
             */
         case 's':
                 if (ev.ctrlKey){
-                    save_annotation();
+                    save_annotation(this.data);
                 }
                 break;
             /*
@@ -1728,12 +1683,12 @@ function Editor(editorUi){
             return;
 
         var scene_meta = this.data.meta.find((x)=>{
-            return x.scene == this.data.world.file_info.scene;
+            return x.scene == this.data.world.frameInfo.scene;
         });
 
         var num_frames = scene_meta.frames.length;
 
-        var frame_index = (this.data.world.file_info.frame_index-1 + num_frames) % num_frames;
+        var frame_index = (this.data.world.frameInfo.frame_index-1 + num_frames) % num_frames;
 
         this.load_world(scene_meta.scene, scene_meta.frames[frame_index]);
 
@@ -1750,7 +1705,7 @@ function Editor(editorUi){
 
         var num_frames = scene_meta.frames.length;
 
-        var frame_index = (this.data.world.file_info.frame_index +1) % num_frames;
+        var frame_index = (this.data.world.frameInfo.frame_index +1) % num_frames;
 
         this.load_world(scene_meta.scene, scene_meta.frames[frame_index]);
     };
@@ -1791,17 +1746,27 @@ function Editor(editorUi){
         this.select_bbox(this.data.world.boxes[this.operation_state.box_navigate_index]);
     };
 
+    this.centerMainView =function(){
+        let offset = this.data.world.coordinatesOffset;
+        this.views[0].orbit.target.x += offset[0];
+        this.views[0].orbit.target.y += offset[1];
+        this.views[0].orbit.target.z += offset[2];        
+    };
+
     this.on_load_world_finished= function(scene_name, frame){
+        this.centerMainView(); // should center camera before activate focus mode
         this.unselect_bbox(null, true);
         this.unselect_bbox(null, true);
         this.render();
         this.imageContext.render_2d_image();
-        this.render_2d_labels();
+        this.render2dLabels();
         this.update_frame_info(scene_name, frame);
 
         this.select_locked_object();
         this.header.unmark_changed_flag();
         load_obj_ids_of_scene(scene_name);
+
+        
     };
 
     this.load_world= function(scene_name, frame){
@@ -1815,7 +1780,7 @@ function Editor(editorUi){
         var world = this.data.make_new_world(
             scene_name, 
             frame);
-            this.data.activate_world(
+        this.data.activate_world(
             world, 
             function(){self.on_load_world_finished(scene_name, frame);}
         );
@@ -1879,7 +1844,7 @@ function Editor(editorUi){
 
         this.update_subview_by_bbox(box);
         this.projectiveViewOps.update_view_handle(box);
-        this.imageContext.update_image_box_projection(box);
+        this.imageContext.updateFocusedImageContext(box);
         
         //render_2d_image();
         this.imageContext.image_manager.update_box(box);
@@ -1887,7 +1852,7 @@ function Editor(editorUi){
         this.header.update_box_info(box);
         //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
         this.header.mark_changed_flag();
-        this.update_box_points_color(box);
+        this.updateBoxPointsColor(box);
         this.save_box_info(box);
 
         
@@ -1901,7 +1866,7 @@ function Editor(editorUi){
         }
     };
 
-    this.update_box_points_color= function(box){
+    this.updateBoxPointsColor= function(box){
         if (this.data.config.color_obj){
             if (box.last_info){
                 this.data.world.set_box_points_color(box.last_info, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
@@ -1913,11 +1878,11 @@ function Editor(editorUi){
         }
     };
 
-    this.on_selected_box_changed= function(box){
+    this.onSelectedBoxChanged= function(box){
 
         if (box){        
             this.header.update_box_info(box);
-            this.imageContext.update_image_box_projection(box)
+            this.imageContext.updateFocusedImageContext(box)
             this.floatLabelManager.update_position(box, true);
             this.update_subview_by_bbox(box);
             this.projectiveViewOps.update_view_handle(this.selected_box);
@@ -1931,7 +1896,10 @@ function Editor(editorUi){
 
     };
 
-    this.render_2d_labels= function(){
+    this.render2dLabels= function(){
+        if (this.editorCfg.disableMainView)
+            return;
+
         this.floatLabelManager.remove_all_labels();
         var self=this;
         this.data.world.boxes.forEach(function(b){
@@ -1998,8 +1966,8 @@ function Editor(editorUi){
 
     this.interpolate_selected_object= function(){
 
-        let scene = this.data.world.file_info.scene; 
-        let frame = this.data.world.file_info.frame;
+        let scene = this.data.world.frameInfo.scene; 
+        let frame = this.data.world.frameInfo.frame;
         let obj_id = this.selected_box.obj_track_id;
 
 

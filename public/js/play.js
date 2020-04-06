@@ -42,10 +42,10 @@ function PlayControl(data){
         this.data.reset_world_buffer();
         var scope=this;
 
-        //var start_frame_index = scene_meta.frames.findIndex(function(x){return x == data.world.file_info.frame;})
+        //var start_frame_index = scene_meta.frames.findIndex(function(x){return x == data.world.frameInfo.frame;})
 
-        preload_frame(scene_meta, this.data.world.file_info.frame);
-        play_frame(scene_meta, this.data.world.file_info.frame, on_load_world_finished);
+        preload_frame(scene_meta, this.data.world.frameInfo.frame);
+        play_frame(scene_meta, this.data.world.frameInfo.frame, on_load_world_finished);
 
         
 
@@ -74,7 +74,7 @@ function PlayControl(data){
         function play_frame(scene_meta, frame, on_load_world_finished){
             if (!scope.stop_play_flag && !scope.pause_play_flag)
             {
-                var world = scope.data.future_world_buffer.find(function(w){return w.file_info.frame == frame; });
+                var world = scope.data.future_world_buffer.find(function(w){return w.frameInfo.frame == frame; });
 
                 if (world)  //found, data ready
                 {
@@ -139,7 +139,7 @@ function PlayControl(data){
 //     var scene_meta = data.get_current_world_scene_meta();
 //     var scene_name= scene_meta.scene;
     
-//     play_frame(scene_meta, data.world.file_info.frame);
+//     play_frame(scene_meta, data.world.frameInfo.frame);
 
 
 //     function play_frame(scene_meta, frame){

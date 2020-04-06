@@ -11,8 +11,8 @@ function AutoAdjust(mouse){
     this.mark_bbox=function(box, header){
         if (box){
             marked_object = {
-                frame: data.world.file_info.frame,
-                scene: data.world.file_info.scene,
+                frame: data.world.frameInfo.frame,
+                scene: data.world.frameInfo.scene,
                 obj_type: box.obj_type,
                 obj_track_id: box.obj_track_id,
                 position: box.position,  //todo, copy x,y,z, not object
@@ -111,7 +111,7 @@ function AutoAdjust(mouse){
                     "/auto_adjust"+"?scene="+marked_object.scene + "&"+
                                 "ref_frame=" + marked_object.frame + "&" +
                                 "object_id=" + marked_object.obj_track_id + "&" +                           
-                                "adj_frame=" + data.world.file_info.frame, 
+                                "adj_frame=" + data.world.frameInfo.frame, 
                     true);
             xhr.send();
         }

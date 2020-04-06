@@ -3,15 +3,24 @@ import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
 
-function ImageContext(data, parentUi){
-
-    this.init_image_op = init_image_op;
-    this.render_2d_image = render_2d_image;
-    this.update_image_box_projection = update_image_box_projection; 
+function ImageContext(data, parentUi, cfg){
+    this.cfg = cfg;
+    this.init_image_op = init_image_op;    
+    this.updateFocusedImageContext = updateFocusedImageContext; 
     this.clear_canvas = clear_canvas;
     this.clear_main_canvas= clear_main_canvas;
     this.choose_best_camera_for_point = choose_best_camera_for_point;
     //this.image_manager = image_manager;
+
+
+    if (cfg.disableMainImageContext){
+        var c = parentUi.querySelector("#maincanvas-wrapper");
+        c.style.display="none";
+    }
+
+    if (cfg.subviewWidth){
+        parentUi.querySelector("#focuscanvas").style.width=String(cfg.subviewWidth*100)+"%";
+    }
 
     //internal
     //var parentUi = parentUi;
@@ -164,7 +173,7 @@ function ImageContext(data, parentUi){
 
 
     function get_active_calib(){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.file_info.scene;});
+        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
             
         if (!scene_meta.calib){
@@ -178,8 +187,8 @@ function ImageContext(data, parentUi){
     }
 
 
-    function choose_best_camera_for_point(x,y,z){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.file_info.scene;});
+    function choose_best_camera_for_point(center){
+        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
             
         if (!scene_meta.calib){
@@ -188,7 +197,7 @@ function ImageContext(data, parentUi){
 
         var proj_pos = [];
         for (var i in scene_meta.calib){
-            var imgpos = matmul(scene_meta.calib[i].extrinsic, [x,y,z,1], 4);
+            var imgpos = matmul(scene_meta.calib[i].extrinsic, [center.x,center.y,center.z,1], 4);
             proj_pos.push({calib: i, pos: vector4to3(imgpos)});
         }
 
@@ -245,7 +254,11 @@ function ImageContext(data, parentUi){
     }
 
 
-    function render_2d_image(){
+    this.render_2d_image = function(){
+
+        if (this.cfg.disableMainImageContext)
+            return;
+
         console.log("2d iamge rendered!");
 
         clear_main_canvas();
@@ -308,7 +321,7 @@ function ImageContext(data, parentUi){
 
     function box_to_2d_points(box, calib){
         var scale = box.scale;
-        var pos = box.position;
+        var pos = box.getTruePosition();
         var rotation = box.rotation;
 
         var box3d = psr_to_xyz(pos, scale, rotation);
@@ -465,7 +478,7 @@ function ImageContext(data, parentUi){
 
 
     function clear_canvas(){
-        var c = parentUi.querySelector("#canvas");
+        var c = parentUi.querySelector("#focuscanvas");
         var ctx = c.getContext("2d");
                     
         ctx.clearRect(0, 0, c.width, c.height);
@@ -483,9 +496,9 @@ function ImageContext(data, parentUi){
     }
 
 
-    // draw highlighed box
-    function update_image_box_projection(box){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.file_info.scene;});
+    // draw highlighted box
+    function updateFocusedImageContext(box){
+        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
         var active_image_name = data.world.images.active_name;
         if (!scene_meta.calib){
@@ -499,7 +512,7 @@ function ImageContext(data, parentUi){
         
         if (calib){
             var scale = box.scale;
-            var pos = box.position;
+            var pos = box.getTruePosition();
             var rotation = box.rotation;
 
             var img = data.world.images.active_image(); //parentUi.querySelector("#camera");
@@ -513,7 +526,7 @@ function ImageContext(data, parentUi){
 
                 if (imgfinal != null){  // if projection is out of range of the image, stop drawing.
                     
-                    var c = parentUi.querySelector("#canvas");
+                    var c = parentUi.querySelector("#focuscanvas");
                     var ctx = c.getContext("2d");
                     ctx.lineWidth = 0.5;
 
@@ -587,8 +600,9 @@ function ImageContext(data, parentUi){
 
 
     this.image_manager = {
-        display_image: function(){
-            render_2d_image();
+        display_image: ()=>{
+            if (!this.cfg.disableMainImageContext)
+                this.render_2d_image();
         },
 
         add_box: function(box){
@@ -704,4 +718,3 @@ function ImageContext(data, parentUi){
 }
 
 export {ImageContext};
-//export {init_image_op, render_2d_image, update_image_box_projection, clear_canvas, clear_main_canvas, choose_best_camera_for_point, image_manager}

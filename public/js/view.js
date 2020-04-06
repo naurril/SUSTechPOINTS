@@ -5,57 +5,78 @@ import { TransformControls } from './lib/TransformControls.js';
 
 
 
-function create_views(main_ui_container, webgl_scene, dom, render, on_box_changed){
-    let views = [
+function ViewManager(main_ui_container, webgl_scene, render, on_box_changed, cfg){
+
+    let subviewWidth = 0.2;
+
+    if (cfg && cfg.subviewWidth){        
+        subviewWidth = cfg.subviewWidth;
+    }
+
+    let viewCfg = [
         {
             left: 0,
             bottom: 0,
             width: 1.0,
             height: 1.0,
             background: new THREE.Color( 0.0, 0.0, 0.0 ),
-            zoom_ratio: 1.0, //useless for mainview
+            
         },
         {
             left: 0,
             bottom: 0.7,
-            width: 0.2,
+            width: subviewWidth,
             height: 0.3,
             background: new THREE.Color( 0.1, 0.1, 0.2 ),
-            zoom_ratio: 1.0,
+            
         },
         {
             left: 0,
             bottom: 0.5,
-            width: 0.2,
+            width: subviewWidth,
             height: 0.2,
             background: new THREE.Color( 0.1, 0.2, 0.1 ),
-            zoom_ratio: 1.0,
+            
         },
-
         {
             left: 0,
             bottom: 0.3,
-            width: 0.2,
+            width: subviewWidth,
             height: 0.2,
             background: new THREE.Color( 0.2, 0.1, 0.1 ),
-            zoom_ratio: 1.0,
+            
         }
     ];
 
-
     var container = main_ui_container;
-    create_main_view(webgl_scene, dom, render, on_box_changed);
-    create_top_view(webgl_scene);
-    create_rear_view(webgl_scene);
-    create_side_view(webgl_scene);   
 
-    return views;
+    this.container = main_ui_container;
+    this.views= [
+        cfg.disableMainView?null:create_main_view(viewCfg[0], webgl_scene,  this.container, render, on_box_changed),
+        create_top_view(viewCfg[1], webgl_scene),
+        create_rear_view(viewCfg[2], webgl_scene),
+        create_side_view(viewCfg[3], webgl_scene),   
+    ];
+
+    this.updateViewPort= function(){
+        this.views.slice(1).forEach((view)=>{
+            view.viewport={
+                left: this.container.scrollWidth * view.viewCfg.left,
+                bottom: this.container.scrollHeight-this.container.scrollHeight * view.viewCfg.bottom,
+                width:this.container.scrollWidth * view.viewCfg.width,
+                height:this.container.scrollHeight * view.viewCfg.height,
+                zoom_ratio:view.zoom_ratio,
+            };
+        })
+    };
 
 
     // no code after this line
         
-    function create_main_view(scene, dom, render, on_box_changed){
-        var view =views[0];
+    function create_main_view(viewCfg, scene, dom, render, on_box_changed){
+        var view ={};
+        view.viewCfg=viewCfg;
+        view.zoom_ratio = 1.0; //useless for mainview
             
         var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         camera.position.x = 0;
@@ -66,10 +87,10 @@ function create_views(main_ui_container, webgl_scene, dom, render, on_box_change
         view.camera_perspective = camera;
 
         view.viewport={
-            left: container.clientWidth * view.left,
-            bottom: container.clientHeight-container.clientHeight * view.bottom,
-            width:container.clientWidth * view.width,
-            height:container.clientHeight * view.height,
+            left: container.clientWidth * viewCfg.left,
+            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
+            width:container.clientWidth * viewCfg.width,
+            height:container.clientHeight * viewCfg.height,
             zoom_ratio:view.zoom_ratio,
         };
 
@@ -89,7 +110,7 @@ function create_views(main_ui_container, webgl_scene, dom, render, on_box_change
         transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);});
         
         transform_control.addEventListener( 'dragging-changed', function ( event ) {
-            views[0].orbit_perspective.enabled = ! event.value;
+            view.orbit_perspective.enabled = ! event.value;
         } );
         transform_control.visible = false;
         //transform_control.enabled = false;
@@ -150,7 +171,7 @@ function create_views(main_ui_container, webgl_scene, dom, render, on_box_change
         
         
         transform_control.addEventListener( 'dragging-changed', function ( event ) {
-            views[0].orbit_orth.enabled = ! event.value;
+            view.orbit_orth.enabled = ! event.value;
         } );
 
 
@@ -280,7 +301,7 @@ function create_views(main_ui_container, webgl_scene, dom, render, on_box_change
 
                 this.camera.zoom = this.zoom0;
             } else {
-                views[0].camera.position.set(
+                this.camera.position.set(
                     this.orbit.target.x + highlight_obj_scale.x*3, 
                     this.orbit.target.y + highlight_obj_scale.y*3, 
                     this.orbit.target.z + highlight_obj_scale.z*3);
@@ -292,8 +313,10 @@ function create_views(main_ui_container, webgl_scene, dom, render, on_box_change
     }
 
 
-    function create_top_view(scene){
-        var view = views[ 1];
+    function create_top_view(viewCfg, scene){
+        var view = {};
+        view.viewCfg=viewCfg;
+        view.zoom_ratio = 1.0;
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -319,55 +342,61 @@ function create_views(main_ui_container, webgl_scene, dom, render, on_box_change
         view.camera = camera;
 
         view.viewport={
-            left: container.clientWidth * view.left,
-            bottom: container.clientHeight-container.clientHeight * view.bottom,
-            width:container.clientWidth * view.width,
-            height:container.clientHeight * view.height,
+            left: container.clientWidth * viewCfg.left,
+            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
+            width:container.clientWidth * viewCfg.width,
+            height:container.clientHeight * viewCfg.height,
+            zoom_ratio:view.zoom_ratio,
+        };
+        return view;
+    }
+
+    function create_rear_view(viewCfg, scene){
+        var view = {};
+        view.zoom_ratio = 1.0;
+        view.viewCfg=viewCfg;
+        //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+        var width = container.clientWidth;
+        var height = container.clientHeight;
+        var asp = width/height;
+
+        var camera = new THREE.OrthographicCamera( -3*asp, 3*asp, 3, -3, -3, 3 );
+
+        var cameraOrthoHelper = new THREE.CameraHelper( camera );
+        cameraOrthoHelper.visible=false;
+        scene.add( cameraOrthoHelper );
+        view["cameraHelper"] = cameraOrthoHelper;
+                
+        camera.position.x = 0;
+        camera.position.z = 0;
+        camera.position.y = 0;
+        //camera.up.set( 0, 0, 1);
+        //camera.lookAt( 0, 3, 0 );
+
+        //camera.up.set( 0, 1, 0);
+        //camera.lookAt( 0, 0, -3 );
+
+        camera.rotation.x=Math.PI/2;
+        camera.rotation.y=0;
+        camera.rotation.z=0;
+
+        view.camera = camera;
+
+        view.viewport={
+            left: container.clientWidth * viewCfg.left,
+            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
+            width:container.clientWidth * viewCfg.width,
+            height:container.clientHeight * viewCfg.height,
             zoom_ratio:view.zoom_ratio,
         };
 
+        return view;
     }
 
-    function create_rear_view(scene){
-        var view = views[ 2];
-            //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
-            var width = container.clientWidth;
-            var height = container.clientHeight;
-            var asp = width/height;
-
-            var camera = new THREE.OrthographicCamera( -3*asp, 3*asp, 3, -3, -3, 3 );
-
-            var cameraOrthoHelper = new THREE.CameraHelper( camera );
-            cameraOrthoHelper.visible=false;
-            scene.add( cameraOrthoHelper );
-            view["cameraHelper"] = cameraOrthoHelper;
-                    
-            camera.position.x = 0;
-            camera.position.z = 0;
-            camera.position.y = 0;
-            //camera.up.set( 0, 0, 1);
-            //camera.lookAt( 0, 3, 0 );
-
-            //camera.up.set( 0, 1, 0);
-            //camera.lookAt( 0, 0, -3 );
-
-            camera.rotation.x=Math.PI/2;
-            camera.rotation.y=0;
-            camera.rotation.z=0;
-
-            view.camera = camera;
-
-            view.viewport={
-                left: container.clientWidth * view.left,
-                bottom: container.clientHeight-container.clientHeight * view.bottom,
-                width:container.clientWidth * view.width,
-                height:container.clientHeight * view.height,
-                zoom_ratio:view.zoom_ratio,
-            };
-    }
-
-    function create_side_view(scene){
-        var view = views[ 3];
+    function create_side_view(viewCfg, scene){
+        var view = {};
+        view.zoom_ratio = 1.0;
+        view.viewCfg=viewCfg;
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -394,15 +423,17 @@ function create_views(main_ui_container, webgl_scene, dom, render, on_box_change
 
 
         view.viewport={
-            left: container.clientWidth * view.left,
-            bottom: container.clientHeight-container.clientHeight * view.bottom,
-            width:container.clientWidth * view.width,
-            height:container.clientHeight * view.height,
+            left: container.clientWidth * viewCfg.left,
+            bottom: container.clientHeight-container.clientHeight * viewCfg.bottom,
+            width:container.clientWidth * viewCfg.width,
+            height:container.clientHeight * viewCfg.height,
             zoom_ratio:view.zoom_ratio,
         };
+
+        return view;
     }
 
 }
 
 
-export {create_views}
+export {ViewManager}

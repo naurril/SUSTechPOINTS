@@ -6,9 +6,10 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(parentUi, data, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
+function ProjectiveViewOps(parentUi, editorCfg, data, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
 
     this.parentUi = parentUi;
+    this.cfg = editorCfg;
     this.get_selected_box = func_get_selected_box;
     this.on_box_changed = func_on_box_changed;
     this.update_subview_by_windowsize = func_update_subview_by_windowsize;
@@ -417,7 +418,10 @@ function ProjectiveViewOps(parentUi, data, views, boxOp, func_get_selected_box, 
                 }
             };
     
-            div.onwheel = function(event){
+            div.onwheel = function(event){                    
+                event.stopPropagation();
+                event.preventDefault();
+
                 //console.log(event);
                 if (event.deltaY>0){
                     console.log("down");
@@ -425,7 +429,7 @@ function ProjectiveViewOps(parentUi, data, views, boxOp, func_get_selected_box, 
                     console.log("up");
                 }
     
-                on_wheel(event.deltaY);            
+                on_wheel(event.deltaY);        
             };
     
             install_edge_hanler(handles.left,   lines,   {x:-1,y:0});

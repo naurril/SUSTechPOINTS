@@ -9,7 +9,7 @@ var translate = {x:0, y:0, z:0};
 function save_calibration(){
 
     
-    var scene_meta = data.meta.find(function(x){return x.scene==data.world.file_info.scene;});
+    var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
 
     var active_image_name = data.world.images.active_name;
@@ -32,7 +32,7 @@ function save_calibration(){
 }
 
 function reset_calibration(){
-    var scene_meta = data.meta.find(function(x){return x.scene==data.world.file_info.scene;});
+    var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
     var active_image_name = data.world.images.active_name;
     var calib = scene_meta.calib[active_image_name]
@@ -46,7 +46,7 @@ function reset_calibration(){
 
 
 function calibrate(ax, value){
-    var scene_meta = data.meta.find(function(x){return x.scene==data.world.file_info.scene;});
+    var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
     var active_image_name = data.world.images.active_name;
     var calib = scene_meta.calib[active_image_name]

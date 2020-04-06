@@ -1,12 +1,46 @@
 
-var Header=function(parentUi, data){
+var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onCameraChanged){
 
+    this.ui = ui;
     this.data =  data;
-    this.boxUi = parentUi.querySelector("#box");
-    this.refObjUi = parentUi.querySelector("#ref-obj");
-    this.sceneSelectorUi = parentUi.querySelector("#scene-selector");
-    this.frameSelectorUi = parentUi.querySelector("#frame-selector");
-    this.changedMarkUi = parentUi.querySelector("#changed-mark");
+    this.cfg = cfg;
+    this.boxUi = ui.querySelector("#box");
+    this.refObjUi = ui.querySelector("#ref-obj");
+    this.sceneSelectorUi = ui.querySelector("#scene-selector");
+    this.frameSelectorUi = ui.querySelector("#frame-selector");
+    this.cameraSelectorUi = ui.querySelector("#camera-selector");
+    this.changedMarkUi = ui.querySelector("#changed-mark");
+
+    this.onSceneChanged = onSceneChanged;
+    this.onFrameChanged = onFrameChanged;
+    this.onCameraChanged = onCameraChanged;
+
+
+    if (cfg.disableSceneSelector){
+        this.sceneSelectorUi.style.display="none";
+    }
+
+    if (cfg.disableFrameSelector){
+        this.frameSelectorUi.style.display="none";
+    }
+
+    if (cfg.disableCameraSelector){
+        this.cameraSelectorUi.style.display="none";
+    }
+
+    // update scene selector ui
+    var scene_selector_str = data.meta.map(function(c){
+        return "<option value="+c.scene +">"+c.scene + "</option>";
+    }).reduce(function(x,y){return x+y;}, "<option>--scene--</option>");
+
+    this.ui.querySelector("#scene-selector").innerHTML = scene_selector_str;
+
+
+
+    this.sceneSelectorUi.onchange = (e)=>{this.onSceneChanged(e);};
+
+    this.frameSelectorUi.onchange = (e)=>{this.onFrameChanged(e);};
+    this.cameraSelectorUi.onchange = (e)=>{this.onCameraChanged(e);};
 
     this.clear_box_info = function(){
         this.boxUi.innerHTML = '';
@@ -14,7 +48,7 @@ var Header=function(parentUi, data){
     
     this.update_box_info = function(box){
         var scale = box.scale;
-        var pos = box.position;
+        var pos = box.getTruePosition();
         var rotation = box.rotation;
         var points_number = this.data.world.get_box_points_number(box);
 

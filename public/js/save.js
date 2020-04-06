@@ -3,7 +3,7 @@
 import {load_obj_ids_of_scene} from "./obj_id_list.js"
 
 
-function save_annotation(done){
+function save_annotation(data, done){
     var bbox_annotations=[];
     console.log(data.world.boxes.length, "boxes");
     data.world.boxes.forEach(function(b){
@@ -11,7 +11,7 @@ function save_annotation(done){
 
         var b = {
             psr: {
-                position:b.position,
+                position:b.getTruePosition(),
                 scale:b.scale,
                 rotation:{
                     x:b.rotation.x,
@@ -40,7 +40,7 @@ function save_annotation(done){
     });
 
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/save" +"?scene="+data.world.file_info.scene+"&frame="+data.world.file_info.frame, true);
+    xhr.open("POST", "/save" +"?scene="+data.world.frameInfo.scene+"&frame="+data.world.frameInfo.frame, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onreadystatechange = function () {
@@ -53,7 +53,7 @@ function save_annotation(done){
             }
 
             //reload obj-ids of the scene
-            load_obj_ids_of_scene(data.world.file_info.scene);
+            load_obj_ids_of_scene(data.world.frameInfo.scene);
         }
     
         // end of state change: it can be after some time (async)
