@@ -20,6 +20,8 @@
 				<div id="container"  tabindex="-1">			
 					<div id='select-box' ></div>
 					<svg width="100%" height="100%" id = "main-view-svg">
+						<svg id="grid-lines-wrapper">
+						</svg>
 					</svg>	
 				</div>
 				
@@ -44,7 +46,7 @@
 				
 				<!-- div id="image"></div -->
 				
-				<div id="floating-labels"></div>
+				<div id="floating-labels" class="floating-labels-wrapper"></div>
 
 				<div id="obj-editor">
 						<div id="category-id-editor">
@@ -253,7 +255,9 @@
 					<div class="menu-item menu-seperator"></div>				
 				</div>
 				</div>
-			</div></template>
+		</div></template>
+
+
 		<script src="/static/js/lib/ml/tf.min.js"></script>
 		<script type="module"  src="/static/js/editor_main.js"></script>		
 	</body>

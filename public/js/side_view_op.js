@@ -6,7 +6,7 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
+function ProjectiveViewOps(parentUi, data, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
 
     this.parentUi = parentUi;
     this.get_selected_box = func_get_selected_box;
@@ -14,6 +14,7 @@ function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_o
     this.update_subview_by_windowsize = func_update_subview_by_windowsize;
     this.views = views;
     this.boxOp = boxOp;
+    this.data = data;
     //internals
 
     function create_view_handler(ui, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate){
@@ -775,12 +776,6 @@ function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_o
         }
     }
     
-
-    function get_selected_obj_support_point(){
-        return data.world.get_points_dimmension_of_box(scope.box, true);
-    }
-
-
     var scope = this;
 
     // direction: 1, -1
@@ -839,7 +834,7 @@ function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_o
     ///////////////////////////////////////////////////////////////////////////////////
     // direction is null if triggered by dbclick on 'move' handler 
     function on_z_auto_shrink(direction){
-        var  extreme = data.world.get_points_dimmension_of_box(scope.box, true);
+        var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, true);
         
         if (!direction){
             ['x','y'].forEach(function(axis){
@@ -966,7 +961,7 @@ function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_o
         
         
         if (!direction){
-            var  extreme = data.world.get_points_dimmension_of_box(scope.box, false);
+            var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
             ['x','z'].forEach(function(axis){
 
                 scope.boxOp.translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
@@ -983,10 +978,10 @@ function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_o
             }
 
             if (direction.z != 0){
-                var  extreme = data.world.get_points_dimmension_of_box(scope.box, false);
+                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
                 auto_shrink(extreme, direction)
             }else {
-                var  extreme = data.world.get_points_dimmension_of_box(scope.box, true);
+                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, true);
                 auto_shrink(extreme, direction)
             }
             
@@ -1074,7 +1069,7 @@ function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_o
 
     function on_x_auto_shrink(direction){
         if (!direction){
-            var  extreme = data.world.get_points_dimmension_of_box(scope.box, false);
+            var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
 
             ['y','z'].forEach(function(axis){
 
@@ -1092,10 +1087,10 @@ function ProjectiveViewOps(parentUi, views, boxOp, func_get_selected_box, func_o
             }
 
             if (direction.z != 0){
-                var  extreme = data.world.get_points_dimmension_of_box(scope.box, false);
+                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
                 auto_shrink(extreme, direction)
             } else {
-                var  extreme = data.world.get_points_dimmension_of_box(scope.box, true);
+                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, true);
                 auto_shrink(extreme, direction)
             }
         }

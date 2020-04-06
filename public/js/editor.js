@@ -43,15 +43,6 @@ function Editor(editorUi){
     this.boxOp = null;
     
     this.init = function(editorUi) {
-        // document.body.addEventListener('keydown', event => {
-        //     if (event.ctrlKey && 'asdv'.indexOf(event.key) !== -1) {
-        //     event.preventDefault()
-        //     }
-        // })
-    
-        // document.oncontextmenu=function(event){
-        //     return false;
-        // };
     
         let self = this;
         this.editorUi = editorUi;
@@ -66,24 +57,12 @@ function Editor(editorUi){
 
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.renderer.setPixelRatio( window.devicePixelRatio );
-        //renderer.setSize( container.clientWidth, container.clientHeight );
-        //renderer.shadowMap.enabled = true;
-        //renderer.shadowMap.type = THREE.BasicShadowMap;
-    
-        //renderer.setClearColor( 0x000000, 0 );
-        //renderer.setViewport( 0, 0, container.clientWidth, container.clientHeight );
-        // renderer will set this eventually
-        //matLine.resolution.set( container.clientWidth, container.clientHeight ); // resolution of the viewport
         
-    
-        //container = document.createElement( 'container' );
-        //container = this.editorUi.querySelector("#container");
-        
-    
-        //document.body.appendChild( container );
         this.container = editorUi.querySelector("#container");
         this.container.appendChild( this.renderer.domElement );
-    
+        this.container.onresize=()=>{this.onWindowResize()};
+        this.container.onscroll=()=>{this.onWindowResize()};
+
         this.views = create_views(this.container, this.scene, this.container/*renderer.domElement*/, 
                         function(){self.render();}, 
                         function(box){self.on_box_changed(box)});
@@ -111,13 +90,6 @@ function Editor(editorUi){
 
         this.container.addEventListener( 'keydown', function(e){self.keydown(e);} );
     
-        //renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
-        //renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
-        /*
-        container.addEventListener( 'mousemove', onMouseMove, false );
-        container.addEventListener( 'mousedown', onMouseDown, true );
-        set_mouse_handler(handleLeftClick, handleRightClick);
-        */
         this.mouse = new Mouse(
                 this.views,
                 this.operation_state,
@@ -129,9 +101,6 @@ function Editor(editorUi){
     
         this.autoAdjust=new AutoAdjust(this.mouse);
 
-        //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-        //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-    
         this.editorUi.querySelector("#object-category-selector").onchange = function(ev){self.object_category_changed(ev);};
         this.editorUi.querySelector("#object-track-id-editor").onchange = function(ev){self.object_track_id_changed(ev);};
         this.editorUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
@@ -145,9 +114,7 @@ function Editor(editorUi){
                 this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
             }
         });
-        //this.editorUi.querySelector("#header-row").addEventListener('mousedown', function(e){e.preventDefault();});
-        //this.editorUi.querySelector("#header-row").addEventListener('mousemove', function(e){e.preventDefault();});
-        
+
         this.editorUi.querySelector("#scene-selector").onchange = function(event){
             self.scene_changed(event.currentTarget.value);        
             event.currentTarget.blur();
@@ -159,6 +126,7 @@ function Editor(editorUi){
     
         this.projectiveViewOps = new ProjectiveViewOps(
             this.editorUi,
+            this.data,
             this.views,
             this.boxOp,
             function(){return self.selected_box;},
@@ -173,7 +141,7 @@ function Editor(editorUi){
         this.projectiveViewOps.init_view_operation();
         //this.projectiveViewOps.hide();
     
-        this.install_grid()
+        this.installGridLines()
     
         window.onbeforeunload = function() {
             return "Exit?";
@@ -233,9 +201,9 @@ function Editor(editorUi){
     };
 
 
-    this.install_grid= function(){
+    this.installGridLines= function(){
         
-        var svg = this.editorUi.querySelector("#main-view-svg");
+        var svg = this.editorUi.querySelector("#grid-lines-wrapper");
 
         for (var i=1; i<10; i++){
             const line = document. createElementNS("http://www.w3.org/2000/svg", "line");
@@ -507,10 +475,10 @@ function Editor(editorUi){
     this.update_side_view_port= function(){
         this.views.slice(1).forEach((view)=>{
             view.viewport={
-                left: this.container.clientWidth * view.left,
-                bottom: this.container.clientHeight-this.container.clientHeight * view.bottom,
-                width:this.container.clientWidth * view.width,
-                height:this.container.clientHeight * view.height,
+                left: this.container.scrollWidth * view.left,
+                bottom: this.container.scrollHeight-this.container.scrollHeight * view.bottom,
+                width:this.container.scrollWidth * view.width,
+                height:this.container.scrollHeight * view.height,
                 zoom_ratio:view.zoom_ratio,
             };
         })
@@ -532,10 +500,10 @@ function Editor(editorUi){
             var camera = view.camera;
             //view.updateCamera( camera, scene, mouseX, mouseY );
             
-            var left = Math.floor( this.container.clientWidth * view.left );
-            var bottom = Math.floor( this.container.clientHeight * view.bottom );
-            var width = Math.ceil( this.container.clientWidth * view.width );
-            var height = Math.ceil( this.container.clientHeight * view.height );
+            var left = Math.floor( this.container.scrollWidth * view.left );
+            var bottom = Math.floor( this.container.scrollHeight * view.bottom );
+            var width = Math.ceil( this.container.scrollWidth * view.width );
+            var height = Math.ceil( this.container.scrollHeight * view.height );
 
             // update viewport, so the operating lines over these views 
             // will be updated in time.
@@ -917,8 +885,8 @@ function Editor(editorUi){
 
             view.width = 0.2;//params["side view width"];
 
-            var view_width = Math.floor( this.container.clientWidth * view.width );
-            var view_height = Math.floor( this.container.clientHeight * view.height );
+            var view_width = Math.floor( this.container.scrollWidth * view.width );
+            var view_height = Math.floor( this.container.scrollHeight * view.height );
 
             if (ii==1){
                 // width: y
@@ -1328,13 +1296,9 @@ function Editor(editorUi){
     };
 
     this.onWindowResize= function() {
-        //camera.aspect = container.clientWidth / container.clientHeight;
-        //camera.updateProjectionMatrix();
-        //renderer.setSize( container.clientWidth, container.clientHeight );
-        
-        //container = this.editorUi.querySelector("#container");
-        
 
+        // use clientwidth and clientheight to resize container
+        // but use scrollwidth/height to place other things.
         if ( this.windowWidth != this.container.clientWidth || this.windowHeight != this.container.clientHeight ) {
 
             //update_mainview();
@@ -1344,8 +1308,8 @@ function Editor(editorUi){
                 this.update_subview_by_windowsize(this.selected_box);
             }
 
-            this.windowWidth = this.container.clientWidth;
-            this.windowHeight = this.container.clientHeight;
+            this.windowWidth = this.container.scrollWidth;
+            this.windowHeight = this.container.scrollHeight;
             this.renderer.setSize( this.windowWidth, this.windowHeight );
 
             this.update_side_view_port();
@@ -1358,13 +1322,6 @@ function Editor(editorUi){
         }
         
         this.render();
-
-        //controls.handleResize();
-
-        //dirLightShadowMapViewer.updateForWindowResize();
-
-        //this.editorUi.querySelector("#maincanvas").parentElement.style.left="20%";
-
     };
 
     this.change_transform_control_view= function(){
