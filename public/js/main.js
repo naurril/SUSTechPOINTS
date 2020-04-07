@@ -49,7 +49,7 @@ function start(metaData){
 
 
   // main editor
-  if (false){
+  if (true){
       let maindiv  = document.querySelector("#main-editor");
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
@@ -74,7 +74,7 @@ function start(metaData){
 
 
   // batch editor
-  if (true){
+  if (false){
       let maindiv  = document.querySelector("#batch-editor");
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`

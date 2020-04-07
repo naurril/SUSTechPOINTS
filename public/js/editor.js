@@ -1080,7 +1080,7 @@ function Editor(editorUi, editorCfg, metaData, data){
             this.selected_box = object;
 
             // switch camera
-            if (!disableMainImageContext){
+            if (!this.editorCfg.disableMainImageContext){
                 var best_iamge = this.imageContext.choose_best_camera_for_point(
                     this.selected_box.world.frameInfo.sceneMeta,
                     this.selected_box.getTruePosition());

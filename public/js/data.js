@@ -1526,7 +1526,7 @@ function Data(metaData, enableMultiWorld){
     // multiple world support
     // place world by a offset so they don't overlap
 
-    this.enableMultiWorld = true;
+    this.enableMultiWorld = enableMultiWorld;
     this.worldGap=200.0;
     this.createWorldIndex = 0;
     this.worldList=[];
