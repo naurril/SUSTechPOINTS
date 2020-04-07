@@ -1,5 +1,4 @@
 import{Editor} from "./editor.js"
-import{BatchEditor} from "./batch-editor.js"
 import {Data} from './data.js'
 
 document.body.addEventListener('keydown', event => {
