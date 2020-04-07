@@ -4,7 +4,7 @@ import { GUI } from './lib/dat.gui.module.js';
 import {ViewManager} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
 import {Mouse} from "./mouse.js"
-import {BoxEditor} from "./box_editor.js"
+import {BoxEditor, BoxEditorManager} from "./box_editor.js"
 import {ImageContext} from "./image.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
@@ -46,13 +46,16 @@ function Editor(editorUi, editorCfg, metaData, data){
     this.header = null;
     this.imageContext = null;
     this.boxOp = null;
-    
+    this.boxEditorManager  = null; 
     this.init = function(editorUi) {
     
         let self = this;
         this.editorUi = editorUi;
         
         this.playControl = new PlayControl(this.data);
+
+
+
         this.header = new Header(editorUi.querySelector("#info"), this.data, this.editorCfg,
             (e)=>{
                 this.scene_changed(e.currentTarget.value);
@@ -61,6 +64,8 @@ function Editor(editorUi, editorCfg, metaData, data){
             (e)=>{this.frame_changed(e)},
             (e)=>{this.camera_changed(e)}        
         );
+
+
         this.scene = new THREE.Scene();
 
         
@@ -124,15 +129,23 @@ function Editor(editorUi, editorCfg, metaData, data){
             }
         });
 
+        if (!this.editorCfg.disableMainBoxEditor)
+        {
+            this.boxEditor=new BoxEditor(
+                this.editorUi.querySelector("#box-editor-wrapper"),
+                this.viewManager,
+                this.editorCfg,
+                this.boxOp,
+                (b)=>this.on_box_changed(b),
+                "main-box-editor"
+            );
+        }
 
-        this.boxEditor=new BoxEditor(
-            this.editorUi.querySelector("#box-editor-wrapper"),
+        this.boxEditorManager = new BoxEditorManager(this.editorUi.querySelector("#box-editor-wrapper"),
             this.viewManager,
             this.editorCfg,
             this.boxOp,
-            (b)=>this.on_box_changed(b),
-            "main-box-editor"
-        );
+            (b)=>this.on_box_changed(b));
 
         this.mouse = new Mouse(
             this.viewManager.mainView,
@@ -415,8 +428,8 @@ function Editor(editorUi, editorCfg, metaData, data){
 
         self.editorUi.querySelector("#cm-play").onclick = function(event){      
             self.playControl.play_current_scene_with_buffer(false,
-                function(s,f){
-                    self.on_load_world_finished(s,f)
+                function(w){
+                    self.on_load_world_finished(w)
                 });
         };
         self.editorUi.querySelector("#cm-stop").onclick = function(event){      
@@ -622,7 +635,7 @@ function Editor(editorUi, editorCfg, metaData, data){
 
 
         params["play"] = function(){
-            play_current_scene_with_buffer(flase, function(s,f){self.on_load_world_finished(s,f)});
+            play_current_scene_with_buffer(flase, function(w){self.on_load_world_finished(w)});
         }
         params["stop"] = stop_play;
         params["previous frame"] = previous_frame;
@@ -964,7 +977,7 @@ function Editor(editorUi, editorCfg, metaData, data){
     };
 
     // new_object
-    this.unselectBox= function(new_object, keep_lock){
+    this.unselectBox = function(new_object, keep_lock){
 
         if (new_object==null){
             if (this.viewManager.mainView && this.viewManager.mainView.transform_control.visible)
@@ -1044,7 +1057,14 @@ function Editor(editorUi, editorCfg, metaData, data){
 
     };
 
-    this.selectBox= function(object){
+    this.highlightBox = function(box){
+        box.material.color.r=1;
+        box.material.color.g=0;
+        box.material.color.b=1;
+        box.material.opacity=1;
+    };
+
+    this.selectBox = function(object){
 
         if (this.selected_box != object){
             // unselect old bbox
@@ -1060,17 +1080,19 @@ function Editor(editorUi, editorCfg, metaData, data){
             this.selected_box = object;
 
             // switch camera
-            var best_iamge = this.imageContext.choose_best_camera_for_point(
-                this.data.world.frameInfo.sceneMeta,
-                this.selected_box.getTruePosition());
+            if (!disableMainImageContext){
+                var best_iamge = this.imageContext.choose_best_camera_for_point(
+                    this.selected_box.world.frameInfo.sceneMeta,
+                    this.selected_box.getTruePosition());
 
-            if (best_iamge){
-                
-                var image_changed = this.data.set_active_image(best_iamge);
+                if (best_iamge){
+                    
+                    var image_changed = this.data.set_active_image(best_iamge);
 
-                if (image_changed){
-                    this.editorUi.querySelector("#camera-selector").value=best_iamge;
-                    this.imageContext.image_manager.display_image();
+                    if (image_changed){
+                        this.editorUi.querySelector("#camera-selector").value=best_iamge;
+                        this.imageContext.image_manager.display_image();
+                    }
                 }
             }
 
@@ -1080,10 +1102,7 @@ function Editor(editorUi, editorCfg, metaData, data){
             this.floatLabelManager.select_box(this.selected_box.obj_local_id);
             this.floatLabelManager.update_label_editor(object.obj_type, object.obj_track_id);
 
-            this.selected_box.material.color.r=1;
-            this.selected_box.material.color.g=0;
-            this.selected_box.material.color.b=1;
-            this.selected_box.material.opacity=1;
+            this.highlightBox(this.selected_box);
 
             if (in_highlight){
                 this.focusOnSelectedBox(this.selected_box);
@@ -1122,7 +1141,8 @@ function Editor(editorUi, editorCfg, metaData, data){
             if (this.viewManager.mainView)
                 this.viewManager.mainView.onWindowResize();
 
-            this.boxEditor.update();
+            if (this.boxEditor)
+                this.boxEditor.update();
 
             this.windowWidth = this.container.clientWidth;
             this.windowHeight = this.container.clientHeight;
@@ -1617,19 +1637,30 @@ function Editor(editorUi, editorCfg, metaData, data){
     //     this.viewManager.mainView.orbit.target.z += offset[2];        
     // };
 
-    this.on_load_world_finished= function(scene_name, frame){
+    this.on_load_world_finished= function(world){
         this.unselectBox(null, true);
         this.unselectBox(null, true);
         this.render();
         this.imageContext.render_2d_image();
-        this.render2dLabels();
-        this.update_frame_info(scene_name, frame);
+        this.render2dLabels(world);
+        this.update_frame_info(world.frameInfo.scene, world.frameInfo.frame);
 
         this.select_locked_object();
         this.header.unmark_changed_flag();
-        load_obj_ids_of_scene(scene_name);
+        load_obj_ids_of_scene(world.frameInfo.scene);
+    };
 
-        
+    this.editBox = function(scene_name, frame, trackId){
+        var world = this.data.make_new_world(scene_name, frame);
+        this.data.activate_world(world, ()=>{
+            let box = world.boxes.find(function(x){
+                return x.obj_track_id == trackId;
+            });
+
+            this.boxEditorManager.addBox(box);
+            this.highlightBox(box);
+            this.render();
+        })
     };
 
     this.load_world = function(scene_name, frame){
@@ -1640,12 +1671,10 @@ function Editor(editorUi, editorCfg, metaData, data){
             return;
         }
 
-        var world = this.data.make_new_world(
-            scene_name, 
-            frame);
+        var world = this.data.make_new_world(scene_name, frame);
         this.data.activate_world(
             world, 
-            function(){self.on_load_world_finished(scene_name, frame);}
+            function(){self.on_load_world_finished(world);}
         );
     };
 
@@ -1792,13 +1821,13 @@ function Editor(editorUi, editorCfg, metaData, data){
 
     };
 
-    this.render2dLabels= function(){
+    this.render2dLabels= function(world){
         if (this.editorCfg.disableMainView)
             return;
 
         this.floatLabelManager.remove_all_labels();
         var self=this;
-        this.data.world.boxes.forEach(function(b){
+        world.boxes.forEach(function(b){
             self.floatLabelManager.add_label(b);
         })
 

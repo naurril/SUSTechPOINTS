@@ -151,6 +151,9 @@ function Images(sceneMeta, scene_name, frame){
     this.active_image = function(){
         return this.content[this.active_name];
     };
+    this.getImageByName = function(name){
+        return this.content[name];
+    };
 
     this.activate = function(name){
         this.active_name = name;
@@ -1518,18 +1521,25 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
 }
 
 
-function Data(metaData){
+function Data(metaData, enableMultiWorld){
 
     // multiple world support
     // place world by a offset so they don't overlap
 
-    this.supportMultiWorld = true;
+    this.enableMultiWorld = true;
+    this.worldGap=200.0;
     this.createWorldIndex = 0;
     this.worldList=[];
 
     this.make_new_world = function(scene_name, frame, on_preload_finished){
-        this.createWorldIndex += 1;
-        return new World(this, scene_name, frame, [0, 0, 0], on_preload_finished);        
+        if (this.enableMultiWorld){
+            let world = new World(this, scene_name, frame, [this.worldGap*this.createWorldIndex, 0, 0], on_preload_finished);        
+            this.createWorldIndex += 1;
+            return world;
+        }
+        else{
+            return new World(this, scene_name, frame, [0, 0, 0], on_preload_finished);        
+        }
     };
 
 
@@ -1622,17 +1632,22 @@ function Data(metaData){
     };
 
     this.activate_world= function(world, on_finished){
-        var old_world = this.world;   // current world, should we get current world later?
-        var _self= this;
-        _self.world = world;  // swich when everything is ready. otherwise data.world is half-baked, causing mysterious problems.
 
-        world.activate(_self.webgl_scene, 
-            function(){
-                
-                if (old_world)
-                    old_world.destroy();
-            },
-            on_finished);
+        if (this.enableMultiWorld){
+            world.activate(this.webgl_scene, null, on_finished);
+            this.worldList.push(world);
+        }
+        else{
+            var old_world = this.world;   // current world, should we get current world later?
+            this.world = world;  // swich when everything is ready. otherwise data.world is half-baked, causing mysterious problems.
+
+            world.activate(this.webgl_scene, 
+                function(){
+                    if (old_world)
+                        old_world.destroy();
+                },
+                on_finished);
+        }
     };
 
 

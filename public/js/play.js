@@ -82,7 +82,7 @@ function PlayControl(data){
                         world, 
                         function(){//on load finished
                             //views[0].detach_control();
-                            on_load_world_finished(scene_name, frame);
+                            on_load_world_finished(world);
 
                             next_frame();
                             

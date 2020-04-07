@@ -49,7 +49,7 @@ function start(metaData){
 
 
   // main editor
-  if (true){
+  if (false){
       let maindiv  = document.querySelector("#main-editor");
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
@@ -74,27 +74,35 @@ function start(metaData){
 
 
   // batch editor
-  if (false){
+  if (true){
       let maindiv  = document.querySelector("#batch-editor");
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
 
       let editorCfg={
-        //disableSceneSelector: true,
-        //disableFrameSelector: true,
-        //disableCameraSelector: true,
+        disableSceneSelector: true,
+        disableFrameSelector: true,
+        disableCameraSelector: true,
         //disableFastToolbox: true,
-        disableMainView: true,
+        //disableMainView: true,
         //disableMainImageContext: true,
-        //disableGrid:true,
-        //disableRangeCircle:true,
+        disableGrid:true,
+        disableRangeCircle:true,
+        disableMainBoxEditor:true,
         //disableMainViewKeyDown:true
       };
 
-      let data = new Data(metaData);
+      let enableMultiWorld = true;
+      let data = new Data(metaData, enableMultiWorld);
       let editor = new Editor(maindiv.lastElementChild, editorCfg, metaData, data)
       editor.run();
 
+      let objid="6";
+      editor.editBox("example", "000950", objid);
+      editor.editBox("example", "000965", objid);
+      editor.editBox("example", "000970", objid);
+      editor.editBox("example", "000975", objid);
+      
   }
 
 }

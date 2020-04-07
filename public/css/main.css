@@ -34,12 +34,27 @@ canvas {
 	display: block;
 }
 
-#main-editor{
+#editor-wrapper{
 	position: relative;
 	width: 100%;
 	height: 100%;
 }
 
+#main-editor{
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	width: 100%;
+	height: 100%;
+}
+
+#batch-editor{
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	width: 100%;
+	height: 100%;
+}
 
 .editor-ui{
 	position: relative;
@@ -306,7 +321,7 @@ dynamic set obj-type css has higher priority than this one.
 	color: yellow;
 }
 
-#box-editor-wrapper {
+#main-editor > #main-ui > #box-editor-wrapper {
 	position: absolute;
 	top: 0%;    
 	left: 0%;
@@ -319,6 +334,21 @@ dynamic set obj-type css has higher priority than this one.
 	position: relative;	
     width: 100%;
     height: 100%;
+}
+
+#batch-editor > #main-ui > #box-editor-wrapper{
+	position: absolute;
+	top: 0%;    
+	left: 0%;
+	width: auto;
+	height: auto;
+}
+
+#batch-editor > #main-ui > #box-editor-wrapper > #sub-views {
+	display: inline-block;
+	position: relative;	
+    width: 120px;
+    height: 500px;
 }
 
 
@@ -437,29 +467,3 @@ td {
 	stroke-opacity: 0.2;
 }
 
-
-/*
-batch editor
-*/
-
-
-#batch-editor{
-	display: inherit;
-	position: absolute;
-	left: 10%;
-	top: 10%;
-	/*height: 80%;
-	width: 80%;*/
-}
-
-
-.subeditor-wrapper{
-	display: inline-block;
-	position: relative;
-	height: 400px;
-	width: 150px;
-}
-
-.subeditor-wrapper .editor-ui .view-manipulator{
-	width: 100%;
-}

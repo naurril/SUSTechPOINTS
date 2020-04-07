@@ -37,12 +37,16 @@ function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name)
             console.log("detach box editor");
         }
 
-        box.boxEditor = this;
-        this.box=box;
+        this.box = null;
 
-        this.boxView.attachBox(box);
-        this.projectiveViewOps.activate(box);
-        this.focusImageContext.updateFocusedImageContext(box);
+        if (box){
+            box.boxEditor = this;
+            this.box=box;
+
+            this.boxView.attachBox(box);
+            this.projectiveViewOps.activate(box);
+            this.focusImageContext.updateFocusedImageContext(box);
+        }
 
     };
 
@@ -76,5 +80,42 @@ function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name)
 
 }
 
+function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed){
+    this.activeIndex = 0;
+    this.editorList = [];
+    this.clear = function(){
+        //hide all editors
+        
+        this.editorList.map((e)=>e.detach());
 
-export {BoxEditor};
+        this.activeIndex = 0;
+
+    };
+    
+
+    this._addToolBox = function(){
+        let template = document.getElementById("batch-editor-tools-template");
+        let tool = template.content.cloneNode(true);
+        parentUi.appendChild(tool);
+        return parentUi.lastElementChild;
+    };
+
+    this.toolbox = this._addToolBox();
+    
+    this.addBox = function(box){
+        let editor = this.allocateEditor();
+        this.activeIndex += 1;
+        editor.attachBox(box);
+    };
+
+    this.allocateEditor = function(){
+        if (this.activeIndex+1 >= this.editorList.length){
+            let editor = new BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, String(this.activeIndex));
+            this.editorList.push(editor);
+            return editor;
+        }else{
+            return this.editorList[this.activeIndex];
+        }
+    };
+}
+export {BoxEditor, BoxEditorManager};

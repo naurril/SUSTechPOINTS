@@ -10,18 +10,26 @@ function FocusImageContext(ui){
     this.updateFocusedImageContext = function(box){
         var scene_meta = box.world.frameInfo.sceneMeta;
 
-        var active_image_name = box.world.images.active_name;
+
+        let bestImage = choose_best_camera_for_point(
+            scene_meta,
+            box.getTruePosition());
+
+        if (!bestImage){
+            return;           
+        }
+
         if (!scene_meta.calib){
             return;
         }
         
-        var calib = scene_meta.calib[active_image_name]
+        var calib = scene_meta.calib[bestImage]
         if (!calib){
             return;
         }
         
         if (calib){
-            var img = box.world.images.active_image(); //parentUi.querySelector("#camera");
+            var img = box.world.images.getImageByName(bestImage); //parentUi.querySelector("#camera");
             if (img && (img.naturalWidth > 0)){
 
                 this.clear_canvas();
