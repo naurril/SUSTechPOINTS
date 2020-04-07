@@ -7,7 +7,7 @@ import {Mouse} from "./mouse.js"
 import {BoxEditor} from "./box_editor.js"
 import {ImageContext} from "./image.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
-import {Data} from './data.js'
+
 import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
 import {Header} from "./header.js"
 import {BoxOp} from './box_op.js';
@@ -15,14 +15,14 @@ import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
 import {save_annotation} from "./save.js"
 
-function Editor(editorUi, editorCfg, metaData){
+function Editor(editorUi, editorCfg, metaData, data){
 
     this.editorCfg = editorCfg;
     this.sideview_enabled = true;
     this.editorUi = editorUi;
     this.container = null;
 
-    this.data = null;
+    this.data = data;
     this.scene = null;
     this.renderer = null;
     this.selected_box = null;
@@ -51,7 +51,7 @@ function Editor(editorUi, editorCfg, metaData){
     
         let self = this;
         this.editorUi = editorUi;
-        this.data = new Data(metaData);
+        
         this.playControl = new PlayControl(this.data);
         this.header = new Header(editorUi.querySelector("#info"), this.data, this.editorCfg,
             (e)=>{
@@ -1173,13 +1173,13 @@ function Editor(editorUi, editorCfg, metaData){
             z: obj_cfg.size[2]
         };
 
-        this.add_box(pos, scale, rotation, obj_type, "");
+        let box = this.add_box(pos, scale, rotation, obj_type, "");
         
         return box;
     };
 
     this.add_box= function(pos, scale, rotation, obj_type, obj_track_id){
-        var box = this.data.world.add_box(pos, scale, rotation, obj_type, obj_track_id);
+        let box = this.data.world.add_box(pos, scale, rotation, obj_type, obj_track_id);
 
         this.scene.add(box);
 
@@ -1188,6 +1188,7 @@ function Editor(editorUi, editorCfg, metaData){
         this.imageContext.image_manager.add_box(box);
 
         this.selectBox(box);
+        return box;
     };
 
     this.save_box_info= function(box){
@@ -1320,15 +1321,15 @@ function Editor(editorUi, editorCfg, metaData){
 
     };
 
-    this.grow_box= function(min_distance, init_scale_ratio){
+    this.grow_box= function(box, min_distance, init_scale_ratio){
 
-        var extreme = this.data.world.grow_box(this.selected_box, min_distance, init_scale_ratio);
+        var extreme = this.data.world.grow_box(box, min_distance, init_scale_ratio);
 
         if (extreme){
 
             ['x','y', 'z'].forEach((axis)=>{
-                this.boxOp.translate_box(self.selected_box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-                this.selected_box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+                this.boxOp.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
             }) 
         }
 
@@ -1845,12 +1846,13 @@ function Editor(editorUi, editorCfg, metaData){
 
                 // process event
                 var obj_type = event.currentTarget.getAttribute("uservalue");
-                self.add_box_on_mouse_pos(obj_type);
+                let box = self.add_box_on_mouse_pos(obj_type);
                 //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
-                self.grow_box(0.2, {x:1.2, y:1.2, z:3});
-                self.auto_shrink_box(self.selected_box);
-                self.on_box_changed(self.selected_box);
-                self.boxOp.auto_rotate_xyz(self.selected_box, null, null, function(b){
+                self.grow_box(box, 0.2, {x:1.2, y:1.2, z:3});
+                self.auto_shrink_box(box);
+                self.on_box_changed(box);
+
+                self.boxOp.auto_rotate_xyz(box, null, null, function(b){
                     self.on_box_changed(b);
                 });
                 

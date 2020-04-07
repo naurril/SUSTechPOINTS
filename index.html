@@ -14,9 +14,9 @@
 	</head>
 
 	<body>
-		<div id="main-div"></div>
-		
-		<template id="main-ui-template"><div id="main-ui" class="editor-ui">
+		<div id="main-editor"></div>
+		<div id="batch-editor"></div>
+		<template id="editor-template"><div id="main-ui" class="editor-ui">
 				<div id="container"  tabindex="-1">			
 					<div id='select-box' ></div>
 					<svg width="100%" height="100%" id = "main-view-svg">
@@ -252,9 +252,6 @@
 				</div>
 				<canvas id="focuscanvas" width="320" height="240">cavas</canvas>
 		</div></template>
-		<div id="batch-editor">
-			<template id="template-subeditor-wrapper" ><div class="subeditor-wrapper"></div></template>
-		</div>
 		<script src="/static/js/lib/ml/tf.min.js"></script>
 		<script type="module"  src="/static/js/editor_main.js"></script>		
 	</body>

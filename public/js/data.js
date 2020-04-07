@@ -1342,10 +1342,10 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
     };
 
     /*
-     offsetPos:  offset position, after transformed
+     pos:  offset position, after transformed
     */
 
-    this.add_box=function(offsetPos, scale, rotation, obj_type, track_id){
+    this.add_box=function(pos, scale, rotation, obj_type, track_id){
 
         var mesh = this.new_bbox_cube();
         mesh.position.x = pos.x;
@@ -1366,7 +1366,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
         mesh.obj_local_id =  this.get_new_box_local_id();
 
         mesh.world = this;
-        mesh.getTruePosition = function(){
+        mesh.getTruePosition = ()=>{
             return {
                 x: pos.x-this.coordinatesOffset[0],
                 y: pos.y-this.coordinatesOffset[1],
