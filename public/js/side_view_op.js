@@ -6,7 +6,7 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_changed, func_update_subview_by_windowsize){
+function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed, func_update_subview_by_windowsize){
 
     this.ui = ui;
     this.cfg = editorCfg;
@@ -14,7 +14,6 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_change
     this.updateSubviewRangeByWindowResize = func_update_subview_by_windowsize;
     this.views = views;
     this.boxOp = boxOp;
-    this.data = data;
     //internals
 
     function create_view_handler(ui, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate){
@@ -762,7 +761,7 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_change
     ///////////////////////////////////////////////////////////////////////////////////
     // direction is null if triggered by dbclick on 'move' handler 
     function on_z_auto_shrink(direction){
-        var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, true);
+        var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, true);
         
         if (!direction){
             ['x','y'].forEach(function(axis){
@@ -889,7 +888,7 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_change
         
         
         if (!direction){
-            var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
+            var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
             ['x','z'].forEach(function(axis){
 
                 scope.boxOp.translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
@@ -906,10 +905,10 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_change
             }
 
             if (direction.z != 0){
-                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
+                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
                 auto_shrink(extreme, direction)
             }else {
-                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, true);
+                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, true);
                 auto_shrink(extreme, direction)
             }
             
@@ -997,7 +996,7 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_change
 
     function on_x_auto_shrink(direction){
         if (!direction){
-            var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
+            var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
 
             ['y','z'].forEach(function(axis){
 
@@ -1015,10 +1014,10 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_change
             }
 
             if (direction.z != 0){
-                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, false);
+                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
                 auto_shrink(extreme, direction)
             } else {
-                var  extreme = scope.data.world.get_points_dimmension_of_box(scope.box, true);
+                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, true);
                 auto_shrink(extreme, direction)
             }
         }
@@ -1092,20 +1091,20 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_change
     this.box = undefined;
     this.activate = function(box){
         this.box = box;
-        this.show();
+        //this.show();
         this.update_view_handle(box);
     };
     this.switchBox = function(box){
         this.activate(box);
     };
 
-    this.show = function(box){
-        this.ui.style.display="block";
-    };
+    // this.show = function(box){
+    //     this.ui.style.display="block";
+    // };
 
-    this.hide = function(){
-        this.ui.style.display="none";
-    }
+    // this.hide = function(){
+    //     this.ui.style.display="none";
+    // }
 
     this.init_view_operation = function(){
         z_view_handle.init_view_operation();

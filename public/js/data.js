@@ -519,6 +519,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
                 mesh.obj_local_id = _self.get_new_box_local_id();
                 mesh.obj_type = b.obj_type;
 
+                mesh.world = _self;
                 mesh.getTruePosition = function(){
                     return {
                         x: this.position.x - _self.coordinatesOffset[0],
@@ -1364,6 +1365,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
 
         mesh.obj_local_id =  this.get_new_box_local_id();
 
+        mesh.world = this;
         mesh.getTruePosition = function(){
             return {
                 x: pos.x-this.coordinatesOffset[0],
@@ -1527,7 +1529,7 @@ function Data(metaData){
 
     this.make_new_world = function(scene_name, frame, on_preload_finished){
         this.createWorldIndex += 1;
-        return new World(this, scene_name, frame, [20.0*this.createWorldIndex, 0, 0], on_preload_finished);        
+        return new World(this, scene_name, frame, [200.0*this.createWorldIndex, 0, 0], on_preload_finished);        
     };
 
 

@@ -2,14 +2,15 @@
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
-function FocusImageContext(world, ui){
+function FocusImageContext(ui){
 
     this.ui = ui; //var c = parentUi.querySelector("#focuscanvas");
+    
     // draw highlighted box
     this.updateFocusedImageContext = function(box){
-        var scene_meta = world.frameInfo.sceneMeta;
+        var scene_meta = box.world.frameInfo.sceneMeta;
 
-        var active_image_name = world.images.active_name;
+        var active_image_name = box.world.images.active_name;
         if (!scene_meta.calib){
             return;
         }
@@ -20,11 +21,7 @@ function FocusImageContext(world, ui){
         }
         
         if (calib){
-            var scale = box.scale;
-            var pos = box.getTruePosition();
-            var rotation = box.rotation;
-
-            var img = world.images.active_image(); //parentUi.querySelector("#camera");
+            var img = box.world.images.active_image(); //parentUi.querySelector("#camera");
             if (img && (img.naturalWidth > 0)){
 
                 this.clear_canvas();
@@ -215,12 +212,12 @@ function ImageContext(data, parentUi, cfg){
         // var h = parentUi.querySelector("#resize-handle");
         // h.onmousedown = resize_mouse_down;
         
-        c.onresize = on_resize;
+        // c.onresize = on_resize;
     }
 
-    function on_resize(ev){
-        console.log(ev);
-    }
+    // function on_resize(ev){
+    //     console.log(ev);
+    // }
 
 
     function to_viewbox_coord(x,y){

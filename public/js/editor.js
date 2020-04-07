@@ -127,7 +127,6 @@ function Editor(editorUi, editorCfg, metaData){
 
         this.boxEditor=new BoxEditor(
             this.editorUi.querySelector("#box-editor-wrapper"),
-            this.data,
             this.viewManager,
             this.editorCfg,
             this.boxOp,
@@ -1649,6 +1648,19 @@ function Editor(editorUi, editorCfg, metaData){
         );
     };
 
+    this.testEditBox=function(box){
+        let boxEditor = new BoxEditor(
+            this.editorUi.querySelector("#box-editor-wrapper"),
+            this.viewManager,
+            this.editorCfg,
+            this.boxOp,
+            (b)=>this.on_box_changed(b),
+            "test-box-editor"
+        );
+
+        boxEditor.attachBox(box);
+    };
+
     this.testWorld = function(sceneName, frame, boxTrackId){
         var world = this.data.make_new_world(
             sceneName, 
@@ -1656,22 +1668,15 @@ function Editor(editorUi, editorCfg, metaData){
         this.data.activateMultiWorld(
             world, 
             ()=>{
-                this.render();
+                /*
                 let box = world.boxes.find(function(x){
                     return x.obj_track_id == boxTrackId;
-                })
+                });
+                */
+                world.boxes.forEach((b)=>this.testEditBox(b));
 
-                let boxEditor = new BoxEditor(
-                    this.editorUi.querySelector("#box-editor-wrapper"),
-                    this.data,
-                    this.viewManager,
-                    this.editorCfg,
-                    this.boxOp,
-                    (b)=>this.on_box_changed(b),
-                    "test-box-editor"
-                );
-
-                boxEditor.attachBox(box);
+                //this.testEditBox(world, box);
+                this.render();
             });
     }
 
@@ -1757,11 +1762,11 @@ function Editor(editorUi, editorCfg, metaData){
     this.updateBoxPointsColor= function(box){
         if (this.data.config.color_obj){
             if (box.last_info){
-                this.data.world.set_box_points_color(box.last_info, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
+                box.world.set_box_points_color(box.last_info, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
             }
 
-            this.data.world.set_box_points_color(box);
-            this.data.world.update_points_color();
+            box.world.set_box_points_color(box);
+            box.world.update_points_color();
             this.render();
         }
     };
@@ -1880,9 +1885,6 @@ function Editor(editorUi, editorCfg, metaData){
 
 
     }
-
-
-    
 
     this.init(editorUi);
 

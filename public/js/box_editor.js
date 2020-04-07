@@ -1,7 +1,7 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import { FocusImageContext } from "./image.js";
 
-function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed, name){
+function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name){
     
     this.parentUi = parentUi;
     this.name=name;
@@ -11,14 +11,12 @@ function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed,
     parentUi.appendChild(tmpui);
     this.ui = parentUi.lastElementChild;
 
-    this.data = data,
     this.viewManager = viewManager;
     this.boxOp = boxOp;
     this.boxView = this.viewManager.addBoxView(this.ui); //this.editorUi.querySelector("#sub-views")
     this.projectiveViewOps = new ProjectiveViewOps(
         this.ui, //this.editorUi.querySelector("#sub-views"),
         cfg,
-        this.data,
         this.boxView.views,
         this.boxOp,
         func_on_box_changed,
@@ -27,8 +25,7 @@ function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed,
 
     this.projectiveViewOps.init_view_operation();
 
-    this.focusImageContext = new FocusImageContext(this.data,
-        this.ui.querySelector("#focuscanvas"));
+    this.focusImageContext = new FocusImageContext(this.ui.querySelector("#focuscanvas"));
     
     
     this.box = null;

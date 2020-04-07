@@ -8,13 +8,10 @@ import{ml} from "./ml.js";
 import {dotproduct} from "./util.js"
 
 
-function BoxOp(data){
-    this.data = data;
-
-
+function BoxOp(){
     this.auto_rotate_xyz=function(box, callback, apply_mask, on_box_changed){
-        let points = this.data.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1.0);
-        //let points = this.data.world.get_points_relative_coordinates_of_box(box, 1.0);
+        let points = box.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1.0);
+        //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
 
         points = points.filter(function(p){
             return p[2] > - box.scale.z/2 + 0.3;
@@ -30,7 +27,7 @@ function BoxOp(data){
             }
 
 
-            var points_indices = this.data.world.get_points_indices_of_box(box);
+            var points_indices = box.world.get_points_indices_of_box(box);
 
             
             var euler_delta = {
@@ -65,7 +62,7 @@ function BoxOp(data){
                 box.rotation.z = euler_delta.z;
             }
         
-            var extreme = this.data.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.get_dimension_of_points(points_indices, box);
 
 
 
@@ -107,7 +104,7 @@ function BoxOp(data){
         //box.rotation.x += theta;
         //on_box_changed(box);
         
-        var points_indices = this.data.world.get_points_indices_of_box(box);
+        var points_indices = box.world.get_points_indices_of_box(box);
         
         var _tempQuaternion = new Quaternion();
         var rotationAxis = new Vector3(0, 1, 0);
@@ -119,7 +116,7 @@ function BoxOp(data){
         box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, -theta ) ).normalize();
 
         if (sticky){
-            var extreme = this.data.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.get_dimension_of_points(points_indices, box);
 
             ['x','z'].forEach((axis)=>{
 
@@ -135,7 +132,7 @@ function BoxOp(data){
 
 
     this.auto_rotate_y=function(box, on_box_changed){
-        let points = this.data.world.get_points_of_box(box, 2.0);
+        let points = box.world.get_points_of_box(box, 2.0);
 
         // 1. find surounding points
         var side_indices = []
@@ -166,9 +163,9 @@ function BoxOp(data){
 
         
 
-        this.data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-        this.data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-        this.data.world.update_points_color();
+        box.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+        box.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+        box.world.update_points_color();
         
         var x = end_points.map(function(x){return x[0]});
         //var y = side_points.map(function(x){return x[1]});
@@ -184,7 +181,7 @@ function BoxOp(data){
 
 
     this.change_rotation_x=function(box, theta, sticky, on_box_changed){
-        var points_indices = this.data.world.get_points_indices_of_box(box);
+        var points_indices = box.world.get_points_indices_of_box(box);
 
         //box.rotation.x += theta;
         //on_box_changed(box);
@@ -193,7 +190,7 @@ function BoxOp(data){
         box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, theta ) ).normalize();
 
         if (sticky){
-            var extreme = this.data.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.get_dimension_of_points(points_indices, box);
 
             ['y','z'].forEach((axis)=>{
 
@@ -212,7 +209,7 @@ function BoxOp(data){
     this.auto_rotate_x=function(box, on_box_changed){
         console.log("x auto ratote");
         
-        let points = this.data.world.get_points_of_box(box, 2.0);
+        let points = box.world.get_points_of_box(box, 2.0);
 
         // 1. find surounding points
         var side_indices = []
@@ -243,9 +240,9 @@ function BoxOp(data){
 
         
 
-        this.data.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-        this.data.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-        this.data.world.update_points_color();
+        box.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+        box.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+        box.world.update_points_color();
         //render();
 
         var x = side_points.map(function(x){return x[0]});
@@ -280,7 +277,7 @@ function BoxOp(data){
 
     this.rotate_z=function(box, theta, sticky){
         // points indices shall be obtained before rotation.
-        var points_indices = this.data.world.get_points_indices_of_box(box);
+        var points_indices = box.world.get_points_indices_of_box(box);
             
 
         var _tempQuaternion = new Quaternion();
@@ -289,7 +286,7 @@ function BoxOp(data){
 
         if (sticky){
         
-            var extreme = this.data.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.get_dimension_of_points(points_indices, box);
 
             ['x','y'].forEach((axis)=>{
 

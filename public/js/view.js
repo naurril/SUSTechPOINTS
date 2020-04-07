@@ -14,11 +14,11 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
 
     this.mainView = cfg.disableMainView?null:create_main_view(webgl_scene,  renderer, this.globalRenderFunc, this.mainViewContainer, on_box_changed);
     
-    this.boxViews = [];
+    this.boxViewList = [];
     
     this.addBoxView = function(subviewsUi){
         let boxview = new BoxView(subviewsUi, this.mainViewContainer, this.webgl_scene, this.renderer);
-        this.boxViews.push(boxview);
+        this.boxViewList.push(boxview);
         return boxview;
     }
     
@@ -30,7 +30,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
     this.render = function(){
         if (this.mainView)
             this.mainView.render();
-        this.boxViews.forEach(v=>v.render());
+        this.boxViewList.forEach(v=>v.render());
     };
 
     // no public funcs below

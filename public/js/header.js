@@ -50,7 +50,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onCameraChang
         var scale = box.scale;
         var pos = box.getTruePosition();
         var rotation = box.rotation;
-        var points_number = this.data.world.get_box_points_number(box);
+        var points_number = box.world.get_box_points_number(box);
 
         this.boxUi.innerHTML = "| "+pos.x.toFixed(2) +" "+pos.y.toFixed(2) + " " + pos.z.toFixed(2) + " | " +
                                                     scale.x.toFixed(2) +" "+scale.y.toFixed(2) + " " + scale.z.toFixed(2) + " | " +
