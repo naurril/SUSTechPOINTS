@@ -306,11 +306,17 @@ dynamic set obj-type css has higher priority than this one.
 	color: yellow;
 }
 
+#box-editor-wrapper {
+	position: absolute;
+	top: 0%;    
+    width: 20%;
+    height: 100%;
+}
 
 #sub-views {
 	top: 0%;
     position: absolute;
-    width: 20%;
+    width: 100%;
     height: 100%;
 }
 

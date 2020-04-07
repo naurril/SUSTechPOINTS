@@ -6,11 +6,10 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_box, func_on_box_changed, func_update_subview_by_windowsize){
+function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_on_box_changed, func_update_subview_by_windowsize){
 
     this.ui = ui;
     this.cfg = editorCfg;
-    this.get_selected_box = func_get_selected_box;
     this.on_box_changed = func_on_box_changed;
     this.updateSubviewRangeByWindowResize = func_update_subview_by_windowsize;
     this.views = views;
@@ -388,11 +387,11 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_
                 event.preventDefault();
 
                 //console.log(event);
-                if (event.deltaY>0){
-                    console.log("down");
-                } else {
-                    console.log("up");
-                }
+                // if (event.deltaY>0){
+                //     console.log("down");
+                // } else {
+                //     console.log("up");
+                // }
     
                 on_wheel(event.deltaY);        
             };
@@ -760,7 +759,6 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////////
     // direction is null if triggered by dbclick on 'move' handler 
     function on_z_auto_shrink(direction){
@@ -851,9 +849,9 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_
     }
 
     function on_z_wheel(wheel_direction){
-        on_wheel(scope.views[1], wheel_direction);
+        on_wheel(scope.views[0], wheel_direction);
         scope.updateSubviewRangeByWindowResize(scope.box);
-        z_view_handle.update_view_handle(scope.views[1].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
+        z_view_handle.update_view_handle(scope.views[0].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
     function on_z_auto_rotate(){
@@ -957,9 +955,9 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_
     }
 
     function on_y_wheel(wheel_direction){
-        on_wheel(scope.views[2], wheel_direction);
+        on_wheel(scope.views[1], wheel_direction);
         scope.updateSubviewRangeByWindowResize(scope.box);
-        y_view_handle.update_view_handle(scope.views[2].getViewPort(), {x: scope.box.scale.x, y:scope.box.scale.z});
+        y_view_handle.update_view_handle(scope.views[1].getViewPort(), {x: scope.box.scale.x, y:scope.box.scale.z});
     }
 
     function on_y_reset_rotate(){
@@ -1063,9 +1061,9 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_
     }
 
     function on_x_wheel(wheel_direction){
-        on_wheel(scope.views[3], wheel_direction);
+        on_wheel(scope.views[2], wheel_direction);
         scope.updateSubviewRangeByWindowResize(scope.box);
-        x_view_handle.update_view_handle(scope.views[3].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.z});
+        x_view_handle.update_view_handle(scope.views[2].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.z});
     }
 
 
@@ -1095,9 +1093,13 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_
     this.activate = function(box){
         this.box = box;
         this.show();
-    }
+        this.update_view_handle(box);
+    };
+    this.switchBox = function(box){
+        this.activate(box);
+    };
 
-    this.show = function(){
+    this.show = function(box){
         this.ui.style.display="block";
     };
 
@@ -1111,12 +1113,10 @@ function ProjectiveViewOps(ui, editorCfg, data, views, boxOp, func_get_selected_
         x_view_handle.init_view_operation();
     };
 
-    this.update_view_handle = function(box){
-        this.box = box;
-
-        z_view_handle.update_view_handle(this.views[1].getViewPort(), {x: box.scale.y, y:box.scale.x});
-        y_view_handle.update_view_handle(this.views[2].getViewPort(), {x: box.scale.x, y:box.scale.z});
-        x_view_handle.update_view_handle(this.views[3].getViewPort(), {x: box.scale.y, y:box.scale.z});
+    this.update_view_handle = function(){
+        z_view_handle.update_view_handle(this.views[0].getViewPort(), {x: this.box.scale.y, y:this.box.scale.x});
+        y_view_handle.update_view_handle(this.views[1].getViewPort(), {x: this.box.scale.x, y:this.box.scale.z});
+        x_view_handle.update_view_handle(this.views[2].getViewPort(), {x: this.box.scale.y, y:this.box.scale.z});
     };
 
 };

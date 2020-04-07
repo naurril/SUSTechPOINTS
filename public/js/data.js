@@ -1519,7 +1519,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
 function Data(metaData){
     
     this.make_new_world = function(scene_name, frame, on_preload_finished){
-        return new World(this, scene_name, frame, [0,0,0], on_preload_finished);        
+        return new World(this, scene_name, frame, [20,20,0], on_preload_finished);        
     };
 
 

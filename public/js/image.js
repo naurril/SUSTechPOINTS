@@ -2,12 +2,184 @@
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
+function FocusImageContext(data, ui){
+
+    this.ui = ui; //var c = parentUi.querySelector("#focuscanvas");
+    // draw highlighted box
+    this.updateFocusedImageContext = function(box){
+        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
+
+        var active_image_name = data.world.images.active_name;
+        if (!scene_meta.calib){
+            return;
+        }
+        
+        var calib = scene_meta.calib[active_image_name]
+        if (!calib){
+            return;
+        }
+        
+        if (calib){
+            var scale = box.scale;
+            var pos = box.getTruePosition();
+            var rotation = box.rotation;
+
+            var img = data.world.images.active_image(); //parentUi.querySelector("#camera");
+            if (img && (img.naturalWidth > 0)){
+
+                this.clear_canvas();
+
+                var imgfinal = box_to_2d_points(box, calib)
+
+                if (imgfinal != null){  // if projection is out of range of the image, stop drawing.
+                    var ctx = this.ui.getContext("2d");
+                    ctx.lineWidth = 0.5;
+
+                    // note: 320*240 should be adjustable
+                    var crop_area = crop_image(img.naturalWidth, img.naturalHeight, ctx.canvas.width, ctx.canvas.height, imgfinal);
+
+                    ctx.drawImage(img, crop_area[0], crop_area[1],crop_area[2], crop_area[3], 0, 0, ctx.canvas.width, ctx.canvas.height);// ctx.canvas.clientHeight);
+                    //ctx.drawImage(img, 0,0,img.naturalWidth, img.naturalHeight, 0, 0, 320, 180);// ctx.canvas.clientHeight);
+                    var imgfinal = vectorsub(imgfinal, [crop_area[0],crop_area[1]]);
+                    var trans_ratio = {
+                        x: ctx.canvas.height/crop_area[3],
+                        y: ctx.canvas.height/crop_area[3],
+                    }
+
+                    draw_box_on_image(ctx, box, imgfinal, trans_ratio, true);
+                }
+            }
+        }
+    }
+
+    this.clear_canvas = function(){
+        var c = this.ui;
+        var ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+    }
+
+
+    function vectorsub(vs, v){
+        var ret = [];
+        var vl = v.length;
+
+        for (var i = 0; i<vs.length/vl; i++){
+            for (var j=0; j<vl; j++)
+                ret[i*vl+j] = vs[i*vl+j]-v[j];
+        }
+
+        return ret;
+    }
+
+
+    function crop_image(imgWidth, imgHeight, clientWidth, clientHeight, corners)
+    {
+        var maxx=0, maxy=0, minx=imgWidth, miny=imgHeight;
+
+        for (var i = 0; i < corners.length/2; i++){
+            var x = corners[i*2];
+            var y = corners[i*2+1];
+
+            if (x>maxx) maxx=x;
+            else if (x<minx) minx=x;
+
+            if (y>maxy) maxy=y;
+            else if (y<miny) miny=y;        
+        }
+
+        var targetWidth= (maxx-minx)*1.5;
+        var targetHeight= (maxy-miny)*1.5;
+
+        if (targetWidth/targetHeight > clientWidth/clientHeight){
+            //increate height
+            targetHeight = targetWidth*clientHeight/clientWidth;        
+        }
+        else{
+            targetWidth = targetHeight*clientWidth/clientHeight;
+        }
+
+        var centerx = (maxx+minx)/2;
+        var centery = (maxy+miny)/2;
+
+        return [
+            centerx - targetWidth/2,
+            centery - targetHeight/2,
+            targetWidth,
+            targetHeight
+        ];
+    }
+
+    function draw_box_on_image(ctx, box, box_corners, trans_ratio, selected){
+        var imgfinal = box_corners;
+
+        if (!selected){
+            ctx.strokeStyle = get_obj_cfg_by_type(box.obj_type).color;
+
+            var c = get_obj_cfg_by_type(box.obj_type).color;
+            var r ="0x"+c.slice(1,3);
+            var g ="0x"+c.slice(3,5);
+            var b ="0x"+c.slice(5,7);
+
+            ctx.fillStyle="rgba("+parseInt(r)+","+parseInt(g)+","+parseInt(b)+",0.2)";
+        }
+        else{
+            ctx.strokeStyle="#ff00ff";        
+            ctx.fillStyle="rgba(255,0,255,0.2)";
+        }
+
+        // front panel
+        ctx.beginPath();
+        ctx.moveTo(imgfinal[3*2]*trans_ratio.x,imgfinal[3*2+1]*trans_ratio.y);
+
+        for (var i=0; i < imgfinal.length/2/2; i++)
+        {
+            ctx.lineTo(imgfinal[i*2+0]*trans_ratio.x, imgfinal[i*2+1]*trans_ratio.y);
+        }
+
+        ctx.closePath();
+        ctx.fill();
+        
+        // frame
+        ctx.beginPath();
+
+        ctx.moveTo(imgfinal[3*2]*trans_ratio.x,imgfinal[3*2+1]*trans_ratio.y);
+
+        for (var i=0; i < imgfinal.length/2/2; i++)
+        {
+            ctx.lineTo(imgfinal[i*2+0]*trans_ratio.x, imgfinal[i*2+1]*trans_ratio.y);
+        }
+        //ctx.stroke();
+
+
+        //ctx.strokeStyle="#ff00ff";
+        //ctx.beginPath();
+
+        ctx.moveTo(imgfinal[7*2]*trans_ratio.x,imgfinal[7*2+1]*trans_ratio.y);
+
+        for (var i=4; i < imgfinal.length/2; i++)
+        {
+            ctx.lineTo(imgfinal[i*2+0]*trans_ratio.x, imgfinal[i*2+1]*trans_ratio.y);
+        }
+        
+        ctx.moveTo(imgfinal[0*2]*trans_ratio.x,imgfinal[0*2+1]*trans_ratio.y);
+        ctx.lineTo(imgfinal[4*2+0]*trans_ratio.x, imgfinal[4*2+1]*trans_ratio.y);
+        ctx.moveTo(imgfinal[1*2]*trans_ratio.x,imgfinal[1*2+1]*trans_ratio.y);
+        ctx.lineTo(imgfinal[5*2+0]*trans_ratio.x, imgfinal[5*2+1]*trans_ratio.y);
+        ctx.moveTo(imgfinal[2*2]*trans_ratio.x,imgfinal[2*2+1]*trans_ratio.y);
+        ctx.lineTo(imgfinal[6*2+0]*trans_ratio.x, imgfinal[6*2+1]*trans_ratio.y);
+        ctx.moveTo(imgfinal[3*2]*trans_ratio.x,imgfinal[3*2+1]*trans_ratio.y);
+        ctx.lineTo(imgfinal[7*2+0]*trans_ratio.x, imgfinal[7*2+1]*trans_ratio.y);
+
+
+        ctx.stroke();
+    }
+}
+
+
 
 function ImageContext(data, parentUi, cfg){
     this.cfg = cfg;
     this.init_image_op = init_image_op;    
-    this.updateFocusedImageContext = updateFocusedImageContext; 
-    this.clear_canvas = clear_canvas;
     this.clear_main_canvas= clear_main_canvas;
     this.choose_best_camera_for_point = choose_best_camera_for_point;
     //this.image_manager = image_manager;
@@ -17,10 +189,6 @@ function ImageContext(data, parentUi, cfg){
         var c = parentUi.querySelector("#maincanvas-wrapper");
         c.style.display="none";
     }
-
-    // if (cfg.subviewWidth){
-    //     parentUi.querySelector("#focuscanvas").style.width=String(cfg.subviewWidth*100)+"%";
-    // }
 
     //internal
     //var parentUi = parentUi;
@@ -187,41 +355,7 @@ function ImageContext(data, parentUi, cfg){
     }
 
 
-    function choose_best_camera_for_point(center){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
-            
-        if (!scene_meta.calib){
-            return null;
-        }
-
-        var proj_pos = [];
-        for (var i in scene_meta.calib){
-            var imgpos = matmul(scene_meta.calib[i].extrinsic, [center.x,center.y,center.z,1], 4);
-            proj_pos.push({calib: i, pos: vector4to3(imgpos)});
-        }
-
-        var valid_proj_pos = proj_pos.filter(function(p){
-            return all_points_in_image_range(p.pos);
-        });
-        
-        valid_proj_pos.forEach(function(p){
-            p.dist_to_center = p.pos[0]*p.pos[0] + p.pos[1]*p.pos[1];
-        });
-
-        valid_proj_pos.sort(function(x,y){
-            return x.dist_to_center - y.dist_to_center;
-        });
-
-        //console.log(valid_proj_pos);
-
-        if (valid_proj_pos.length>0){
-            return valid_proj_pos[0].calib;
-        }
-
-        return null;
-
-    }
 
     function get_trans_ratio(){
         var img = data.world.images.active_image();       
@@ -319,35 +453,7 @@ function ImageContext(data, parentUi, cfg){
 
     }
 
-    function box_to_2d_points(box, calib){
-        var scale = box.scale;
-        var pos = box.getTruePosition();
-        var rotation = box.rotation;
 
-        var box3d = psr_to_xyz(pos, scale, rotation);
-        
-        var imgpos = matmul(calib.extrinsic, box3d, 4);
-        
-        if (calib.rect){
-            imgpos = matmul(calib.rect, imgpos, 4);
-        }
-
-        var imgpos3 = vector4to3(imgpos);
-
-        var imgpos2;
-        if (calib.intrinsic.length>9) {
-            imgpos2 = matmul(calib.intrinsic, imgpos, 4);
-        }
-        else
-            imgpos2 = matmul(calib.intrinsic, imgpos3, 3);
-
-        if (!all_points_in_image_range(imgpos3)){
-            return null;
-        }
-        var imgfinal = vector3_nomalize(imgpos2);
-
-        return imgfinal;
-    }
 
     function box_to_svg(box, box_corners, trans_ratio, selected){
         
@@ -411,192 +517,17 @@ function ImageContext(data, parentUi, cfg){
     }
 
 
-    function draw_box_on_image(ctx, box, box_corners, trans_ratio, selected){
-        var imgfinal = box_corners;
-
-        if (!selected){
-            ctx.strokeStyle = get_obj_cfg_by_type(box.obj_type).color;
-
-            var c = get_obj_cfg_by_type(box.obj_type).color;
-            var r ="0x"+c.slice(1,3);
-            var g ="0x"+c.slice(3,5);
-            var b ="0x"+c.slice(5,7);
-
-            ctx.fillStyle="rgba("+parseInt(r)+","+parseInt(g)+","+parseInt(b)+",0.2)";
-        }
-        else{
-            ctx.strokeStyle="#ff00ff";        
-            ctx.fillStyle="rgba(255,0,255,0.2)";
-        }
-
-        // front panel
-        ctx.beginPath();
-        ctx.moveTo(imgfinal[3*2]*trans_ratio.x,imgfinal[3*2+1]*trans_ratio.y);
-
-        for (var i=0; i < imgfinal.length/2/2; i++)
-        {
-            ctx.lineTo(imgfinal[i*2+0]*trans_ratio.x, imgfinal[i*2+1]*trans_ratio.y);
-        }
-
-        ctx.closePath();
-        ctx.fill();
-        
-        // frame
-        ctx.beginPath();
-
-        ctx.moveTo(imgfinal[3*2]*trans_ratio.x,imgfinal[3*2+1]*trans_ratio.y);
-
-        for (var i=0; i < imgfinal.length/2/2; i++)
-        {
-            ctx.lineTo(imgfinal[i*2+0]*trans_ratio.x, imgfinal[i*2+1]*trans_ratio.y);
-        }
-        //ctx.stroke();
-
-
-        //ctx.strokeStyle="#ff00ff";
-        //ctx.beginPath();
-
-        ctx.moveTo(imgfinal[7*2]*trans_ratio.x,imgfinal[7*2+1]*trans_ratio.y);
-
-        for (var i=4; i < imgfinal.length/2; i++)
-        {
-            ctx.lineTo(imgfinal[i*2+0]*trans_ratio.x, imgfinal[i*2+1]*trans_ratio.y);
-        }
-        
-        ctx.moveTo(imgfinal[0*2]*trans_ratio.x,imgfinal[0*2+1]*trans_ratio.y);
-        ctx.lineTo(imgfinal[4*2+0]*trans_ratio.x, imgfinal[4*2+1]*trans_ratio.y);
-        ctx.moveTo(imgfinal[1*2]*trans_ratio.x,imgfinal[1*2+1]*trans_ratio.y);
-        ctx.lineTo(imgfinal[5*2+0]*trans_ratio.x, imgfinal[5*2+1]*trans_ratio.y);
-        ctx.moveTo(imgfinal[2*2]*trans_ratio.x,imgfinal[2*2+1]*trans_ratio.y);
-        ctx.lineTo(imgfinal[6*2+0]*trans_ratio.x, imgfinal[6*2+1]*trans_ratio.y);
-        ctx.moveTo(imgfinal[3*2]*trans_ratio.x,imgfinal[3*2+1]*trans_ratio.y);
-        ctx.lineTo(imgfinal[7*2+0]*trans_ratio.x, imgfinal[7*2+1]*trans_ratio.y);
-
-
-        ctx.stroke();
-    }
-
-
-    function clear_canvas(){
-        var c = parentUi.querySelector("#focuscanvas");
-        var ctx = c.getContext("2d");
-                    
-        ctx.clearRect(0, 0, c.width, c.height);
-    }
-
-
-    function all_points_in_image_range(p){
-        for (var i = 0; i<p.length/3; i++){
-            if (p[i*3+2]<0){
-                return false;
-            }
-        }
-        
-        return true;
-    }
-
-
-    // draw highlighted box
-    function updateFocusedImageContext(box){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
-
-        var active_image_name = data.world.images.active_name;
-        if (!scene_meta.calib){
-            return;
-        }
-        
-        var calib = scene_meta.calib[active_image_name]
-        if (!calib){
-            return;
-        }
-        
-        if (calib){
-            var scale = box.scale;
-            var pos = box.getTruePosition();
-            var rotation = box.rotation;
-
-            var img = data.world.images.active_image(); //parentUi.querySelector("#camera");
-            if (img && (img.naturalWidth > 0)){
-
-                clear_canvas();
-
-
-                var imgfinal = box_to_2d_points(box, calib)
-                
-
-                if (imgfinal != null){  // if projection is out of range of the image, stop drawing.
-                    
-                    var c = parentUi.querySelector("#focuscanvas");
-                    var ctx = c.getContext("2d");
-                    ctx.lineWidth = 0.5;
-
-                    // note: 320*240 should be adjustable
-                    var crop_area = crop_image(img.naturalWidth, img.naturalHeight, ctx.canvas.width, ctx.canvas.height, imgfinal);
-
-                    ctx.drawImage(img, crop_area[0], crop_area[1],crop_area[2], crop_area[3], 0, 0, ctx.canvas.width, ctx.canvas.height);// ctx.canvas.clientHeight);
-                    //ctx.drawImage(img, 0,0,img.naturalWidth, img.naturalHeight, 0, 0, 320, 180);// ctx.canvas.clientHeight);
-                    var imgfinal = vectorsub(imgfinal, [crop_area[0],crop_area[1]]);
-                    var trans_ratio = {
-                        x: ctx.canvas.height/crop_area[3],
-                        y: ctx.canvas.height/crop_area[3],
-                    }
-
-                    draw_box_on_image(ctx, box, imgfinal, trans_ratio, true);
-                }
-            }
-        }
-    }
+    
 
 
 
-    function crop_image(imgWidth, imgHeight, clientWidth, clientHeight, corners)
-    {
-        var maxx=0, maxy=0, minx=imgWidth, miny=imgHeight;
 
-        for (var i = 0; i < corners.length/2; i++){
-            var x = corners[i*2];
-            var y = corners[i*2+1];
+    
 
-            if (x>maxx) maxx=x;
-            else if (x<minx) minx=x;
 
-            if (y>maxy) maxy=y;
-            else if (y<miny) miny=y;        
-        }
+    
 
-        var targetWidth= (maxx-minx)*1.5;
-        var targetHeight= (maxy-miny)*1.5;
 
-        if (targetWidth/targetHeight > clientWidth/clientHeight){
-            //increate height
-            targetHeight = targetWidth*clientHeight/clientWidth;        
-        }
-        else{
-            targetWidth = targetHeight*clientWidth/clientHeight;
-        }
-
-        var centerx = (maxx+minx)/2;
-        var centery = (maxy+miny)/2;
-
-        return [
-            centerx - targetWidth/2,
-            centery - targetHeight/2,
-            targetWidth,
-            targetHeight
-        ];
-    }
-
-    function vectorsub(vs, v){
-        var ret = [];
-        var vl = v.length;
-
-        for (var i = 0; i<vs.length/vl; i++){
-            for (var j=0; j<vl; j++)
-                ret[i*vl+j] = vs[i*vl+j]-v[j];
-        }
-
-        return ret;
-    }
 
 
     this.image_manager = {
@@ -630,7 +561,7 @@ function ImageContext(data, parentUi, cfg){
         },
 
 
-        select_bbox: function(box_obj_local_id, obj_type){
+        onBoxSelected: function(box_obj_local_id, obj_type){
             var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
             if (b){
                 b.setAttribute("class", "box-svg-selected");
@@ -638,7 +569,7 @@ function ImageContext(data, parentUi, cfg){
         },
 
 
-        unselect_bbox: function(box_obj_local_id, obj_type){
+        onBoxUnselected: function(box_obj_local_id, obj_type){
             var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
@@ -653,7 +584,7 @@ function ImageContext(data, parentUi, cfg){
         },
 
         update_obj_type: function(box_obj_local_id, obj_type){
-            this.select_bbox(box_obj_local_id, obj_type);
+            this.onBoxSelected(box_obj_local_id, obj_type);
         },
         
         update_box: function(box){
@@ -717,4 +648,81 @@ function ImageContext(data, parentUi, cfg){
 
 }
 
-export {ImageContext};
+
+function box_to_2d_points(box, calib){
+    var scale = box.scale;
+    var pos = box.getTruePosition();
+    var rotation = box.rotation;
+
+    var box3d = psr_to_xyz(pos, scale, rotation);
+    
+    var imgpos = matmul(calib.extrinsic, box3d, 4);
+    
+    if (calib.rect){
+        imgpos = matmul(calib.rect, imgpos, 4);
+    }
+
+    var imgpos3 = vector4to3(imgpos);
+
+    var imgpos2;
+    if (calib.intrinsic.length>9) {
+        imgpos2 = matmul(calib.intrinsic, imgpos, 4);
+    }
+    else
+        imgpos2 = matmul(calib.intrinsic, imgpos3, 3);
+
+    if (!all_points_in_image_range(imgpos3)){
+        return null;
+    }
+    var imgfinal = vector3_nomalize(imgpos2);
+
+    return imgfinal;
+}
+
+function all_points_in_image_range(p){
+    for (var i = 0; i<p.length/3; i++){
+        if (p[i*3+2]<0){
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+
+function choose_best_camera_for_point(scene_meta, center){
+    //var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
+
+    if (!scene_meta.calib){
+        return null;
+    }
+
+    var proj_pos = [];
+    for (var i in scene_meta.calib){
+        var imgpos = matmul(scene_meta.calib[i].extrinsic, [center.x,center.y,center.z,1], 4);
+        proj_pos.push({calib: i, pos: vector4to3(imgpos)});
+    }
+
+    var valid_proj_pos = proj_pos.filter(function(p){
+        return all_points_in_image_range(p.pos);
+    });
+    
+    valid_proj_pos.forEach(function(p){
+        p.dist_to_center = p.pos[0]*p.pos[0] + p.pos[1]*p.pos[1];
+    });
+
+    valid_proj_pos.sort(function(x,y){
+        return x.dist_to_center - y.dist_to_center;
+    });
+
+    //console.log(valid_proj_pos);
+
+    if (valid_proj_pos.length>0){
+        return valid_proj_pos[0].calib;
+    }
+
+    return null;
+
+}
+
+export {ImageContext, FocusImageContext};

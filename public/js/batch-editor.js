@@ -20,8 +20,7 @@ function BatchEditor(N, editorTemplate, parentDiv, metaData){
         disableMainImageContext: true,
         disableGrid:true,
         disableRangeCircle:true,
-        disableMainViewKeyDown:true,
-        subviewWidth:1.0,
+        disableMainViewKeyDown:true
     };
     
 

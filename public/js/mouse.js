@@ -3,8 +3,8 @@ import * as THREE from './lib/three.module.js';
 
 
 
-function Mouse(allviews, op_state, mainui_container, parentUi, on_left_click, on_right_click, on_select_rect){
-    this.views=allviews;
+function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_right_click, on_select_rect){
+    this.view=view;
     this.domElement = mainui_container;
     this.parentUi = parentUi;
     this.operation_state = op_state;
@@ -31,7 +31,7 @@ function Mouse(allviews, op_state, mainui_container, parentUi, on_left_click, on
     this.mousePos = new THREE.Vector2();  // keep position of mouse
 
     this.get_mouse_location_in_world = function(){
-        this.raycaster.setFromCamera( this.mousePos, this.views[0].camera );
+        this.raycaster.setFromCamera( this.mousePos, this.view.camera );
         var o = this.raycaster.ray.origin;
         var d = this.raycaster.ray.direction;
 
@@ -47,7 +47,7 @@ function Mouse(allviews, op_state, mainui_container, parentUi, on_left_click, on
         screen_pos.x = x;
         screen_pos.y = y;
 
-        this.raycaster.setFromCamera( screen_pos, this.views[0].camera );
+        this.raycaster.setFromCamera( screen_pos, this.view.camera );
         var o = this.raycaster.ray.origin;
         var d = this.raycaster.ray.direction;
 
@@ -73,7 +73,7 @@ function Mouse(allviews, op_state, mainui_container, parentUi, on_left_click, on
         let mouse = new THREE.Vector2();
         mouse.set( ( point.x * 2 ) - 1, - ( point.y * 2 ) + 1 );
 
-        this.raycaster.setFromCamera( mouse, this.views[0].camera );
+        this.raycaster.setFromCamera( mouse, this.view.camera );
 
         return this.raycaster.intersectObjects( objects, false );  // 2nd argument: recursive.
 

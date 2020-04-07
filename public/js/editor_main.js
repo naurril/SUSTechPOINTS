@@ -61,14 +61,13 @@ function start(metaData){
           //disableMainImageContext: true,
           disableGrid:true,
           disableRangeCircle:true,
-          //disableMainViewKeyDown:true,
-          subviewWidth:0.2,
+          //disableMainViewKeyDown:true
       };
 
       let editor = new Editor(maindiv.lastElementChild, mainEditorCfg, metaData)
       editor.run();
-      editor.load_world("example","000950");
-      editor.view_state.autoLock("1", true);
+      editor.testWorld("example","000950", "1");
+      //editor.view_state.autoLock("1", false);
 
   }
 

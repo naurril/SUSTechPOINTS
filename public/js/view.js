@@ -2,49 +2,41 @@ import * as THREE from './lib/three.module.js';
 import { OrbitControls } from './lib/OrbitControls.js';
 import { OrthographicTrackballControls } from './lib/OrthographicTrackballControls.js';
 import { TransformControls } from './lib/TransformControls.js';
+import {matmul2, euler_angle_to_rotate_matrix} from "./util.js"
 
 
+function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc, on_box_changed, cfg){
 
-function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc, on_box_changed, cfg){
+    this.mainViewContainer = mainViewContainer;
+    this.globalRenderFunc  = globalRenderFunc;
+    this.webgl_scene = webgl_scene;
+    this.renderer = renderer;
 
-    let subviewWidth = 0.2;
-
-    if (cfg && cfg.subviewWidth){        
-        subviewWidth = cfg.subviewWidth;
+    this.mainView = cfg.disableMainView?null:create_main_view(webgl_scene,  renderer, this.globalRenderFunc, this.mainViewContainer, on_box_changed);
+    
+    this.boxViews = [];
+    
+    this.addBoxView = function(subviewsUi){
+        let boxview = new BoxView(subviewsUi, this.mainViewContainer, this.webgl_scene, this.renderer);
+        this.boxViews.push(boxview);
+        return boxview;
     }
+    
+    this.onWindowResize = function(){
+        if (this.mainView)
+            this.mainView.onWindowResize();
+    };
 
-    let viewCfg = [
-        {
-            backgroundColor: new THREE.Color( 0.0, 0.0, 0.0 ),
-        },
-        {
-            backgroundColor: new THREE.Color( 0.1, 0.1, 0.2 ),
-        },
-        {
-            backgroundColor: new THREE.Color( 0.1, 0.2, 0.1 ),
-            
-        },
-        {
-            backgroundColor: new THREE.Color( 0.2, 0.1, 0.1 ),
-        }
-    ];
+    this.render = function(){
+        if (this.mainView)
+            this.mainView.render();
+        this.boxViews.forEach(v=>v.render());
+    };
 
-    var container = main_ui_container;
-
-    this.container = main_ui_container;
-    this.views= [
-        cfg.disableMainView?null:create_main_view(viewCfg[0].backgroundColor, webgl_scene,  renderer, globalRenderFunc, this.container, on_box_changed),
-        createTopView(viewCfg[1].backgroundColor, webgl_scene),
-        createSideView(viewCfg[2].backgroundColor, webgl_scene),
-        createBackView(viewCfg[3].backgroundColor, webgl_scene, renderer, container),   
-    ];
-
-
-    // no code after this line
-        
-    function create_main_view(backgroundColor, scene, renderer, globalglobalRenderFunc, dom, on_box_changed){
+    // no public funcs below
+    function create_main_view(scene, renderer, globalRenderFunc, container, on_box_changed){
         var view ={};
-        view.backgroundColor=backgroundColor;
+        view.backgroundColor=new THREE.Color( 0.0, 0.0, 0.0 );
         view.zoom_ratio = 1.0; //useless for mainview
             
         var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
@@ -54,7 +46,7 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
         camera.up.set( 0, 0, 1);
         camera.lookAt( 0, 0, 0 );
         view.camera_perspective = camera;
-        view.container = dom;
+        view.container = container;
         view.renderer = renderer;
         view.scene = scene;
 
@@ -88,13 +80,13 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
             this.renderer.render( this.scene, this.camera );
         };
 
-        var orbit_perspective = new OrbitControls( view.camera_perspective, dom );
+        var orbit_perspective = new OrbitControls( view.camera_perspective, view.container );
         orbit_perspective.update();
         orbit_perspective.addEventListener( 'change', globalRenderFunc );
         orbit_perspective.enabled = false;
         view.orbit_perspective = orbit_perspective;
 
-        var transform_control = new TransformControls(camera, dom );
+        var transform_control = new TransformControls(camera, view.container );
         transform_control.setSpace("local");
         transform_control.addEventListener( 'change', globalRenderFunc );
         transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);});
@@ -134,13 +126,13 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
         
         view.camera_orth = camera;
 
-        // var orbit_orth = new OrbitControls( view.camera_orth, dom );
+        // var orbit_orth = new OrbitControls( view.camera_orth, view.container );
         // orbit_orth.update();
         // orbit_orth.addEventListener( 'change', render );
         // orbit_orth.enabled = false;
         // view.orbit_orth = orbit_orth;
 
-        var orbit_orth = new OrthographicTrackballControls( view.camera_orth, dom );
+        var orbit_orth = new OrthographicTrackballControls( view.camera_orth, view.container );
         orbit_orth.rotateSpeed = 1.0;
         orbit_orth.zoomSpeed = 1.2;
         orbit_orth.noZoom = false;
@@ -154,7 +146,7 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
         orbit_orth.enabled=true;
         view.orbit_orth = orbit_orth;
         
-        transform_control = new TransformControls(view.camera_orth, dom );
+        transform_control = new TransformControls(view.camera_orth, view.container );
         transform_control.setSpace("local");
         transform_control.addEventListener( 'change', globalRenderFunc );
         transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);} );
@@ -302,16 +294,53 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
 
         return view;
     }
+}
+
+function BoxView(ui, mainViewContainer, scene, renderer, ){
+
+    this.views = [
+        createTopView(scene, renderer, mainViewContainer),
+        createSideView(scene, renderer, mainViewContainer),
+        createBackView(scene, renderer, mainViewContainer),
+    ];
+
+    this.mainViewContainer = mainViewContainer;
+    this.ui = ui;
+    this.box = null;
+
+    this.attachBox = function(box){
+        this.box = box;        
+        this.onBoxChanged();
+    };
+
+    this.onBoxChanged=function(){
+        this.updateCameraPose(this.box);
+        this.updateCameraRange(this.box);
+        this.render();
+    };
+
+    this.updateCameraPose = function(box){
+        this.views.forEach((v)=>v.updateCameraPose(box));
+    };
+
+    this.updateCameraRange = function(box){
+        this.views.forEach((v)=>v.updateCameraRange(box));
+    };
+
+    this.render = function(){
+        this.views.forEach((v)=>v.render());
+    }
 
 
-    function createTopView(backgroundColor, scene){
+    function createTopView(scene, renderer, container){
         var view = {};
+        view.name="topview";
         view.zoom_ratio = 1.0;
-        view.backgroundColor = backgroundColor;
+        view.backgroundColor = new THREE.Color( 0.1, 0.1, 0.2 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
-        view.placeHolderUi = container.offsetParent.querySelector("#z-view-manipulator");
+        view.placeHolderUi = ui.querySelector("#z-view-manipulator");
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -344,6 +373,21 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
                 height : view.placeHolderUi.clientHeight,
                 zoom_ratio: this.zoom_ratio,
             }
+        };
+
+        view.updateCameraPose=function(box){
+            var p = box.position;
+            var r = box.rotation;
+            //console.log(r);
+            //
+            this.camera.rotation.x= r.x;
+            this.camera.rotation.y= r.y;
+            this.camera.rotation.z= r.z-Math.PI/2;
+            this.camera.position.x= p.x;
+            this.camera.position.y= p.y;
+            this.camera.position.z= p.z;
+            this.camera.updateProjectionMatrix();
+            this.cameraHelper.update(); 
         };
 
         view.updateCameraRange=function(box){
@@ -407,14 +451,16 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
         return view;
     }
 
-    function createSideView(backgroundColor, scene){
+
+    function createSideView(scene, renderer, container){
         var view = {};
+        view.name="sideview";
         view.zoom_ratio = 1.0;
-        view.backgroundColor=backgroundColor;
+        view.backgroundColor=new THREE.Color( 0.1, 0.2, 0.1 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
-        view.placeHolderUi = container.offsetParent.querySelector("#y-view-manipulator");
+        view.placeHolderUi = ui.querySelector("#y-view-manipulator");
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -450,6 +496,28 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
                 height : view.placeHolderUi.clientHeight,
                 zoom_ratio: this.zoom_ratio,
             }
+        };
+
+        
+
+        view.updateCameraPose=function(box){
+            var p = box.position;
+            var r = box.rotation;
+            
+            var trans_matrix = euler_angle_to_rotate_matrix(r, p);
+
+            this.camera.position.x= p.x;
+            this.camera.position.y= p.y;
+            this.camera.position.z= p.z;
+    
+            var up = matmul2(trans_matrix, [0, 0, 1, 0], 4);
+            this.camera.up.set( up[0], up[1], up[2]);
+            var at = matmul2(trans_matrix, [0, 1, 0, 1], 4);
+            this.camera.lookAt( at[0], at[1], at[2] );
+            
+            
+            this.camera.updateProjectionMatrix();
+            this.cameraHelper.update();
         };
 
         view.updateCameraRange=function(box){
@@ -513,14 +581,15 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
         return view;
     }
 
-    function createBackView(backgroundColor, scene, renderer, container){
+    function createBackView(scene, renderer, container){
         var view = {};
+        view.name="backview";
         view.zoom_ratio = 1.0;
-        view.backgroundColor=backgroundColor;
+        view.backgroundColor=new THREE.Color( 0.2, 0.1, 0.1 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
-        view.placeHolderUi = container.offsetParent.querySelector("#x-view-manipulator");
+        view.placeHolderUi = ui.querySelector("#x-view-manipulator");
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -554,6 +623,27 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
                 height : view.placeHolderUi.clientHeight,
                 zoom_ratio: this.zoom_ratio,
             }
+        };
+
+        view.updateCameraPose=function(box){
+
+            let p = box.position;
+            let r = box.rotation;
+
+            let trans_matrix = euler_angle_to_rotate_matrix(r, p);
+
+            this.camera.position.x= p.x;
+            this.camera.position.y= p.y;
+            this.camera.position.z= p.z;
+    
+            var up3 = matmul2(trans_matrix, [0, 0, 1, 0], 4);
+            this.camera.up.set( up3[0], up3[1], up3[2]);
+            var at3 = matmul2(trans_matrix, [-1, 0, 0, 1], 4);
+            this.camera.lookAt( at3[0], at3[1], at3[2] );
+            
+    
+            this.camera.updateProjectionMatrix();
+            this.cameraHelper.update();   
         };
 
         view.updateCameraRange=function(box){
@@ -608,8 +698,6 @@ function ViewManager(main_ui_container, webgl_scene, renderer, globalRenderFunc,
 
         return view;
     }
-
 }
-
 
 export {ViewManager}
