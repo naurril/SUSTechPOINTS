@@ -296,16 +296,20 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
     }
 }
 
-function BoxView(ui, mainViewContainer, scene, renderer, ){
+function BoxView(ui, mainViewContainer, scene, renderer){
 
-    this.views = [
-        createTopView(scene, renderer, mainViewContainer),
-        createSideView(scene, renderer, mainViewContainer),
-        createBackView(scene, renderer, mainViewContainer),
-    ];
+    
 
     this.mainViewContainer = mainViewContainer;
-    this.ui = ui;
+    this.ui = ui;  //sub-views
+    this.baseOffset = function(){
+        // ui offset
+        return {
+            top: this.ui.offsetTop,
+            left: this.ui.offsetLeft
+        }
+    };
+
     this.box = null;
 
     this.attachBox = function(box){
@@ -331,9 +335,38 @@ function BoxView(ui, mainViewContainer, scene, renderer, ){
         this.views.forEach((v)=>v.render());
     }
 
+    var scope = this;
+
+
+    scope.projViewProto = {
+        render(){
+            let vp = this.getViewPort();
+            this.renderer.setViewport( vp.left, vp.bottom, vp.width, vp.height );
+            this.renderer.setScissor(  vp.left, vp.bottom, vp.width, vp.height );
+            this.renderer.setClearColor(this.backgroundColor );
+            this.renderer.setScissorTest( true );
+            this.renderer.render( this.scene, this.camera );
+        },
+
+        getViewPort(){
+            return {
+                left : this.placeHolderUi.offsetLeft + scope.baseOffset().left, 
+                bottom : this.container.scrollHeight - (scope.baseOffset().top +  this.placeHolderUi.offsetTop + this.placeHolderUi.clientHeight),
+                width : this.placeHolderUi.clientWidth,
+                height : this.placeHolderUi.clientHeight,
+                zoom_ratio: this.zoom_ratio,
+            }
+        }
+    };
+
+    this.views = [
+        createTopView(scene, renderer, mainViewContainer),
+        createSideView(scene, renderer, mainViewContainer),
+        createBackView(scene, renderer, mainViewContainer),
+    ];
 
     function createTopView(scene, renderer, container){
-        var view = {};
+        let view = Object.create(scope.projViewProto);
         view.name="topview";
         view.zoom_ratio = 1.0;
         view.backgroundColor = new THREE.Color( 0.1, 0.1, 0.2 );
@@ -365,15 +398,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, ){
 
         view.camera = camera;
 
-        view.getViewPort = function(){
-            return {
-                left : view.placeHolderUi.offsetLeft,
-                bottom : view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight),
-                width : view.placeHolderUi.clientWidth,
-                height : view.placeHolderUi.clientHeight,
-                zoom_ratio: this.zoom_ratio,
-            }
-        };
+        
 
         view.updateCameraPose=function(box){
             var p = box.position;
@@ -423,37 +448,14 @@ function BoxView(ui, mainViewContainer, scene, renderer, ){
             //camera.aspect = view_width / view_height;
             this.camera.updateProjectionMatrix();
             this.cameraHelper.update();
-        },
-
-        view.render=function(){
-            //view.updateCamera( camera, scene, mouseX, mouseY );
-            
-            let left = view.placeHolderUi.offsetLeft;
-            let bottom = view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight);
-            let width = view.placeHolderUi.clientWidth;
-            let height = view.placeHolderUi.clientHeight;
-
-            // update viewport, so the operating lines over these views 
-            // will be updated in time.
-            
-            
-            //console.log(left,bottom, width, height);
-
-            this.renderer.setViewport( left, bottom, width, height );
-            this.renderer.setScissor( left, bottom, width, height );
-            this.renderer.setClearColor(view.backgroundColor );
-            this.renderer.setScissorTest( true );
-
-            this.renderer.render( this.scene, this.camera );
         };
-
 
         return view;
     }
 
 
     function createSideView(scene, renderer, container){
-        var view = {};
+        let view = Object.create(scope.projViewProto);
         view.name="sideview";
         view.zoom_ratio = 1.0;
         view.backgroundColor=new THREE.Color( 0.1, 0.2, 0.1 );
@@ -487,18 +489,6 @@ function BoxView(ui, mainViewContainer, scene, renderer, ){
         camera.rotation.z=0;
 
         view.camera = camera;
-
-        view.getViewPort = function(){
-            return {
-                left : view.placeHolderUi.offsetLeft,
-                bottom : view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight),
-                width : view.placeHolderUi.clientWidth,
-                height : view.placeHolderUi.clientHeight,
-                zoom_ratio: this.zoom_ratio,
-            }
-        };
-
-        
 
         view.updateCameraPose=function(box){
             var p = box.position;
@@ -554,35 +544,13 @@ function BoxView(ui, mainViewContainer, scene, renderer, ){
             //camera.aspect = view_width / view_height;
             this.camera.updateProjectionMatrix();
             this.cameraHelper.update();
-        },
-
-        view.render=function(){
-            let left = view.placeHolderUi.offsetLeft;
-            let bottom = view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight);
-            let width = view.placeHolderUi.clientWidth;
-            let height = view.placeHolderUi.clientHeight;
-
-            // update viewport, so the operating lines over these views 
-            // will be updated in time.
-            
-            
-            //console.log(left,bottom, width, height);
-
-            this.renderer.setViewport( left, bottom, width, height );
-            this.renderer.setScissor( left, bottom, width, height );
-            this.renderer.setClearColor(view.backgroundColor );
-            this.renderer.setScissorTest( true );
-
-            this.renderer.render( this.scene, this.camera );
         };
-
-
 
         return view;
     }
 
     function createBackView(scene, renderer, container){
-        var view = {};
+        let view = Object.create(scope.projViewProto);
         view.name="backview";
         view.zoom_ratio = 1.0;
         view.backgroundColor=new THREE.Color( 0.2, 0.1, 0.1 );
@@ -613,17 +581,6 @@ function BoxView(ui, mainViewContainer, scene, renderer, ){
         camera.rotation.z=0;
 
         view.camera = camera;
-
-
-        view.getViewPort = function(){
-            return {
-                left : view.placeHolderUi.offsetLeft,
-                bottom : view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight),
-                width : view.placeHolderUi.clientWidth,
-                height : view.placeHolderUi.clientHeight,
-                zoom_ratio: this.zoom_ratio,
-            }
-        };
 
         view.updateCameraPose=function(box){
 
@@ -679,22 +636,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, ){
             //camera.aspect = view_width / view_height;
             this.camera.updateProjectionMatrix();
             this.cameraHelper.update();
-        },
-
-        view.render=function(){
-            let left = view.placeHolderUi.offsetLeft;
-            let bottom = view.container.scrollHeight - (view.placeHolderUi.offsetTop + view.placeHolderUi.clientHeight);
-            let width = view.placeHolderUi.clientWidth;
-            let height = view.placeHolderUi.clientHeight;
-
-            this.renderer.setViewport( left, bottom, width, height );
-            this.renderer.setScissor( left, bottom, width, height );
-            this.renderer.setClearColor(view.backgroundColor );
-            this.renderer.setScissorTest( true );
-
-            this.renderer.render( this.scene, this.camera );
         };
-
 
         return view;
     }

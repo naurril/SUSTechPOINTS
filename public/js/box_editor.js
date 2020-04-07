@@ -1,10 +1,10 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import { FocusImageContext } from "./image.js";
 
-function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed){
+function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed, name){
     
     this.parentUi = parentUi;
-
+    this.name=name;
     let uiTmpl = document.getElementById("box-editor-ui-template");
     let tmpui = uiTmpl.content.cloneNode(true);  //sub-views
     
@@ -22,7 +22,7 @@ function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed)
         this.boxView.views,
         this.boxOp,
         func_on_box_changed,
-        ()=>this.udpate()
+        ()=>this.update()
     );
 
     this.projectiveViewOps.init_view_operation();
@@ -73,7 +73,7 @@ function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed)
         
         if (this.boxView){
             this.boxView.updateCameraRange(this.box);
-            //this.boxView.render();
+            this.viewManager.render();
         }            
     };
 

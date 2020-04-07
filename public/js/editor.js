@@ -131,7 +131,8 @@ function Editor(editorUi, editorCfg, metaData){
             this.viewManager,
             this.editorCfg,
             this.boxOp,
-            (b)=>this.on_box_changed(b)
+            (b)=>this.on_box_changed(b),
+            "main-box-editor"
         );
 
         this.mouse = new Mouse(
@@ -1660,7 +1661,17 @@ function Editor(editorUi, editorCfg, metaData){
                     return x.obj_track_id == boxTrackId;
                 })
 
-                this.boxEditor.attachBox(box);
+                let boxEditor = new BoxEditor(
+                    this.editorUi.querySelector("#box-editor-wrapper"),
+                    this.data,
+                    this.viewManager,
+                    this.editorCfg,
+                    this.boxOp,
+                    (b)=>this.on_box_changed(b),
+                    "test-box-editor"
+                );
+
+                boxEditor.attachBox(box);
             });
     }
 
