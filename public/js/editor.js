@@ -1653,11 +1653,11 @@ function Editor(editorUi, editorCfg, metaData){
         var world = this.data.make_new_world(
             sceneName, 
             frame);
-        this.data.activate_world(
+        this.data.activateMultiWorld(
             world, 
             ()=>{
                 this.render();
-                let box = this.data.world.boxes.find(function(x){
+                let box = world.boxes.find(function(x){
                     return x.obj_track_id == boxTrackId;
                 })
 

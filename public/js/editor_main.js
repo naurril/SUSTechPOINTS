@@ -67,6 +67,7 @@ function start(metaData){
       let editor = new Editor(maindiv.lastElementChild, mainEditorCfg, metaData)
       editor.run();
       editor.testWorld("example","000950", "1");
+      editor.testWorld("example","000970", "1");
       //editor.view_state.autoLock("1", false);
 
   }

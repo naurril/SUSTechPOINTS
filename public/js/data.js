@@ -1517,9 +1517,17 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
 
 
 function Data(metaData){
-    
+
+    // multiple world support
+    // place world by a offset so they don't overlap
+
+    this.supportMultiWorld = true;
+    this.createWorldIndex = 0;
+    this.worldList=[];
+
     this.make_new_world = function(scene_name, frame, on_preload_finished){
-        return new World(this, scene_name, frame, [20,20,0], on_preload_finished);        
+        this.createWorldIndex += 1;
+        return new World(this, scene_name, frame, [20.0*this.createWorldIndex, 0, 0], on_preload_finished);        
     };
 
 
@@ -1602,6 +1610,13 @@ function Data(metaData){
 
     this.reset_world_buffer= function(){
         this.future_world_buffer=[];
+    };
+
+    this.activateMultiWorld=function(world, on_finished){
+        world.activate(this.webgl_scene, 
+            null,  //don't destroy old world
+            on_finished);
+        this.worldList.push(world);
     };
 
     this.activate_world= function(world, on_finished){

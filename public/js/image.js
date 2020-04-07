@@ -2,14 +2,14 @@
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
-function FocusImageContext(data, ui){
+function FocusImageContext(world, ui){
 
     this.ui = ui; //var c = parentUi.querySelector("#focuscanvas");
     // draw highlighted box
     this.updateFocusedImageContext = function(box){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
+        var scene_meta = world.frameInfo.sceneMeta;
 
-        var active_image_name = data.world.images.active_name;
+        var active_image_name = world.images.active_name;
         if (!scene_meta.calib){
             return;
         }
@@ -24,7 +24,7 @@ function FocusImageContext(data, ui){
             var pos = box.getTruePosition();
             var rotation = box.rotation;
 
-            var img = data.world.images.active_image(); //parentUi.querySelector("#camera");
+            var img = world.images.active_image(); //parentUi.querySelector("#camera");
             if (img && (img.naturalWidth > 0)){
 
                 this.clear_canvas();

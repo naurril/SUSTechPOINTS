@@ -33,7 +33,7 @@ function BoxEditor(parentUi, data, viewManager, cfg, boxOp, func_on_box_changed,
     
     this.box = null;
     this.attachBox = function(box){
-        this.ui.style.display="block";
+        this.ui.style.display="inline-block";
 
         if (this.box){
             this.box.boxEditor=null;

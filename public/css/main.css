@@ -314,8 +314,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 #sub-views {
-	top: 0%;
-    position: absolute;
+	position: relative;	
     width: 100%;
     height: 100%;
 }
