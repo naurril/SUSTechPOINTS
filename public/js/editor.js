@@ -1631,7 +1631,7 @@ function Editor(editorUi, editorCfg, metaData){
         
     };
 
-    this.load_world= function(scene_name, frame){
+    this.load_world = function(scene_name, frame){
         var self=this;
         //stop if current world is not ready!
         if (this.data.world && !this.data.world.preload_finished()){

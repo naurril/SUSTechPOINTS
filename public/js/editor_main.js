@@ -56,22 +56,16 @@ function start(metaData){
           //disableSceneSelector: true,
           //disableFrameSelector: true,
           //disableCameraSelector: true,
-          disableFastToolbox: true,
+          //disableFastToolbox: true,
           //disableMainView: true,
           //disableMainImageContext: true,
-          disableGrid:true,
-          disableRangeCircle:true,
+          //disableGrid:true,
+          //disableRangeCircle:true,
           //disableMainViewKeyDown:true
       };
 
       let editor = new Editor(maindiv.lastElementChild, mainEditorCfg, metaData)
       editor.run();
-      editor.testWorld("example","000950", "1");
-      
-      // editor.testWorld("example","000965", "1");
-      // editor.testWorld("example","000970", "1");
-      // editor.testWorld("example","000975", "1");
-      // //editor.view_state.autoLock("1", false);
 
   }
 
