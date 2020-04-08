@@ -295,7 +295,38 @@ function BoxOp(){
 
             }) 
         }
-    }
+    },
+
+
+
+    this.interpolate_selected_object= function(sceneName, objTrackId, currentFrame){
+
+        var xhr = new XMLHttpRequest();
+        // we defined the xhr
+        
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) 
+                return;
+        
+            if (this.status == 200) {
+                var ret = JSON.parse(this.responseText);
+                console.log(ret);
+            }
+
+        };
+        
+        xhr.open('GET', "/interpolate?scene="+sceneName+"&frame="+currentFrame+"&obj_id="+objTrackId, true);
+        xhr.send();
+    };
+
+    this.highlightBox = function(box){
+        if (box){
+            box.material.color.r=1;
+            box.material.color.g=0;
+            box.material.color.b=1;
+            box.material.opacity=1;
+        }
+    };
 }
 
 

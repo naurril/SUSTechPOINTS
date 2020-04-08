@@ -1,6 +1,17 @@
 import{Editor} from "./editor.js"
 import {Data} from './data.js'
 
+
+let url_string = window.location.href
+let url = new URL(url_string);
+//language
+
+let globalInfo = {
+    scene : url.searchParams.get("scene"),
+    objTrackId : url.searchParams.get("obj"),
+};
+
+
 document.body.addEventListener('keydown', event => {
     if (event.ctrlKey && 'asdv'.indexOf(event.key) !== -1) {
       event.preventDefault()
@@ -49,7 +60,7 @@ function start(metaData){
 
 
   // main editor
-  if (false){
+  if (!globalInfo.scene){
       let maindiv  = document.querySelector("#main-editor");
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
@@ -70,11 +81,11 @@ function start(metaData){
       let editor = new Editor(maindiv.lastElementChild, editorCfg, data)
       editor.run();
 
-  }
+  } 
 
 
   // batch editor
-  if (true){
+  if (globalInfo.scene){
       let maindiv  = document.querySelector("#batch-editor");
       maindiv.style.display = "block";
       let main_ui = template.content.cloneNode(true);
@@ -98,12 +109,10 @@ function start(metaData){
       let editor = new Editor(maindiv.lastElementChild, editorCfg, data)
       editor.run();
 
-      let meta = data.get_meta_by_scene_name("example");
-      let objid="1";
+      let meta = data.get_meta_by_scene_name(globalInfo.scene);
+      
 
-      meta.frames.forEach((f)=>{
-        editor.editBox(meta.scene, f, objid);
-      })
+      editor.boxEditorManager.edit(data, meta, globalInfo.objTrackId);
     }
 
 }

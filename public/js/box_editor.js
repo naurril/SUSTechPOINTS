@@ -65,6 +65,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         if (this.box){
             this.box.boxEditor=null;
             console.log("detach box editor");
+            //todo de-highlight box
         }
 
         this.box = null;
@@ -72,12 +73,13 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         if (box){
             box.boxEditor = this;
             this.box=box;
-
+            this.boxOp.highlightBox(box);
             this.boxView.attachBox(box);
             this.projectiveViewOps.activate(box);
             this.focusImageContext.updateFocusedImageContext(box);
 
             this.updateInfo();
+
         }
 
     };
@@ -94,6 +96,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
     this.detach = function(hide){
         if (this.box){
             this.box.boxEditor = null;
+            //todo de-highlight box
             this.box = null;
         }
 
@@ -133,7 +136,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
     }
 
     this.updateInfo = function(){
-        this.boxInfoUi.innerHTML = String(this.target.world.frameInfo.frame);
+        if (this.target.world)
+            this.boxInfoUi.innerHTML = String(this.target.world.frameInfo.frame);
     };
 
 }
@@ -142,6 +146,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
 //parentUi  #box-editor-wrapper
 function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed){
     this.viewManager = viewManager;
+    this.boxOp = boxOp;
     this.activeIndex = 0;
     this.editorList = [];
     this.clear = function(){
@@ -153,6 +158,32 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
 
     };
 
+    this.editingTarget = {
+        scene: "",
+        objTrackId: ""
+    };
+    
+    this.edit = function(data, sceneMeta, objTrackId){
+        
+        let sceneName = sceneMeta.scene;
+
+        this.editingTarget.scene = sceneName;
+        this.editingTarget.objTrackId = objTrackId;
+
+        sceneMeta.frames.forEach((frame)=>{
+            let world = data.make_new_world(sceneName, frame);
+            let editor = this.addEditor();
+            editor.setTarget(world, objTrackId);
+            
+            data.activate_world(world, ()=>{
+                editor.tryAttach();
+                //
+                this.viewManager.render();
+            })
+        });
+    };
+    
+
     this.parentUi = parentUi;
     
     this._addToolBox = function(){
@@ -161,6 +192,8 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
         this.parentUi.appendChild(tool);
         return this.parentUi.lastElementChild;
     };
+
+
     this.toolbox = this._addToolBox();
 
     this.refreshAllAnnotation = function(){
@@ -171,6 +204,12 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
     this.parentUi.querySelector("#refresh").onclick = (e)=>{
         this.refreshAllAnnotation();
     };
+
+    // this should follows addToolBox
+    this.parentUi.querySelector("#transfer").onclick = ()=>{
+        this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
+    };
+
 
     this.updateViewZoomRatio = function(viewIndex, ratio){
         const dontRender=true;
@@ -183,13 +222,6 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
         this.viewManager.render();
     }
 
-    
-    this.addBox = function(box){
-        let editor = this.allocateEditor();
-        this.activeIndex += 1;
-        editor.attachBox(box);
-    };
-
     this.addEditor = function(){
         let editor = this.allocateEditor();
         this.activeIndex += 1;
@@ -198,7 +230,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
 
     this.allocateEditor = function(){
         if (this.activeIndex+1 >= this.editorList.length){
-            let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, boxOp, func_on_box_changed, String(this.activeIndex));
+            let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, String(this.activeIndex));
             this.editorList.push(editor);
             return editor;
         }else{

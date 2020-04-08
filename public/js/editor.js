@@ -129,25 +129,20 @@ function Editor(editorUi, editorCfg, data){
             }
         });
 
-        if (!this.editorCfg.disableMainBoxEditor)
-        {
-            // should make a boxeditormanager,
-            // 
-            this.boxEditor=new BoxEditor(
-                this.editorUi.querySelector("#box-editor-wrapper"),
-                this.viewManager,
-                this.editorCfg,
-                this.boxOp,
-                (b)=>this.on_box_changed(b),
-                "main-box-editor"
-            );
-        }
+        
 
         this.boxEditorManager = new BoxEditorManager(this.editorUi.querySelector("#box-editor-wrapper"),
             this.viewManager,
             this.editorCfg,
             this.boxOp,
             (b)=>this.on_box_changed(b));
+
+        if (!this.editorCfg.disableMainBoxEditor)
+        {
+            // should make a boxeditormanager,
+            // 
+            this.boxEditor= this.boxEditorManager.addEditor();
+        }
 
         this.mouse = new Mouse(
             this.viewManager.mainView,
@@ -1059,14 +1054,7 @@ function Editor(editorUi, editorCfg, data){
 
     };
 
-    this.highlightBox = function(box){
-        if (box){
-            box.material.color.r=1;
-            box.material.color.g=0;
-            box.material.color.b=1;
-            box.material.opacity=1;
-        }
-    };
+
 
     this.selectBox = function(object){
 
@@ -1106,7 +1094,7 @@ function Editor(editorUi, editorCfg, data){
             this.floatLabelManager.select_box(this.selected_box.obj_local_id);
             this.floatLabelManager.update_label_editor(object.obj_type, object.obj_track_id);
 
-            this.highlightBox(this.selected_box);
+            this.boxOp.highlightBox(this.selected_box);
 
             if (in_highlight){
                 this.focusOnSelectedBox(this.selected_box);
@@ -1654,25 +1642,6 @@ function Editor(editorUi, editorCfg, data){
         load_obj_ids_of_scene(world.frameInfo.scene);
     };
 
-    this.editBox = function(scene_name, frame, trackId){
-        // generate boxeditor first
-        // so the order make sense
-
-        var world = this.data.make_new_world(scene_name, frame);
-        let editor = this.boxEditorManager.addEditor();
-        editor.setTarget(world, trackId);
-        
-        this.data.activate_world(world, ()=>{
-            let box = world.boxes.find(function(x){
-                return x.obj_track_id == trackId;
-            });
-
-            editor.attachBox(box);
-            this.highlightBox(box);
-            this.render();
-        })
-    };
-
     this.load_world = function(scene_name, frame){
         var self=this;
         //stop if current world is not ready!
@@ -1875,25 +1844,7 @@ function Editor(editorUi, editorCfg, data){
         let frame = this.data.world.frameInfo.frame;
         let obj_id = this.selected_box.obj_track_id;
 
-
-        var xhr = new XMLHttpRequest();
-        // we defined the xhr
-        
-        xhr.onreadystatechange = function () {
-            if (this.readyState != 4) 
-                return;
-        
-            if (this.status == 200) {
-                var ret = JSON.parse(this.responseText);
-                console.log(ret);
-            }
-
-        };
-        
-        xhr.open('GET', "/interpolate?scene="+scene+"&frame="+frame+"&obj_id="+obj_id, true);
-        xhr.send();
-
-
+        this.boxOp.interpolate_selected_object(scene, obj_id, frame);
     }
 
     this.init(editorUi);

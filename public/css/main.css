@@ -511,7 +511,7 @@ td {
 
 
 
-#batch-editor-tools-wrapper{
+#batch-editor #batch-editor-tools-wrapper{
 	width:auto;
 	display: flex;
     justify-content: flex-end;
@@ -519,4 +519,9 @@ td {
 
 #batch-editor-tools{
 	display: inherit;
+}
+
+
+#main-editor #batch-editor-tools-wrapper{
+	display: none;
 }
