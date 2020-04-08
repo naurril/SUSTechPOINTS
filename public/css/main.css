@@ -206,21 +206,6 @@ dynamic set obj-type css has higher priority than this one.
 	padding: inherit;
 }
 
-#focuscanvas {
-	color: #ffff00;
-	width: 100%;
-	height: 30%;
-	padding: 0px;
-	box-sizing: border-box;
-	text-align: left;
-	align-content: left;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
-	z-index: 1; /* TODO Solve this in HTML */
-}
 #camera {
 	width:100%;
 	height:100%;
@@ -313,7 +298,16 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 
-.ui-button {
+
+
+#main-editor .v-buttons-wrapper {
+	position: absolute;
+	bottom: 0%;
+	right: 0%;
+	background-color: #222;
+	margin: 1px;
+}
+#main-editor .ui-button {
 	background-color: #222;
 	padding-left: 0;
 	padding-right: 0;
@@ -322,7 +316,33 @@ dynamic set obj-type css has higher priority than this one.
 	color: yellow;
 }
 
-#main-editor > #main-ui > #box-editor-wrapper {
+
+#batch-editor .v-buttons-wrapper {
+	display: block;
+	position: absolute;
+	bottom: 0%;
+	right: 0%;
+	background-color: #222;
+	margin: 0;
+}
+
+#batch-editor .ui-button {
+	display: block;
+	background-color: #222;
+	padding-left: 0;
+	padding-right: 0;
+	border-width: 1;
+	border-color: #222;
+	color: yellow;
+	padding: 0;
+    border: 0;
+	margin: 0;
+}
+
+
+
+
+#main-editor #box-editor-wrapper {
 	position: absolute;
 	top: 0%;    
 	left: 0%;
@@ -330,26 +350,26 @@ dynamic set obj-type css has higher priority than this one.
 	height: 100%;
 }
 
-#sub-views {
+#main-editor #sub-views {
 	display: inline-block;
 	position: relative;	
     width: 100%;
     height: 100%;
 }
 
-#batch-editor > #main-ui > #box-editor-wrapper{
+#batch-editor #box-editor-wrapper{
 	position: absolute;
 	top: 0%;    
 	left: 0%;
-	width: auto;
+	width: 100%;
 	height: auto;
 }
 
-#batch-editor > #main-ui > #box-editor-wrapper > #sub-views {
+#batch-editor #sub-views {
 	display: inline-block;
 	position: relative;	
     width: 120px;
-    height: 500px;
+    height: 400px;
 }
 
 
@@ -361,7 +381,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 #z-view-manipulator {
-	height: 30%;	
+	height: 35%;	
 }
 
 #y-view-manipulator {	
@@ -373,6 +393,21 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 
+#focuscanvas {
+	color: #ffff00;
+	width: 100%;
+	height: 25%;
+	padding: 0px;
+	box-sizing: border-box;
+	text-align: left;
+	align-content: left;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	z-index: 1; /* TODO Solve this in HTML */
+}
 
 #view-manipulator:hover{
 	/* border-color: yellow; */
@@ -435,13 +470,7 @@ td {
 	left: 0%;
 }
 
-.v-buttons-wrapper {
-	position: absolute;
-	bottom: 0%;
-	right: 0%;
-	background-color: #222;
-	margin: 1px;
-}
+
 #select-box {
 	display: none;
 	position: fixed;
@@ -468,3 +497,13 @@ td {
 	stroke-opacity: 0.2;
 }
 
+
+
+#batch-editor-tools-wrapper{
+	display: flex;
+    justify-content: flex-end;
+}
+
+#batch-editor-tools{
+	display: inherit;
+}

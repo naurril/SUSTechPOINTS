@@ -108,6 +108,12 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
         editor.attachBox(box);
     };
 
+    this.addEditor = function(){
+        let editor = this.allocateEditor();
+        this.activeIndex += 1;
+        return editor;
+    };
+
     this.allocateEditor = function(){
         if (this.activeIndex+1 >= this.editorList.length){
             let editor = new BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, String(this.activeIndex));
@@ -117,5 +123,11 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
             return this.editorList[this.activeIndex];
         }
     };
+
+    this.refreshOne = function(editor){
+        if (editor.box){
+            editor.box.world.reloadAnnotation();
+        }
+    }
 }
 export {BoxEditor, BoxEditorManager};

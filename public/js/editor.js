@@ -15,7 +15,7 @@ import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
 import {save_annotation} from "./save.js"
 
-function Editor(editorUi, editorCfg, metaData, data){
+function Editor(editorUi, editorCfg, data){
 
     this.editorCfg = editorCfg;
     this.sideview_enabled = true;
@@ -1058,10 +1058,12 @@ function Editor(editorUi, editorCfg, metaData, data){
     };
 
     this.highlightBox = function(box){
-        box.material.color.r=1;
-        box.material.color.g=0;
-        box.material.color.b=1;
-        box.material.opacity=1;
+        if (box){
+            box.material.color.r=1;
+            box.material.color.g=0;
+            box.material.color.b=1;
+            box.material.opacity=1;
+        }
     };
 
     this.selectBox = function(object){
@@ -1651,13 +1653,18 @@ function Editor(editorUi, editorCfg, metaData, data){
     };
 
     this.editBox = function(scene_name, frame, trackId){
+        // generate boxeditor first
+        // so the order make sense
+
+        let editor = this.boxEditorManager.addEditor();
+        
         var world = this.data.make_new_world(scene_name, frame);
         this.data.activate_world(world, ()=>{
             let box = world.boxes.find(function(x){
                 return x.obj_track_id == trackId;
             });
 
-            this.boxEditorManager.addBox(box);
+            editor.attachBox(box);
             this.highlightBox(box);
             this.render();
         })
