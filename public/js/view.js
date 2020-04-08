@@ -17,7 +17,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
     this.boxViewList = [];
     
     this.addBoxView = function(subviewsUi){
-        let boxview = new BoxView(subviewsUi, this.mainViewContainer, this.webgl_scene, this.renderer);
+        let boxview = new BoxView(subviewsUi, this.mainViewContainer, this.webgl_scene, this.renderer, this);
         this.boxViewList.push(boxview);
         return boxview;
     }
@@ -26,8 +26,9 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         if (this.mainView)
             this.mainView.onWindowResize();
     };
-
+    
     this.render = function(){
+        console.log("render verything");
         if (this.mainView)
             this.mainView.render();
         this.boxViewList.forEach(v=>v.render());
@@ -296,10 +297,10 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
     }
 }
 
-function BoxView(ui, mainViewContainer, scene, renderer){
+function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
 
     
-
+    this.viewManager = viewManager;
     this.mainViewContainer = mainViewContainer;
     this.ui = ui;  //sub-views
     this.baseOffset = function(){
@@ -356,7 +357,7 @@ function BoxView(ui, mainViewContainer, scene, renderer){
                 height : this.placeHolderUi.clientHeight,
                 zoom_ratio: this.zoom_ratio,
             }
-        }
+        },
     };
 
     this.views = [
@@ -374,6 +375,7 @@ function BoxView(ui, mainViewContainer, scene, renderer){
         view.scene = scene;
         view.renderer = renderer;
         view.placeHolderUi = ui.querySelector("#z-view-manipulator");
+
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -463,6 +465,7 @@ function BoxView(ui, mainViewContainer, scene, renderer){
         view.scene = scene;
         view.renderer = renderer;
         view.placeHolderUi = ui.querySelector("#y-view-manipulator");
+
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;
@@ -558,6 +561,7 @@ function BoxView(ui, mainViewContainer, scene, renderer){
         view.scene = scene;
         view.renderer = renderer;
         view.placeHolderUi = ui.querySelector("#x-view-manipulator");
+
         //var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         var width = container.clientWidth;
         var height = container.clientHeight;

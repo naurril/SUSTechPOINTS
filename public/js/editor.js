@@ -56,7 +56,7 @@ function Editor(editorUi, editorCfg, data){
 
 
 
-        this.header = new Header(editorUi.querySelector("#info"), this.data, this.editorCfg,
+        this.header = new Header(editorUi.querySelector("#global-info"), this.data, this.editorCfg,
             (e)=>{
                 this.scene_changed(e.currentTarget.value);
                 //event.currentTarget.blur();
@@ -131,6 +131,8 @@ function Editor(editorUi, editorCfg, data){
 
         if (!this.editorCfg.disableMainBoxEditor)
         {
+            // should make a boxeditormanager,
+            // 
             this.boxEditor=new BoxEditor(
                 this.editorUi.querySelector("#box-editor-wrapper"),
                 this.viewManager,
@@ -1656,9 +1658,10 @@ function Editor(editorUi, editorCfg, data){
         // generate boxeditor first
         // so the order make sense
 
-        let editor = this.boxEditorManager.addEditor();
-        
         var world = this.data.make_new_world(scene_name, frame);
+        let editor = this.boxEditorManager.addEditor();
+        editor.setTarget(world, trackId);
+        
         this.data.activate_world(world, ()=>{
             let box = world.boxes.find(function(x){
                 return x.obj_track_id == trackId;
@@ -1685,37 +1688,6 @@ function Editor(editorUi, editorCfg, data){
         );
     };
 
-    this.testEditBox=function(box){
-        let boxEditor = new BoxEditor(
-            this.editorUi.querySelector("#box-editor-wrapper"),
-            this.viewManager,
-            this.editorCfg,
-            this.boxOp,
-            (b)=>this.on_box_changed(b),
-            "test-box-editor"
-        );
-
-        boxEditor.attachBox(box);
-    };
-
-    this.testWorld = function(sceneName, frame, boxTrackId){
-        var world = this.data.make_new_world(
-            sceneName, 
-            frame);
-        this.data.activateMultiWorld(
-            world, 
-            ()=>{
-                /*
-                let box = world.boxes.find(function(x){
-                    return x.obj_track_id == boxTrackId;
-                });
-                */
-                world.boxes.forEach((b)=>this.testEditBox(b));
-
-                //this.testEditBox(world, box);
-                this.render();
-            });
-    }
 
     this.remove_selected_box= function(){
         if (this.selected_box){

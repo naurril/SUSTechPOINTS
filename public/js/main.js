@@ -104,8 +104,7 @@ function start(metaData){
       meta.frames.forEach((f)=>{
         editor.editBox(meta.scene, f, objid);
       })
-      
-  }
+    }
 
 }
 

@@ -1,8 +1,9 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import { FocusImageContext } from "./image.js";
 
-function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name){
+function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_box_changed, name){
     
+    this.boxEditorManager = boxEditorManager;
     this.parentUi = parentUi;
     this.name=name;
     let uiTmpl = document.getElementById("box-editor-ui-template");
@@ -10,6 +11,7 @@ function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name)
     
     parentUi.appendChild(tmpui);
     this.ui = parentUi.lastElementChild;
+    this.boxInfoUi = this.ui.querySelector("#box-info");
 
     this.viewManager = viewManager;
     this.boxOp = boxOp;
@@ -27,7 +29,35 @@ function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name)
 
     this.focusImageContext = new FocusImageContext(this.ui.querySelector("#focuscanvas"));
     
+    this.target = {};
+    this.setTarget = function(world, objTrackId){
+        this.target = {
+            world: world,
+            objTrackId: objTrackId,
+        }
+
+        this.updateInfo();
+    };
+
+    this.tryAttach = function(){
+        // find target box, attach to me
+        if (this.target){
+            let box = this.target.world.findBoxByTrackId(this.target.objTrackId);
+            if (box){
+                this.attachBox(box);
+            }
+        }
+    };
     
+    this._setViewZoomRatio = function(viewIndex, ratio){
+        this.boxView.views[viewIndex].zoom_ratio = ratio;
+    };
+
+    this.updateViewZoomRatio = function(viewIndex, ratio){
+        //this.upate();
+        this.boxEditorManager.updateViewZoomRatio(viewIndex, ratio);
+    };
+
     this.box = null;
     this.attachBox = function(box){
         this.ui.style.display="inline-block";
@@ -46,6 +76,8 @@ function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name)
             this.boxView.attachBox(box);
             this.projectiveViewOps.activate(box);
             this.focusImageContext.updateFocusedImageContext(box);
+
+            this.updateInfo();
         }
 
     };
@@ -55,18 +87,21 @@ function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name)
         this.projectiveViewOps.update_view_handle();
         this.focusImageContext.updateFocusedImageContext(this.box);
         this.boxView.onBoxChanged();
+        this.updateInfo();
     }
 
-    this.detach = function(){
+
+    this.detach = function(hide){
         if (this.box){
             this.box.boxEditor = null;
             this.box = null;
         }
 
-        this.ui.style.display="none";
+        if (hide)
+            this.ui.style.display="none";
     };
 
-    this.update = function(){
+    this.update = function(dontRender=false){
         if (this.box === null)
             return;
 
@@ -74,13 +109,39 @@ function BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, name)
         
         if (this.boxView){
             this.boxView.updateCameraRange(this.box);
-            this.viewManager.render();
-        }            
+            this.boxView.updateCameraPose(this.box);
+
+            if (!dontRender) 
+                this.viewManager.render();
+        }
+        
+        // this is not needed somtime
+        this.focusImageContext.updateFocusedImageContext(this.box); 
+
+        // should we update info?
+    };
+
+
+    this.refreshAnnotation = function(){
+        if (this.target){
+            this.target.world.reloadAnnotation(()=>{
+                this.tryAttach();
+                this.update();
+                this.viewManager.render();
+            });
+        }
+    }
+
+    this.updateInfo = function(){
+        this.boxInfoUi.innerHTML = String(this.target.world.frameInfo.frame);
     };
 
 }
 
+
+//parentUi  #box-editor-wrapper
 function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed){
+    this.viewManager = viewManager;
     this.activeIndex = 0;
     this.editorList = [];
     this.clear = function(){
@@ -91,16 +152,37 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
         this.activeIndex = 0;
 
     };
-    
 
+    this.parentUi = parentUi;
+    
     this._addToolBox = function(){
         let template = document.getElementById("batch-editor-tools-template");
         let tool = template.content.cloneNode(true);
-        parentUi.appendChild(tool);
-        return parentUi.lastElementChild;
+        this.parentUi.appendChild(tool);
+        return this.parentUi.lastElementChild;
+    };
+    this.toolbox = this._addToolBox();
+
+    this.refreshAllAnnotation = function(){
+        this.editorList.forEach(e=>e.refreshAnnotation());
+    }
+
+    // this should follows addToolBox
+    this.parentUi.querySelector("#refresh").onclick = (e)=>{
+        this.refreshAllAnnotation();
     };
 
-    this.toolbox = this._addToolBox();
+    this.updateViewZoomRatio = function(viewIndex, ratio){
+        const dontRender=true;
+        this.editorList.forEach(e=>{
+            e._setViewZoomRatio(viewIndex, ratio);
+            e.update(dontRender); 
+        })
+
+        // render all
+        this.viewManager.render();
+    }
+
     
     this.addBox = function(box){
         let editor = this.allocateEditor();
@@ -116,7 +198,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
 
     this.allocateEditor = function(){
         if (this.activeIndex+1 >= this.editorList.length){
-            let editor = new BoxEditor(parentUi, viewManager, cfg, boxOp, func_on_box_changed, String(this.activeIndex));
+            let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, boxOp, func_on_box_changed, String(this.activeIndex));
             this.editorList.push(editor);
             return editor;
         }else{
@@ -124,10 +206,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
         }
     };
 
-    this.refreshOne = function(editor){
-        if (editor.box){
-            editor.box.world.reloadAnnotation();
-        }
-    }
+
+
 }
 export {BoxEditor, BoxEditorManager};

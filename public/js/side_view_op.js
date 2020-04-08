@@ -6,12 +6,11 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed, func_update_subview_by_windowsize){
+function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
 
     this.ui = ui;
     this.cfg = editorCfg;
     this.on_box_changed = func_on_box_changed;
-    this.updateSubviewRangeByWindowResize = func_update_subview_by_windowsize;
     this.views = views;
     this.boxOp = boxOp;
     //internals
@@ -743,18 +742,14 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed, fun
     }
 
 
-    function on_wheel(subview, wheel_direction){
+    function get_wheel_multiplier(wheel_direction){
         var multiplier = 1.0;
         if (wheel_direction > 0){
             multiplier = 1.1;
         } else {
             multiplier = 0.9;
         }
-
-        //subview.viewport.zoom_ratio *= multiplier;
-        subview.zoom_ratio *= multiplier;
-
-        return;
+        return multiplier;
     }
 
 
@@ -848,9 +843,10 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed, fun
     }
 
     function on_z_wheel(wheel_direction){
-        on_wheel(scope.views[0], wheel_direction);
-        scope.updateSubviewRangeByWindowResize(scope.box);
-        z_view_handle.update_view_handle(scope.views[0].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
+        let multiplier = get_wheel_multiplier(wheel_direction);
+        let newRatio = scope.views[0].zoom_ratio *= multiplier;
+        scope.box.boxEditor.updateViewZoomRatio(0, newRatio);
+        //z_view_handle.update_view_handle(scope.views[0].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
     function on_z_auto_rotate(){
@@ -954,9 +950,9 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed, fun
     }
 
     function on_y_wheel(wheel_direction){
-        on_wheel(scope.views[1], wheel_direction);
-        scope.updateSubviewRangeByWindowResize(scope.box);
-        y_view_handle.update_view_handle(scope.views[1].getViewPort(), {x: scope.box.scale.x, y:scope.box.scale.z});
+        let multiplier = get_wheel_multiplier(wheel_direction);        
+        let newRatio = scope.views[1].zoom_ratio *= multiplier;
+        scope.box.boxEditor.updateViewZoomRatio(1, newRatio);
     }
 
     function on_y_reset_rotate(){
@@ -1060,9 +1056,9 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed, fun
     }
 
     function on_x_wheel(wheel_direction){
-        on_wheel(scope.views[2], wheel_direction);
-        scope.updateSubviewRangeByWindowResize(scope.box);
-        x_view_handle.update_view_handle(scope.views[2].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.z});
+        let multiplier = get_wheel_multiplier(wheel_direction);        
+        let newRatio = scope.views[2].zoom_ratio *= multiplier;
+        scope.box.boxEditor.updateViewZoomRatio(2, newRatio);
     }
 
 

@@ -22,7 +22,9 @@ function Data(metaData, enableMultiWorld){
             return new World(this, scene_name, frame, [0, 0, 0], on_preload_finished);        
         }
     };
-
+    this.reloadAllAnnotation=function(done){
+        this.worldList.forEach(w=>w.reloadAnnotation(done));
+    };
 
     this.webgl_scene = null;
     this.set_webgl_scene=function(s){

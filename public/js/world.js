@@ -222,7 +222,12 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
             return x.position.y - y.position.y;
         });
     };
-
+    this.findBoxByTrackId = function(id){
+        let box = this.boxes.find(function(x){
+            return x.obj_track_id == id;
+        });
+        return box;
+    };
     this.create_time = 0;
     this.points_load_time = 0;
     this.boxes_load_time = 0;
@@ -459,7 +464,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
         let ret = this.transformBoxesByOffset(boxes);
         //var boxes = JSON.parse(this.responseText);
         //console.log(ret);
-         this.boxes = this.create_bboxs(ret);  //create in future world                        
+        this.boxes = this.createBoxes(ret);  //create in future world                        
 
         this.boxes_load_time = new Date().getTime();
         console.log(this.boxes_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded boxes ", this.boxes_load_time - this.create_time, "ms");
@@ -501,38 +506,111 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
         xhr.send();
     };
 
-    this.create_bboxs = function(annotations){
+    this.reloadAnnotation=function(done){
+        this.load_annotation(refreshAnnotation);
+
+        let self=this;
+        function refreshAnnotation(boxes){
+            // these boxes haven't attached a world
+            boxes = self.transformBoxesByOffset(boxes);
+
+            // mark all old boxes
+            self.boxes.forEach(b=>{b.delete=true;});
+
+            let pendingBoxList=[];
+
+            boxes.forEach(nb=>{  // nb is annotation format, not a true box
+                let old_box = self.boxes.find(function(x){
+                    return x.obj_track_id == nb.obj_id;
+                });
+
+                if (old_box){
+                    // found
+                    // update psr
+                    delete old_box.delete;  // unmark delete flag
+                    old_box.position.set(nb.psr.position.x, nb.psr.position.y, nb.psr.position.z);
+                    old_box.scale.set(nb.psr.scale.x, nb.psr.scale.y, nb.psr.scale.z);
+                    old_box.rotation.set(nb.psr.rotation.x, nb.psr.rotation.y, nb.psr.rotation.z); 
+                    
+                }else{
+                    // not found
+                    let box=self.createOneBox(nb);
+                    pendingBoxList.push(box);
+                }
+            });
+
+            // delete removed
+            let toBeDelBoxes = self.boxes.filter(b=>b.delete);
+            toBeDelBoxes.forEach(b=>{
+                if (b.boxEditor)
+                    b.boxEditor.detach(false);
+
+                self.scene.remove(b);
+                self.remove_box(b);
+            })
+
+            // add new boxes
+            pendingBoxList.forEach(b=>{
+                self.scene.add(b);
+                self.boxes.push(b);
+            })
+
+
+            //todo, restore point color
+            //todo, update imagecontext, selected box, ...
+            //refer to normal delete operation
+
+            // re-color again
+            self.set_points_color({
+                    x: self.data.config.point_brightness,
+                    y: self.data.config.point_brightness,
+                    z: self.data.config.point_brightness,
+                });        
+            self.color_points();    
+
+
+            if (done)
+                done();
             
-        return annotations.map((b)=>{
-            var mesh = this.new_bbox_cube(parseInt("0x"+get_obj_cfg_by_type(b.obj_type).color.slice(1)));
+        }
+    };
 
-            mesh.position.x = b.psr.position.x;
-            mesh.position.y = b.psr.position.y;
-            mesh.position.z = b.psr.position.z;
+    this.createOneBox = function(annotation){
+        let b = annotation;
+        var mesh = this.new_bbox_cube(parseInt("0x"+get_obj_cfg_by_type(b.obj_type).color.slice(1)));
 
-            mesh.scale.x = b.psr.scale.x;
-            mesh.scale.y = b.psr.scale.y;
-            mesh.scale.z = b.psr.scale.z;
+        mesh.position.x = b.psr.position.x;
+        mesh.position.y = b.psr.position.y;
+        mesh.position.z = b.psr.position.z;
 
-            mesh.rotation.x = b.psr.rotation.x;
-            mesh.rotation.y = b.psr.rotation.y;
-            mesh.rotation.z = b.psr.rotation.z;    
+        mesh.scale.x = b.psr.scale.x;
+        mesh.scale.y = b.psr.scale.y;
+        mesh.scale.z = b.psr.scale.z;
 
-            mesh.obj_track_id = b.obj_id;  //tracking id
-            mesh.obj_local_id = this.get_new_box_local_id();
-            mesh.obj_type = b.obj_type;
+        mesh.rotation.x = b.psr.rotation.x;
+        mesh.rotation.y = b.psr.rotation.y;
+        mesh.rotation.z = b.psr.rotation.z;    
 
-            mesh.world = this;
-            mesh.getTruePosition = function(){
-                return {
-                    x: this.position.x - this.world.coordinatesOffset[0],
-                    y: this.position.y - this.world.coordinatesOffset[1],
-                    z: this.position.z - this.world.coordinatesOffset[2]
-                };
+        mesh.obj_track_id = b.obj_id;  //tracking id
+        mesh.obj_local_id = this.get_new_box_local_id();
+        mesh.obj_type = b.obj_type;
+
+        mesh.world = this;
+        mesh.getTruePosition = function(){
+            return {
+                x: this.position.x - this.world.coordinatesOffset[0],
+                y: this.position.y - this.world.coordinatesOffset[1],
+                z: this.position.z - this.world.coordinatesOffset[2]
             };
+        };
 
 
-            return mesh;  
+        return mesh;  
+    };
+
+    this.createBoxes = function(annotations){
+        return annotations.map((b)=>{
+            return this.createOneBox(b);
         });
     };
     
@@ -623,7 +701,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
             }
         }
 
-        console.log("found indices 2: " + indices.length);
+        //console.log("found indices 2: " + indices.length);
         return indices;
     };
 
@@ -970,7 +1048,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
             
         });
         
-        console.log("found indices: " + indices.length);
+        //console.log("found indices: " + indices.length);
 
         return {
             index: indices,
@@ -1327,8 +1405,6 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
                 console.log(_self.finish_time, scene_name, frame, "loaded in ", _self.finish_time - _self.create_time, "ms");
                 this.on_finished();
             }
-            
-            
         }
     };
 

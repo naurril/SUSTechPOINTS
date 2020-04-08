@@ -27,7 +27,7 @@ a:hover {
 
 button {
 	cursor: pointer;
-	text-transform: uppercase;
+	/*text-transform: uppercase;*/
 }
 
 canvas {
@@ -71,12 +71,12 @@ canvas {
 	height: 100%;
 }
 
-#info {
+#global-info {
 	position: absolute;
 	top: 0px;
 	color: #ffff00;
 	background-color: #2227;
-	width: inherit;
+	width: auto;
 	font-size: inherit;
 	padding: 0px;
 	box-sizing: border-box;
@@ -372,6 +372,18 @@ dynamic set obj-type css has higher priority than this one.
     height: 400px;
 }
 
+#box-info{
+	position: absolute;
+	top: 0px;
+	color: #ffff00;
+	background-color: #2227;
+	width: auto;
+	padding: 0px;
+	box-sizing: border-box;
+	text-align: left;	
+	/*z-index: 3; /* TODO Solve this in HTML */
+	font-size: x-small;
+}
 
 .view-manipulator {
 	width: 100%;		
@@ -500,6 +512,7 @@ td {
 
 
 #batch-editor-tools-wrapper{
+	width:auto;
 	display: flex;
     justify-content: flex-end;
 }

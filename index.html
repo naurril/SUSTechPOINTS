@@ -26,7 +26,7 @@
 					</svg>
 				</div>
 				
-				<div id="info">
+				<div id="global-info">
 					<!-- text id="frame"></text-->
 
 					<select id="scene-selector">
@@ -159,6 +159,7 @@
 				</div>
 		</div></template>
 		<template id="box-editor-ui-template"><div id="sub-views">
+				<div class="box-info" id="box-info"></div>
 				<div class="view-manipulator"  id="z-view-manipulator"  tabindex="-1">
 					<svg class="subview-svg" id = "view-svg">
 						<rect x="70" y="50" width="20" height="140" fill="#00000000" class="line-handle ew-handle" id="line-left-handle"/>
@@ -254,9 +255,9 @@
 				<canvas id="focuscanvas" width="320" height="240">cavas</canvas>
 		</div></template>
 		<template id="batch-editor-tools-template"><div id="batch-editor-tools-wrapper"><div id="batch-editor-tools">
-			<button>Refresh</button>
-			<button>Exit</button>
-			<button>Save</button>
+			<button id="refresh">Refresh</button>			
+			<button id="save">Save</button>
+			<button id="exit">Exit</button>
 		</div></div></template>
 		<script src="/static/js/lib/ml/tf.min.js"></script>
 		<script type="module"  src="/static/js/main.js"></script>		
