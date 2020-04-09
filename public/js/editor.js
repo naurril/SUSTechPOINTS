@@ -787,7 +787,7 @@ function Editor(editorUi, editorCfg, data){
 
 
             if (id == "auto"){
-                id = generate_new_unique_id();
+                id = generate_new_unique_id(this.data.world);
                 this.floatLabelManager.update_label_editor(this.selected_box.obj_type, id);
             }
 
