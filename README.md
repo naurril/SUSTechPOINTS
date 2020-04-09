@@ -74,12 +74,12 @@ default object configuration is in [obj_cfg.js](src/public/js/../../../public/js
 ## Operations
 
 You have 2 ways to add a new box:
-     1) Right click on an object, choose object type in popup context menu
-     2) Holding Ctrl, draw a rectangle enclosing the object.
+  1) Right click on an object, choose object type in popup context menu
+  2) Holding Ctrl, draw a rectangle enclosing the object.
 
 Hint: 
-   1) Adjust the main view so that the objects (e.g. cars) are heading upward or downward along the screen, use 'g' if the direction need to be reversed, use 'r' or 'f' to adjust the yaw angle (z-axis rotation)
-   2) Adjust the main view so it's almost in bird's eye view. (direct bird's eye view support is not complete yet)
+  1) Adjust the main view so that the objects (e.g. cars) are heading upward or downward along the screen, use 'g' if the direction need to be reversed, use 'r' or 'f' to adjust the yaw angle (z-axis rotation)
+  2) Adjust the main view so it's almost in bird's eye view. (direct bird's eye view support is not complete yet)
 
 
 ```

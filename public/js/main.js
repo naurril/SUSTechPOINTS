@@ -19,11 +19,8 @@ document.body.addEventListener('keydown', event => {
 });
 
 
-
-
 // meatdata
 (function(){
-
   let self=this;
   let xhr = new XMLHttpRequest();
   // we defined the xhr
