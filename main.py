@@ -12,13 +12,13 @@ import sys
 import scene_reader
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, '../DeepAnnotate'))
-import predict
 
-sys.path.append(os.path.join(BASE_DIR, '../tracking'))
-import trajectory_predict
+sys.path.append(os.path.join(BASE_DIR, './algos'))
+import algos.rotation as rotation
+
+#sys.path.append(os.path.join(BASE_DIR, '../tracking'))
+import algos.trajectory as trajectory
 
 extract_object_exe = "~/code/pcltest/build/extract_object"
 registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
@@ -58,7 +58,7 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def interpolate(self, scene, frame, obj_id):
-      interpolate_num = trajectory_predict.predict(scene, obj_id, frame, None)
+      interpolate_num = trajectory.predict(scene, obj_id, frame, None)
       return interpolate_num
 
 
@@ -71,7 +71,7 @@ class Root(object):
       
       data = json.loads(rawbody)
       
-      return {"angle": predict.predict(data["points"])}
+      return {"angle": rotation.predict(data["points"])}
       #return {}
 
     @cherrypy.expose    

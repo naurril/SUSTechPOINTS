@@ -1,6 +1,9 @@
 # SUSTechPOINTS: Point Cloud 3D Bounding Box Annotation Tool
 
 ![screenshot](./doc/pcd_label.png)
+## News
+2020.4.2  automatic yaw angle (z-axis) prediction.
+![auto-rotate](./doc/auto-rotate.gif)
 
 ## Note
 This project is still under heavy development, some features/algorithms need packages which are not uploaded yet, we will upload them soon.
@@ -12,7 +15,6 @@ This project is still under heavy development, some features/algorithms need pac
 - multiple camera images as context, with auto-camera-switching
 - camera-LiDAR fusion
 - binary/ascii pcd files
-- kitti bin point cloud files
 - jpg/png image files
 - semi-auto box annotation (need extra package)
 - objects/boxes color by category
@@ -25,10 +27,19 @@ This project is still under heavy development, some features/algorithms need pac
 
 ## Requirements
 
-python, cherrypy
+python, cherrypy, tensorflow>=2.1
 
 ## Install
-pip install cherrypy
+1. install packages
+     ```
+     pip install -r requirement.txt
+     ```
+1. download models 
+
+     download pretrained model file [deep_annotation_inference.h5](https://github.com/naurril/SUSTechPOINTS/releases/download/0.1/deep_annotation_inference.h5), put it into `./algos/models`
+     ```
+     wget https://github.com/naurril/SUSTechPOINTS/releases/download/0.1/deep_annotation_inference.h5  -p algos/models
+     ```
 
 ## Start
 run the following script in shell, then go to http://127.0.0.1:8081
