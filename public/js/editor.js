@@ -13,7 +13,7 @@ import {Header} from "./header.js"
 import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
-import {saveWorld} from "./save.js"
+import {saveWorld, reloadWorldList} from "./save.js"
 
 function Editor(editorUi, editorCfg, data){
 
@@ -423,6 +423,10 @@ function Editor(editorUi, editorCfg, data){
             saveWorld(self.data.world, function(){
                 self.header.unmark_changed_flag();
             });
+        };
+
+        self.editorUi.querySelector("#cm-reload").onclick = function(event){      
+            reloadWorldList(self.data.worldList, ()=>self.on_load_world_finished(self.data.world));
         };
 
 

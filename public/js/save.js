@@ -9,10 +9,26 @@ function reloadWorldList(worldList, done){
         if (this.readyState != 4) return;
     
         if (this.status == 200) {
-            done(JSON.parse(this.responseText));
+            let anns = JSON.parse(this.responseText);
+        
+            // load annotations
+            anns.forEach(a=>{
+                let world = worldList.find(w=>{
+                    return (w.frameInfo.scene == a.scene && 
+                            w.frameInfo.frame == a.frame);
+                    });
+                if (world){
+                    world.reaplyAnnotation(a.annotation);
+                }
+                else{
+                    console.error("bug?");
+                }
+                
+            });
+
+            if (done)
+                done();
         }
-    
-        // end of state change: it can be after some time (async)
     };
     
     xhr.open('POST', "/loadworldlist", true);

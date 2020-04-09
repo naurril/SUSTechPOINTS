@@ -70,9 +70,6 @@ function Data(metaData, enableMultiWorld){
             if (world)
                 world.reloadAnnotation();
         })
-        this.worldList.forEach(w=>{
-
-        })
     };
 
     this.saveWorldList = function(worldList){

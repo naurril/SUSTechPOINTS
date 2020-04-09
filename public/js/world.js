@@ -505,7 +505,9 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.reloadAnnotation=function(done){
-        this.load_annotation(reaplyAnnotation, done);
+        this.load_annotation(ann=>{
+            this.reaplyAnnotation(ann, done);
+        });
     };
 
     

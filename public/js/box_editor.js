@@ -226,22 +226,6 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         let worldList = this.editorList.map(e=>e.target.world);
 
         let done = (anns)=>{
-
-            // load annotations
-            anns.forEach(a=>{
-                let editor = this.editorList.find(e=>{
-                    return (e.target.world.frameInfo.scene == a.scene && 
-                            e.target.world.frameInfo.frame == a.frame);
-                    });
-                if (editor){
-                    editor.target.world.reaplyAnnotation(a.annotation);
-                }
-                else{
-                    console.error("bug?");
-                }
-                
-            })
-
             // update editor
             this.editorList.forEach(e=>{
                 e.tryAttach();
