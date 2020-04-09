@@ -9,21 +9,70 @@ function Data(metaData, enableMultiWorld){
 
     this.enableMultiWorld = enableMultiWorld;
     this.worldGap=200.0;
-    this.createWorldIndex = 0;
     this.worldList=[];
 
-    this.make_new_world = function(scene_name, frame, on_preload_finished){
+    this.getWorld = function(sceneName, frame, on_preload_finished){
+        // find in list
+        let world = this.worldList.find((w)=>{
+            return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
+        })
+        if (world) // found!
+            return world;
+
+        return this._createWorld(sceneName, frame, on_preload_finished);
+    };
+
+    this._createWorld = function(sceneName, frame, on_preload_finished){
+        // create new
         if (this.enableMultiWorld){
-            let world = new World(this, scene_name, frame, [this.worldGap*this.createWorldIndex, 0, 0], on_preload_finished);        
-            this.createWorldIndex += 1;
+            let createWorldIndex = this.worldList.length;
+            let world = new World(this, sceneName, frame, [this.worldGap*createWorldIndex, 0, 0], on_preload_finished);        
+            this.worldList.push(world);
             return world;
         }
         else{
-            return new World(this, scene_name, frame, [0, 0, 0], on_preload_finished);        
+            let world = new World(this, sceneName, frame, [0, 0, 0], on_preload_finished);        
+            this.worldList.push(world);
+            return world;
         }
+    }
+
+    this.preloadScene = function(sceneName){
+
+        // release resources if scene changed
+        this.worldList.forEach(w=>{
+            if (w.frameInfo.scene != sceneName)
+                w.deleteAll();
+        })
+
+        this.worldList = this.worldList.filter(w=>w.frameInfo.scene==sceneName);
+
+
+        let meta = this.getMetaBySceneName(sceneName);
+        meta.frames.forEach(frame=>{
+            let world = this.worldList.find((w)=>{
+                return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
+            })
+
+            if (!world){
+                this._createWorld(sceneName, frame);
+            }
+        })
     };
+
     this.reloadAllAnnotation=function(done){
         this.worldList.forEach(w=>w.reloadAnnotation(done));
+    };
+
+    this.onAnnotationUpdatedByOthers = function(scene, frames){
+        frames.forEach(f=>{
+            let world = this.worldList.find(w=>(w.frameInfo.scene==scene && w.frameInfo.frame==f));
+            if (world)
+                world.reloadAnnotation();
+        })
+        this.worldList.forEach(w=>{
+
+        })
     };
 
     this.webgl_scene = null;
@@ -44,6 +93,10 @@ function Data(metaData, enableMultiWorld){
         if (this.world){
             this.world.set_point_size(this.config.point_size);
         }
+
+        this.worldList.forEach(w=>{
+            w.set_point_size(this.config.point_size);
+        })
     };
 
     this.scale_point_brightness = function(v){
@@ -117,8 +170,7 @@ function Data(metaData, enableMultiWorld){
     this.activate_world= function(world, on_finished){
 
         if (this.enableMultiWorld){
-            world.activate(this.webgl_scene, null, on_finished);
-            this.worldList.push(world);
+            world.activate(this.webgl_scene, null, on_finished);            
         }
         else{
             var old_world = this.world;   // current world, should we get current world later?
@@ -136,17 +188,17 @@ function Data(metaData, enableMultiWorld){
 
     this.meta = metaData;  //meta data
 
-    this.get_meta_by_scene_name = (scene_name)=>{
+    this.getMetaBySceneName = (sceneName)=>{
 
         var sceneMeta = this.meta.find(function(x){
-            return x.scene == scene_name;
+            return x.scene == sceneName;
         });
 
         return sceneMeta;
     };
 
     this.get_current_world_scene_meta = function(){
-        return this.get_meta_by_scene_name(this.world.frameInfo.scene);
+        return this.getMetaBySceneName(this.world.frameInfo.scene);
     };
 
 };

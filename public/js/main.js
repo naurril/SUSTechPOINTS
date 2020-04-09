@@ -89,16 +89,16 @@ function start(metaData){
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
 
       let editorCfg={
-        disableSceneSelector: true,
+        //disableSceneSelector: true,
         //disableFrameSelector: true,
-        disableCameraSelector: true,
+        //disableCameraSelector: true,
         //disableFastToolbox: true,
-        disableMainView: true,
+        //disableMainView: true,
         disableMainImageContext: true,
         disableGrid:true,
         disableRangeCircle:true,
         disableMainBoxEditor:true,
-        disableMainViewKeyDown:true
+        //disableMainViewKeyDown:true
       };
 
       let enableMultiWorld = true;
@@ -106,7 +106,7 @@ function start(metaData){
       let editor = new Editor(maindiv.lastElementChild, editorCfg, data)
       editor.run();
 
-      let meta = data.get_meta_by_scene_name(globalInfo.scene);
+      let meta = data.getMetaBySceneName(globalInfo.scene);
       
 
       editor.boxEditorManager.edit(data, meta, globalInfo.objTrackId);

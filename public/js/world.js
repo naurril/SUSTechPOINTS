@@ -16,7 +16,7 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
     this.transform_matrix = this.sceneMeta.point_transform_matrix,
     this.annotation_format = this.sceneMeta.boxtype, //xyz(24 number), csr(center, scale, rotation, 9 number)
 
-
+    
     // this.set = function(scene, frame_index, frame, transform_matrix, annotation_format){
     //         this.scene = scene;
     //         this.frame = frame;
@@ -133,7 +133,7 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
         };
 }
 
-function Images(sceneMeta, scene_name, frame){
+function Images(sceneMeta, sceneName, frame){
     this.loaded = function(){
         for (var n in this.names){
             if (!this.loaded_flag[this.names[n]])
@@ -183,7 +183,8 @@ function Images(sceneMeta, scene_name, frame){
                     _self.on_image_loaded();
                 };
 
-                _self.content[img].src = 'data/'+scene_name+'/image/' + img + '/'+ frame + sceneMeta.image_ext;
+                _self.content[img].src = 'data/'+sceneName+'/image/' + img + '/'+ frame + sceneMeta.image_ext;
+                console.log("image set")
             });
         }
     },
@@ -195,19 +196,21 @@ function Images(sceneMeta, scene_name, frame){
     }
 }
 
-function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
+function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.coordinatesOffset = coordinatesOffset;
     this.data = data;
-    this.sceneMeta = this.data.get_meta_by_scene_name(scene_name);
+    this.sceneMeta = this.data.getMetaBySceneName(sceneName);
     
-    this.frameInfo = new FrameInfo(this.data, this.sceneMeta, scene_name, frame);
+    this.frameInfo = new FrameInfo(this.data, this.sceneMeta, sceneName, frame);
 
     this.points = null;
         //points_backup: null, //for restore from highlight
     this.boxes = null;
         
-    this.images = new Images(this.sceneMeta, scene_name, frame);
-
+    this.images = new Images(this.sceneMeta, sceneName, frame);
+    
+    // todo: state of world could be put in  a variable
+    // but still need mulitple flags.
 
     this.points_loaded = false,
 
@@ -252,7 +255,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
     this.preload=function(on_preload_finished){
         
         this.create_time = new Date().getTime();
-        console.log(this.create_time, scene_name, frame, "start");
+        console.log(this.create_time, sceneName, frame, "start");
 
         this.on_preload_finished = on_preload_finished;
         this.load_points();
@@ -553,25 +556,33 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
                 self.remove_box(b);
             })
 
-            // add new boxes
             pendingBoxList.forEach(b=>{
-                self.scene.add(b);
-                self.boxes.push(b);
+                self.boxes.push(b);                
             })
 
 
             //todo, restore point color
             //todo, update imagecontext, selected box, ...
             //refer to normal delete operation
-
             // re-color again
             self.set_points_color({
-                    x: self.data.config.point_brightness,
-                    y: self.data.config.point_brightness,
-                    z: self.data.config.point_brightness,
-                });        
-            self.color_points();    
+                x: self.data.config.point_brightness,
+                y: self.data.config.point_brightness,
+                z: self.data.config.point_brightness,
+            });        
+            self.color_points();   
 
+            // add to scene if current world is active.
+            if (self.everythingDone){
+                if (self.data.world === self){
+                    // add new boxes
+                    pendingBoxList.forEach(b=>{
+                        self.scene.add(b);                    
+                    })
+                } else{
+                    console.error("there is a bug somewhere!");
+                }
+            }
 
             if (done)
                 done();
@@ -1343,7 +1354,7 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.scene = null,
-    this.destroy_old_world = null,
+    this.destroy_old_world = null, //todo, this can be a boolean
     this.on_finished = null,
     this.activate=function(scene, destroy_old_world, on_finished){
         this.scene = scene;
@@ -1356,8 +1367,15 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.active = false,
+    this.everythingDone = false;
     
     this.go=function(){
+
+        if (this.everythingDone){
+            console.error("re-activate world?");
+            return;
+        }
+
         if (this.preload_finished()){
 
             //this.points.material.size = data.config.point_size;
@@ -1389,9 +1407,11 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
             // render is called in on_finished() callback
             if (this.on_finished){
                 _self.finish_time = new Date().getTime();
-                console.log(_self.finish_time, scene_name, frame, "loaded in ", _self.finish_time - _self.create_time, "ms");
+                console.log(_self.finish_time, sceneName, frame, "loaded in ", _self.finish_time - _self.create_time, "ms");
                 this.on_finished();
             }
+
+            this.everythingDone = true;
         }
     };
 
@@ -1537,9 +1557,28 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
 
     this.destroyed = false;
 
+    this.remove_all_boxes = function(){
+        if (this.boxes){
+            this.boxes.forEach((b)=>{
+                //this.scene.remove(b);
+                b.geometry.dispose();
+                b.material.dispose();
+                b.world = null;
+                b.boxEditor = null;
+            });
+
+            this.boxes = [];
+        }
+        else{
+            console.error("destroy empty world!")
+        }
+    }
+
+    // todo, Image resource to be released?
+
     this.remove_all_points=function(){
         if (this.points){
-            this.scene.remove(this.points);
+            //this.scene.remove(this.points);
             this.points.geometry.dispose();
             this.points.material.dispose();
             this.points = null;
@@ -1550,37 +1589,42 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.destroy = function(){
+        if (this.everythingDone){
+        //unload all from scene, but don't destroy elements
+        
+            if (this.boxes){
+                this.boxes.forEach((b)=>{
+                    this.scene.remove(b);
+
+                    if (b.boxEditor)
+                        b.boxEditor.detach();
+                });
+            }
+        
+            if (this.points){
+                this.scene.remove(this.points);
+            }
+            
+            this.active = false;
+            this.everythingDone = false;
+        }
+    };
+
+
+
+    this.deleteAll = function(){
         var _self= this;
 
+        // todo, check if all objects are removed from webgl scene.
         if (this.destroyed){
             console.log("destroy destroyed world!");
         }
 
         this.destroyed = true;
-        remove_all_boxes();
+        this.remove_all_boxes();
         this.remove_all_points();
         console.log(this.frameInfo.scene, this.frameInfo.frame, "destroyed");
-        
         // remove me from buffer
-        
-
-        
-
-        function remove_all_boxes(){
-            if (_self.boxes){
-                _self.boxes.forEach(function(b){
-                    _self.scene.remove(b);
-                    b.geometry.dispose();
-                    b.material.dispose();
-                });
-
-                _self.boxes = [];
-            }
-            else{
-                console.error("destroy empty world!")
-            }
-        }
-
     };
 
     this.preload(on_preload_finished);  

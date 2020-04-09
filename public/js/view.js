@@ -272,6 +272,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         view.restore_relative_orbit_state = function(highlight_obj_scale){
 
             if (view.scale0){
+                // restore last viewpoint
                 
                 var obj_size = Math.sqrt(view.scale0.x*view.scale0.x + view.scale0.y*view.scale0.y + view.scale0.z*view.scale0.z);
                 var target_obj_size = Math.sqrt(highlight_obj_scale.x*highlight_obj_scale.x + highlight_obj_scale.y*highlight_obj_scale.y + highlight_obj_scale.z*highlight_obj_scale.z);
@@ -284,6 +285,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
 
                 this.camera.zoom = this.zoom0;
             } else {
+                // not saved yet, set default viewpoint
                 this.camera.position.set(
                     this.orbit.target.x + highlight_obj_scale.x*3, 
                     this.orbit.target.y + highlight_obj_scale.y*3, 

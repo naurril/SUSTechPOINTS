@@ -37,7 +37,7 @@ function PlayControl(data){
 
         var scene_meta = data.get_current_world_scene_meta();
 
-        var scene_name= scene_meta.scene;
+        var sceneName= scene_meta.scene;
         
         this.data.reset_world_buffer();
         var scope=this;
@@ -52,7 +52,7 @@ function PlayControl(data){
         function preload_frame(meta, frame){
             //if (frame_index < scene_meta.frames.length && !stop_play_flag)
             {
-                var new_world = scope.data.make_new_world(meta.scene,
+                var new_world = scope.data.getWorld(meta.scene,
                     frame, 
                     function(world){
                         scope.data.put_world_into_buffer(world);  //put new world into buffer.
@@ -137,13 +137,13 @@ function PlayControl(data){
 //     stop_play_flag = false;
 
 //     var scene_meta = data.get_current_world_scene_meta();
-//     var scene_name= scene_meta.scene;
+//     var sceneName= scene_meta.scene;
     
 //     play_frame(scene_meta, data.world.frameInfo.frame);
 
 
 //     function play_frame(scene_meta, frame){
-//         load_world(scene_name, frame);
+//         load_world(sceneName, frame);
 
 
 //         if (!stop_play_flag)

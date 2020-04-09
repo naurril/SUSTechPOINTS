@@ -4,7 +4,7 @@ import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
 function FocusImageContext(ui){
 
-    this.ui = ui; //var c = parentUi.querySelector("#focuscanvas");
+    this.ui = ui;
     
     // draw highlighted box
     this.updateFocusedImageContext = function(box){
@@ -29,7 +29,7 @@ function FocusImageContext(ui){
         }
         
         if (calib){
-            var img = box.world.images.getImageByName(bestImage); //parentUi.querySelector("#camera");
+            var img = box.world.images.getImageByName(bestImage);
             if (img && (img.naturalWidth > 0)){
 
                 this.clear_canvas();
@@ -182,27 +182,32 @@ function FocusImageContext(ui){
 
 
 
-function ImageContext(data, parentUi, cfg){
+function ImageContext(ui, cfg){
+    this.ui = ui;
     this.cfg = cfg;
     this.init_image_op = init_image_op;    
     this.clear_main_canvas= clear_main_canvas;
     this.choose_best_camera_for_point = choose_best_camera_for_point;
     //this.image_manager = image_manager;
 
+    this.world = null;
+    this.attachWorld = function(world){
+        this.world = world;
+    };
+
 
     if (cfg.disableMainImageContext){
-        var c = parentUi.querySelector("#maincanvas-wrapper");
-        c.style.display="none";
+        this.ui.style.display="none";
     }
 
     //internal
-    //var parentUi = parentUi;
+    let scope =this;
     var drawing = false;
     var points = [];
     var polyline;
 
     var all_lines=[];
-    var data = data;
+    
 
     function to_polyline_attr(points){
         return points.reduce(function(x,y){
@@ -214,8 +219,7 @@ function ImageContext(data, parentUi, cfg){
     var get_selected_box;
 
     function init_image_op(func_get_selected_box){
-        var c = parentUi.querySelector("#maincanvas-wrapper");
-        c.onclick = on_click;
+        scope.ui.onclick = on_click;
         get_selected_box = func_get_selected_box;
         // var h = parentUi.querySelector("#resize-handle");
         // h.onmousedown = resize_mouse_down;
@@ -229,7 +233,7 @@ function ImageContext(data, parentUi, cfg){
 
 
     function to_viewbox_coord(x,y){
-        var div = parentUi.querySelector("#maincanvas-svg");
+        var div = scope.ui.querySelector("#maincanvas-svg");
         
         x = Math.round(x*2048/div.clientWidth);
         y = Math.round(y*1536/div.clientHeight);
@@ -246,7 +250,7 @@ function ImageContext(data, parentUi, cfg){
 
             if (e.ctrlKey){
                 drawing = true;
-                var svg = parentUi.querySelector("#maincanvas-svg");
+                var svg = scope.ui.querySelector("#maincanvas-svg");
                 //svg.style.position = "absolute";
                 
                 polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
@@ -258,7 +262,7 @@ function ImageContext(data, parentUi, cfg){
                 polyline.setAttribute("class", "maincanvas-line")
                 polyline.setAttribute("points", to_polyline_attr(points));
 
-                var c = parentUi.querySelector("#maincanvas-wrapper");
+                var c = scope.ui;
                 c.onmousemove = on_move;
                 c.ondblclick = on_dblclick;   
                 c.onkeydown = on_key;    
@@ -297,7 +301,7 @@ function ImageContext(data, parentUi, cfg){
             drawing = false;
             points = [];
 
-            var c = parentUi.querySelector("#maincanvas-wrapper");
+            var c = scope.ui;
             c.onmousemove = null;
             c.ondblclick = null;
             c.onkeypress = null;
@@ -310,7 +314,7 @@ function ImageContext(data, parentUi, cfg){
 
                 drawing = false;
                 points = [];
-                var c = parentUi.querySelector("#maincanvas-wrapper");
+                var c = scope.ui;
                 c.onmousemove = null;
                 c.ondblclick = null;
                 c.onkeypress = null;
@@ -330,12 +334,7 @@ function ImageContext(data, parentUi, cfg){
     // all boxes
     function clear_main_canvas(){
 
-        //var c = parentUi.querySelector("#maincanvas");
-        //var ctx = c.getContext("2d");
-                    
-        //ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-        var boxes = parentUi.querySelector("#svg-boxes").children;
+        var boxes = scope.ui.querySelector("#svg-boxes").children;
         
         if (boxes.length>0){
             for (var c=boxes.length-1; c >= 0; c--){
@@ -346,14 +345,14 @@ function ImageContext(data, parentUi, cfg){
 
 
     function get_active_calib(){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
+        var scene_meta = scope.world.sceneMeta;
 
             
         if (!scene_meta.calib){
             return null;
         }
 
-        var active_image_name = data.world.images.active_name;
+        var active_image_name = scope.world.images.active_name;
         var calib = scene_meta.calib[active_image_name];
 
         return calib;
@@ -363,7 +362,7 @@ function ImageContext(data, parentUi, cfg){
 
 
     function get_trans_ratio(){
-        var img = data.world.images.active_image();       
+        var img = scope.world.images.active_image();       
 
         if (!img || img.width==0){
             return null;
@@ -383,10 +382,10 @@ function ImageContext(data, parentUi, cfg){
     }
 
     function show_image(){
-        var svgimage = parentUi.querySelector("#svg-image");
+        var svgimage = scope.ui.querySelector("#svg-image");
 
         // active img is set by global, it's not set sometimes.
-        var img = data.world.images.active_image();
+        var img = scope.world.images.active_image();
         if (img){
             svgimage.setAttribute("xlink:href", img.src);
         }
@@ -413,11 +412,11 @@ function ImageContext(data, parentUi, cfg){
 
         function hide_canvas(){
             //document.getElementsByClassName("ui-wrapper")[0].style.display="none";
-            parentUi.querySelector("#maincanvas-wrapper").style.display="none";
+            scope.ui.style.display="none";
         }
 
         function show_canvas(){
-            parentUi.querySelector("#maincanvas-wrapper").style.display="inline";
+            scope.ui.style.display="inline";
         }
 
 
@@ -425,7 +424,7 @@ function ImageContext(data, parentUi, cfg){
 
         function draw_svg(){
             // draw picture
-            var img = data.world.images.active_image();       
+            var img = scope.world.images.active_image();       
 
             if (!img || img.width==0){
                 hide_canvas();
@@ -441,10 +440,10 @@ function ImageContext(data, parentUi, cfg){
                 return;
             }
 
-            var svg = parentUi.querySelector("#svg-boxes");
+            var svg = scope.ui.querySelector("#svg-boxes");
 
             // draw boxes
-            data.world.boxes.forEach(function(box){
+            scope.world.boxes.forEach(function(box){
                 var imgfinal = box_to_2d_points(box, calib);
                 if (imgfinal){
                     var box_svg = box_to_svg(box, imgfinal, trans_ratio, get_selected_box() == box);
@@ -522,19 +521,6 @@ function ImageContext(data, parentUi, cfg){
     }
 
 
-    
-
-
-
-
-    
-
-
-    
-
-
-
-
     this.image_manager = {
         display_image: ()=>{
             if (!this.cfg.disableMainImageContext)
@@ -559,7 +545,7 @@ function ImageContext(data, parentUi, cfg){
                     })
 
                     var svg_box = box_to_svg(box, imgfinal, trans_ratio);
-                    var svg = parentUi.querySelector("#svg-boxes");
+                    var svg = scope.ui.querySelector("#svg-boxes");
                     svg.appendChild(svg_box);
                 }
             }
@@ -567,7 +553,7 @@ function ImageContext(data, parentUi, cfg){
 
 
         onBoxSelected: function(box_obj_local_id, obj_type){
-            var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
+            var b = scope.ui.querySelector("#svg-box-local-"+box_obj_local_id);
             if (b){
                 b.setAttribute("class", "box-svg-selected");
             }
@@ -575,14 +561,14 @@ function ImageContext(data, parentUi, cfg){
 
 
         onBoxUnselected: function(box_obj_local_id, obj_type){
-            var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
+            var b = scope.ui.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
                 b.setAttribute("class", obj_type);
         },
 
         remove_box: function(box_obj_local_id){
-            var b = parentUi.querySelector("#svg-box-local-"+box_obj_local_id);
+            var b = scope.ui.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
                 b.remove();
@@ -593,7 +579,7 @@ function ImageContext(data, parentUi, cfg){
         },
         
         update_box: function(box){
-            var b = parentUi.querySelector("#svg-box-local-"+box.obj_local_id);
+            var b = scope.ui.querySelector("#svg-box-local-"+box.obj_local_id);
             if (!b){
                 return;
             }
@@ -696,8 +682,7 @@ function all_points_in_image_range(p){
 
 
 function choose_best_camera_for_point(scene_meta, center){
-    //var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
-
+    
     if (!scene_meta.calib){
         return null;
     }

@@ -299,7 +299,7 @@ function BoxOp(){
 
 
 
-    this.interpolate_selected_object= function(sceneName, objTrackId, currentFrame){
+    this.interpolate_selected_object= function(sceneName, objTrackId, currentFrame, done){
 
         var xhr = new XMLHttpRequest();
         // we defined the xhr
@@ -311,6 +311,9 @@ function BoxOp(){
             if (this.status == 200) {
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
+
+                if (done)
+                    done(sceneName, ret);
             }
 
         };

@@ -190,7 +190,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
         this.editingTarget.objTrackId = objTrackId;
 
         sceneMeta.frames.forEach((frame)=>{
-            let world = data.make_new_world(sceneName, frame);
+            let world = data.getWorld(sceneName, frame);
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId);
             

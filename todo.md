@@ -61,6 +61,6 @@
 57.  use sideview to decide object lower border.
 58.  'escape' when drawing a rectangle
 59.  use one-shot video object segmentation to assist image segmentation annotating
-
-
+60.  keydown on object labels, should be forwarded to main-container.
+61.  objs of scene shoulb be loaded only once when preloading all frames of scene.
 

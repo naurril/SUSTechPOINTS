@@ -84,7 +84,9 @@ function Editor(editorUi, editorCfg, data){
             this.editorCfg);
         
 
-        this.imageContext = new ImageContext(this.data, this.editorUi, this.editorCfg);
+        this.imageContext = new ImageContext(
+                 this.editorUi.querySelector("#maincanvas-wrapper"), 
+                this.editorCfg);
 
 
         if (!this.editorCfg.disableRangeCircle)
@@ -310,7 +312,7 @@ function Editor(editorUi, editorCfg, data){
         this.viewManager.mainView.orbit.reset();
     };
 
-    this.focusOnSelectedBox= function(box){
+    this.focusOnSelectedBox = function(box){
         if (this.editorCfg.disableMainView)
             return;
 
@@ -480,16 +482,16 @@ function Editor(editorUi, editorCfg, data){
 
     
 
-    this.scene_changed= function(scene_name){
+    this.scene_changed= function(sceneName){
         
-        //var scene_name = event.currentTarget.value;
+        //var sceneName = event.currentTarget.value;
 
-        if (scene_name.length == 0){
+        if (sceneName.length == 0){
             return;
         }
         
-        console.log("choose scene_name " + scene_name);
-        var meta = this.data.get_meta_by_scene_name(scene_name);
+        console.log("choose sceneName " + sceneName);
+        var meta = this.data.getMetaBySceneName(sceneName);
 
         var frame_selector_str = meta.frames.map(function(f){
             return "<option value="+f+">"+f + "</option>";
@@ -505,19 +507,19 @@ function Editor(editorUi, editorCfg, data){
             this.editorUi.querySelector("#camera-selector").innerHTML = camera_selector_str;
         }
 
-        load_obj_ids_of_scene(scene_name);
+        load_obj_ids_of_scene(sceneName);
     };
 
     this.frame_changed= function(event){
-        var scene_name = this.editorUi.querySelector("#scene-selector").value;
+        var sceneName = this.editorUi.querySelector("#scene-selector").value;
 
-        if (scene_name.length == 0){
+        if (sceneName.length == 0){
             return;
         }
 
         var frame =  event.currentTarget.value;
-        console.log(scene_name, frame);
-        this.load_world(scene_name, frame);
+        console.log(sceneName, frame);
+        this.load_world(sceneName, frame);
 
         event.currentTarget.blur();
     };
@@ -986,9 +988,6 @@ function Editor(editorUi, editorCfg, data){
             }else{
                 //unselect second time
                 if (this.selected_box){
-                    
-                    
-                    
                     // restore from highlight
                     if (this.selected_box.in_highlight){
                         this.cancelFocus(this.selected_box);    
@@ -1015,9 +1014,10 @@ function Editor(editorUi, editorCfg, data){
                         this.onSelectedBoxChanged(null);
                     }
                 }
-
-                
-                
+                else{
+                    // just an empty click
+                    return;
+                }
             }
         }
         else{
@@ -1629,6 +1629,7 @@ function Editor(editorUi, editorCfg, data){
         this.unselectBox(null, true);
         this.unselectBox(null, true);
         this.render();
+        this.imageContext.attachWorld(world);
         this.imageContext.render_2d_image();
         this.render2dLabels(world);
         this.update_frame_info(world.frameInfo.scene, world.frameInfo.frame);
@@ -1638,19 +1639,27 @@ function Editor(editorUi, editorCfg, data){
         load_obj_ids_of_scene(world.frameInfo.scene);
     };
 
-    this.load_world = function(scene_name, frame){
+    this.load_world = function(sceneName, frame){
         var self=this;
         //stop if current world is not ready!
         if (this.data.world && !this.data.world.preload_finished()){
-            console.log("current world is still loading.");
+            console.error("current world is still loading.");
             return;
         }
 
-        var world = this.data.make_new_world(scene_name, frame);
+        var world = this.data.getWorld(sceneName, frame);
         this.data.activate_world(
             world, 
-            function(){self.on_load_world_finished(world);}
+            function(){
+                self.on_load_world_finished(world);
+
+                // preload after the first world loaded
+                // 
+                self.data.preloadScene(sceneName);
+            }
         );
+
+        
     };
 
 
@@ -1703,8 +1712,8 @@ function Editor(editorUi, editorCfg, data){
 
     this.update_frame_info= function(scene, frame){
         var self = this;
-        this.header.set_frame_info(scene, frame, function(scene_name){
-            self.scene_changed(scene_name)});
+        this.header.set_frame_info(scene, frame, function(sceneName){
+            self.scene_changed(sceneName)});
     };
 
     //box edited
@@ -1845,7 +1854,15 @@ function Editor(editorUi, editorCfg, data){
         let frame = this.data.world.frameInfo.frame;
         let obj_id = this.selected_box.obj_track_id;
 
-        this.boxOp.interpolate_selected_object(scene, obj_id, frame);
+        this.boxOp.interpolate_selected_object(scene, obj_id, frame, (s,fs)=>{
+            this.onAnnotationUpdatedByOthers(s, fs);
+        });
+
+        
+    };
+
+    this.onAnnotationUpdatedByOthers = function(scene, frames){
+        this.data.onAnnotationUpdatedByOthers(scene, frames);
     }
 
     this.init(editorUi);
