@@ -63,4 +63,5 @@
 59.  use one-shot video object segmentation to assist image segmentation annotating
 60.  keydown on object labels, should be forwarded to main-container.
 61.  objs of scene shoulb be loaded only once when preloading all frames of scene.
+62.  focused image context: make its aspect ratio  to 1:1
 
