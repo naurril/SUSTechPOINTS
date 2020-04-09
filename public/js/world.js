@@ -532,9 +532,13 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
                     old_box.scale.set(nb.psr.scale.x, nb.psr.scale.y, nb.psr.scale.z);
                     old_box.rotation.set(nb.psr.rotation.x, nb.psr.rotation.y, nb.psr.rotation.z); 
                     
+                    if (nb.annotator)
+                        old_box.annotator = nb.annotator;
+                    old_box.changed=false; // clearn changed flag.
+                    
                 }else{
                     // not found
-                    let box=self.createOneBox(nb);
+                    let box=self.createOneBoxByAnn(nb);
                     pendingBoxList.push(box);
                 }
             });
@@ -575,42 +579,25 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
         }
     };
 
-    this.createOneBox = function(annotation){
+    this.createOneBoxByAnn = function(annotation){
         let b = annotation;
-        var mesh = this.new_bbox_cube(parseInt("0x"+get_obj_cfg_by_type(b.obj_type).color.slice(1)));
+        
+        let mesh = this.createCuboid(b.psr.position,
+            b.psr.scale, 
+            b.psr.rotation,
+            b.obj_type,
+            b.obj_id);
 
-        mesh.position.x = b.psr.position.x;
-        mesh.position.y = b.psr.position.y;
-        mesh.position.z = b.psr.position.z;
-
-        mesh.scale.x = b.psr.scale.x;
-        mesh.scale.y = b.psr.scale.y;
-        mesh.scale.z = b.psr.scale.z;
-
-        mesh.rotation.x = b.psr.rotation.x;
-        mesh.rotation.y = b.psr.rotation.y;
-        mesh.rotation.z = b.psr.rotation.z;    
-
-        mesh.obj_track_id = b.obj_id;  //tracking id
-        mesh.obj_local_id = this.get_new_box_local_id();
-        mesh.obj_type = b.obj_type;
-
-        mesh.world = this;
-        mesh.getTruePosition = function(){
-            return {
-                x: this.position.x - this.world.coordinatesOffset[0],
-                y: this.position.y - this.world.coordinatesOffset[1],
-                z: this.position.z - this.world.coordinatesOffset[2]
-            };
-        };
-
-
+        if (b.annotator){
+            mesh.annotator = b.annotator;
+        }
+        
         return mesh;  
     };
 
     this.createBoxes = function(annotations){
         return annotations.map((b)=>{
-            return this.createOneBox(b);
+            return this.createOneBoxByAnn(b);
         });
     };
     
@@ -1418,13 +1405,8 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
         this.scene.add(line);
     };
 
-    /*
-     pos:  offset position, after transformed
-    */
-
-    this.add_box=function(pos, scale, rotation, obj_type, track_id){
-
-        var mesh = this.new_bbox_cube();
+    this.createCuboid = function(pos, scale, rotation, obj_type, track_id){
+        let mesh = this.new_bbox_cube(parseInt("0x"+get_obj_cfg_by_type(obj_type).color.slice(1)));
         mesh.position.x = pos.x;
         mesh.position.y = pos.y;
         mesh.position.z = pos.z;
@@ -1443,13 +1425,23 @@ function World(data, scene_name, frame, coordinatesOffset, on_preload_finished){
         mesh.obj_local_id =  this.get_new_box_local_id();
 
         mesh.world = this;
-        mesh.getTruePosition = ()=>{
+        mesh.getTruePosition = function(){
             return {
-                x: pos.x-this.coordinatesOffset[0],
-                y: pos.y-this.coordinatesOffset[1],
-                z: pos.z-this.coordinatesOffset[2]
+                x: this.position.x-this.world.coordinatesOffset[0],
+                y: this.position.y-this.world.coordinatesOffset[1],
+                z: this.position.z-this.world.coordinatesOffset[2]
             };
         };
+
+        return mesh;
+    };
+    /*
+     pos:  offset position, after transformed
+    */
+
+    this.add_box=function(pos, scale, rotation, obj_type, track_id){
+
+        let mesh = this.createCuboid(pos, scale, rotation, obj_type, track_id)
 
         this.boxes.push(mesh);
         this.sort_boxes();

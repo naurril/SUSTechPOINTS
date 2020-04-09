@@ -1,5 +1,6 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import { FocusImageContext } from "./image.js";
+import { save_annotation } from "./save.js";
 
 function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_box_changed, name){
     
@@ -89,6 +90,14 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         this.projectiveViewOps.update_view_handle();
         this.focusImageContext.updateFocusedImageContext(this.box);
         this.boxView.onBoxChanged();
+
+        // mark
+        delete this.box.annotator; // human annotator doesn't need a name
+        this.box.changed = true;
+        
+        // don't mark world's change flag, for it's hard to clear it.
+        
+
         this.updateInfo();
     }
 
@@ -122,6 +131,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         this.focusImageContext.updateFocusedImageContext(this.box); 
 
         // should we update info?
+        this.updateInfo();
     };
 
 
@@ -136,8 +146,17 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
     }
 
     this.updateInfo = function(){
+        let info = ""
         if (this.target.world)
-            this.boxInfoUi.innerHTML = String(this.target.world.frameInfo.frame);
+            info  += String(this.target.world.frameInfo.frame);
+        
+        if (this.box && this.box.annotator)
+            info += ","+this.box.annotator;
+
+        if (this.box && this.box.changed)
+            info += " *";
+
+        this.boxInfoUi.innerHTML = info;
     };
 
 }
@@ -208,6 +227,18 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
     // this should follows addToolBox
     this.parentUi.querySelector("#transfer").onclick = ()=>{
         this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
+    };
+
+    this.parentUi.querySelector("#save").onclick = ()=>{
+        this.editorList.forEach(e=>{
+            if (e.box && e.box.changed){
+
+                save_annotation(e.box.world, ()=>{
+                    e.box.changed=false;
+                    e.updateInfo();
+                });
+            }
+        })
     };
 
 

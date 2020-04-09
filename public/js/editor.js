@@ -417,7 +417,7 @@ function Editor(editorUi, editorCfg, data){
         };
 
         self.editorUi.querySelector("#cm-save").onclick = function(event){      
-            save_annotation(self.data, function(){
+            save_annotation(self.data.world, function(){
                 self.header.unmark_changed_flag();
             });
         };
@@ -684,7 +684,7 @@ function Editor(editorUi, editorCfg, data){
         //file
         var fileFolder = gui.addFolder( 'File' );
         params['save'] = ()=> {
-            save_annotation(this.data);
+            save_annotation(this.data.world);
         };
         fileFolder.add( params, 'save');
 
@@ -776,6 +776,8 @@ function Editor(editorUi, editorCfg, data){
             this.header.mark_changed_flag();
             this.updateBoxPointsColor(this.selected_box);
             this.imageContext.image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
+
+            this.render();
         }
     };
 
@@ -1117,10 +1119,6 @@ function Editor(editorUi, editorCfg, data){
                 this.viewManager.mainView.transform_control.attach( object );
             }
         }
-
-        
-
-        
     };
 
     this.onWindowResize= function() {
@@ -1134,13 +1132,11 @@ function Editor(editorUi, editorCfg, data){
                 this.viewManager.mainView.onWindowResize();
 
             if (this.boxEditor)
-                this.boxEditor.update();
+                this.boxEditor.update("dontrender");
 
             this.windowWidth = this.container.clientWidth;
             this.windowHeight = this.container.clientHeight;
             this.renderer.setSize( this.windowWidth, this.windowHeight );
-
-            this.render();
 
             //this.viewManager.updateViewPort();
 
@@ -1447,7 +1443,7 @@ function Editor(editorUi, editorCfg, data){
             */
         case 's':
                 if (ev.ctrlKey){
-                    save_annotation(this.data);
+                    save_annotation(this.data.world);
                 }
                 break;
             /*
@@ -1725,8 +1721,14 @@ function Editor(editorUi, editorCfg, data){
         this.updateBoxPointsColor(box);
         this.save_box_info(box);
 
-        if (box.boxEditor)
+        if (box.boxEditor){
             box.boxEditor.onBoxChanged();
+        }
+        else{
+            console.error("what?");
+        }
+
+        this.render();
     };
 
     this.restore_box_points_color= function(box){
@@ -1744,8 +1746,7 @@ function Editor(editorUi, editorCfg, data){
             }
 
             box.world.set_box_points_color(box);
-            box.world.update_points_color();
-            this.render();
+            box.world.update_points_color();            
         }
     };
 

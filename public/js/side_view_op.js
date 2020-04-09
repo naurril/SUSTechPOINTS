@@ -481,6 +481,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                             y: -(mouse_cur_pos.y - mouse_start_pos.y),  //reverse since it'll be used by 3d-coord system
                         };
     
+                        console.log("delta", handle_delta);
+                        if (handle_delta.x == 0 && handle_delta.y==0){
+                            return;
+                        }
+
                         var ratio_delta = {
                             x: handle_delta.x/view_handle_dimension.x,
                             y: handle_delta.y/view_handle_dimension.y
