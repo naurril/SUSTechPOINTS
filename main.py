@@ -44,9 +44,9 @@ class Root(object):
     def view(self, file):
       tmpl = env.get_template('view.html')
       return tmpl.render()
-          
+
     @cherrypy.expose
-    def save(self, scene, frame):
+    def saveworld(self, scene, frame):
 
       # cl = cherrypy.request.headers['Content-Length']
       rawbody = cherrypy.request.body.readline().decode('UTF-8')
@@ -55,6 +55,25 @@ class Root(object):
         f.write(rawbody)
       
       return "ok"
+
+    @cherrypy.expose
+    def saveworldlist(self):
+
+      # cl = cherrypy.request.headers['Content-Length']
+      rawbody = cherrypy.request.body.readline().decode('UTF-8')
+      data = json.loads(rawbody)
+
+      for d in data:
+        scene = d["scene"]
+        frame = d["frame"]
+        ann = d["annotation"]
+        with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
+          json.dump(ann, f)
+
+      return "ok"
+
+
+
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def interpolate(self, scene, frame, obj_id):
@@ -67,7 +86,7 @@ class Root(object):
     @cherrypy.tools.json_out()
     def predict_rotation(self):
       cl = cherrypy.request.headers['Content-Length']
-      rawbody = cherrypy.request.body.read(int(cl))
+      rawbody = cherrypy.request.body.readline().decode('UTF-8')
       
       data = json.loads(rawbody)
       
@@ -78,6 +97,21 @@ class Root(object):
     @cherrypy.tools.json_out()
     def load_annotation(self, scene, frame):
       return scene_reader.read_annotations(scene, frame)
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def loadworldlist(self):
+      rawbody = cherrypy.request.body.readline().decode('UTF-8')
+      worldlist = json.loads(rawbody)
+
+      anns = list(map(lambda w:{
+                      "scene": w["scene"],
+                      "frame": w["frame"],
+                      "annotation":scene_reader.read_annotations(w["scene"], w["frame"])},
+                      worldlist))
+
+      return anns
+        
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()

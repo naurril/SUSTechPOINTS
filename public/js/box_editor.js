@@ -1,6 +1,6 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
-import { FocusImageContext } from "./image.js";
-import { save_annotation } from "./save.js";
+import {FocusImageContext} from "./image.js";
+import {saveWorldList, reloadWorldList} from "./save.js"
 
 function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_box_changed, name){
     
@@ -63,7 +63,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
     this.attachBox = function(box){
         this.ui.style.display="inline-block";
 
-        if (this.box){
+        if (this.box && this.box !== box){
             this.box.boxEditor=null;
             console.log("detach box editor");
             //todo de-highlight box
@@ -139,11 +139,11 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         if (this.target){
             this.target.world.reloadAnnotation(()=>{
                 this.tryAttach();
-                this.update();
-                this.viewManager.render();
+                this.update(); // update calls render
+                //this.viewManager.render();
             });
         }
-    }
+    };
 
     this.updateInfo = function(){
         let info = ""
@@ -159,15 +159,20 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         this.boxInfoUi.innerHTML = info;
     };
 
+    this.updateBoxDimension = function(){
+
+    };
+
 }
 
 
 //parentUi  #box-editor-wrapper
-function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed){
+function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed){
     this.viewManager = viewManager;
     this.boxOp = boxOp;
     this.activeIndex = 0;
     this.editorList = [];
+    this.globalHeader = globalHeader;
     this.clear = function(){
         //hide all editors
         
@@ -216,29 +221,78 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, func_on_box_changed
     this.toolbox = this._addToolBox();
 
     this.refreshAllAnnotation = function(){
-        this.editorList.forEach(e=>e.refreshAnnotation());
+        //this.editorList.forEach(e=>e.refreshAnnotation());
+        
+        let worldList = this.editorList.map(e=>e.target.world);
+
+        let done = (anns)=>{
+
+            // load annotations
+            anns.forEach(a=>{
+                let editor = this.editorList.find(e=>{
+                    return (e.target.world.frameInfo.scene == a.scene && 
+                            e.target.world.frameInfo.frame == a.frame);
+                    });
+                if (editor){
+                    editor.target.world.reaplyAnnotation(a.annotation);
+                }
+                else{
+                    console.error("bug?");
+                }
+                
+            })
+
+            // update editor
+            this.editorList.forEach(e=>{
+                e.tryAttach();
+                e.update("dontrender");
+            });
+
+            // render all, at last
+            this.viewManager.render();
+        };
+
+        reloadWorldList(worldList, done);
     }
 
-    // this should follows addToolBox
+    // this should follow addToolBox
     this.parentUi.querySelector("#refresh").onclick = (e)=>{
         this.refreshAllAnnotation();
     };
 
-    // this should follows addToolBox
     this.parentUi.querySelector("#transfer").onclick = ()=>{
         this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
     };
 
     this.parentUi.querySelector("#save").onclick = ()=>{
+        let worldList = []
+        let editorList = []
         this.editorList.forEach(e=>{
             if (e.box && e.box.changed){
-
-                save_annotation(e.box.world, ()=>{
-                    e.box.changed=false;
-                    e.updateInfo();
-                });
+                worldList.push(e.box.world);
+                editorList.push(e);
             }
-        })
+        });
+
+        let doneSave = ()=>{
+            editorList.forEach(e=>{
+                e.box.changed = false;
+                e.updateInfo();
+            });
+
+            //transfer
+            let doneTransfer = ()=>{
+                this.refreshAllAnnotation();
+            };
+
+            this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
+                 this.editingTarget.objTrackId, 
+                 "", 
+                 doneTransfer);
+        };
+
+        saveWorldList(worldList, doneSave);
+
     };
 
 

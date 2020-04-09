@@ -93,7 +93,7 @@ function start(metaData){
         //disableFrameSelector: true,
         //disableCameraSelector: true,
         //disableFastToolbox: true,
-        //disableMainView: true,
+        disableMainView: true,
         disableMainImageContext: true,
         disableGrid:true,
         disableRangeCircle:true,

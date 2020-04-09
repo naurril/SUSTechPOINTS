@@ -2,45 +2,72 @@
 
 import {load_obj_ids_of_scene} from "./obj_id_list.js"
 
+function reloadWorldList(worldList, done){
+    var xhr = new XMLHttpRequest();
+        // we defined the xhr
+    xhr.onreadystatechange = function () {
+        if (this.readyState != 4) return;
+    
+        if (this.status == 200) {
+            done(JSON.parse(this.responseText));
+        }
+    
+        // end of state change: it can be after some time (async)
+    };
+    
+    xhr.open('POST', "/loadworldlist", true);
 
-function save_annotation(world, done){
-    var bbox_annotations=[];
-    console.log(world.boxes.length, "boxes");
-    world.boxes.forEach(function(b){
-        //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
-
-        var b = {
-            psr: {
-                position:b.getTruePosition(),
-                scale:b.scale,
-                rotation:{
-                    x:b.rotation.x,
-                    y:b.rotation.y,
-                    z:b.rotation.z,
-                },
-            },
-            
-            /*
-            position:b.position,
-            scale:b.scale,
-            rotation:{
-                x:b.rotation.x,
-                y:b.rotation.y,
-                z:b.rotation.z,
-            },
-            */
-           
-            obj_type: b.obj_type,
-            obj_id: String(b.obj_track_id),
-            //vertices: vertices,
+    let para = worldList.map(w=>{
+        return {
+            //todo: we could add an id, so as to associate world easily
+            scene: w.frameInfo.scene, 
+            frame: w.frameInfo.frame,
         };
-
-        bbox_annotations.push(b);
-        
     });
 
+    xhr.send(JSON.stringify(para));
+}
+
+
+function saveWorldList(worldList, done){
+    console.log(worldList.length, "frames");
+    let ann = worldList.map(w=>{
+        return {
+            scene: w.frameInfo.scene,
+            frame: w.frameInfo.frame,
+            annotation: w.toBoxAnnotations(),
+        };
+    })
+
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/save" +"?scene="+world.frameInfo.scene+"&frame="+world.frameInfo.frame, true);
+    xhr.open("POST", "/saveworldlist", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState != 4) return;
+    
+        if (this.status == 200) {
+            console.log("save worldlist finished.");
+            if(done){
+                done();
+            }
+        }
+    
+        // end of state change: it can be after some time (async)
+    };
+
+    var b = JSON.stringify(ann);
+    //console.log(b);
+    xhr.send(b);
+}
+
+
+function saveWorld(world, done){
+    console.log(world.boxes.length, "boxes");
+    let bbox_annotations = world.toBoxAnnotations();
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/saveworld" +"?scene="+world.frameInfo.scene+"&frame="+world.frameInfo.frame, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onreadystatechange = function () {
@@ -53,6 +80,7 @@ function save_annotation(world, done){
             }
 
             //reload obj-ids of the scene
+            //this shall be moved to done
             load_obj_ids_of_scene(world.frameInfo.scene);
         }
     
@@ -65,4 +93,4 @@ function save_annotation(world, done){
 }
 
 
-export {save_annotation}
+export {saveWorld, saveWorldList, reloadWorldList}

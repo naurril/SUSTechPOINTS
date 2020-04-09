@@ -15,8 +15,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
     this.boxOp = boxOp;
     //internals
 
-    function create_view_handler(ui, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate){
-
+    function create_view_handler(ui, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate, on_focus=default_on_focus){
         var mouse_start_pos;
     
         var view_handle_dimension = {  //dimension of the enclosed box
@@ -353,6 +352,9 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
             div.onkeydown = on_key_down;
             div.onmouseenter = function(event){
                 div.focus();
+
+                if (on_focus)
+                    on_focus();
             };
             div.onmouseleave = function(event){
                 div.blur();
@@ -709,6 +711,14 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
     }
     
     var scope = this;
+
+
+    function default_on_focus(){
+        // this is a long chain!
+        if (scope.box)
+            scope.box.boxEditor.boxEditorManager.globalHeader.update_box_info(scope.box);
+    }
+
 
     // direction: 1, -1
     // axis: x,y,z

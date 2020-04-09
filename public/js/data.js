@@ -75,6 +75,15 @@ function Data(metaData, enableMultiWorld){
         })
     };
 
+    this.saveWorldList = function(worldList){
+        worldList.forEach(w=>{
+            saveWorld(world, ()=>{
+                e.box.changed=false;
+                e.updateInfo();
+            });
+        });
+    };
+
     this.webgl_scene = null;
     this.set_webgl_scene=function(s){
             this.webgl_scene = s;

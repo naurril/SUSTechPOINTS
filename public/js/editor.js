@@ -13,7 +13,7 @@ import {Header} from "./header.js"
 import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
-import {save_annotation} from "./save.js"
+import {saveWorld} from "./save.js"
 
 function Editor(editorUi, editorCfg, data){
 
@@ -137,6 +137,7 @@ function Editor(editorUi, editorCfg, data){
             this.viewManager,
             this.editorCfg,
             this.boxOp,
+            this.header,
             (b)=>this.on_box_changed(b));
 
         if (!this.editorCfg.disableMainBoxEditor)
@@ -419,7 +420,7 @@ function Editor(editorUi, editorCfg, data){
         };
 
         self.editorUi.querySelector("#cm-save").onclick = function(event){      
-            save_annotation(self.data.world, function(){
+            saveWorld(self.data.world, function(){
                 self.header.unmark_changed_flag();
             });
         };
@@ -670,7 +671,7 @@ function Editor(editorUi, editorCfg, data){
         //     if (!this.selected_box)
         //         paste_bbox();
         //     auto_adjust_bbox(function(){
-        //         save_annotation();
+        //         saveWorld();
         //     });
             
         // };
@@ -686,7 +687,7 @@ function Editor(editorUi, editorCfg, data){
         //file
         var fileFolder = gui.addFolder( 'File' );
         params['save'] = ()=> {
-            save_annotation(this.data.world);
+            saveWorld(this.data.world);
         };
         fileFolder.add( params, 'save');
 
@@ -1443,13 +1444,13 @@ function Editor(editorUi, editorCfg, data){
             */
         case 's':
                 if (ev.ctrlKey){
-                    save_annotation(this.data.world);
+                    saveWorld(this.data.world);
                 }
                 break;
             /*
             case 's':
                 if (ev.ctrlKey){
-                    save_annotation();
+                    saveWorld();
                 }
                 else if (this.selected_box){
                     if (!operation_state.mouse_right_down){
@@ -1461,7 +1462,7 @@ function Editor(editorUi, editorCfg, data){
                 break;
             case 'S':
                 if (ev.ctrlKey){
-                    save_annotation();
+                    saveWorld();
                 }
                 else if (this.selected_box){
                     this.transform_bbox("y_scale_down");

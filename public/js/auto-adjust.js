@@ -1,5 +1,5 @@
 
-import {save_annotation} from "./save.js"
+import {saveWorld} from "./save.js"
 
 
 function AutoAdjust(mouse){
@@ -39,7 +39,7 @@ function AutoAdjust(mouse){
     
     this.auto_adjust_bbox=function(box, done, on_box_changed){
     
-        save_annotation(function(){
+        saveWorld(function(){
             do_adjust(box, on_box_changed);
         });
     
@@ -117,14 +117,14 @@ function AutoAdjust(mouse){
         }
     }
 
-    this.smart_paste=function(selected_box, header, add_box_on_pos, save_annotation, on_box_changed){
+    this.smart_paste=function(selected_box, header, add_box_on_pos, saveWorld, on_box_changed){
         var box = selected_box;
         if (!box){
             box = paste_bbox(this.mosue.get_mouse_location_in_world(), add_box_on_pos);
         }
         
         auto_adjust_bbox(box,
-                function(){save_annotation();},
+                function(){saveWorld();},
                 on_box_changed);
     
         header.mark_changed_flag();

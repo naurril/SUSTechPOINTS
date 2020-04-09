@@ -259,7 +259,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
         this.on_preload_finished = on_preload_finished;
         this.load_points();
-        this.load_annotation((boxes)=>this.proc_boxes(boxes));
+        this.load_annotation((boxes)=>this.proc_annotation(boxes));
         var _self = this;
 
         this.images.load(function(){_self.on_image_loaded();}, this.data.active_image_name);
@@ -462,7 +462,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         return boxes;
     };
 
-    this.proc_boxes = function(boxes){
+    this.proc_annotation = function(boxes){
         
         let ret = this.transformBoxesByOffset(boxes);
         //var boxes = JSON.parse(this.responseText);
@@ -493,13 +493,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             if (this.readyState != 4) return;
         
             if (this.status == 200) {
-
-                let boxes = [];
-                if (this.responseText.length != 0){
-                    boxes = _self.frameInfo.anno_to_boxes(this.responseText);
-                }
-
-                on_load(boxes);
+                let ann = _self.frameInfo.anno_to_boxes(this.responseText);
+                on_load(ann);
             }
         
             // end of state change: it can be after some time (async)
@@ -510,20 +505,21 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.reloadAnnotation=function(done){
-        this.load_annotation(refreshAnnotation);
+        this.load_annotation(reaplyAnnotation, done);
+    };
 
-        let self=this;
-        function refreshAnnotation(boxes){
+    
+    this.reaplyAnnotation = function(boxes, done){
             // these boxes haven't attached a world
-            boxes = self.transformBoxesByOffset(boxes);
+            boxes = this.transformBoxesByOffset(boxes);
 
             // mark all old boxes
-            self.boxes.forEach(b=>{b.delete=true;});
+            this.boxes.forEach(b=>{b.delete=true;});
 
             let pendingBoxList=[];
 
             boxes.forEach(nb=>{  // nb is annotation format, not a true box
-                let old_box = self.boxes.find(function(x){
+                let old_box = this.boxes.find(function(x){
                     return x.obj_track_id == nb.obj_id;
                 });
 
@@ -541,23 +537,23 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                     
                 }else{
                     // not found
-                    let box=self.createOneBoxByAnn(nb);
+                    let box=this.createOneBoxByAnn(nb);
                     pendingBoxList.push(box);
                 }
             });
 
             // delete removed
-            let toBeDelBoxes = self.boxes.filter(b=>b.delete);
+            let toBeDelBoxes = this.boxes.filter(b=>b.delete);
             toBeDelBoxes.forEach(b=>{
                 if (b.boxEditor)
                     b.boxEditor.detach(false);
 
-                self.scene.remove(b);
-                self.remove_box(b);
+                this.scene.remove(b);
+                this.remove_box(b);
             })
 
             pendingBoxList.forEach(b=>{
-                self.boxes.push(b);                
+                this.boxes.push(b);                
             })
 
 
@@ -565,30 +561,25 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             //todo, update imagecontext, selected box, ...
             //refer to normal delete operation
             // re-color again
-            self.set_points_color({
-                x: self.data.config.point_brightness,
-                y: self.data.config.point_brightness,
-                z: self.data.config.point_brightness,
+            this.set_points_color({
+                x: this.data.config.point_brightness,
+                y: this.data.config.point_brightness,
+                z: this.data.config.point_brightness,
             });        
-            self.color_points();   
+            this.color_points();   
 
             // add to scene if current world is active.
-            if (self.everythingDone){
-                if (self.data.world === self){
-                    // add new boxes
-                    pendingBoxList.forEach(b=>{
-                        self.scene.add(b);                    
-                    })
-                } else{
-                    console.error("there is a bug somewhere!");
-                }
+            if (this.everythingDone){
+                // add new boxes
+                pendingBoxList.forEach(b=>{
+                    this.scene.add(b);                    
+                })
             }
 
             if (done)
                 done();
             
         }
-    };
 
     this.createOneBoxByAnn = function(annotation){
         let b = annotation;
@@ -1628,6 +1619,32 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.preload(on_preload_finished);  
+
+
+    this.toBoxAnnotations = function(){
+        return this.boxes.map(function(b){
+            //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
+            let ann = {
+                psr: {
+                    position:b.getTruePosition(),
+                    scale:b.scale,
+                    rotation:{
+                        x:b.rotation.x,
+                        y:b.rotation.y,
+                        z:b.rotation.z,
+                    },
+                },
+                obj_type: b.obj_type,
+                obj_id: String(b.obj_track_id),
+                //vertices: vertices,
+            };
+
+            if (b.annotator)
+                ann.annotator = b.annotator;
+
+            return ann;
+        });
+    }
 }
 
 export {World};
