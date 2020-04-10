@@ -11,6 +11,32 @@ sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, '..'))
 import scene_reader
 
+class MAFilter:
+  def __init__(self, init_x):
+    self.x = init_x
+    self.v = np.zeros(9) # position, rotation
+    self.step = 0
+    
+  def update(self, x):
+    if self.step == 0:
+      self.v = x-self.x
+    else:
+      self.v = self.v*0.5 + (x-self.x)*0.5
+
+    self.x[0:9] = x
+    self.step += 1
+
+  def predict(self):
+    self.x += self.v
+    self.step += 1
+    return self.x
+  
+  
+
+def get_my_filter(init_x):
+  return MAFilter(init_x)
+
+  
 def get_kalman_filter(init_x):
   dim_z = 9
   kf = KalmanFilter(dim_x=12, dim_z=dim_z)
@@ -158,7 +184,7 @@ def kalmanfilter_pred(annotations):
     state = ann_to_kalman_state(start_ann)
     ref_ann = start_ann
     print("init", state)
-    kalmanfilter = get_kalman_filter(state)
+    kalmanfilter = get_my_filter(state)
     i+=1
 
     print("kalman update")
