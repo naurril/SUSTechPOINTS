@@ -26,7 +26,7 @@ registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
 
 class Root(object):
     @cherrypy.expose
-    def index(self, batch=False, scene="", obj=""):
+    def index(self, batch=False):
       tmpl = env.get_template('index.html')
       return tmpl.render()
   

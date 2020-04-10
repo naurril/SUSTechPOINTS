@@ -65,3 +65,4 @@
 61.  objs of scene shoulb be loaded only once when preloading all frames of scene.
 62.  focused image context: make its aspect ratio  to 1:1
 63.  show trajectory of one object
+64.  reload objects w/o tracking id.

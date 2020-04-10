@@ -1,7 +1,7 @@
 
 
 var obj_id_list = [];
-function load_obj_ids_of_scene(scene){
+function load_obj_ids_of_scene(scene, done){
 
     var xhr = new XMLHttpRequest();
     // we defined the xhr
@@ -17,15 +17,25 @@ function load_obj_ids_of_scene(scene){
                 return x.id - y.id;
             });
 
-            var obj_id_option_list = ret.map(function(c){
+            let obj_id_option_list = ret.map(function(c){
                 return "<option value="+c.id+">"+c.category+"</option>";
             }).reduce(function(x,y){return x+y;}, 
-            //"<option value='auto'></option><option value='new'></option>");
-            "<option value='new'></option>");
+                            //"<option value='auto'></option><option value='new'></option>");
+                            "<option value='new'></option>");
 
             obj_id_list = ret.map(function(x){return x.id;});
 
             document.getElementById("obj-ids-of-scene").innerHTML = obj_id_option_list;
+
+
+            let objectList = ret.map(function(c){
+                   return "<option value="+c.id+">"+String(c.id) +"-"+ c.category+"</option>";
+                 }).reduce(function(x,y){return x+y;},
+                           "<option>--object--</option>");
+            document.getElementById("object-selector").innerHTML = objectList;
+
+            if (done)
+                done(ret)
         }
 
     };

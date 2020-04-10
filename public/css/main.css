@@ -86,7 +86,7 @@ canvas {
 
 }
 
-#object-category-selector, #object-track-id-editor, #scene-selector, #frame-selector, #camera-selector, #obj-ids-of-scene
+#object-category-selector, #object-track-id-editor, #scene-selector, #frame-selector, #object-selector, #camera-selector, #obj-ids-of-scene
 {
 	background-color: inherit;
 	color: inherit;
@@ -368,8 +368,8 @@ dynamic set obj-type css has higher priority than this one.
 #batch-editor #sub-views {
 	display: inline-block;
 	position: relative;	
-    width: 120px;
-    height: 400px;
+    width: 130px;
+    height: 450px;
 }
 
 #box-info{

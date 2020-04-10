@@ -7,8 +7,7 @@ let url = new URL(url_string);
 //language
 
 let globalInfo = {
-    scene : url.searchParams.get("scene"),
-    objTrackId : url.searchParams.get("obj"),
+    batch : url.searchParams.get("batch"),
 };
 
 
@@ -57,7 +56,7 @@ function start(metaData){
 
 
   // main editor
-  if (!globalInfo.scene){
+  if (!globalInfo.batch){
       let maindiv  = document.querySelector("#main-editor");
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
@@ -82,7 +81,7 @@ function start(metaData){
 
 
   // batch editor
-  if (globalInfo.scene){
+  if (globalInfo.batch){
       let maindiv  = document.querySelector("#batch-editor");
       maindiv.style.display = "block";
       let main_ui = template.content.cloneNode(true);
@@ -98,6 +97,7 @@ function start(metaData){
         disableGrid:true,
         disableRangeCircle:true,
         disableMainBoxEditor:true,
+        enableAutoSave:true,
         //disableMainViewKeyDown:true
       };
 
@@ -106,10 +106,9 @@ function start(metaData){
       let editor = new Editor(maindiv.lastElementChild, editorCfg, data)
       editor.run();
 
-      let meta = data.getMetaBySceneName(globalInfo.scene);
-      
+      // let meta = data.getMetaBySceneName(globalInfo.scene);
+      // editor.boxEditorManager.edit(data, meta, globalInfo.objTrackId);
 
-      editor.boxEditorManager.edit(data, meta, globalInfo.objTrackId);
     }
 
 }

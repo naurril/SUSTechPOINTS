@@ -23,6 +23,9 @@ function Data(metaData, enableMultiWorld){
     };
 
     this._createWorld = function(sceneName, frame, on_preload_finished){
+
+        this.deleteWorldExcept(sceneName);
+
         // create new
         if (this.enableMultiWorld){
             let createWorldIndex = this.worldList.length;
@@ -37,27 +40,34 @@ function Data(metaData, enableMultiWorld){
         }
     }
 
-    this.preloadScene = function(sceneName){
-
+    this.deleteWorldExcept=function(keepScene){
         // release resources if scene changed
         this.worldList.forEach(w=>{
-            if (w.frameInfo.scene != sceneName)
+            if (w.frameInfo.scene != keepScene)
                 w.deleteAll();
         })
+        this.worldList = this.worldList.filter(w=>w.frameInfo.scene==keepScene);
+    };
+    
+    this.preloadScene = function(sceneName){
 
-        this.worldList = this.worldList.filter(w=>w.frameInfo.scene==sceneName);
-
-
+        //this.deleteWorldExcept(sceneName);
         let meta = this.getMetaBySceneName(sceneName);
-        meta.frames.forEach(frame=>{
-            let world = this.worldList.find((w)=>{
-                return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
-            })
 
-            if (!world){
-                this._createWorld(sceneName, frame);
-            }
-        })
+        if (meta.frames.length<50){
+            meta.frames.forEach(frame=>{
+                let world = this.worldList.find((w)=>{
+                    return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
+                })
+
+                if (!world){
+                    this._createWorld(sceneName, frame);
+                }
+            })
+        }
+        else{
+            console.log("too many frames, don't preload.");
+        }
     };
 
     this.reloadAllAnnotation=function(done){
@@ -185,7 +195,7 @@ function Data(metaData, enableMultiWorld){
             world.activate(this.webgl_scene, 
                 function(){
                     if (old_world)
-                        old_world.destroy();
+                        old_world.unload();
                 },
                 on_finished);
         }

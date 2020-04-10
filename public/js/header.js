@@ -1,5 +1,5 @@
 
-var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onCameraChanged){
+var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelected, onCameraChanged){
 
     this.ui = ui;
     this.data =  data;
@@ -8,11 +8,13 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onCameraChang
     this.refObjUi = ui.querySelector("#ref-obj");
     this.sceneSelectorUi = ui.querySelector("#scene-selector");
     this.frameSelectorUi = ui.querySelector("#frame-selector");
+    this.objectSelectorUi = ui.querySelector("#object-selector");
     this.cameraSelectorUi = ui.querySelector("#camera-selector");
     this.changedMarkUi = ui.querySelector("#changed-mark");
 
     this.onSceneChanged = onSceneChanged;
     this.onFrameChanged = onFrameChanged;
+    this.onObjectSelected = onObjectSelected;
     this.onCameraChanged = onCameraChanged;
 
 
@@ -38,7 +40,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onCameraChang
 
 
     this.sceneSelectorUi.onchange = (e)=>{this.onSceneChanged(e);};
-
+    this.objectSelectorUi.onchange = (e)=>{this.onObjectSelected(e);};
     this.frameSelectorUi.onchange = (e)=>{this.onFrameChanged(e);};
     this.cameraSelectorUi.onchange = (e)=>{this.onCameraChanged(e);};
 

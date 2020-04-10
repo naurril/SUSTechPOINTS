@@ -97,6 +97,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         
         // don't mark world's change flag, for it's hard to clear it.
         
+        // inform boxEditorMgr to transfer annotation to other frames.
+        this.boxEditorManager.onBoxChanged(this);
 
         this.updateInfo();
     }
@@ -105,6 +107,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
     this.detach = function(hide){
         if (this.box){
             this.box.boxEditor = null;
+            this.boxOp.unhighlightBox(this.box);
             //todo de-highlight box
             this.box = null;
         }
@@ -172,6 +175,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.boxOp = boxOp;
     this.activeIndex = 0;
     this.editorList = [];
+    this.cfg = cfg;
     this.globalHeader = globalHeader;
     this.clear = function(){
         //hide all editors
@@ -189,6 +193,8 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     
     this.edit = function(data, sceneMeta, objTrackId){
         
+        this.reset();
+
         let sceneName = sceneMeta.scene;
 
         this.editingTarget.scene = sceneName;
@@ -207,6 +213,18 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         });
     };
     
+    this.reset = function(){
+        this.editorList.forEach(e=>e.detach(true));
+        this.activeIndex = 0;
+    };
+
+    this.onBoxChanged= function(editor){
+
+        //let boxes = this.editorList.map(e=>e.box); //some may be null, that's ok
+        //this.boxOp.interpolateSync(boxes);
+        if (this.cfg.enableAutoSave)
+            this._saveAndTransfer();
+    };
 
     this.parentUi = parentUi;
     
@@ -223,7 +241,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.refreshAllAnnotation = function(){
         //this.editorList.forEach(e=>e.refreshAnnotation());
         
-        let worldList = this.editorList.map(e=>e.target.world);
+        let worldList = this.editorList.slice(0,this.activeIndex).map(e=>e.target.world);
 
         let done = (anns)=>{
             // update editor
@@ -249,9 +267,17 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
 
     this.parentUi.querySelector("#save").onclick = ()=>{
+        this._saveAndTransfer();
+    };
+
+    this.parentUi.querySelector("#save").onclick = ()=>{
+        this._saveAndTransfer();
+    };
+    
+    this._saveAndTransfer = function(){
         let worldList = []
         let editorList = []
-        this.editorList.forEach(e=>{
+        this.editorList.slice(0,this.activeIndex).forEach(e=>{
             if (e.box && e.box.changed){
                 worldList.push(e.box.world);
                 editorList.push(e);
@@ -264,20 +290,22 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
                 e.updateInfo();
             });
 
-            //transfer
-            let doneTransfer = ()=>{
-                this.refreshAllAnnotation();
-            };
+            if (this.editorList.length > 1){ // are we in batch editing mode?
+                //transfer
+                let doneTransfer = ()=>{
+                    this.refreshAllAnnotation();
+                };
 
-            this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
-                 this.editingTarget.objTrackId, 
-                 "", 
-                 doneTransfer);
+                this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
+                    this.editingTarget.objTrackId, 
+                    "", 
+                    doneTransfer);
+            }
+            
         };
 
         saveWorldList(worldList, doneSave);
-
-    };
+    }
 
 
     this.updateViewZoomRatio = function(viewIndex, ratio){
@@ -298,7 +326,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
 
     this.allocateEditor = function(){
-        if (this.activeIndex+1 >= this.editorList.length){
+        if (this.activeIndex >= this.editorList.length){
             let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, String(this.activeIndex));
             this.editorList.push(editor);
             return editor;
@@ -310,4 +338,4 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
 
 }
-export {BoxEditor, BoxEditorManager};
+export {BoxEditorManager};

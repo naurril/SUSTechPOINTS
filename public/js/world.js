@@ -533,8 +533,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                     old_box.scale.set(nb.psr.scale.x, nb.psr.scale.y, nb.psr.scale.z);
                     old_box.rotation.set(nb.psr.rotation.x, nb.psr.rotation.y, nb.psr.rotation.z); 
                     
-                    if (nb.annotator)
-                        old_box.annotator = nb.annotator;
+                    old_box.annotator = nb.annotator;
                     old_box.changed=false; // clearn changed flag.
                     
                 }else{
@@ -550,7 +549,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 if (b.boxEditor)
                     b.boxEditor.detach(false);
 
-                this.scene.remove(b);
+                if (this.everythingDone)
+                    this.scene.remove(b);
                 this.remove_box(b);
             })
 
@@ -1366,6 +1366,11 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
         if (this.everythingDone){
             console.error("re-activate world?");
+
+            //however we still call on_finished
+            if (this.on_finished){
+                this.on_finished();
+            }
             return;
         }
 
@@ -1379,7 +1384,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
             if (this.destroyed){
                 console.log("go after destroyed.");
-                this.destroy();
+                this.unload();
                 return;
             }
 
@@ -1397,10 +1402,12 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 _self.hide_background();
             }
 
+            _self.finish_time = new Date().getTime();
+            console.log(_self.finish_time, sceneName, frame, "loaded in ", _self.finish_time - _self.create_time, "ms");
+                
+
             // render is called in on_finished() callback
             if (this.on_finished){
-                _self.finish_time = new Date().getTime();
-                console.log(_self.finish_time, sceneName, frame, "loaded in ", _self.finish_time - _self.create_time, "ms");
                 this.on_finished();
             }
 
@@ -1581,7 +1588,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         }
     };
 
-    this.destroy = function(){
+    this.unload = function(){
         if (this.everythingDone){
         //unload all from scene, but don't destroy elements
         
@@ -1608,6 +1615,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.deleteAll = function(){
         var _self= this;
 
+        if (this.everythingDone){
+            this.unload();
+        }
+        
         // todo, check if all objects are removed from webgl scene.
         if (this.destroyed){
             console.log("destroy destroyed world!");

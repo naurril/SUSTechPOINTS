@@ -4,7 +4,7 @@ import { GUI } from './lib/dat.gui.module.js';
 import {ViewManager} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
 import {Mouse} from "./mouse.js"
-import {BoxEditor, BoxEditorManager} from "./box_editor.js"
+import {BoxEditorManager} from "./box_editor.js"
 import {ImageContext} from "./image.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
@@ -62,6 +62,7 @@ function Editor(editorUi, editorCfg, data){
                 //event.currentTarget.blur();
             },        
             (e)=>{this.frame_changed(e)},
+            (e)=>{this.object_changed(e)},
             (e)=>{this.camera_changed(e)}        
         );
 
@@ -527,6 +528,14 @@ function Editor(editorUi, editorCfg, data){
         this.load_world(sceneName, frame);
 
         event.currentTarget.blur();
+    };
+
+    this.object_changed = function(event){
+        var sceneName = this.editorUi.querySelector("#scene-selector").value;
+        let objectTrackId = event.currentTarget.value;
+
+        this.boxEditorManager.edit(this.data, this.data.getMetaBySceneName(sceneName), objectTrackId);
+        
     };
 
     this.camera_changed= function(event){
@@ -1003,8 +1012,9 @@ function Editor(editorUi, editorCfg, data){
                     } else{
 
                         // unselected finally
-                        this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
-                        this.selected_box.material.opacity = this.data.config.box_opacity;
+                        //this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
+                        //this.selected_box.material.opacity = this.data.config.box_opacity;
+                        //this.boxOp.unhighlightBox(this.selected_box);
                         this.floatLabelManager.unselect_box(this.selected_box.obj_local_id, this.selected_box.obj_type);
                         this.floatLabelManager.update_position(this.selected_box, true);
 
@@ -1709,7 +1719,7 @@ function Editor(editorUi, editorCfg, data){
         this.boxEditor.detach();
 
 
-        this.data.world.destroy();
+        this.data.world.unload();
         this.data.world= null; //dump it
         this.floatLabelManager.remove_all_labels();
         this.render();
