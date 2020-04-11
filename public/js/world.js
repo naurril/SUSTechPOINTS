@@ -226,11 +226,16 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         });
     };
     this.findBoxByTrackId = function(id){
-        let box = this.boxes.find(function(x){
-            return x.obj_track_id == id;
-        });
-        return box;
+        if (this.boxes){
+            let box = this.boxes.find(function(x){
+                return x.obj_track_id == id;
+            });
+            return box;
+        }
+
+        return null;
     };
+    
     this.create_time = 0;
     this.points_load_time = 0;
     this.boxes_load_time = 0;
@@ -547,7 +552,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             let toBeDelBoxes = this.boxes.filter(b=>b.delete);
             toBeDelBoxes.forEach(b=>{
                 if (b.boxEditor)
-                    b.boxEditor.detach(false);
+                    b.boxEditor.detach();
 
                 if (this.everythingDone)
                     this.scene.remove(b);
@@ -1468,6 +1473,11 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         return mesh;
     };
 
+    this.load_box = function(box){
+        if (this.everythingDone)
+            this.scene.add(box);
+    };
+
     this.remove_box=function(box){
         box.geometry.dispose();
         box.material.dispose();
@@ -1657,7 +1667,44 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
             return ann;
         });
+    };
+
+    this.ann_to_vector = function(box){
+        let pos = box.getTruePosition();
+        return [
+            pos.x,
+            pos.y,
+            pos.z,
+            box.scale.x,
+            box.scale.y,
+            box.scale.z,
+            box.rotation.x,
+            box.rotation.y,
+            box.rotation.z,
+        ];
     }
+
+    this.vector_to_ann = function(v){
+        return {
+            position:{
+                x:v[0] + this.coordinatesOffset[0],
+                y:v[1] + this.coordinatesOffset[1],
+                z:v[2] + this.coordinatesOffset[2],
+            },
+
+            scale:{
+                x:v[3],
+                y:v[4],
+                z:v[5],
+            },
+
+            rotation:{
+                x:v[6],
+                y:v[7],
+                z:v[8],
+            },
+        };
+    };
 }
 
 export {World};

@@ -340,9 +340,40 @@ function BoxOp(){
         }
     }
 
-    this.interpolateSync = function(boxes){
-        //todo
+    this.interpolateSync = function(worldList, boxList){
+        
+        // if annotator is not null, it's annotated by us algorithms
+        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.ann_to_vector(b));
+        console.log(anns);
+        let ret = ml.interpolate_annotation(anns);
+        console.log(ret);
+
+        let refObj = boxList.find(b=>!!b);
+        let obj_type = refObj.obj_type;
+        let obj_track_id = refObj.obj_track_id;
+
+        for (let i = 0; i< boxList.length; i++){
+            if (!boxList[i]){
+                // create new box
+                let world = worldList[i];
+                let ann = world.vector_to_ann(ret[i]);
+                
+                let newBox  = world.add_box(ann.position, 
+                              ann.scale, 
+                              ann.rotation, 
+                              obj_type, 
+                              obj_track_id);
+
+                world.load_box(newBox);
+
+            } else if (boxList[i].annotator) {
+                // modify box attributes
+            }
+        }
     };
+
+
+
 }
 
 

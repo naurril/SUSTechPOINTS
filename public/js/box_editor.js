@@ -1,7 +1,13 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import {FocusImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
+import { ml } from "./ml.js";
 
+/*
+2 ways to attach and edit a box
+1) attach/detach
+2) setTarget, tryAttach, resetTarget
+*/
 function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_box_changed, name){
     
     this.boxEditorManager = boxEditorManager;
@@ -37,12 +43,21 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
             objTrackId: objTrackId,
         }
 
+        this.tryAttach();
+        this.ui.style.display="inline-block";
         this.updateInfo();
+    };
+
+    this.resetTarget = function(){
+        this.detach();
+        this.target = {};
+        //this.ui.style.display="none";
     };
 
     this.tryAttach = function(){
         // find target box, attach to me
         if (this.target){
+
             let box = this.target.world.findBoxByTrackId(this.target.objTrackId);
             if (box){
                 this.attachBox(box);
@@ -50,6 +65,11 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         }
     };
     
+
+    /*
+     the projectiveView tiggers zoomratio changing event.
+     editormanager broaccasts it to all editors
+    */
     this._setViewZoomRatio = function(viewIndex, ratio){
         this.boxView.views[viewIndex].zoom_ratio = ratio;
     };
@@ -59,10 +79,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         this.boxEditorManager.updateViewZoomRatio(viewIndex, ratio);
     };
 
+
     this.box = null;
     this.attachBox = function(box){
-        this.ui.style.display="inline-block";
-
         if (this.box && this.box !== box){
             this.box.boxEditor=null;
             console.log("detach box editor");
@@ -83,7 +102,24 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
 
         }
 
+        this.ui.style.display="inline-block";
+
     };
+
+    this.detach = function(dontHide){
+        if (this.box){
+            this.box.boxEditor = null;
+            this.boxOp.unhighlightBox(this.box);
+            //todo de-highlight box
+            this.box = null;
+
+        }
+
+        if (!dontHide)
+            this.ui.style.display="none";
+    };
+
+
 
     this.onBoxChanged=function(){
         
@@ -103,18 +139,6 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         this.updateInfo();
     }
 
-
-    this.detach = function(hide){
-        if (this.box){
-            this.box.boxEditor = null;
-            this.boxOp.unhighlightBox(this.box);
-            //todo de-highlight box
-            this.box = null;
-        }
-
-        if (hide)
-            this.ui.style.display="none";
-    };
 
     this.update = function(dontRender=false){
         if (this.box === null)
@@ -177,13 +201,10 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.editorList = [];
     this.cfg = cfg;
     this.globalHeader = globalHeader;
-    this.clear = function(){
-        //hide all editors
-        
-        this.editorList.map((e)=>e.detach());
 
-        this.activeIndex = 0;
 
+    this.activeEditorList = function(){
+        return this.editorList.slice(0, this.activeIndex);
     };
 
     this.editingTarget = {
@@ -214,7 +235,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
     
     this.reset = function(){
-        this.editorList.forEach(e=>e.detach(true));
+        this.editorList.forEach(e=>e.resetTarget());
         this.activeIndex = 0;
     };
 
@@ -241,7 +262,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.refreshAllAnnotation = function(){
         //this.editorList.forEach(e=>e.refreshAnnotation());
         
-        let worldList = this.editorList.slice(0,this.activeIndex).map(e=>e.target.world);
+        let worldList = this.activeEditorList().map(e=>e.target.world);
 
         let done = (anns)=>{
             // update editor
@@ -263,21 +284,23 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
 
     this.parentUi.querySelector("#transfer").onclick = ()=>{
-        this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
+        //this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
+        let boxList = this.activeEditorList().map(e=>e.box);
+        let worldList = this.activeEditorList().map(e=>e.target.world);
+        this.boxOp.interpolateSync(worldList, boxList)
+        this.activeEditorList().forEach(e=>e.tryAttach());
+        this.viewManager.render();
     };
 
     this.parentUi.querySelector("#save").onclick = ()=>{
         this._saveAndTransfer();
     };
 
-    this.parentUi.querySelector("#save").onclick = ()=>{
-        this._saveAndTransfer();
-    };
-    
+
     this._saveAndTransfer = function(){
         let worldList = []
         let editorList = []
-        this.editorList.slice(0,this.activeIndex).forEach(e=>{
+        this.activeEditorList().forEach(e=>{
             if (e.box && e.box.changed){
                 worldList.push(e.box.world);
                 editorList.push(e);

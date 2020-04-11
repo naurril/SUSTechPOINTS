@@ -191,8 +191,58 @@ var ml = {
         
         xhr.open('POST', "/predict_rotation", true);
         xhr.send(JSON.stringify({"points": data}));
-    }
+    },
+
+    interpolate_annotation: function(anns){
+        
+        let i = 0;
+        while(true){
+            while (i+1 < anns.length && !(anns[i] && !anns[i+1])){
+                i++;
+            }
+
+            let start = i;
+            i+=2;
+
+            while (i < anns.length && !anns[i]){
+                i++;
+            }
+            
+            if (i < anns.length){
+                let end = i;
+                // insert (begin, end)
+                let interpolate_step = tf.div(tf.sub(anns[end], anns[start]), (end-start));
+
+                for (let inserti=start+1; inserti<end; inserti++){
+                    anns[inserti] = tf.add(anns[start], tf.mul(interpolate_step, inserti-start)).dataSync();
+                }
+            }else{
+                break;
+            }
+        }
+
+        // interpolate finished
+
+        // now extrapolate
+
+        return anns;
+
+    },
+
+    
 }
 
+
+function MaFilter(initX){
+    this.x = initX;
+    this.step = 0;
+    
+    this.v = tf.tensor1d(9);
+
+    this.update = function(x){
+        this.step+=1;
+
+    }
+}
 
 export {ml};
