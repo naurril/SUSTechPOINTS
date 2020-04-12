@@ -343,14 +343,15 @@ function Editor(editorUi, editorCfg, data){
 
     this.install_context_menu= function(){
 
-        var self=this;
-        this.editorUi.querySelector("#context-menu-wrapper").onclick = function(event){
+        let menuUi = this.editorUi.querySelector("#context-menu");
+        let menuWrapper = this.editorUi.querySelector("#context-menu-wrapper");
+        menuWrapper.onclick = function(event){
             event.currentTarget.style.display="none"; 
             event.preventDefault();
             event.stopPropagation();             
         };
 
-        this.editorUi.querySelector("#context-menu-wrapper").oncontextmenu = function(event){
+        menuWrapper.oncontextmenu = function(event){
             event.currentTarget.style.display="none"; 
             event.preventDefault();
             event.stopPropagation();
@@ -359,20 +360,20 @@ function Editor(editorUi, editorCfg, data){
         /*    
         this.editorUi.querySelector("#context-menu").onclick = function(enabled){
             // some items clicked
-            this.editorUi.querySelector("#context-menu-wrapper").style.display = "none";
+            menuWrapper.style.display = "none";
             event.preventDefault();
             event.stopPropagation();
         };
 
         this.editorUi.querySelector("#new-submenu").onclick = function(enabled){
             // some items clicked
-            this.editorUi.querySelector("#context-menu-wrapper").style.display = "none";
+            menuWrapper.style.display = "none";
             event.preventDefault();
             event.stopPropagation();
         };
         */
 
-        this.editorUi.querySelector("#cm-new").onclick = function(event){
+        menuUi.querySelector("#cm-new").onclick = function(event){
             //add_bbox();
             //header.mark_changed_flag();
 
@@ -385,82 +386,83 @@ function Editor(editorUi, editorCfg, data){
 
         };
 
-        this.editorUi.querySelector("#cm-new").onmouseenter = function(event){
-            var item = self.editorUi.querySelector("#new-submenu");
+        menuUi.querySelector("#cm-new").onmouseenter = (event)=>{
+            var item = menuUi.querySelector("#new-submenu");
             item.style.display="inherit";
         };
 
-        this.editorUi.querySelector("#cm-new").onmouseleave = function(event){
-            self.editorUi.querySelector("#new-submenu").style.display="none";
+        menuUi.querySelector("#cm-new").onmouseleave = function(event){
+            menuUi.querySelector("#new-submenu").style.display="none";
             //console.log("leave  new item");
         };
 
 
-        this.editorUi.querySelector("#new-submenu").onmouseenter=function(event){
-            var item = self.editorUi.querySelector("#new-submenu");
+        menuUi.querySelector("#new-submenu").onmouseenter=function(event){
+            var item = menuUi.querySelector("#new-submenu");
             item.style.display="block";
         }
 
-        this.editorUi.querySelector("#new-submenu").onmouseleave=function(event){
-            var item = self.editorUi.querySelector("#new-submenu");
+        menuUi.querySelector("#new-submenu").onmouseleave=function(event){
+            var item = menuUi.querySelector("#new-submenu");
             item.style.display="none";
         }
 
 
 
-        self.editorUi.querySelector("#cm-paste").onclick = (event)=>{
-            this.autoAdjust.smart_paste(self.selected_box);
+        menuUi.querySelector("#cm-paste").onclick = (event)=>{
+            this.autoAdjust.smart_paste(this.selected_box);
         };
 
-        self.editorUi.querySelector("#cm-prev-frame").onclick = function(event){      
-            self.previous_frame();
+        menuUi.querySelector("#cm-prev-frame").onclick = (event)=>{
+            this.previous_frame();
         };
 
-        self.editorUi.querySelector("#cm-next-frame").onclick = function(event){      
-            self.next_frame();
+        menuUi.querySelector("#cm-next-frame").onclick = (event)=>{
+            this.next_frame();
         };
 
-        self.editorUi.querySelector("#cm-save").onclick = function(event){      
-            saveWorld(self.data.world, function(){
-                self.header.unmark_changed_flag();
+        menuUi.querySelector("#cm-save").onclick = (event)=>{
+            saveWorld(this.data.world, function(){
+                this.header.unmark_changed_flag();
             });
         };
 
-        self.editorUi.querySelector("#cm-reload").onclick = function(event){      
-            reloadWorldList(self.data.worldList, ()=>self.on_load_world_finished(self.data.world));
+        menuUi.querySelector("#cm-reload").onclick = (event)=>{
+            reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
         };
 
 
-        self.editorUi.querySelector("#cm-play").onclick = function(event){      
-            self.playControl.play_current_scene_with_buffer(false,
+        menuUi.querySelector("#cm-play").onclick = (event)=>{
+            this.playControl.play_current_scene_with_buffer(false,
                 function(w){
-                    self.on_load_world_finished(w)
+                    this.on_load_world_finished(w)
                 });
         };
-        self.editorUi.querySelector("#cm-stop").onclick = function(event){      
-            self.playControl.stop_play();
+        menuUi.querySelector("#cm-stop").onclick = (event)=>{
+            this.playControl.stop_play();
         };
-        self.editorUi.querySelector("#cm-pause").onclick = function(event){      
-            self.playControl.pause_resume_play();
-        };
-
-
-        self.editorUi.querySelector("#cm-prev-object").onclick = function(event){      
-            self.select_previous_object();
+        menuUi.querySelector("#cm-pause").onclick = (event)=>{
+            this.playControl.pause_resume_play();
         };
 
-        self.editorUi.querySelector("#cm-next-object").onclick = function(event){      
-            self.select_previous_object();
+
+        menuUi.querySelector("#cm-prev-object").onclick = (event)=>{
+            this.select_previous_object();
         };
 
-        self.editorUi.querySelector("#cm-delete").onclick = function(event){      
-            self.remove_selected_box();
-            self.header.mark_changed_flag();
+        menuUi.querySelector("#cm-next-object").onclick = (event)=>{
+            this.select_previous_object();
         };
 
-        self.editorUi.querySelector("#cm-interpolate").onclick = function(event){      
-            self.interpolate_selected_object();
-            self.header.mark_changed_flag();
+        let objMenuUi = this.editorUi.querySelector("#object-context-menu");
+        objMenuUi.querySelector("#cm-delete").onclick = (event)=>{
+            this.remove_selected_box();
+            this.header.mark_changed_flag();
+        };
+
+        objMenuUi.querySelector("#cm-interpolate").onclick = (event)=>{
+            this.interpolate_selected_object();
+            this.header.mark_changed_flag();
         };
         
         

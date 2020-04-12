@@ -15,7 +15,17 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
     this.boxOp = boxOp;
     //internals
 
-    function create_view_handler(ui, on_edge_changed, on_direction_changed, on_auto_shrink, on_moved, on_scale, on_wheel, on_auto_rotate, on_reset_rotate, on_focus=default_on_focus){
+    function create_view_handler(ui, 
+        on_edge_changed, 
+        on_direction_changed, 
+        on_auto_shrink, 
+        on_moved, 
+        on_scale, 
+        on_wheel, 
+        on_auto_rotate, 
+        on_reset_rotate, 
+        on_focus=default_on_focus, 
+        on_contextmenu=default_context_menu){
         var mouse_start_pos;
     
         var view_handle_dimension = {  //dimension of the enclosed box
@@ -347,7 +357,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
         
         function init_view_operation(){
             
-            var mouse_right_down = false;
+            var mouseLeftDown = false;
     
             div.onkeydown = on_key_down;
             div.onmouseenter = function(event){
@@ -358,16 +368,17 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
             };
             div.onmouseleave = function(event){
                 div.blur();
-                mouse_right_down = false;
+                mouseLeftDown = false;
             };
     
             div.oncontextmenu = function(event){
+                console.log("context menu on prjective view.");
                 return false;
             };
     
             div.onmousedown = function(event){
-                if (event.which==3){
-                    mouse_right_down = true;
+                if (event.which==1){
+                    mouseLeftDown = true;
                     event.preventDefault();
                     event.stopPropagation();
                     return false;
@@ -375,8 +386,8 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
             };
     
             div.onmouseup = function(event){
-                if (event.which==3){
-                    mouse_right_down = false;
+                if (event.which==1){
+                    mouseLeftDown = false;
                     event.preventDefault();
                     event.stopPropagation();
                 }
@@ -648,7 +659,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                     case 'ArrowUp':
                         event.preventDefault();
                         event.stopPropagation();
-                        if (mouse_right_down){
+                        if (mouseLeftDown){
                             //console.log("right mouse down!");
                             on_scale({x:0, y:0.01});
                         }
@@ -660,7 +671,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                         if (!event.ctrlKey){
                             event.preventDefault();
                             event.stopPropagation();
-                            if (mouse_right_down){
+                            if (mouseLeftDown){
                                 //console.log("right mouse down!");
                                 on_scale({x:0, y:-0.01});
                             }
@@ -672,7 +683,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                     case 'ArrowDown':
                         event.preventDefault();
                         event.stopPropagation();
-                        if (mouse_right_down){
+                        if (mouseLeftDown){
                             //console.log("right mouse down!");
                             on_scale({x:0, y:-0.01});
                         }
@@ -683,7 +694,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                     case 'ArrowLeft':
                         event.preventDefault();
                         event.stopPropagation();
-                        if (mouse_right_down)
+                        if (mouseLeftDown)
                             on_scale({x:-0.01, y:0});
                         else
                             on_moved({x:-0.01, y:0});
@@ -692,7 +703,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                     case 'ArrowRight':
                         event.preventDefault();
                         event.stopPropagation();
-                        if (mouse_right_down)
+                        if (mouseLeftDown)
                             on_scale({x:0.01, y:0});
                         else
                             on_moved({x:0.01, y:0});
@@ -717,6 +728,13 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
         // this is a long chain!
         if (scope.box)
             scope.box.boxEditor.boxEditorManager.globalHeader.update_box_info(scope.box);
+    }
+    function default_context_menu(){
+        if (scope.box){
+
+        } else {
+
+        }
     }
 
 
@@ -1100,14 +1118,27 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
     // exports
 
     this.box = undefined;
-    this.activate = function(box){
+    this.attachBox = function(box){
         this.box = box;
         //this.show();
+        this.showAllHandlers();
         this.update_view_handle(box);
     };
-    this.switchBox = function(box){
-        this.activate(box);
+    this.detach = function(box){
+        this.box = null;
+        this.hideAllHandlers();
     };
+
+    this.hideAllHandlers = function(){
+        //this.ui.querySelectorAll(".subview-svg").forEach(ui=>ui.style.display="none");
+        //this.ui.querySelectorAll(".v-buttons-wrapper").forEach(ui=>ui.style.display="none");
+    };
+
+    this.showAllHandlers = function(){
+        //this.ui.querySelectorAll(".subview-svg").forEach(ui=>ui.style.display="");
+        //this.ui.querySelectorAll(".v-buttons-wrapper").forEach(ui=>ui.style.display="");
+    };
+
 
     // this.show = function(box){
     //     this.ui.style.display="block";
@@ -1124,9 +1155,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
     };
 
     this.update_view_handle = function(){
-        z_view_handle.update_view_handle(this.views[0].getViewPort(), {x: this.box.scale.y, y:this.box.scale.x});
-        y_view_handle.update_view_handle(this.views[1].getViewPort(), {x: this.box.scale.x, y:this.box.scale.z});
-        x_view_handle.update_view_handle(this.views[2].getViewPort(), {x: this.box.scale.y, y:this.box.scale.z});
+        if (this.box){
+            z_view_handle.update_view_handle(this.views[0].getViewPort(), {x: this.box.scale.y, y:this.box.scale.x});
+            y_view_handle.update_view_handle(this.views[1].getViewPort(), {x: this.box.scale.x, y:this.box.scale.z});
+            x_view_handle.update_view_handle(this.views[2].getViewPort(), {x: this.box.scale.y, y:this.box.scale.z});
+        }
     };
 
 };

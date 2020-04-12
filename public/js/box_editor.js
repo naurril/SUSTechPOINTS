@@ -28,9 +28,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         cfg,
         this.boxView.views,
         this.boxOp,
-        func_on_box_changed,
-        ()=>this.update()
-    );
+        func_on_box_changed);
 
     this.projectiveViewOps.init_view_operation();
 
@@ -95,7 +93,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
             this.box=box;
             this.boxOp.highlightBox(box);
             this.boxView.attachBox(box);
-            this.projectiveViewOps.activate(box);
+            this.projectiveViewOps.attachBox(box);
             this.focusImageContext.updateFocusedImageContext(box);
 
             this.updateInfo();
@@ -111,7 +109,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
             this.box.boxEditor = null;
             this.boxOp.unhighlightBox(this.box);
             //todo de-highlight box
-            this.box = null;
+            this.projectiveViewOps.detach();
+            this.boxView.detach();
+            
 
         }
 
@@ -140,6 +140,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
     }
 
 
+    // windowresize...
     this.update = function(dontRender=false){
         if (this.box === null)
             return;
@@ -235,7 +236,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
     
     this.reset = function(){
-        this.editorList.forEach(e=>e.resetTarget());
+        this.activeEditorList().forEach(e=>e.resetTarget());
         this.activeIndex = 0;
     };
 
@@ -266,7 +267,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
         let done = (anns)=>{
             // update editor
-            this.editorList.forEach(e=>{
+            this.activeEditorList().forEach(e=>{
                 e.tryAttach();
                 e.update("dontrender");
             });
@@ -313,7 +314,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
                 e.updateInfo();
             });
 
-            if (this.editorList.length > 1){ // are we in batch editing mode?
+            if (this.activeEditorList().length > 1){ // are we in batch editing mode?
                 //transfer
                 let doneTransfer = ()=>{
                     this.refreshAllAnnotation();
@@ -333,7 +334,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
     this.updateViewZoomRatio = function(viewIndex, ratio){
         const dontRender=true;
-        this.editorList.forEach(e=>{
+        this.activeEditorList().forEach(e=>{
             e._setViewZoomRatio(viewIndex, ratio);
             e.update(dontRender); 
         })

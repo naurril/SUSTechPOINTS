@@ -89,7 +89,7 @@ function start(metaData){
 
       let editorCfg={
         //disableSceneSelector: true,
-        //disableFrameSelector: true,
+        disableFrameSelector: true,
         //disableCameraSelector: true,
         //disableFastToolbox: true,
         disableMainView: true,

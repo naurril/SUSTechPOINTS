@@ -316,8 +316,11 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
     this.box = null;
 
     this.attachBox = function(box){
-        this.box = box;        
+        this.box = box;
         this.onBoxChanged();
+    };
+    this.detach = function(){
+        this.box = null;
     };
 
     this.onBoxChanged=function(){
