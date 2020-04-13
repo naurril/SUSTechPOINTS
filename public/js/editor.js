@@ -15,12 +15,14 @@ import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
 import {saveWorld, reloadWorldList} from "./save.js"
 
-function Editor(editorUi, editorCfg, data){
+function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.editorCfg = editorCfg;
     this.sideview_enabled = true;
     this.editorUi = editorUi;
+    this.wrapperUi = wrapperUi;
     this.container = null;
+    this.name = name;
 
     this.data = data;
     this.scene = null;
@@ -178,6 +180,12 @@ function Editor(editorUi, editorCfg, data){
 
         this.onWindowResize();
         
+        let exitbtn = this.editorUi.querySelector("#exit");
+        if (exitbtn){
+            exitbtn.onclick = (e)=>{
+                this.hide();
+            }
+        }
     };
 
     this.run = function(){
@@ -193,6 +201,16 @@ function Editor(editorUi, editorCfg, data){
         this.add_global_obj_type();
     };
 
+    this.hide = function(){
+        this.wrapperUi.style.display="none";
+    };
+    this.show = function(){
+        this.wrapperUi.style.display="block";
+    };
+
+    this.setBatchEditor = function(editor){
+        this.batchEditor = editor;
+    };
 
     this.addRangeCircle= function(){
         
@@ -462,8 +480,20 @@ function Editor(editorUi, editorCfg, data){
         };
 
         objMenuUi.querySelector("#cm-interpolate").onclick = (event)=>{
-            this.interpolate_selected_object();
-            this.header.mark_changed_flag();
+
+            if (!this.selected_box.obj_track_id){
+                console.error("no track id");
+            }
+
+            this.batchEditor.show();
+            
+            this.batchEditor.editBatch(
+                this.data.world.frameInfo.scene,
+                this.data.world.frameInfo.frame,
+                this.selected_box.obj_track_id
+            );
+
+            
         };
         
         
@@ -533,12 +563,15 @@ function Editor(editorUi, editorCfg, data){
         event.currentTarget.blur();
     };
 
+    this.editBatch = function(sceneName, frame, objectTrackId){
+        this.boxEditorManager.edit(this.data, this.data.getMetaBySceneName(sceneName), frame, objectTrackId);
+    };
+
     this.object_changed = function(event){
         var sceneName = this.editorUi.querySelector("#scene-selector").value;
         let objectTrackId = event.currentTarget.value;
 
-        this.boxEditorManager.edit(this.data, this.data.getMetaBySceneName(sceneName), null, objectTrackId);
-        
+        this.editBatch(sceneName, null, objectTrackId);
     };
 
     this.camera_changed= function(event){

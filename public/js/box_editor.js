@@ -112,7 +112,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
             this.projectiveViewOps.detach();
             this.boxView.detach();
             
-
+            this.box = null;
         }
 
         if (!dontHide)
@@ -302,6 +302,10 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         this.boxOp.interpolateSync(worldList, boxList)
         this.activeEditorList().forEach(e=>e.tryAttach());
         this.viewManager.render();
+    };
+
+    this.parentUi.querySelector("#exit").onclick = ()=>{
+        this._save();
     };
 
     this.parentUi.querySelector("#save").onclick = ()=>{

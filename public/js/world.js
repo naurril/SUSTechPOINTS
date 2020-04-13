@@ -1655,6 +1655,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.deleteAll = function(){
         var _self= this;
 
+        console.log("delete world!", 
+            this.frameInfo.scene, 
+            this.frameInfo.frame);
+
         if (this.everythingDone){
             this.unload();
         }

@@ -2,15 +2,15 @@
 
 import {World} from "./world.js";
 
-function Data(metaData, enableMultiWorld){
+function Data(metaData){
 
     // multiple world support
     // place world by a offset so they don't overlap
 
-    this.enableMultiWorld = enableMultiWorld;
     this.worldGap=200.0;
     this.worldList=[];
-
+    this.MaxWorldNumber=30;
+    this.createWorldIndex = 0; // this index shall not repeat, so it increases permanently
     this.getWorld = function(sceneName, frame, on_preload_finished){
         // find in list
         let world = this.worldList.find((w)=>{
@@ -26,19 +26,33 @@ function Data(metaData, enableMultiWorld){
 
         this.deleteWorldExcept(sceneName);
 
-        // create new
-        if (this.enableMultiWorld){
-            let createWorldIndex = this.worldList.length;
-            let world = new World(this, sceneName, frame, [this.worldGap*createWorldIndex, 0, 0], on_preload_finished);        
-            this.worldList.push(world);
-            return world;
+        
+        let world = new World(this, sceneName, frame, [this.worldGap*this.createWorldIndex, 0, 0], on_preload_finished);        
+        this.createWorldIndex++;
+        this.worldList.push(world);
+
+        this.deleteWorldNotNear(world);
+        
+        return world;
+
+    };
+
+    this.deleteWorldNotNear = function(world){
+        let currentWorldIndex = world.frameInfo.frame_index;
+
+        let disposable = (w)=>{
+            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>=this.MaxWorldNumber/2;
+            let active  = w.everythingDone;
+            return distant && !active;
         }
-        else{
-            let world = new World(this, sceneName, frame, [0, 0, 0], on_preload_finished);        
-            this.worldList.push(world);
-            return world;
-        }
-    }
+
+        let distantWorldList = this.worldList.filter(w=>disposable(w));
+
+        distantWorldList.forEach(w=>w.deleteAll());
+        
+        this.worldList = this.worldList.filter(w=>!disposable(w));
+
+    };
 
     this.deleteWorldExcept=function(keepScene){
         // release resources if scene changed
