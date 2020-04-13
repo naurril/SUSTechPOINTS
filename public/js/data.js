@@ -183,9 +183,9 @@ function Data(metaData, enableMultiWorld){
         this.worldList.push(world);
     };
 
-    this.activate_world= function(world, on_finished){
+    this.activate_world= function(world, on_finished, dontDestroyOldWorld){
 
-        if (this.enableMultiWorld){
+        if (dontDestroyOldWorld){
             world.activate(this.webgl_scene, null, on_finished);            
         }
         else{

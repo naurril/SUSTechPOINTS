@@ -227,11 +227,13 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId);
             
-            data.activate_world(world, ()=>{
-                editor.tryAttach();
-                //
-                this.viewManager.render();
-            })
+            data.activate_world(world, 
+                ()=>{
+                    editor.tryAttach();
+                    //
+                    this.viewManager.render();
+                },
+                true);
         });
     };
     

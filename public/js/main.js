@@ -73,7 +73,8 @@ function start(metaData){
           //disableMainViewKeyDown:true
       };
 
-      let data = new Data(metaData);
+      let enableMultiWorld = true;
+      let data = new Data(metaData, enableMultiWorld);
       let editor = new Editor(maindiv.lastElementChild, editorCfg, data)
       editor.run();
 

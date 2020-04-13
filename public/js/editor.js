@@ -310,6 +310,7 @@ function Editor(editorUi, editorCfg, data){
         //view_state.lock_obj_in_highlight = false; // when user unhighlight explicitly, set it to false
         this.data.world.cancel_highlight(box);
         this.floatLabelManager.restore_all();
+        
         this.viewManager.mainView.save_orbit_state(box.scale);
         this.viewManager.mainView.orbit.reset();
     };
@@ -1568,6 +1569,8 @@ function Editor(editorUi, editorCfg, data){
 
     this.previous_frame= function(){
 
+
+
         if (!this.data.meta)
             return;
 
@@ -1586,6 +1589,8 @@ function Editor(editorUi, editorCfg, data){
     };
 
     this.next_frame= function(){
+
+
 
         if (!this.data.meta)
             return;
@@ -1643,6 +1648,10 @@ function Editor(editorUi, editorCfg, data){
     // };
 
     this.on_load_world_finished= function(world){
+
+        // switch view positoin
+
+        this.lookAtWorld(world);
         this.unselectBox(null, true);
         this.unselectBox(null, true);
         this.render();
@@ -1656,6 +1665,29 @@ function Editor(editorUi, editorCfg, data){
         load_obj_ids_of_scene(world.frameInfo.scene);
     };
 
+    this.mainViewOffset = [0,0,0];
+
+    this.lookAtWorld = function(world){
+        let newOffset = [
+                world.coordinatesOffset[0] - this.mainViewOffset[0],
+                world.coordinatesOffset[1] - this.mainViewOffset[1],
+                world.coordinatesOffset[2] - this.mainViewOffset[2],
+            ];
+        
+        this.mainViewOffset = world.coordinatesOffset;
+        
+        this.viewManager.mainView.orbit.target.x += newOffset[0];
+        this.viewManager.mainView.orbit.target.y += newOffset[1];
+        this.viewManager.mainView.orbit.target.z += newOffset[2];
+
+        this.viewManager.mainView.camera.position.x += newOffset[0];
+        this.viewManager.mainView.camera.position.y += newOffset[1];
+        this.viewManager.mainView.camera.position.z += newOffset[2];
+
+        this.viewManager.mainView.orbit.update();
+        
+    };
+
     this.load_world = function(sceneName, frame){
         var self=this;
         //stop if current world is not ready!
@@ -1664,6 +1696,10 @@ function Editor(editorUi, editorCfg, data){
             return;
         }
 
+        if (this.selected_box && this.selected_box.in_highlight){
+            this.cancelFocus(this.selected_box);
+        }
+        
         var world = this.data.getWorld(sceneName, frame);
         this.data.activate_world(
             world, 

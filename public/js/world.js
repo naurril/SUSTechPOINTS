@@ -235,7 +235,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
         return null;
     };
-    
+
     this.create_time = 0;
     this.points_load_time = 0;
     this.boxes_load_time = 0;
@@ -793,6 +793,9 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
             //switch
             var points_backup = this.points.points_backup;
+            this.points.points_backup = null;
+            
+            this.scene.remove(this.points);
             this.remove_all_points(); //this.points is null now
             this.points = points_backup;
             
@@ -1591,16 +1594,33 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             //this.scene.remove(this.points);
             this.points.geometry.dispose();
             this.points.material.dispose();
+        
+            
+            if (this.points.points_backup){
+                this.points.points_backup.geometry.dispose();
+                this.points.points_backup.material.dispose();
+
+                if (this.points.points_backup.points_backup){
+                    this.points.points_backup.points_backup.geometry.dispose();
+                    this.points.points_backup.points_backup.material.dispose();
+                    this.points.points_backup.points_backup = null;
+                }
+
+                this.points.points_backup = null;
+            }
+            
+
             this.points = null;
+        }else {            
+            console.error("destroy empty world!");
         }
-        else{
-            console.error("destroy empty world!")
-        }
-    };
+    }
 
     this.unload = function(){
         if (this.everythingDone){
-        //unload all from scene, but don't destroy elements
+
+            this.cancel_highlight();
+            //unload all from scene, but don't destroy elements
         
             if (this.boxes){
                 this.boxes.forEach((b)=>{
@@ -1613,7 +1633,17 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         
             if (this.points){
                 this.scene.remove(this.points);
+
+                // if (this.points.points_backup){
+                //     let backup = this.points.points_backup;
+                //     this.points.points_backup = null;
+                //     this.remove_all_points();
+                //     this.points = backup;
+    
+                // }
             }
+
+            
             
             this.active = false;
             this.everythingDone = false;
