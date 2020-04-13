@@ -223,7 +223,47 @@ var ml = {
 
         // interpolate finished
 
+        
+        //forward
+        i = 0;
+        while (i < anns.length && !anns[i])
+            i++;
+        
+        if (i < anns.length){
+            let filter = new MaFilter(anns[i]);
+            i++;
+
+            while (i < anns.length && anns[i]){
+                filter.update(anns[i]);
+                i++;
+            }
+
+            while (i < anns.length && !anns[i]){
+                anns[i] = filter.predict();
+                i++;
+            }
+        }
         // now extrapolate
+        
+        //backward
+        i = anns.length;
+        while (i >= 0 && !anns[i])
+            i--;
+        
+        if (i >= 0){
+            let filter = new MaFilter(anns[i]);
+            i--;
+
+            while (i >= 0 && anns[i]){
+                filter.update(anns[i]);
+                i--;
+            }
+
+            while (i >= 0 && !anns[i]){
+                anns[i] = filter.predict();
+                i--;
+            }
+        }
 
         return anns;
 
@@ -234,15 +274,30 @@ var ml = {
 
 
 function MaFilter(initX){
-    this.x = initX;
+    this.x = tf.tensor1d(initX);
     this.step = 0;
     
-    this.v = tf.tensor1d(9);
+    this.v = tf.zeros([9]);
 
     this.update = function(x){
-        this.step+=1;
+        if (this.step == 0){
+            this.v = tf.sub(x, this.x);
+        } else {
+            this.v = tf.add(tf.mul(tf.sub(x, this.x), 0.5),
+                            tf.mul(this.v, 0.5));
+        }
 
-    }
+        this.x = x;
+        this.step++;
+    };
+
+    this.predict = function(){
+        this.x = tf.add(this.x, this.v);
+        this.step++;
+        return this.x.dataSync();
+    };
+
+
 }
 
 export {ml};

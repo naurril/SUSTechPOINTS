@@ -213,7 +213,8 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         objTrackId: ""
     };
     
-    this.edit = function(data, sceneMeta, objTrackId){
+    // frame specifies the center frame to edit
+    this.edit = function(data, sceneMeta, frame, objTrackId){
         
         this.reset();
 
@@ -222,7 +223,15 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         this.editingTarget.scene = sceneName;
         this.editingTarget.objTrackId = objTrackId;
 
-        sceneMeta.frames.forEach((frame)=>{
+        let centerIndex = sceneMeta.frames.findIndex(f=>f==frame);
+        if (centerIndex < 0){
+            centerIndex = 0;
+        }
+
+        let N = 20;
+        let startIndex = Math.max(0, centerIndex-10);
+
+        sceneMeta.frames.slice(startIndex, startIndex+N).forEach((frame)=>{
             let world = data.getWorld(sceneName, frame);
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId);
@@ -246,8 +255,8 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
         //let boxes = this.editorList.map(e=>e.box); //some may be null, that's ok
         //this.boxOp.interpolateSync(boxes);
-        if (this.cfg.enableAutoSave)
-            this._saveAndTransfer();
+        // if (this.cfg.enableAutoSave)
+        //     this._saveAndTransfer();
     };
 
     this.parentUi = parentUi;
@@ -296,15 +305,15 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
 
     this.parentUi.querySelector("#save").onclick = ()=>{
-        this._saveAndTransfer();
+        this._save();
     };
 
 
-    this._saveAndTransfer = function(){
+    this._save = function(){
         let worldList = []
         let editorList = []
         this.activeEditorList().forEach(e=>{
-            if (e.box && e.box.changed){
+            if (e.box){ // && e.box.changed){   // save all
                 worldList.push(e.box.world);
                 editorList.push(e);
             }
@@ -316,17 +325,17 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
                 e.updateInfo();
             });
 
-            if (this.activeEditorList().length > 1){ // are we in batch editing mode?
-                //transfer
-                let doneTransfer = ()=>{
-                    this.refreshAllAnnotation();
-                };
+            // if (this.activeEditorList().length > 1){ // are we in batch editing mode?
+            //     //transfer
+            //     let doneTransfer = ()=>{
+            //         this.refreshAllAnnotation();
+            //     };
 
-                this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
-                    this.editingTarget.objTrackId, 
-                    "", 
-                    doneTransfer);
-            }
+            //     this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
+            //         this.editingTarget.objTrackId, 
+            //         "", 
+            //         doneTransfer);
+            // }
             
         };
 

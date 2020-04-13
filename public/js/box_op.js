@@ -303,25 +303,25 @@ function BoxOp(){
 
     this.interpolate_selected_object= function(sceneName, objTrackId, currentFrame, done){
 
-        var xhr = new XMLHttpRequest();
-        // we defined the xhr
+        // var xhr = new XMLHttpRequest();
+        // // we defined the xhr
         
-        xhr.onreadystatechange = function () {
-            if (this.readyState != 4) 
-                return;
+        // xhr.onreadystatechange = function () {
+        //     if (this.readyState != 4) 
+        //         return;
         
-            if (this.status == 200) {
-                var ret = JSON.parse(this.responseText);
-                console.log(ret);
+        //     if (this.status == 200) {
+        //         var ret = JSON.parse(this.responseText);
+        //         console.log(ret);
 
-                if (done)
-                    done(sceneName, ret);
-            }
+        //         if (done)
+        //             done(sceneName, ret);
+        //     }
 
-        };
+        // };
         
-        xhr.open('GET', "/interpolate?scene="+sceneName+"&frame="+currentFrame+"&obj_id="+objTrackId, true);
-        xhr.send();
+        // xhr.open('GET', "/interpolate?scene="+sceneName+"&frame="+currentFrame+"&obj_id="+objTrackId, true);
+        // xhr.send();
     };
 
     this.highlightBox = function(box){
@@ -363,11 +363,23 @@ function BoxOp(){
                               ann.rotation, 
                               obj_type, 
                               obj_track_id);
-
+                newBox.annotator="M";
                 world.load_box(newBox);
 
             } else if (boxList[i].annotator) {
                 // modify box attributes
+                let b = boxList[i].world.vector_to_ann(anns[i]);
+                boxList[i].position.x = b.position.x;
+                boxList[i].position.y = b.position.y;
+                boxList[i].position.z = b.position.z;
+                
+                boxList[i].scale.x = b.scale.x;
+                boxList[i].scale.y = b.scale.y;
+                boxList[i].scale.z = b.scale.z;
+
+                boxList[i].rotation.x = b.rotation.x;
+                boxList[i].rotation.y = b.rotation.y;
+                boxList[i].rotation.z = b.rotation.z;
             }
         }
     };

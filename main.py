@@ -77,9 +77,9 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def interpolate(self, scene, frame, obj_id):
-      interpolate_num = trajectory.predict(scene, obj_id, frame, None)
-      return interpolate_num
-
+      # interpolate_num = trajectory.predict(scene, obj_id, frame, None)
+      # return interpolate_num
+      return 0
 
     # data  N*3 numpy array
     @cherrypy.expose    

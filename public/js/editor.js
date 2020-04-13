@@ -537,7 +537,7 @@ function Editor(editorUi, editorCfg, data){
         var sceneName = this.editorUi.querySelector("#scene-selector").value;
         let objectTrackId = event.currentTarget.value;
 
-        this.boxEditorManager.edit(this.data, this.data.getMetaBySceneName(sceneName), objectTrackId);
+        this.boxEditorManager.edit(this.data, this.data.getMetaBySceneName(sceneName), null, objectTrackId);
         
     };
 
@@ -805,7 +805,7 @@ function Editor(editorUi, editorCfg, data){
             var id = event.currentTarget.value;
 
 
-            if (id == "auto"){
+            if (id == "new"){
                 id = generate_new_unique_id(this.data.world);
                 this.floatLabelManager.update_label_editor(this.selected_box.obj_type, id);
             }
