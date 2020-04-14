@@ -278,13 +278,16 @@ function MaFilter(initX){
     this.step = 0;
     
     this.v = tf.zeros([9]);
+    this.decay = tf.tensor1d([0.5, 0.5, 0.5, 
+                              0.5, 0.5, 0.5,
+                              0.5, 0.5, 0.5])
 
     this.update = function(x){
         if (this.step == 0){
             this.v = tf.sub(x, this.x);
         } else {
-            this.v = tf.add(tf.mul(tf.sub(x, this.x), 0.5),
-                            tf.mul(this.v, 0.5));
+            this.v = tf.add(tf.mul(tf.sub(x, this.x), this.decay),
+                            tf.mul(this.v, tf.sub(1, this.decay)));
         }
 
         this.x = x;
@@ -292,7 +295,7 @@ function MaFilter(initX){
     };
 
     this.predict = function(){
-        this.x = tf.add(this.x, this.v);
+        this.x = tf.concat([tf.add(this.x, this.v).slice(0,6), this.x.slice(6)]);
         this.step++;
         return this.x.dataSync();
     };

@@ -209,8 +209,11 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
 
     this.editingTarget = {
-        scene: "",
-        objTrackId: ""
+        data: null,
+        sceneMeta: "",
+        objTrackId: "",
+        frame:"",
+        frameIndex: NaN,
     };
     
     // frame specifies the center frame to edit
@@ -220,10 +223,14 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
         let sceneName = sceneMeta.scene;
 
-        this.editingTarget.scene = sceneName;
+        this.editingTarget.data = data;
+        this.editingTarget.sceneMeta = sceneMeta;
         this.editingTarget.objTrackId = objTrackId;
+        this.editingTarget.frame = frame;
 
         let centerIndex = sceneMeta.frames.findIndex(f=>f==frame);
+        this.editingTarget.frameIndex = centerIndex;
+
         if (centerIndex < 0){
             centerIndex = 0;
         }
@@ -306,6 +313,25 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
     this.parentUi.querySelector("#exit").onclick = ()=>{
         this._save();
+    };
+
+    this.parentUi.querySelector("#next").onclick = ()=>{
+        let maxFrameIndex = this.editingTarget.sceneMeta.frames.length-1;
+        this.edit(
+            this.editingTarget.data,
+            this.editingTarget.sceneMeta,
+            this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex+10, maxFrameIndex)],
+            this.editingTarget.objTrackId
+        );
+    };
+
+    this.parentUi.querySelector("#prev").onclick = ()=>{
+        this.edit(
+            this.editingTarget.data,
+            this.editingTarget.sceneMeta,
+            this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex-10, 0)],
+            this.editingTarget.objTrackId
+        );
     };
 
     this.parentUi.querySelector("#save").onclick = ()=>{

@@ -314,13 +314,19 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
     };
 
     this.box = null;
+    this.defaultBox = {
+        position: {x: 0, y: 0, z: 0},
+        rotation: {x: 0, y: 0, z: 0},
+        scale: {x: 5, y: 5, z: 5},
+    };
 
     this.attachBox = function(box){
         this.box = box;
         this.onBoxChanged();
     };
     this.detach = function(){
-        this.box = null;
+        this.box = this.defaultBox;
+        this.onBoxChanged();
     };
 
     this.onBoxChanged=function(){
@@ -363,6 +369,8 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
                 zoom_ratio: this.zoom_ratio,
             }
         },
+
+        
     };
 
     this.views = [

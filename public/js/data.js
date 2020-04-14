@@ -9,7 +9,7 @@ function Data(metaData){
 
     this.worldGap=200.0;
     this.worldList=[];
-    this.MaxWorldNumber=30;
+    this.MaxWorldNumber=40;
     this.createWorldIndex = 0; // this index shall not repeat, so it increases permanently
     this.getWorld = function(sceneName, frame, on_preload_finished){
         // find in list
@@ -24,14 +24,9 @@ function Data(metaData){
 
     this._createWorld = function(sceneName, frame, on_preload_finished){
 
-        this.deleteWorldExcept(sceneName);
-
-        
         let world = new World(this, sceneName, frame, [this.worldGap*this.createWorldIndex, 0, 0], on_preload_finished);        
         this.createWorldIndex++;
         this.worldList.push(world);
-
-        this.deleteWorldNotNear(world);
         
         return world;
 
@@ -63,25 +58,32 @@ function Data(metaData){
         this.worldList = this.worldList.filter(w=>w.frameInfo.scene==keepScene);
     };
     
-    this.preloadScene = function(sceneName){
+    this.preloadScene = function(sceneName, currentWorld){
+
+        
+        this.deleteWorldExcept(sceneName);
+        this.deleteWorldNotNear(currentWorld);
 
         //this.deleteWorldExcept(sceneName);
-        let meta = this.getMetaBySceneName(sceneName);
+        let meta = currentWorld.sceneMeta;
 
-        if (meta.frames.length<50){
-            meta.frames.forEach(frame=>{
-                let world = this.worldList.find((w)=>{
-                    return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
-                })
+        let currentWorldIndex = currentWorld.frameInfo.frame_index;
+        let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/2);
+        let endIndex = Math.min(meta.frames.length, 1 + currentWorldIndex + this.MaxWorldNumber/2);
 
-                if (!world){
-                    this._createWorld(sceneName, frame);
-                }
+        console.log(`preload ${startIndex}, ${endIndex}`);
+
+        
+        meta.frames.slice(startIndex, endIndex).forEach(frame=>{
+            let world = this.worldList.find((w)=>{
+                return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
             })
-        }
-        else{
-            console.log("too many frames, don't preload.");
-        }
+
+            if (!world){
+                this._createWorld(sceneName, frame);
+            }
+        });
+        
     };
 
     this.reloadAllAnnotation=function(done){

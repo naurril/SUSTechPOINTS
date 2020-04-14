@@ -1401,10 +1401,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case '+':
             case '=':
                 this.data.scale_point_size(1.2);
+                this.batchEditor.data.scale_point_size(1.2);
                 this.render();
                 break;
             case '-':
                 this.data.scale_point_size(0.8);
+                this.batchEditor.data.scale_point_size(0.8);
                 this.render();
                 break;
             case '1': 
@@ -1732,7 +1734,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         if (this.selected_box && this.selected_box.in_highlight){
             this.cancelFocus(this.selected_box);
         }
-        
+
         var world = this.data.getWorld(sceneName, frame);
         this.data.activate_world(
             world, 
@@ -1740,8 +1742,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 self.on_load_world_finished(world);
 
                 // preload after the first world loaded
-                // 
-                self.data.preloadScene(sceneName);
+                // otherwise the loading of the first world would be too slow
+                self.data.preloadScene(sceneName, world);
             }
         );
 

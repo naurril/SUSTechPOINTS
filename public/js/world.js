@@ -1709,12 +1709,13 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             pos.x,
             pos.y,
             pos.z,
-            box.scale.x,
-            box.scale.y,
-            box.scale.z,
             box.rotation.x,
             box.rotation.y,
             box.rotation.z,
+
+            box.scale.x,
+            box.scale.y,
+            box.scale.z,
         ];
     }
 
@@ -1726,17 +1727,19 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 z:v[2] + this.coordinatesOffset[2],
             },
 
-            scale:{
+           
+            rotation:{
                 x:v[3],
                 y:v[4],
                 z:v[5],
             },
 
-            rotation:{
+            scale:{
                 x:v[6],
                 y:v[7],
                 z:v[8],
             },
+
         };
     };
 }
