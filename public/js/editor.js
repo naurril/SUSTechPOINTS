@@ -141,7 +141,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.editorCfg,
             this.boxOp,
             this.header,
-            (b)=>this.on_box_changed(b));
+            (b)=>this.on_box_changed(b),
+            (b)=>this.remove_box(b));
 
         if (!this.editorCfg.disableMainBoxEditor)
         {
@@ -492,11 +493,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.data.world.frameInfo.frame,
                 this.selected_box.obj_track_id
             );
-
-            
         };
-        
-        
     };
 
 
@@ -1751,6 +1748,31 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
 
+    this.remove_box = function(box){
+        if (box === this.selected_box){
+            this.remove_selected_box();
+        } else {
+
+            if (box.boxEditor){
+                box.boxEditor.detach("donthide");
+            }
+            else{
+                console.error("what?");
+            }
+
+            this.restore_box_points_color(box);
+
+            this.imageContext.image_manager.remove_box(box.obj_local_id);
+
+            this.floatLabelManager.remove_box(box);
+            this.scene.remove(box);        
+            
+            //this.selected_box.dispose();
+            box.world.remove_box(box);
+            this.render();
+        }
+    };
+
     this.remove_selected_box= function(){
         if (this.selected_box){
             var target_box = this.selected_box;
@@ -1830,8 +1852,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.restore_box_points_color= function(box){
         if (this.data.config.color_obj){
-            this.data.world.set_box_points_color(box, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
-            this.data.world.update_points_color();
+            box.world.set_box_points_color(box, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
+            box.world.update_points_color();
             this.render();
         }
     };

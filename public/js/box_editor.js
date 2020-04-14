@@ -8,7 +8,8 @@ import { ml } from "./ml.js";
 1) attach/detach
 2) setTarget, tryAttach, resetTarget
 */
-function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_box_changed, name){
+function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, 
+    func_on_box_changed, func_on_box_remove, name){
     
     this.boxEditorManager = boxEditorManager;
     this.parentUi = parentUi;
@@ -28,7 +29,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         cfg,
         this.boxView.views,
         this.boxOp,
-        func_on_box_changed);
+        func_on_box_changed,func_on_box_remove);
 
     this.projectiveViewOps.init_view_operation();
 
@@ -137,8 +138,14 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
         this.boxEditorManager.onBoxChanged(this);
 
         this.updateInfo();
-    }
+    };
 
+    this.onDelBox = function(){
+        let box = this.box;
+        this.detach("donthide");
+
+
+    };
 
     // windowresize...
     this.update = function(dontRender=false){
@@ -195,7 +202,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, func_on_
 
 
 //parentUi  #box-editor-wrapper
-function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed){
+function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove){
     this.viewManager = viewManager;
     this.boxOp = boxOp;
     this.activeIndex = 0;
@@ -392,7 +399,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
     this.allocateEditor = function(){
         if (this.activeIndex >= this.editorList.length){
-            let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, String(this.activeIndex));
+            let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, func_on_box_remove, String(this.activeIndex));
             this.editorList.push(editor);
             return editor;
         }else{

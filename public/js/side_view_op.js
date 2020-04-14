@@ -6,7 +6,7 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
+function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func_on_box_remove){
 
     this.ui = ui;
     this.cfg = editorCfg;
@@ -25,7 +25,8 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
         on_auto_rotate, 
         on_reset_rotate, 
         on_focus=default_on_focus, 
-        on_contextmenu=default_context_menu){
+        on_contextmenu=default_context_menu,
+        on_box_remove=default_on_del){
         var mouse_start_pos;
     
         var view_handle_dimension = {  //dimension of the enclosed box
@@ -678,6 +679,8 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                             else
                                 on_moved({x:0, y:-0.01});
                             break;    
+                        } else{
+                            console.log("ctrl+s");
                         }
                         break;
                     case 'ArrowDown':
@@ -700,6 +703,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
                             on_moved({x:-0.01, y:0});
                         break;
                     case 'd':
+                        if (event.ctrlKey){
+                            console.log("ctrl+d");
+                            default_on_del();
+                            break;
+                        }
                     case 'ArrowRight':
                         event.preventDefault();
                         event.stopPropagation();
@@ -723,6 +731,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed){
     
     var scope = this;
 
+    function default_on_del(){
+        if (scope.box){
+            func_on_box_remove(scope.box);
+        }
+    }
 
     function default_on_focus(){
         // this is a long chain!
