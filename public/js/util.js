@@ -84,12 +84,17 @@ function psr_to_xyz(p,s,r){
     -x, y, -z, 1,   -x, -y, -z, 1,  //rear-left-bottom, rear-right-bottom
     -x, -y, z, 1,   -x, y, z, 1,  //rear-right-top,   rear-left-top
     
+    //middle plane
+    0, y, -z, 1,   0, -y, -z, 1,  //rear-left-bottom, rear-right-bottom
+    0, -y, z, 1,   0, y, z, 1,  //rear-right-top,   rear-left-top
    ];
 
     var world_coord = matmul(trans_matrix, local_coord, 4);
     var w = world_coord;
     return w;
 }
+
+
 
 function xyz_to_psr(vertices){
     var ann = vertices;

@@ -1016,8 +1016,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         var indices=[];
         var cand_point_indices = point_indices;
         if (!point_indices)
-        {                   
-            
+        {
             cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, scale_ratio);
         }
 
@@ -1479,6 +1478,11 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.load_box = function(box){
         if (this.everythingDone)
             this.scene.add(box);
+    };
+
+    this.unload_box = function(box){
+        if (this.everythingDone)
+            this.scene.remove(box);
     };
 
     this.remove_box=function(box){

@@ -350,15 +350,14 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         let worldList = []
         let editorList = []
         this.activeEditorList().forEach(e=>{
-            if (e.box){ // && e.box.changed){   // save all
-                worldList.push(e.box.world);
-                editorList.push(e);
-            }
+            worldList.push(e.target.world);
+            editorList.push(e);
         });
 
         let doneSave = ()=>{
             editorList.forEach(e=>{
-                e.box.changed = false;
+                if (e.box)
+                    e.box.changed = false;
                 e.updateInfo();
             });
 

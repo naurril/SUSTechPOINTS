@@ -13,7 +13,7 @@ import {Header} from "./header.js"
 import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
-import {saveWorld, reloadWorldList} from "./save.js"
+import {saveWorld, reloadWorldList, saveWorldList} from "./save.js"
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -160,7 +160,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             function(ev){self.handleRightClick(ev);}, 
             function(x,y,w,h){self.handleSelectRect(x,y,w,h);});
 
-        this.autoAdjust=new AutoAdjust(this.mouse);
+        this.autoAdjust=new AutoAdjust(this.mouse, this.header);
 
 
         this.install_fast_tool();
@@ -284,7 +284,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         };
 
         this.editorUi.querySelector("#label-copy").onclick = function(event){
-            mark_bbox(self.selected_box, self.header);
+            self.autoAdjust.mark_bbox(self.selected_box);
             //event.currentTarget.blur();
         }
 
@@ -442,7 +442,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         };
 
         menuUi.querySelector("#cm-save").onclick = (event)=>{
-            saveWorld(this.data.world, function(){
+            saveWorld(this.data.world, ()=>{
                 this.header.unmark_changed_flag();
             });
         };
@@ -493,6 +493,24 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.data.world.frameInfo.frame,
                 this.selected_box.obj_track_id
             );
+        };
+
+        objMenuUi.querySelector("#cm-fix-relation").onclick = (event)=>{
+            this.autoAdjust.fixRelationToRef(this.selected_box);
+        };
+
+        objMenuUi.querySelector("#cm-delete-obj").onclick = (event)=>{
+            let saveList=[];
+            this.data.worldList.forEach(w=>{
+                let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                if (box && box !== this.selected_box){
+                    w.unload_box(box);
+                    w.remove_box(box);
+                    saveList.push(w);
+                }                
+            });
+
+            saveWorldList(saveList);
         };
     };
 
@@ -1447,7 +1465,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;
             case 'c': // Z
                 if (ev.ctrlKey){
-                    this.mark_bbox(this.selected_box, this.header);
+                    this.mark_bbox(this.selected_box);
                 } else {
                     this.viewManager.mainView.transform_control.showZ = ! this.viewManager.mainView.transform_control.showZ;
                 }

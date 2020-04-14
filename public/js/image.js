@@ -646,6 +646,10 @@ function box_to_2d_points(box, calib){
     var rotation = box.rotation;
 
     var box3d = psr_to_xyz(pos, scale, rotation);
+
+    console.log(box.obj_track_id, box3d.slice(8*4));
+
+    box3d = box3d.slice(0,8*4);
     
     var imgpos = matmul(calib.extrinsic, box3d, 4);
     
