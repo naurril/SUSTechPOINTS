@@ -1,6 +1,6 @@
 
 import {saveWorld, saveWorldList} from "./save.js"
-import {transpose, matmul2, euler_angle_to_rotate_matrix } from "./util.js";
+import {transpose, matmul2, euler_angle_to_rotate_matrix_3by3 } from "./util.js";
 
 // todo: this module needs a proper name
 
@@ -28,7 +28,7 @@ function AutoAdjust(mouse, header){
         }
     };
     
-    this.fixRelationToRef = function(box){
+    this.followsRef = function(box){
         //find ref object in current frame
         let world = box.world;
         let refObj = world.boxes.find(b=>b.obj_track_id == this.marked_object.obj_track_id);
@@ -38,14 +38,13 @@ function AutoAdjust(mouse, header){
             //compute relative position
             // represent obj in coordinate system of refobj
             
-            let coord = euler_angle_to_rotate_matrix(refObj.rotation, {x:0,y:0,z:0});
-            let trans = transpose(coord);
+            let coord = euler_angle_to_rotate_matrix_3by3(refObj.rotation);
+            let trans = transpose(coord, 3);
             let p = [box.position.x - refObj.position.x, 
                      box.position.y - refObj.position.y, 
-                     box.position.z - refObj.position.z, 
-                     1];
-            let relativePos = matmul2(trans, p, 4);
-            let relativeRot = {
+                     box.position.z - refObj.position.z];
+            const relativePos = matmul2(trans, p, 3);
+            const relativeRot = {
                 x: box.rotation.x - refObj.rotation.x,
                 y: box.rotation.y - refObj.rotation.y,
                 z: box.rotation.z - refObj.rotation.z,
@@ -74,9 +73,9 @@ function AutoAdjust(mouse, header){
                     return;
                 }
 
-                let coord = euler_angle_to_rotate_matrix(refObjInW.rotation, {x:0, y:0, z:0}, 4);
+                let coord = euler_angle_to_rotate_matrix_3by3(refObjInW.rotation);
 
-                let rp = matmul2(coord, relativePos, 4);
+                let rp = matmul2(coord, relativePos, 3);
                 let newObjPos = {
                     x: refObjInW.position.x + rp[0],
                     y: refObjInW.position.y + rp[1],
@@ -89,19 +88,86 @@ function AutoAdjust(mouse, header){
                     z: refObjInW.rotation.z + relativeRot.z
                 };
                 
-                let newBox  = w.add_box(newObjPos, 
-                    box.scale, 
-                    newObjRot, 
-                    box.obj_type, 
-                    box.obj_track_id);
-                newBox.annotator="F";
-                w.load_box(newBox);
+                if (existedBox){
+                    existedBox.position.x = newObjPos.x;
+                    existedBox.position.y = newObjPos.y;
+                    existedBox.position.z = newObjPos.z;
+
+                    existedBox.rotation.x = newObjRot.x;
+                    existedBox.rotation.y = newObjRot.y;
+                    existedBox.rotation.z = newObjRot.z;
+
+                    existedBox.scale.x = box.scale.x;
+                    existedBox.scale.y = box.scale.y;
+                    existedBox.scale.z = box.scale.z;
+
+                    existedBox.annotator="F";
+                    existedBox.follows = {
+                        obj_track_id: refObj.obj_track_id,
+                        relative_position: {
+                            x: relativePos[0],
+                            y: relativePos[1],
+                            z: relativePos[2],
+                        },
+                        relative_rotation: relativeRot,
+                    };
+                } else{
+                    let newBox  = w.add_box(newObjPos, 
+                        box.scale, 
+                        newObjRot, 
+                        box.obj_type, 
+                        box.obj_track_id);
+                    newBox.annotator="F";
+                    newBox.follows = {
+                        obj_track_id: refObj.obj_track_id,
+                        relative_position: {
+                            x: relativePos[0],
+                            y: relativePos[1],
+                            z: relativePos[2],
+                        },
+                        relative_rotation: relativeRot,
+                    };
+
+                    w.load_box(newBox);
+                }
+
                 console.log("added box in ", w.frameInfo.frame);
                 saveList.push(w);
             });
 
             saveWorldList(saveList);
         }
+    };
+
+    this.syncFollowers = function(box){
+        let world = box.world;
+        let allFollowers = world.boxes.filter(b=>b.follows && b.follows.obj_track_id === box.obj_track_id);
+
+        if (allFollowers.length == 0){
+            console.log("no followers");
+            return;
+        }
+
+        let refObj = box;
+        let coord = euler_angle_to_rotate_matrix_3by3(refObj.rotation);
+        
+
+        allFollowers.forEach(fb=>{
+            let relpos = [fb.follows.relative_position.x,
+                fb.follows.relative_position.y,
+                fb.follows.relative_position.z,
+            ];
+
+            let rp = matmul2(coord, relpos, 3);
+            
+            fb.position.x = refObj.position.x + rp[0];
+            fb.position.y = refObj.position.y + rp[1];
+            fb.position.z = refObj.position.z + rp[2];
+
+            fb.rotation.x = refObj.rotation.x + fb.follows.relative_rotation.x;
+            fb.rotation.y = refObj.rotation.y + fb.follows.relative_rotation.y;
+            fb.rotation.z = refObj.rotation.z + fb.follows.relative_rotation.z;
+        });
     };
 
     this.paste_bbox=function(pos, add_box_on_pos){

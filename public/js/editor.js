@@ -495,9 +495,20 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             );
         };
 
-        objMenuUi.querySelector("#cm-fix-relation").onclick = (event)=>{
-            this.autoAdjust.fixRelationToRef(this.selected_box);
+        objMenuUi.querySelector("#cm-select-as-ref").onclick = (event)=>{
+            this.autoAdjust.mark_bbox(this.selected_box);
         };
+        
+
+        objMenuUi.querySelector("#cm-follow-ref").onclick = (event)=>{
+            this.autoAdjust.followsRef(this.selected_box);
+        };
+
+        objMenuUi.querySelector("#cm-sync-followers").onclick = (event)=>{
+            this.autoAdjust.syncFollowers(this.selected_box);
+            this.render();
+        };
+
 
         objMenuUi.querySelector("#cm-delete-obj").onclick = (event)=>{
             let saveList=[];
@@ -1865,6 +1876,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             console.error("what?");
         }
 
+        this.autoAdjust.syncFollowers(box);
+        
         this.render();
     };
 

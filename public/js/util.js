@@ -257,7 +257,7 @@ function mat(m, s, x, y){
 }
 
 // m; matrix, vl: column vector length
-function transpose(m, cl){
+function transpose(m, cl=NaN){
     var rl = m.length/cl;
     for (var i = 0; i<cl; i++){
         for(var j=i+1; j<rl; j++){

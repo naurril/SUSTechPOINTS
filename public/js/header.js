@@ -58,10 +58,13 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
                                                     scale.x.toFixed(2) +" "+scale.y.toFixed(2) + " " + scale.z.toFixed(2) + " | " +
                                                     (rotation.x*180/Math.PI).toFixed(2)+" "+(rotation.y*180/Math.PI).toFixed(2)+" "+(rotation.z*180/Math.PI).toFixed(2)+" | " +
                                                     points_number + " ";
+        if (box.follows){
+            this.boxUi.innerHTML += "| F:"+box.follows.obj_track_id;
+        }
     },
 
     this.set_ref_obj = function(marked_object){
-        this.refObjUi.innerHTML="| BoxRef: "+marked_object.scene+"/"+marked_object.frame+": "+marked_object.obj_type+"-"+marked_object.obj_track_id;
+        this.refObjUi.innerHTML="| Ref: "+marked_object.scene+"/"+marked_object.frame+": "+marked_object.obj_type+"-"+marked_object.obj_track_id;
     },
 
     this.set_frame_info =function(scene, frame, on_scene_changed){

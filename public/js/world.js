@@ -600,6 +600,9 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         if (b.annotator){
             mesh.annotator = b.annotator;
         }
+
+        if (b.follows)
+            mesh.follows = b.follows;
         
         return mesh;  
     };
@@ -1703,6 +1706,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             if (b.annotator)
                 ann.annotator = b.annotator;
 
+            if (b.follows)
+                ann.follows = b.follows;
             return ann;
         });
     };
