@@ -114,10 +114,10 @@ function start(metaData){
 
 
   let mainEditor = createMainEditor();
-  let batchEditor = createBatchEditor();
-  batchEditor.hide();
+  // let batchEditor = createBatchEditor();
+  // batchEditor.hide();
 
-  mainEditor.setBatchEditor(batchEditor);
+  // mainEditor.setBatchEditor(batchEditor);
 
 
 }

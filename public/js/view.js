@@ -56,7 +56,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
             this.active = false;
             this.render();
         };
-        view.endable = function(){
+        view.enable = function(){
             this.active = true;
             this.render();
         }

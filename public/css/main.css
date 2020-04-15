@@ -299,15 +299,17 @@ dynamic set obj-type css has higher priority than this one.
 
 
 
-
-#main-editor .v-buttons-wrapper {
-	position: absolute;
-	bottom: 0%;
-	right: 0%;
-	background-color: #222;
-	margin: 1px;
+#batch-editor-tools-wrapper{
+	width:auto;
+	display: flex;
+    justify-content: flex-end;
 }
-#main-editor .ui-button {
+
+#batch-editor-tools{
+	display: inherit;
+}
+
+.ui-button {
 	background-color: #222;
 	padding-left: 0;
 	padding-right: 0;
@@ -317,7 +319,49 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 
-#batch-editor .v-buttons-wrapper {
+#main-box-editor-wrapper {
+	position: absolute;
+	top: 0%;    
+	left: 0%;
+    width: 20%;
+	height: 100%;
+}
+
+
+
+#main-box-editor-wrapper .v-buttons-wrapper {
+	position: absolute;
+	bottom: 0%;
+	right: 0%;
+	background-color: #222;
+	margin: 1px;
+}
+
+
+
+#main-box-editor-wrapper #sub-views {
+	display: inline-block;
+	position: relative;	
+    width: 100%;
+    height: 100%;
+}
+
+#batch-box-editor-wrapper{
+	position: absolute;
+	top: 0%;    
+	left: 0%;
+	width: 100%;
+	height: auto;
+}
+
+#batch-box-editor-wrapper #sub-views {
+	display: inline-block;
+	position: relative;	
+    width: 130px;
+    height: 450px;
+}
+
+#batch-box-editor-wrapper .v-buttons-wrapper {
 	display: block;
 	position: absolute;
 	bottom: 0%;
@@ -326,7 +370,7 @@ dynamic set obj-type css has higher priority than this one.
 	margin: 0;
 }
 
-#batch-editor .ui-button {
+#batch-box-editor-wrapper .ui-button {
 	display: block;
 	background-color: #222;
 	padding-left: 0;
@@ -340,37 +384,6 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 
-
-
-#main-editor #box-editor-wrapper {
-	position: absolute;
-	top: 0%;    
-	left: 0%;
-    width: 20%;
-	height: 100%;
-}
-
-#main-editor #sub-views {
-	display: inline-block;
-	position: relative;	
-    width: 100%;
-    height: 100%;
-}
-
-#batch-editor #box-editor-wrapper{
-	position: absolute;
-	top: 0%;    
-	left: 0%;
-	width: 100%;
-	height: auto;
-}
-
-#batch-editor #sub-views {
-	display: inline-block;
-	position: relative;	
-    width: 130px;
-    height: 450px;
-}
 
 #box-info{
 	position: absolute;
@@ -511,17 +524,3 @@ td {
 
 
 
-#batch-editor #batch-editor-tools-wrapper{
-	width:auto;
-	display: flex;
-    justify-content: flex-end;
-}
-
-#batch-editor-tools{
-	display: inherit;
-}
-
-
-#main-editor #batch-editor-tools-wrapper{
-	display: none;
-}

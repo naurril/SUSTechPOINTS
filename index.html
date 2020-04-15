@@ -15,7 +15,7 @@
 
 	<body>
 		<div id="main-editor"></div>
-		<div id="batch-editor">			
+		<!-- div id="batch-editor"-->
 		</div>
 		<template id="editor-template"><div id="main-ui" class="editor-ui">
 				<div id="container"  tabindex="-1">			
@@ -49,9 +49,8 @@
 				</div>
 				
 				<!-- div id="image"></div -->
-				
-				<div id="floating-labels" class="floating-labels-wrapper"></div>
-
+				<div id="floating-labels-wrapper">
+				<div id="floating-labels"></div>
 				<div id="obj-editor">
 						<div id="category-id-editor">
 							<select title="category" id="object-category-selector">							
@@ -71,6 +70,7 @@
 						<div id="label-del" class="ui-button"  title="delete (Del)"><span class="ui-icon ui-icon-trash"></span></div>
 
 				</div>
+				</div>
 
 				<div id="maincanvas-wrapper">
 					<canvas id="maincanvas" width="2048" height="1536"></canvas>
@@ -82,7 +82,8 @@
 					</svg>
 				</div>
 				
-				<div id="box-editor-wrapper"></div>
+				<div id="main-box-editor-wrapper"></div>
+				<div id="batch-box-editor-wrapper"></div>
 				<div id="context-menu-wrapper">
 				<div id="context-menu">
 					<div class="menu-item menu-seperator"></div>

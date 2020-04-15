@@ -4,7 +4,7 @@ import { GUI } from './lib/dat.gui.module.js';
 import {ViewManager} from "./view.js"
 import {createFloatLabelManager} from "./floatlabel.js"
 import {Mouse} from "./mouse.js"
-import {BoxEditorManager} from "./box_editor.js"
+import {BoxEditor, BoxEditorManager} from "./box_editor.js"
 import {ImageContext} from "./image.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
@@ -136,7 +136,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         
 
-        this.boxEditorManager = new BoxEditorManager(this.editorUi.querySelector("#box-editor-wrapper"),
+        this.boxEditorManager = new BoxEditorManager(
+            this.editorUi.querySelector("#batch-box-editor-wrapper"),
             this.viewManager,
             this.editorCfg,
             this.boxOp,
@@ -145,8 +146,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             (b)=>this.remove_box(b));
 
          
-        this.boxEditor= this.boxEditorManager.mainEditor;
-        
+        this.boxEditor= new BoxEditor(
+            this.editorUi.querySelector("#main-box-editor-wrapper"),
+            null,  // no box editor manager
+            this.viewManager, 
+            this.editorCfgg, 
+            this.boxOp, 
+            (b)=>this.on_box_changed(b),
+            (b)=>this.remove_box(b),
+            "main-boxe-ditor");
 
         this.mouse = new Mouse(
             this.viewManager.mainView,
@@ -167,8 +175,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         //this.projectiveViewOps.hide();
     
-        if (!this.editorCfg.disableGrid)
-            this.installGridLines()
+        this.installGridLines()
     
         window.onbeforeunload = function() {
             return "Exit?";
@@ -177,14 +184,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         };
 
         this.onWindowResize();
-        
-        let exitbtn = this.editorUi.querySelector("#exit");
-        if (exitbtn){
-            exitbtn.onclick = (e)=>{
-                this.hide();
-            }
-        }
     };
+
+
 
     this.run = function(){
         //this.animate();
@@ -246,6 +248,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.scene.add(box);
     };
 
+    this.hideGridLines = function(){
+        var svg = this.editorUi.querySelector("#grid-lines-wrapper");
+        svg.style.display="none";
+    };
+    this.showGridLines = function(){
+        var svg = this.editorUi.querySelector("#grid-lines-wrapper");
+        svg.style.display="";
+    };
     this.installGridLines= function(){
         
         var svg = this.editorUi.querySelector("#grid-lines-wrapper");
@@ -483,9 +493,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 console.error("no track id");
             }
 
-            this.batchEditor.show();
+            //this.batchEditor.show();
             
-            this.batchEditor.editBatch(
+            this.editBatch(
                 this.data.world.frameInfo.scene,
                 this.data.world.frameInfo.frame,
                 this.selected_box.obj_track_id
@@ -587,7 +597,26 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.editBatch = function(sceneName, frame, objectTrackId){
-        this.boxEditorManager.edit(this.data, this.data.getMetaBySceneName(sceneName), frame, objectTrackId);
+        // hide something
+        this.imageContext.hide();
+        this.floatLabelManager.hide();
+        this.viewManager.mainView.disable();
+        this.boxEditor.hide();
+        this.hideGridLines();
+
+        this.boxEditorManager.edit(this.data, 
+            this.data.getMetaBySceneName(sceneName), 
+            frame, 
+            objectTrackId,
+            ()=>{
+                this.imageContext.show();
+                this.floatLabelManager.show();
+                this.viewManager.mainView.enable();
+                this.boxEditor.show();
+                this.showGridLines();
+                this.render();
+            }
+            );
     };
 
     this.object_changed = function(event){
@@ -1424,12 +1453,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case '+':
             case '=':
                 this.data.scale_point_size(1.2);
-                this.batchEditor.data.scale_point_size(1.2);
+                //this.batchEditor.data.scale_point_size(1.2);
                 this.render();
                 break;
             case '-':
                 this.data.scale_point_size(0.8);
-                this.batchEditor.data.scale_point_size(0.8);
+                //this.batchEditor.data.scale_point_size(0.8);
                 this.render();
                 break;
             case '1': 
@@ -1649,7 +1678,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     };
 
-    this.next_frame= function(){
+    this.next_frame= function(){    
 
 
 

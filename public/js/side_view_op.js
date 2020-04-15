@@ -739,7 +739,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     function default_on_focus(){
         // this is a long chain!
-        if (scope.box)
+        if (scope.box && scope.box.boxEditor.boxEditorManager)
             scope.box.boxEditor.boxEditorManager.globalHeader.update_box_info(scope.box);
     }
     function default_context_menu(){

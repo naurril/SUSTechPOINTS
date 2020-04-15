@@ -6,7 +6,7 @@ import { ml } from "./ml.js";
 /*
 2 ways to attach and edit a box
 1) attach/detach
-2) setTarget, tryAttach, resetTarget
+2) setTarget, tryAttach, resetTarget, this is only for batch-editor-manager
 */
 function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp, 
     func_on_box_changed, func_on_box_remove, name){
@@ -48,6 +48,12 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     };
 
     this.resetTarget = function(){
+        if (this.target.world){
+            //unload if it's not the main world
+            if (this.target.world !== this.target.world.data.world)
+                this.target.world.unload();
+        }
+
         this.detach();
         this.target = {};
         //this.ui.style.display="none";
@@ -75,7 +81,13 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.updateViewZoomRatio = function(viewIndex, ratio){
         //this.upate();
-        this.boxEditorManager.updateViewZoomRatio(viewIndex, ratio);
+        if (this.boxEditorManager)
+            this.boxEditorManager.updateViewZoomRatio(viewIndex, ratio);
+        else{
+            this._setViewZoomRatio(viewIndex, ratio);
+            this.update();
+            //this.viewManager.render();            
+        }
     };
 
 
@@ -101,7 +113,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
         }
 
-        this.ui.style.display="inline-block";
+        this.show();
 
     };
 
@@ -112,7 +124,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             //todo de-highlight box
             this.projectiveViewOps.detach();
             this.boxView.detach();
-            
+            this.focusImageContext.clear_canvas();
             this.box = null;
         }
 
@@ -122,6 +134,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.hide = function(){
         this.ui.style.display="none";
+    }
+    this.show = function(){
+        this.ui.style.display="";//"inline-block";
     }
 
     this.onBoxChanged=function(){
@@ -138,7 +153,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         // don't mark world's change flag, for it's hard to clear it.
         
         // inform boxEditorMgr to transfer annotation to other frames.
-        this.boxEditorManager.onBoxChanged(this);
+        if (this.boxEditorManager)
+            this.boxEditorManager.onBoxChanged(this);
 
         this.updateInfo();
     };
@@ -204,7 +220,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 }
 
 
-//parentUi  #box-editor-wrapper
+//parentUi  #batch-box-editor-wrapper
 function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove){
     this.viewManager = viewManager;
     this.boxOp = boxOp;
@@ -213,7 +229,6 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.cfg = cfg;
     this.globalHeader = globalHeader;
     this.parentUi = parentUi;
-    this.mainEditor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, func_on_box_remove, "main-box-editor");
 
     this.activeEditorList = function(){
         return this.editorList.slice(0, this.activeIndex);
@@ -227,11 +242,17 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         frameIndex: NaN,
     };
     
+    this.onExit = null;
     // frame specifies the center frame to edit
-    this.edit = function(data, sceneMeta, frame, objTrackId){
+    this.edit = function(data, sceneMeta, frame, objTrackId, onExit){
         
+        this.show();
         this.reset();
 
+        if (onExit){
+            // next/prev call will not update onExit
+            this.onExit = onExit;
+        }
         let sceneName = sceneMeta.scene;
 
         this.editingTarget.data = data;
@@ -267,6 +288,13 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.reset = function(){
         this.activeEditorList().forEach(e=>e.resetTarget());
         this.activeIndex = 0;
+    };
+
+    this.hide =function(){
+        this.parentUi.style.display = "none";
+    };
+    this.show = function(){
+        this.parentUi.style.display = "";
     };
 
     this.onBoxChanged= function(editor){
@@ -323,7 +351,12 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     };
 
     this.parentUi.querySelector("#exit").onclick = ()=>{
-        this._save();
+        this.hide();
+
+        this.reset();
+
+        if (this.onExit)
+            this.onExit();
     };
 
     this.parentUi.querySelector("#next").onclick = ()=>{
@@ -349,7 +382,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         this._save();
     };
 
-
+    
     this._save = function(){
         let worldList = []
         let editorList = []
@@ -387,7 +420,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         const dontRender=true;
         this.activeEditorList().forEach(e=>{
             e._setViewZoomRatio(viewIndex, ratio);
-            e.update(dontRender); 
+            e.update(dontRender);
         })
 
         // render all
@@ -413,4 +446,4 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
 
 
 }
-export {BoxEditorManager};
+export {BoxEditorManager, BoxEditor};

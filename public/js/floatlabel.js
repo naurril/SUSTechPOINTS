@@ -15,6 +15,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
         container: container_div,
         id_enabled: true,
         category_enabled: true,
+        wrapperUi: editor_ui.querySelector("#floating-labels-wrapper"),
         html_labels: editor_ui.querySelector("#floating-labels"),
 
         style: document.createElement('style'),
@@ -23,6 +24,13 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
         init: function(){
             document.head.appendChild(this.style);            
             document.head.appendChild(this.temp_style);            
+        },
+
+        hide: function(){
+            this.wrapperUi.style.display="none";
+        },
+        show: function(){
+            this.wrapperUi.style.display="";
         },
 
         toggle_id: function(){

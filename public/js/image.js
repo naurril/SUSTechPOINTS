@@ -194,11 +194,12 @@ function ImageContext(ui, cfg){
     this.attachWorld = function(world){
         this.world = world;
     };
-
-
-    if (cfg.disableMainImageContext){
+    this.hide = function(){
         this.ui.style.display="none";
-    }
+    };
+    this.show = function(){
+        this.ui.style.display="";
+    };
 
     //internal
     let scope =this;

@@ -391,7 +391,6 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 _self.radar_points_loaded = true;
 
                 if (_self.preload_finished()){
-                    _self.color_points();
                     if (_self.on_preload_finished)
                         _self.on_preload_finished(_self);
                 }
@@ -415,11 +414,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 //error
                 console.log("load pcd failed.");
 
-                _self.points_loaded = true;
+                _self.radar_points_loaded = true;
                 
                 //go ahead, may load picture
-                if (_self.preload_finished()){
-                    _self.color_points();
+                if (_self.preload_finished()){                    
                     if (_self.on_preload_finished)
                         _self.on_preload_finished(_self);
                 }
