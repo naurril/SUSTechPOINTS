@@ -397,7 +397,7 @@ function ImageContext(ui, cfg){
         if (this.cfg.disableMainImageContext)
             return;
 
-        console.log("2d iamge rendered!");
+        //console.log("2d iamge rendered!");
 
         clear_main_canvas();
 
