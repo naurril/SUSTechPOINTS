@@ -29,6 +29,9 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
     this.get_pcd_path = function(){
             return 'data/'+ this.scene + "/pcd/" + this.frame + this.sceneMeta.pcd_ext;
         };
+    this.get_radar_path = function(){
+        return 'data/'+ this.scene + "/radar/front/" + this.frame + this.sceneMeta.pcd_ext;
+    };
     
     this.get_anno_path = function(){
             if (this.annotation_format=="psr"){
@@ -215,7 +218,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.points_loaded = false,
 
     this.preload_finished=function(){
-        return this.points_loaded && this.boxes && this.images.loaded();
+        return this.points_loaded && this.boxes && this.images.loaded() && this.radar_points_loaded;
     };
 
     this.reset=function(){this.points=null; this.boxes=null;};
@@ -268,7 +271,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         var _self = this;
 
         this.images.load(function(){_self.on_image_loaded();}, this.data.active_image_name);
-
+        this.load_radar();
     };
 
     // color points according to object category
@@ -316,6 +319,124 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
     this.restorePointByOffset = function(points){
 
+    };
+
+    this.radar_points = null;
+    this.radar_points_loaded = false;
+    this.load_radar=function(){
+        var loader = new PCDLoader();
+
+        var _self = this;
+        loader.load( this.frameInfo.get_radar_path(), 
+            //ok
+            function ( pcd ) {
+                var position = pcd.position;
+                var color = pcd.color;
+                var normal = pcd.normal;
+
+                //_self.points_parse_time = new Date().getTime();
+                //console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
+
+                position = _self.transformPointsByOffset(position);
+
+                // build geometry
+                var geometry = new THREE.BufferGeometry();
+                if ( position.length > 0 ) geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+                if ( normal.length > 0 ) geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
+                if ( color.length > 0 ) {
+                    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+                }
+                else {
+                    color = []
+                    for (var i =0; i< position.length; i+=3){
+
+                        color.push(_self.data.config.point_brightness);
+                        color.push(0);
+                        color.push(0);
+                    }
+                    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+                }
+
+                geometry.computeBoundingSphere();
+                // build material
+
+                var material = new THREE.PointsMaterial( { size: _self.data.config.point_size*4, vertexColors: THREE.VertexColors } );
+
+                /*
+                
+                if ( color.length > 0 ) {
+                    material.vertexColors = color;
+                } else {
+                    //material.color.setHex(0xffffff);
+                    material.color.r = 0.6;
+                    material.color.g = 0.6;
+                    material.color.b = 0.6;
+                }
+                */
+
+                //material.size = 2;
+                material.sizeAttenuation = false;
+
+                // build mesh
+
+                var mesh = new THREE.Points( geometry, material );                        
+                mesh.name = "radar";
+
+                //return mesh;
+
+                
+                _self.radar_points = mesh;
+                //_self.points_backup = mesh;
+
+                _self.radar_points_loaded = true;
+
+                if (_self.preload_finished()){
+                    _self.color_points();
+                    if (_self.on_preload_finished)
+                        _self.on_preload_finished(_self);
+                }
+
+                if (_self.active){
+                    _self.go();
+                }                       
+                
+                //var center = points.geometry.boundingSphere.center;
+                //controls.target.set( center.x, center.y, center.z );
+                //controls.update();
+            },
+
+            // on progress,
+            function(){
+
+            },
+
+            // on error
+            function(){
+                //error
+                console.log("load pcd failed.");
+
+                _self.points_loaded = true;
+                
+                //go ahead, may load picture
+                if (_self.preload_finished()){
+                    _self.color_points();
+                    if (_self.on_preload_finished)
+                        _self.on_preload_finished(_self);
+                }
+
+                if (_self.active){
+                    _self.go();
+                }                       
+                
+
+            },
+
+            // on file loaded
+            function(){
+                _self.points_readfile_time = new Date().getTime();
+                console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "read file ", _self.points_readfile_time - _self.create_time, "ms");
+            }
+        );
     };
 
     this.load_points=function(){
@@ -1401,6 +1522,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             if (this.points)
                 this.scene.add( this.points );
 
+            if (this.radar_points)
+                this.scene.add( this.radar_points );
             
             var _self=this;
             

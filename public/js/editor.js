@@ -1636,9 +1636,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             return x.scene == this.data.world.frameInfo.scene;
         });
 
-        var num_frames = scene_meta.frames.length;
+        var frame_index = this.data.world.frameInfo.frame_index-1;
 
-        var frame_index = (this.data.world.frameInfo.frame_index-1 + num_frames) % num_frames;
+        if (frame_index < 0){
+            console.log("first frame");
+            return;
+        }
 
         this.load_world(scene_meta.scene, scene_meta.frames[frame_index]);
 
@@ -1657,7 +1660,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         var num_frames = scene_meta.frames.length;
 
-        var frame_index = (this.data.world.frameInfo.frame_index +1) % num_frames;
+        var frame_index = (this.data.world.frameInfo.frame_index +1);
+
+        if (frame_index >= num_frames){
+            console.log("last frame");
+            return;
+        }
 
         this.load_world(scene_meta.scene, scene_meta.frames[frame_index]);
     };

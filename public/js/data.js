@@ -36,7 +36,7 @@ function Data(metaData){
         let currentWorldIndex = world.frameInfo.frame_index;
 
         let disposable = (w)=>{
-            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>=this.MaxWorldNumber/2;
+            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>=this.MaxWorldNumber;
             let active  = w.everythingDone;
             return distant && !active;
         }
@@ -73,17 +73,26 @@ function Data(metaData){
 
         console.log(`preload ${startIndex}, ${endIndex}`);
 
-        
-        meta.frames.slice(startIndex, endIndex).forEach(frame=>{
+        let numLoaded = 0;
+        let _do_create = (frame)=>{
             let world = this.worldList.find((w)=>{
                 return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
             })
 
             if (!world){
                 this._createWorld(sceneName, frame);
+                numLoaded++;
             }
-        });
+        }
+
+        meta.frames.slice(startIndex, endIndex).forEach(_do_create);
         
+        if (numLoaded > 0){
+            meta.frames.slice(endIndex, Math.min(endIndex+5, meta.frames.length)).forEach(_do_create);
+            meta.frames.slice(Math.max(0, startIndex-5), startIndex).forEach(_do_create);
+        }
+
+        console.log(`${numLoaded} frames created`);
     };
 
     this.reloadAllAnnotation=function(done){
@@ -178,6 +187,8 @@ function Data(metaData){
         if (this.world){
             this.world.images.activate(name);
         }
+        this.worldList.forEach(w=>w.images.activate(name));
+        
         return name;
     };
 
