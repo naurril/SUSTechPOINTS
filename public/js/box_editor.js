@@ -117,10 +117,12 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         }
 
         if (!dontHide)
-            this.ui.style.display="none";
+            this.hide();
     };
 
-
+    this.hide = function(){
+        this.ui.style.display="none";
+    }
 
     this.onBoxChanged=function(){
         
@@ -210,7 +212,8 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.editorList = [];
     this.cfg = cfg;
     this.globalHeader = globalHeader;
-
+    this.parentUi = parentUi;
+    this.mainEditor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, func_on_box_remove, "main-box-editor");
 
     this.activeEditorList = function(){
         return this.editorList.slice(0, this.activeIndex);
@@ -274,7 +277,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         //     this._saveAndTransfer();
     };
 
-    this.parentUi = parentUi;
+    
     
     this._addToolBox = function(){
         let template = document.getElementById("batch-editor-tools-template");

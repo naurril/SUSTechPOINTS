@@ -144,12 +144,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             (b)=>this.on_box_changed(b),
             (b)=>this.remove_box(b));
 
-        if (!this.editorCfg.disableMainBoxEditor)
-        {
-            // should make a boxeditormanager,
-            // 
-            this.boxEditor= this.boxEditorManager.addEditor();
-        }
+         
+        this.boxEditor= this.boxEditorManager.mainEditor;
+        
 
         this.mouse = new Mouse(
             this.viewManager.mainView,
@@ -480,7 +477,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.header.mark_changed_flag();
         };
 
-        objMenuUi.querySelector("#cm-interpolate").onclick = (event)=>{
+        objMenuUi.querySelector("#cm-inspect-all-instances").onclick = (event)=>{
 
             if (!this.selected_box.obj_track_id){
                 console.error("no track id");
@@ -1877,7 +1874,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
 
         this.autoAdjust.syncFollowers(box);
-        
+
         this.render();
     };
 

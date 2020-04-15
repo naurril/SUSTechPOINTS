@@ -51,34 +51,46 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         view.renderer = renderer;
         view.scene = scene;
 
+        view.active = true;
+        view.disable = function(){
+            this.active = false;
+            this.render();
+        };
+        view.endable = function(){
+            this.active = true;
+            this.render();
+        }
 
         //var cameraOrthoHelper = new THREE.CameraHelper( camera );
         //cameraOrthoHelper.visible=true;
         //scene.add( cameraOrthoHelper );
 
         view.render=function(){
-            this.switch_camera(false);
 
-            
-            //view.updateCamera( camera, scene, mouseX, mouseY );
-            
-            var left = 0;
-            var bottom = 0;
-            var width = this.container.scrollWidth;
-            var height = this.container.scrollHeight;
+            if (this.active){
 
-            // update viewport, so the operating lines over these views 
-            // will be updated in time.
-            
-            
-            //console.log(left,bottom, width, height);
+                this.switch_camera(false);
 
-            this.renderer.setViewport( left, bottom, width, height );
-            this.renderer.setScissor( left, bottom, width, height );
-            this.renderer.setClearColor(view.backgroundColor );
-            this.renderer.setScissorTest( true );
+                //view.updateCamera( camera, scene, mouseX, mouseY );
 
-            this.renderer.render( this.scene, this.camera );
+                var left = 0;
+                var bottom = 0;
+                var width = this.container.scrollWidth;
+                var height = this.container.scrollHeight;
+
+                // update viewport, so the operating lines over these views 
+                // will be updated in time.
+                
+                
+                //console.log(left,bottom, width, height);
+
+                this.renderer.setViewport( left, bottom, width, height );
+                this.renderer.setScissor( left, bottom, width, height );
+                this.renderer.setClearColor(view.backgroundColor );
+                this.renderer.setScissorTest( true );
+
+                this.renderer.render( this.scene, this.camera );
+            }
         };
 
         var orbit_perspective = new OrbitControls( view.camera_perspective, view.container );

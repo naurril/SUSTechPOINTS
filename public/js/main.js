@@ -99,7 +99,6 @@ function start(metaData){
       disableMainImageContext: true,
       disableGrid:true,
       disableRangeCircle:true,
-      disableMainBoxEditor:true,
       enableAutoSave:true,
       //disableMainViewKeyDown:true
     };
