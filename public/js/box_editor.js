@@ -104,7 +104,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         if (box){
             box.boxEditor = this;
             this.box=box;
-            this.boxOp.highlightBox(box);
+            //this.boxOp.highlightBox(box);
             this.boxView.attachBox(box);
             this.projectiveViewOps.attachBox(box);
             this.focusImageContext.updateFocusedImageContext(box);
@@ -120,7 +120,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     this.detach = function(dontHide){
         if (this.box){
             this.box.boxEditor = null;
-            this.boxOp.unhighlightBox(this.box);
+            //this.boxOp.unhighlightBox(this.box);
             //todo de-highlight box
             this.projectiveViewOps.detach();
             this.boxView.detach();

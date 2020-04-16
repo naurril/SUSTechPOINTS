@@ -62,6 +62,18 @@ def get_one_scene(s):
                     cal = json.load(f)
                     calib[calib_name] = cal
 
+    calib_radar={}
+    if os.path.exists(os.path.join(scene_dir, "calib_radar")):
+        calibs = os.listdir(os.path.join(scene_dir, "calib_radar"))
+        for c in calibs:
+            calib_file = os.path.join(scene_dir, "calib_radar", c)
+            calib_name, _ = os.path.splitext(c)
+            if os.path.isfile(calib_file):
+                #print(calib_file)
+                with open(calib_file)  as f:
+                    cal = json.load(f)
+                    calib_radar[calib_name] = cal
+
     # camera names
     image = []
     image_ext = ""
@@ -95,6 +107,8 @@ def get_one_scene(s):
             scene["calib"] = calib
         if image:
             scene["image"] = image
+        if calib_radar:
+            scene["calib_radar"] = calib_radar
     else:
         scene["boxtype"] = "xyz"
         if point_transform_matrix:

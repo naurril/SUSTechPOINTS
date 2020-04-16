@@ -337,8 +337,35 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 //console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
                 _self.radar_points_raw = position;
 
-                position = _self.transformPointsByOffset(position);
+                if (_self.sceneMeta.calib_radar && _self.sceneMeta.calib_radar.front){
+                    _self.radar_box = _self.createCuboid(
+                        {
+                            x: _self.sceneMeta.calib_radar.front.translation[0] + _self.coordinatesOffset[0],
+                            y: _self.sceneMeta.calib_radar.front.translation[1] + _self.coordinatesOffset[1],
+                            z: _self.sceneMeta.calib_radar.front.translation[2] + _self.coordinatesOffset[2],
+                        }, 
+                        {x:1,y:1, z:1}, 
+                        {
+                            x: _self.sceneMeta.calib_radar.front.rotation[0],
+                            y: _self.sceneMeta.calib_radar.front.rotation[1],
+                            z: _self.sceneMeta.calib_radar.front.rotation[2],
+                        }, 
+                        "radar", 
+                        "");
+                
+                }else {
+                    _self.radar_box = _self.createCuboid(
+                        {x: _self.coordinatesOffset[0],
+                         y: _self.coordinatesOffset[1],
+                         z: _self.coordinatesOffset[2]}, 
+                        {x:1,y:1, z:1}, 
+                        {x:0,y:0,z:0}, 
+                        "radar", 
+                        "");
+                }
 
+                //position = _self.transformPointsByOffset(position);
+                position = _self.move_radar_points(_self.radar_box);
                 let mesh = _self.buildRadarPointsGeometry(position);
                 _self.radar_points = mesh;
                 //_self.points_backup = mesh;
@@ -346,15 +373,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 _self.radar_points_loaded = true;
 
                 // add one box to calibrate radar with lidar
-                _self.radar_box = _self.createCuboid(
-                    {x: _self.coordinatesOffset[0],
-                     y: _self.coordinatesOffset[1],
-                     z: _self.coordinatesOffset[2]}, 
-                    {x:1,y:1, z:1}, 
-                    {x:0,y:0,z:0}, 
-                    "radar", 
-                    "");
-                    
+               
+                
                 if (_self.preload_finished()){
                     if (_self.on_preload_finished)
                         _self.on_preload_finished(_self);
@@ -433,8 +453,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     };
 
 
-    this.move_radar= function(box){
-
+    this.move_radar_points = function(box){
         let trans = euler_angle_to_rotate_matrix_3by3(box.rotation);
         let points = this.radar_points_raw;
         let rotated_points = matmul(trans, points, 3);
@@ -442,6 +461,12 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         let translated_points = rotated_points.map((p,i)=>{
             return p + translation[i % 3];
         });
+        return translated_points;
+    };
+
+    this.move_radar= function(box){
+
+        let translated_points = this.move_radar_points(box);
 
         let geometry = this.buildRadarPointsGeometry(translated_points);
         

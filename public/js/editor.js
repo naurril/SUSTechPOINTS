@@ -116,6 +116,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             };
 
             this.container.addEventListener( 'keydown', function(e){self.keydown(e);} );
+            //this.editorUi.addEventListener( 'keydown', function(e){self.keydown(e);} );
         }
 
 
@@ -1098,11 +1099,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                             this.view_state.lock_obj_in_highlight = false;
                         }
                     } else{
-
                         // unselected finally
                         //this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
                         //this.selected_box.material.opacity = this.data.config.box_opacity;
-                        //this.boxOp.unhighlightBox(this.selected_box);
+                        this.boxOp.unhighlightBox(this.selected_box);
                         this.floatLabelManager.unselect_box(this.selected_box.obj_local_id, this.selected_box.obj_type);
                         this.floatLabelManager.update_position(this.selected_box, true);
 
