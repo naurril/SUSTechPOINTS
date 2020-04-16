@@ -12,7 +12,7 @@ import {dotproduct} from "./util.js"
 
 function BoxOp(){
     this.auto_rotate_xyz=function(box, callback, apply_mask, on_box_changed){
-        let points = box.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1.0);
+        let points = box.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
         //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
 
         points = points.filter(function(p){
@@ -29,8 +29,8 @@ function BoxOp(){
             }
 
 
-            var points_indices = box.world.get_points_indices_of_box(box);
-
+            //var points_indices = box.world.get_points_indices_of_box(box);
+            let points_indices = box.world.get_points_of_box(box,1.5).index;
             
             var euler_delta = {
                 x: angle[0],
@@ -41,7 +41,7 @@ function BoxOp(){
             if (euler_delta.z > Math.PI){
                 euler_delta.z -= Math.PI*2;
             };
-            
+
             /*
             var composite_angel = linalg_std.euler_angle_composite(box.rotation, euler_delta);
 

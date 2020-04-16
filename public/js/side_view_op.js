@@ -507,11 +507,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                         
                         
                         if (direction){
-                            on_edge_changed(ratio_delta, direction);
+                            on_edge_changed(ratio_delta, direction, event.ctrlKey, event.shiftKey);
     
-                            if (event.ctrlKey){
-                                on_auto_shrink(direction);
-                            }
+                            // if (event.ctrlKey){
+                            //     on_auto_shrink(direction);
+                            // }
                         }
                         else{
                             // when intall handler for mover, the direcion is left null
@@ -764,14 +764,69 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                 if (direction[axis] === -1){
                     end = "min";
                 }
-
-                var delta = scope.box.scale[axis]/2 - direction[axis]*extreme[end][axis];
+                
+                var delta = direction[axis]*extreme[end][axis] - scope.box.scale[axis]/2;
 
                 console.log(extreme, delta);
-                scope.boxOp.translate_box(scope.box, axis, -direction[axis]* delta/2 );
-                scope.box.scale[axis] -= delta;
+                scope.boxOp.translate_box(scope.box, axis, direction[axis]* delta/2 );
+                scope.box.scale[axis] += delta;
             }
         }
+    }
+
+    //direction is in 3d
+    function auto_stick(delta, direction, use_box_bottom_as_limit){
+        //let old_dim = scope.box.world.get_points_dimmension_of_box(scope.box, true);
+        //let old_scale = scope.box.scale;
+
+        let virtbox = {
+            position: {
+                x: scope.box.position.x,
+                y: scope.box.position.y,
+                z: scope.box.position.z,
+            },
+            scale: {
+                x: scope.box.scale.x,
+                y: scope.box.scale.y,
+                z: scope.box.scale.z,},
+            rotation: {
+                x: scope.box.rotation.x,
+                y: scope.box.rotation.y,
+                z: scope.box.rotation.z,}
+        };
+
+        scope.boxOp.translate_box(virtbox, 'x', delta.x/2 * direction.x);
+        scope.boxOp.translate_box(virtbox, 'y', delta.y/2 * direction.y);
+        scope.boxOp.translate_box(virtbox, 'z', delta.z/2 * direction.z);
+
+        virtbox.scale.x += delta.x;
+        virtbox.scale.y += delta.y;
+        virtbox.scale.z += delta.z;
+
+
+        // note dim is the relative value
+        let new_dim = scope.box.world.get_points_dimmension_of_box(virtbox, use_box_bottom_as_limit);
+
+
+        for (var axis in direction){
+
+            if (direction[axis] !=0){
+
+                var end = "max";
+                if (direction[axis] === -1){
+                    end = "min";
+                }
+
+                //scope.box.scale[axis]/2 - direction[axis]*extreme[end][axis];
+                var truedelta = delta[axis]/2 + direction[axis]*new_dim[end][axis] - scope.box.scale[axis]/2;
+
+                console.log(new_dim, delta);
+                scope.boxOp.translate_box(scope.box, axis, direction[axis]* truedelta );
+                //scope.box.scale[axis] -= delta;
+            }
+        }
+
+        scope.on_box_changed(scope.box);
     }
 
     function on_edge_changed(delta, direction){
@@ -824,25 +879,29 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         scope.on_box_changed(scope.box);
     }
 
-
-
-    function on_z_edge_changed(ratio, direction){
+      
+    function on_z_edge_changed(ratio, direction2d, autoShrink, lockScale){
 
         var delta = {        
-            x: scope.box.scale.x * ratio.y * direction.y,
-            y: scope.box.scale.y * ratio.x * direction.x,
+            x: scope.box.scale.x * ratio.y * direction2d.y,
+            y: scope.box.scale.y * ratio.x * direction2d.x,
             z: 0,
         };
 
-        direction ={
-            x: direction.y,
-            y: -direction.x,
+        let direction3d ={
+            x: direction2d.y,
+            y: -direction2d.x,
             z: 0,
         };
 
-        direction.z = 0;
-
-        on_edge_changed(delta, direction);
+        if (!autoShrink && !lockScale){
+            on_edge_changed(delta, direction3d);
+        } else if (autoShrink){
+            on_edge_changed(delta, direction3d);
+            on_z_auto_shrink(direction2d);
+        } else if (lockScale){
+            auto_stick(delta, direction3d, true);
+        }
     }
 
     function on_z_direction_changed(theta, sticky){
@@ -909,21 +968,28 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     ///////////////////////////////////////////////////////////////////////////////////
 
-    function on_y_edge_changed(ratio, direction){
+    function on_y_edge_changed(ratio, direction2d, autoShrink, lockScale){
 
         var delta = {
-            x: scope.box.scale.x * ratio.x * direction.x,
-            z: scope.box.scale.z * ratio.y * direction.y,
+            x: scope.box.scale.x * ratio.x * direction2d.x,
+            z: scope.box.scale.z * ratio.y * direction2d.y,
             y: 0,
         };
 
-        direction ={
-            x: direction.x,
-            z: direction.y,
+        let direction3d ={
+            x: direction2d.x,
+            z: direction2d.y,
             y: 0,
         };
 
-        on_edge_changed(delta, direction);
+        if (!autoShrink && !lockScale){
+            on_edge_changed(delta, direction3d);
+        } else if (autoShrink){
+            on_edge_changed(delta, direction3d);
+            on_z_auto_shrink(direction2d);
+        } else if (lockScale){
+            auto_stick(delta, direction3d, false);
+        }
     }
 
     function on_y_auto_shrink(direction){
@@ -1018,21 +1084,28 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     ///////////////////////////////////////////////////////////////////////////////////
 
-    function on_x_edge_changed(ratio, direction){
+    function on_x_edge_changed(ratio, direction2d, autoShrink, lockScale){
 
         var delta = {
-            y: scope.box.scale.y * ratio.x * direction.x,
-            z: scope.box.scale.z * ratio.y * direction.y,
+            y: scope.box.scale.y * ratio.x * direction2d.x,
+            z: scope.box.scale.z * ratio.y * direction2d.y,
             x: 0,
         };
 
-        direction ={
-            y: direction.x,
-            z: direction.y,
+        let direction3d ={
+            y: direction2d.x,
+            z: direction2d.y,
             x: 0,
         };
 
-        on_edge_changed(delta, direction);
+        if (!autoShrink && !lockScale){
+            on_edge_changed(delta, direction3d);
+        } else if (autoShrink){
+            on_edge_changed(delta, direction3d);
+            on_z_auto_shrink(direction2d);
+        } else if (lockScale){
+            auto_stick(delta, direction3d, false);
+        }
     }
 
 
