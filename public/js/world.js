@@ -1,7 +1,7 @@
 import * as THREE from './lib/three.module.js';
 import { PCDLoader } from './lib/PCDLoader.js';
 import { get_obj_cfg_by_type } from './obj_cfg.js';
-import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range} from "./util.js"
+import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 import {settings} from "./settings.js"
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
@@ -321,7 +321,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
     };
 
-    this.radar_points = null;
+    this.radar_points_raw = null;  // read from file, centered at 0
+    this.radar_points = null;   // geometry points
     this.radar_points_loaded = false;
     this.load_radar=function(){
         var loader = new PCDLoader();
@@ -331,65 +332,29 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             //ok
             function ( pcd ) {
                 var position = pcd.position;
-                var color = pcd.color;
-                var normal = pcd.normal;
 
                 //_self.points_parse_time = new Date().getTime();
                 //console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
+                _self.radar_points_raw = position;
 
                 position = _self.transformPointsByOffset(position);
 
-                // build geometry
-                var geometry = new THREE.BufferGeometry();
-                if ( position.length > 0 ) geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
-                if ( normal.length > 0 ) geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
-                if ( color.length > 0 ) {
-                    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
-                }
-                else {
-                    color = []
-                    for (var i =0; i< position.length; i+=3){
-
-                        color.push(_self.data.config.point_brightness);
-                        color.push(0);
-                        color.push(0);
-                    }
-                    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
-                }
-
-                geometry.computeBoundingSphere();
-                // build material
-
-                var material = new THREE.PointsMaterial( { size: _self.data.config.point_size*4, vertexColors: THREE.VertexColors } );
-
-                /*
-                
-                if ( color.length > 0 ) {
-                    material.vertexColors = color;
-                } else {
-                    //material.color.setHex(0xffffff);
-                    material.color.r = 0.6;
-                    material.color.g = 0.6;
-                    material.color.b = 0.6;
-                }
-                */
-
-                //material.size = 2;
-                material.sizeAttenuation = false;
-
-                // build mesh
-
-                var mesh = new THREE.Points( geometry, material );                        
-                mesh.name = "radar";
-
-                //return mesh;
-
-                
+                let mesh = _self.buildRadarPointsGeometry(position);
                 _self.radar_points = mesh;
                 //_self.points_backup = mesh;
 
                 _self.radar_points_loaded = true;
 
+                // add one box to calibrate radar with lidar
+                _self.radar_box = _self.createCuboid(
+                    {x: _self.coordinatesOffset[0],
+                     y: _self.coordinatesOffset[1],
+                     z: _self.coordinatesOffset[2]}, 
+                    {x:1,y:1, z:1}, 
+                    {x:0,y:0,z:0}, 
+                    "radar", 
+                    "");
+                    
                 if (_self.preload_finished()){
                     if (_self.on_preload_finished)
                         _self.on_preload_finished(_self);
@@ -436,6 +401,57 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             }
         );
     };
+
+
+    this.buildRadarPointsGeometry = function(position){
+        // build geometry
+        let geometry = new THREE.BufferGeometry();
+        if ( position.length > 0 ) 
+            geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+        
+        
+        let color = [];
+        for (var i =0; i< position.length; i+=3){
+
+            color.push(this.data.config.point_brightness);
+            color.push(0);
+            color.push(0);
+        }
+        geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+
+        geometry.computeBoundingSphere();
+        // build material
+        let material = new THREE.PointsMaterial( { size: this.data.config.point_size*4, vertexColors: THREE.VertexColors } );
+        //material.size = 2;
+        material.sizeAttenuation = false;
+
+        // build mesh
+
+        let mesh = new THREE.Points( geometry, material );                        
+        mesh.name = "radar";
+        return mesh;
+    };
+
+
+    this.move_radar= function(box){
+
+        let trans = euler_angle_to_rotate_matrix_3by3(box.rotation);
+        let points = this.radar_points_raw;
+        let rotated_points = matmul(trans, points, 3);
+        let translation=[box.position.x, box.position.y, box.position.z];
+        let translated_points = rotated_points.map((p,i)=>{
+            return p + translation[i % 3];
+        });
+
+        let geometry = this.buildRadarPointsGeometry(translated_points);
+        
+        // remove old points
+        this.scene.remove(this.radar_points);
+
+        this.scene.add(geometry);
+        this.radar_points = geometry;
+    };
+
 
     this.load_points=function(){
         var loader = new PCDLoader();
@@ -1520,9 +1536,12 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             if (this.points)
                 this.scene.add( this.points );
 
-            if (this.radar_points)
+            if (this.radar_points){
                 this.scene.add( this.radar_points );
-            
+
+                if (this.radar_box)
+                    this.scene.add( this.radar_box);
+            }
             var _self=this;
             
             this.boxes.forEach(function(b){

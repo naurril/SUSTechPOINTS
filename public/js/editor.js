@@ -1035,24 +1035,24 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                     return;
                 }
             
-            
-                var intersects = this.mouse.getIntersects( this.mouse.onUpPosition, this.data.world.boxes );
+                let intersects = this.mouse.getIntersects( this.mouse.onUpPosition, this.data.world.boxes );
+
+                if (intersects.length == 0){
+                    if (this.data.world.radar_box){
+                        intersects = this.mouse.getIntersects( this.mouse.onUpPosition, [this.data.world.radar_box]);
+                    }
+                }
 
                 if ( intersects.length > 0 ) {
-
                     //var object = intersects[ 0 ].object;
                     var object = intersects[ 0 ].object;
-
                     if ( object.userData.object !== undefined ) {
                         // helper
                         this.selectBox( object.userData.object );
-
                     } else {
-
                         this.selectBox( object );
                     }
                 } else {
-
                     this.unselectBox(null);
                 }
 
@@ -1892,8 +1892,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     //box edited
     this.on_box_changed= function(box){
 
-        
-        
         //render_2d_image();
         this.imageContext.image_manager.update_box(box);
 
@@ -1911,6 +1909,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
 
         this.autoAdjust.syncFollowers(box);
+
+        if (box === this.data.world.radar_box){
+            this.data.world.move_radar(box);
+        }
 
         this.render();
     };

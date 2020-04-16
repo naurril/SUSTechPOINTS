@@ -147,7 +147,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
         // mark
         delete this.box.annotator; // human annotator doesn't need a name
-        delete this.follows;
+        delete this.box.follows;
         this.box.changed = true;
         
         // don't mark world's change flag, for it's hard to clear it.
