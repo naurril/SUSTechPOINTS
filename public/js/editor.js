@@ -115,8 +115,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.container.blur();                
             };
 
-            this.container.addEventListener( 'keydown', function(e){self.keydown(e);} );
-            //this.editorUi.addEventListener( 'keydown', function(e){self.keydown(e);} );
+            //this.container.addEventListener( 'keydown', function(e){self.keydown(e);} );
+            this.editorUi.addEventListener( 'keydown', function(e){self.keydown(e);} );
         }
 
 
@@ -145,7 +145,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.header,
             (b)=>this.on_box_changed(b),
             (b)=>this.remove_box(b));
-
+        this.boxEditorManager.hide();
          
         this.boxEditor= new BoxEditor(
             this.editorUi.querySelector("#main-box-editor-wrapper"),
@@ -525,6 +525,34 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 if (box && box !== this.selected_box){
                     w.unload_box(box);
                     w.remove_box(box);
+                    saveList.push(w);
+                }                
+            });
+
+            saveWorldList(saveList);
+        };
+
+        objMenuUi.querySelector("#cm-modify-obj-type").onclick = (event)=>{
+            let saveList=[];
+            this.data.worldList.forEach(w=>{
+                let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                if (box && box !== this.selected_box){
+                    box.obj_type = this.selected_box.obj_type;
+                    saveList.push(w);
+                }                
+            });
+
+            saveWorldList(saveList);
+        };
+
+        objMenuUi.querySelector("#cm-modify-obj-size").onclick = (event)=>{
+            let saveList=[];
+            this.data.worldList.forEach(w=>{
+                let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                if (box && box !== this.selected_box){
+                    box.scale.x = this.selected_box.scale.x;
+                    box.scale.y = this.selected_box.scale.y;
+                    box.scale.z = this.selected_box.scale.z;
                     saveList.push(w);
                 }                
             });

@@ -38,6 +38,10 @@ function BoxOp(){
                 z: angle[2]
             };
 
+            if (euler_delta.z > Math.PI){
+                euler_delta.z -= Math.PI*2;
+            };
+            
             /*
             var composite_angel = linalg_std.euler_angle_composite(box.rotation, euler_delta);
 
