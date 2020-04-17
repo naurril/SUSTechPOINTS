@@ -5,9 +5,9 @@ import numpy as np
 import math
 import cv2
 
-rootdir = "./data/20200411-0-600"
+rootdir = "./data/20200411-2hz"
 camera = "front"
-targetdir = "./image_temp"
+targetdir = "./image_temp/camera_colortype"
 linewidth = 2
 
 imgfolder  = os.path.join(rootdir, "image", camera)
@@ -28,23 +28,67 @@ extrinsic_matrix  = np.reshape(extrinsic, [4,4])
 intrinsic_matrix  = np.reshape(intrinsic, [3,3])
 
 
+
+
+
+
+#     Car:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+#     Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+#     Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
+#     Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
+#     Rider:          {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+#     Cyclist:        {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+#     Bicycle:        {color: '#88ff00',  size:[1.6, 0.6, 1.2]},
+#     BicycleGroup:   {color: '#88ff00',  size:[1.6, 0.6, 1.2]},
+#     Motor:          {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+#     Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
+#     Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
+#     Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
+#     Misc:           {color: '#008888',  size:[4.5, 1.8, 1.5]},
+#     Unknown:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+
+
+
+
+
+obj_color_map = {
+    "Car":            (0  ,255,0  ),#'#00ff00',
+    "Van":            (0  ,255,0  ),#'#00ff00',
+    "Bus":            (0  ,255,255),#'#ffff00', 
+    "Pedestrian":     (0  ,0  ,255),#'#ff0000',
+    "Rider":          (0  ,136,255),#'#ff8800',
+    "Cyclist":        (0  ,136,255),#'#ff8800',
+    "Bicycle":        (0  ,255,136),#'#88ff00',
+    "BicycleGroup":   (0  ,255,136),#'#88ff00',
+    "Motor":          (0  ,176,176),#'#aaaa00',
+    "Truck":          (255,255,0  ),#'#00ffff',
+    "Tram":           (255,255,0  ),#'#00ffff',
+    "Animal":         (255,176,0  ),#'#00aaff',
+    "Misc":           (136,136,0  ),#'#008888',
+    "Unknown":        (136,136,0  ),#'#008888',
+}
+
+
 colorlist=[
-#(255,0,0),
+(255,0,0),
 (0, 255,0),
 (0,0,255),
 (0,255,255),
 (255,255,0),
 (255,0, 255),
-(255,0, 255),
 
-(0, 128,0),
-(0,0,125),
-(0,125,125),
-(125,255,0),
-(125,0, 255),
-(125,0, 255),
+(128,0, 255),
+(255,0, 128),
+
+(0, 128, 255),
+(0, 255, 128),
+
+(128,255,0),
+(255,128,0),
 ]
-
+def get_obj_color(obj_type):
+    return obj_color_map[obj_type]
+    
 colormap = {}
 def get_color(obj_id):
     color = colormap.get(obj_id)
@@ -152,6 +196,10 @@ for i,f in enumerate(frames):
 
     imgfile_path = os.path.join(rootdir, "image", camera, imgfile)
     img = cv2.imread(imgfile_path, cv2.IMREAD_UNCHANGED)
+
+
+    img = img*1.3
+
     #cv2.imshow("img", imgcanvas)
 
     #alpha
@@ -164,7 +212,8 @@ for i,f in enumerate(frames):
     imgcanvas = np.zeros(img.shape, dtype=img.dtype)
     imgcanvas_headplane = np.zeros(img.shape, dtype=img.dtype)
     for l in labels:
-        color = get_color(l["obj_id"])
+        #color = get_color(l["obj_id"])
+        color = get_obj_color(l["obj_type"])
         box_array = box_to_nparray(l["psr"])
         points_in_image = box_to_2d_points(box_array)
         if points_in_image is not None:
@@ -186,8 +235,8 @@ for i,f in enumerate(frames):
             cv2.line(imgcanvas,tuple(pts[3]),tuple(pts[7]),color,linewidth)
 
     final_img = img
-    final_img[imgcanvas!=0] = 0.3 * final_img[imgcanvas!=0]
-    final_img = final_img + imgcanvas*0.7
+    final_img[imgcanvas!=0] = 0.2 * final_img[imgcanvas!=0]
+    final_img = final_img + imgcanvas*0.8
 
     final_img[imgcanvas_headplane!=0] = 0.7 * final_img[imgcanvas_headplane!=0]
     final_img = final_img + imgcanvas_headplane*0.3
@@ -195,4 +244,7 @@ for i,f in enumerate(frames):
     cv2.imwrite(os.path.join(targetdir, "{0:06d}.jpg".format(i)), final_img)
     print("{0:s} written".format(str(i)))
 
-# ffmpeg -framerate 4 -i ./image_temp/%06d.jpg -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p  front_camera_2x.mp4
+# ffmpeg -framerate 4 -i ./image_temp/%06d.jpg -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p  -vf "crop=2048:800:0:400"  front_camera_2x.mp4
+
+
+# ffmpeg -framerate 4 -i ./image_temp/lidar/%06d.png -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p  -vf "crop=1870:954:50:126"  lidar_2x.mp4

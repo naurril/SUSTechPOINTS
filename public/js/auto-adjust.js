@@ -170,14 +170,15 @@ function AutoAdjust(mouse, header){
         });
     };
 
-    this.paste_bbox=function(pos, add_box_on_pos){
+    this.paste_bbox=function(pos, add_box){
     
         if (!pos)
-           pos = marked_object.position;
+           pos = this.marked_object.position;
         else
-           pos.z = marked_object.position.z;
+           pos.z = this.marked_object.position.z;
     
-        return  add_box_on_pos(pos);    
+        return  add_box(pos, this.marked_object.scale, this.marked_object.rotation,
+            this.marked_object.obj_type, this.marked_object.obj_track_id);    
     };
     
     
@@ -261,13 +262,13 @@ function AutoAdjust(mouse, header){
         }
     };
 
-    this.smart_paste=function(selected_box, add_box_on_pos, saveWorld, on_box_changed){
+    this.smart_paste=function(selected_box, add_box, saveWorld, on_box_changed){
         var box = selected_box;
         if (!box){
-            box = paste_bbox(this.mosue.get_mouse_location_in_world(), add_box_on_pos);
+            box = this.paste_bbox(this.mouse.get_mouse_location_in_world(), add_box);
         }
         
-        auto_adjust_bbox(box,
+        this.auto_adjust_bbox(box,
                 function(){saveWorld();},
                 on_box_changed);
     

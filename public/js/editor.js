@@ -438,7 +438,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
         menuUi.querySelector("#cm-paste").onclick = (event)=>{
-            this.autoAdjust.smart_paste(this.selected_box);
+            this.autoAdjust.smart_paste(this.selected_box,
+                (p,s,r,t,i)=>this.add_box(p,s,r,t,i),
+                ()=>saveWorld(this.data.world),
+                (b)=>this.on_box_changed(b)
+                );
         };
 
         menuUi.querySelector("#cm-prev-frame").onclick = (event)=>{
