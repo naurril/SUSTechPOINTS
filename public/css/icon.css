@@ -1,0 +1,61 @@
+.docIcon
+{
+    background:#eee;
+    background: linear-gradient(top, #ddd 0, #eee 15%, #fff 40%, #fff 70%, #eee 100%);
+    border:1px solid #ccc;
+    display:block;
+    width:40px;
+    height:56px;
+    position:relative;
+    margin:0px auto;
+    box-shadow:inset rgba(255,255,255,0.8) 0 1px 1px;
+ 
+    text-indent:-9999em;
+
+    border-radius:0px 15px 8px 3px;
+}
+.docIcon:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15px;
+    height: 15px;
+    background: #ccc;
+
+    background: -webkit-linear-gradient(45deg, #fff 0, #eee 50%, #ccc 100%);
+    background: -moz-linear-gradient(45deg, #fff 0, #eee 50%, #ccc 100%);
+    background: -o-linear-gradient(45deg, #fff 0, #eee 50%, #ccc 100%);
+    background: -ms-linear-gradient(45deg, #fff 0, #eee 50%, #ccc 100%);
+    background: linear-gradient(45deg, #fff 0, #eee 50%, #ccc 100%);
+
+    -webkit-box-shadow: rgba(0,0,0,0.05) -1px 1px 1px, inset white 0 0 1px;
+    -moz-box-shadow: rgba(0,0,0,0.05) -1px 1px 1px, inset white 0 0 1px;
+    box-shadow: rgba(0,0,0,0.05) -1px 1px 1px, inset white 0 0 1px;
+
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    -webkit-border-radius:3px 15px 3px 3px;
+    -moz-border-radius:3px 15px 3px 3px;
+    border-radius:3px 15px 3px 3px;
+}
+
+.docIcon:after
+{
+    content:"";
+    display:block;
+    position:absolute;
+    left:0;
+    top:0;
+    width:60%;
+    margin:22px 20% 0;
+    height:15px;
+
+    background:#ccc;
+    background: -webkit-linear-gradient(top, #ccc 0, #ccc 20%, #fff 20%, #fff 40%, #ccc 40%, #ccc 60%, #fff 60%, #fff 80%, #ccc 80%, #ccc 100%);
+    background: -moz-linear-gradient(top, #ccc 0, #ccc 20%, #fff 20%, #fff 40%, #ccc 40%, #ccc 60%, #fff 60%, #fff 80%, #ccc 80%, #ccc 100%);
+    background: -o-linear-gradient(top, #ccc 0, #ccc 20%, #fff 20%, #fff 40%, #ccc 40%, #ccc 60%, #fff 60%, #fff 80%, #ccc 80%, #ccc 100%);
+    background: -ms-linear-gradient(top, #ccc 0, #ccc 20%, #fff 20%, #fff 40%, #ccc 40%, #ccc 60%, #fff 60%, #fff 80%, #ccc 80%, #ccc 100%);
+    background:linear-gradient(top, #ccc 0, #ccc 20%, #fff 20%, #fff 40%, #ccc 40%, #ccc 60%, #fff 60%, #fff 80%, #ccc 80%, #ccc 100%);
+}

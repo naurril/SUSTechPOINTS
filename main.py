@@ -31,6 +31,11 @@ class Root(object):
       return tmpl.render()
   
     @cherrypy.expose
+    def icon(self):
+      tmpl = env.get_template('test_icon.html')
+      return tmpl.render()
+
+    @cherrypy.expose
     def ml(self):
       tmpl = env.get_template('test_ml.html')
       return tmpl.render()

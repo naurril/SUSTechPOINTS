@@ -351,7 +351,8 @@ dynamic set obj-type css has higher priority than this one.
 	top: 0%;    
 	left: 0%;
 	width: 100%;
-	height: auto;
+	height: 100%;
+	border: 0px;
 }
 
 #batch-box-editor-wrapper #sub-views {

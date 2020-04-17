@@ -71,6 +71,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         }
     
         var buttons = {
+            auto_rotate_wo_scaling: ui.querySelector("#v-auto-rotate-wo-scaling"),
             auto_rotate: ui.querySelector("#v-auto-rotate"),
             reset_rotate: ui.querySelector("#v-reset-rotate"),
         };
@@ -420,6 +421,12 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
     
             if (on_direction_changed){
                 install_direction_handler("line-direction");
+            }
+
+            if (buttons.auto_rotate_wo_scaling){
+                buttons.auto_rotate_wo_scaling.onclick = function(event){
+                    on_auto_rotate("noscaling")
+                };
             }
         
             buttons.auto_rotate.onclick = function(event){
@@ -954,8 +961,10 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         //z_view_handle.update_view_handle(scope.views[0].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
-    function on_z_auto_rotate(){
-        scope.boxOp.auto_rotate_xyz(scope.box, null, {x:false, y:false, z:true}, scope.on_box_changed);
+    function on_z_auto_rotate(noscaling){
+
+        scope.boxOp.auto_rotate_xyz(scope.box, null, {x:false, y:false, z:true}, 
+            scope.on_box_changed, noscaling);
     }
 
     function on_z_reset_rotate(){

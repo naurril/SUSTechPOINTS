@@ -7,11 +7,11 @@ import {
 } from "./lib/three.module.js";
 
 import{ml} from "./ml.js";
-import {dotproduct} from "./util.js"
+import {dotproduct, euler_angle_to_rotate_matrix_3by3, matmul} from "./util.js"
 
 
 function BoxOp(){
-    this.auto_rotate_xyz=function(box, callback, apply_mask, on_box_changed){
+    this.auto_rotate_xyz=function(box, callback, apply_mask, on_box_changed, noscaling){
         let points = box.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
         //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
 
@@ -68,9 +68,9 @@ function BoxOp(){
                 box.rotation.z = euler_delta.z;
             }
         
+            // rotation set, now rescaling the box
+            
             var extreme = box.world.get_dimension_of_points(points_indices, box);
-
-
 
             let auto_adj_dimension = [];
 
@@ -88,12 +88,40 @@ function BoxOp(){
                 auto_adj_dimension = ['x','y','z'];
             }
 
-            auto_adj_dimension.forEach((axis)=>{
+            if (!noscaling){
+                auto_adj_dimension.forEach((axis)=>{
+                    this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                    box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+                }) 
+            }else {
+                //anyway, we move the box in a way
+                let trans  = euler_angle_to_rotate_matrix_3by3(box.rotation);
+                let orgPoint = [
+                    - box.position.x,
+                    - box.position.y,
+                    - box.position.z,
+                ];
+                let orgPointInBoxCoord = matmul(trans, orgPoint);
+                let relativePosition = {
+                    x: orgPointInBoxCoord[0],
+                    y: orgPointInBoxCoord[1],
+                    z: orgPointInBoxCoord[2],
+                }
 
-                this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-                box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+                auto_adj_dimension.forEach((axis)=>{
+                    if (relativePosition[axis]>0){
+                        //stick to max
+                        this.translate_box(box, axis, extreme.max[axis] - box.scale[axis]/2);
+                    }else{
+                        //stick to min
+                        this.translate_box(box, axis, extreme.min[axis] + box.scale[axis]/2);
+                    }
 
-            }) 
+                    
+                    
+                }) 
+
+            }
 
             if (on_box_changed)
                 on_box_changed(box);

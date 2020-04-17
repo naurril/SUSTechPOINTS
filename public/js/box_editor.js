@@ -382,7 +382,32 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         this._save();
     };
 
-    
+    this.parentUi.addEventListener( 'keydown', (event)=>{
+        event.preventDefault();
+        event.stopPropagation();
+        
+        switch(event.key){
+            case 's':
+                if (event.ctrlKey){
+                    this._save();
+                    console.log("saved for batch editor");
+                }
+            case '+':
+            case '=':
+                this.editingTarget.data.scale_point_size(1.2);
+                //this.batchEditor.data.scale_point_size(1.2);
+                this.viewManager.render();
+                break;
+            case '-':
+                this.editingTarget.data.scale_point_size(0.8);
+                //this.batchEditor.data.scale_point_size(0.8);
+                this.viewManager.render();
+                break;
+            default:
+                break;
+        }
+    });
+
     this._save = function(){
         let worldList = []
         let editorList = []
