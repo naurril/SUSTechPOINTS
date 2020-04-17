@@ -496,7 +496,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                         };
     
                         console.log("delta", handle_delta);
-                        if (handle_delta.x == 0 && handle_delta.y==0){
+                        if (handle_delta.x == 0 && handle_delta.y==0 && !event.ctrlKey && !event.shiftKey){
                             return;
                         }
 
@@ -986,7 +986,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             on_edge_changed(delta, direction3d);
         } else if (autoShrink){
             on_edge_changed(delta, direction3d);
-            on_z_auto_shrink(direction2d);
+            on_y_auto_shrink(direction2d);
         } else if (lockScale){
             auto_stick(delta, direction3d, false);
         }
@@ -1102,7 +1102,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             on_edge_changed(delta, direction3d);
         } else if (autoShrink){
             on_edge_changed(delta, direction3d);
-            on_z_auto_shrink(direction2d);
+            on_x_auto_shrink(direction2d);
         } else if (lockScale){
             auto_stick(delta, direction3d, false);
         }
