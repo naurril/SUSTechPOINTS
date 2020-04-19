@@ -226,9 +226,13 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 }
 
 function RadarManager(sceneMeta, world, frameInfo){
-    this.radarList = sceneMeta.radar.map(name=>{
-        return new Radar(sceneMeta, world, frameInfo, name);
-    });
+    this.radarList = [];
+
+    if (sceneMeta.radar){
+        this.radarList = sceneMeta.radar.map(name=>{
+            return new Radar(sceneMeta, world, frameInfo, name);
+        });
+    }
 
     this.preloaded = function(){
         for (let r in this.radarList){
