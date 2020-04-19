@@ -1881,7 +1881,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.selected_box = null;
             
             this.render();
-            //render_2d_image();
             
         }
     };
@@ -1915,7 +1914,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     //box edited
     this.on_box_changed= function(box){
 
-        //render_2d_image();
         this.imageContext.image_manager.update_box(box);
 
         this.header.update_box_info(box);
@@ -1973,8 +1971,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             
         } else {
             this.header.clear_box_info();
-            //clear_canvas();
-            //render_2d_image();
         }
 
     };

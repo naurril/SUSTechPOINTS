@@ -73,6 +73,7 @@ function start(metaData){
           //disableGrid:true,
           //disableRangeCircle:true,
           //disableMainViewKeyDown:true
+          projectRadarToImage:true
       };
 
       let dataCfg = {
@@ -84,7 +85,6 @@ function start(metaData){
       editor.run();
       return editor;
   } 
-
 
 
 

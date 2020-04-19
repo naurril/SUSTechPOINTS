@@ -9,6 +9,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     this.sceneMeta = sceneMeta;
     this.coordinatesOffset = world.coordinatesOffset;
 
+    this.cssStyleSelector = this.sceneMeta.calib.radar[this.name].cssstyleselector;
 
     this._radar_points_raw = null;  // read from file, centered at 0
     this.radar_points = null;   // geometry points
@@ -32,6 +33,11 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             this.go_cmd_received = true;
             this.on_go_finished = on_go_finished;
         }
+    };
+
+    this.get_unoffset_radar_points = function(){
+        let pts = this.radar_points.geometry.getAttribute("position").array;
+        return pts.map((p,i)=>p-this.world.coordinatesOffset[i %3]);
     };
 
     // todo: what if it's not preloaded yet

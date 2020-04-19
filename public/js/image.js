@@ -411,6 +411,7 @@ function ImageContext(ui, cfg){
 
         draw_svg();
 
+
         function hide_canvas(){
             //document.getElementsByClassName("ui-wrapper")[0].style.display="none";
             scope.ui.style.display="none";
@@ -419,9 +420,6 @@ function ImageContext(ui, cfg){
         function show_canvas(){
             scope.ui.style.display="inline";
         }
-
-
-        
 
         function draw_svg(){
             // draw picture
@@ -453,12 +451,43 @@ function ImageContext(ui, cfg){
 
             });
 
+            // draw radar points
+            scope.world.radars.radarList.forEach(radar=>{
+                let pts = radar.get_unoffset_radar_points();
+                let ptsOnImg = points3d_to_image2d(pts, calib);
+                let pts_svg = points_to_svg(ptsOnImg, trans_ratio, radar.cssStyleSelector);
+                svg.appendChild(pts_svg);
+            })
 
         }
 
     }
 
 
+    function points_to_svg(points, trans_ratio, cssclass){
+        var ptsFinal = points.map(function(x, i){
+            if (i%2==0){
+                return Math.round(x * trans_ratio.x);
+            }else {
+                return Math.round(x * trans_ratio.y);
+            }
+        });
+
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+        svg.setAttribute("class", cssclass);
+        for (let i = 0; i < ptsFinal.length; i+=2){
+            let x = ptsFinal[i];
+            let y = ptsFinal[i+1];
+            let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+            p.setAttribute("cx", x);
+            p.setAttribute("cy", y);
+            p.setAttribute("r", 10);            
+            p.setAttribute("stroke-width", "3");            
+            svg.appendChild(p);
+        }
+        
+        return svg;
+    }
 
     function box_to_svg(box, box_corners, trans_ratio, selected){
         
@@ -651,8 +680,13 @@ function box_to_2d_points(box, calib){
     console.log(box.obj_track_id, box3d.slice(8*4));
 
     box3d = box3d.slice(0,8*4);
-    
-    var imgpos = matmul(calib.extrinsic, box3d, 4);
+    return points3d_homo_to_image2d(box3d, calib);
+}   
+
+// points3d is length 4 row vector, homogeneous coordinates
+// returns 2d row vectors
+function points3d_homo_to_image2d(points3d, calib){
+    var imgpos = matmul(calib.extrinsic, points3d, 4);
     
     if (calib.rect){
         imgpos = matmul(calib.rect, imgpos, 4);
@@ -673,6 +707,22 @@ function box_to_2d_points(box, calib){
     var imgfinal = vector3_nomalize(imgpos2);
 
     return imgfinal;
+}
+
+function point3d_to_homo(points){
+    let homo=[];
+    for (let i =0; i<points.length; i+=3){
+        homo.push(points[i]);
+        homo.push(points[i+1]);
+        homo.push(points[i+2]);
+        homo.push(1);
+    }
+
+    return homo;
+}
+function points3d_to_image2d(points, calib){
+    // 
+    return points3d_homo_to_image2d(point3d_to_homo(points), calib);
 }
 
 function all_points_in_image_range(p){
