@@ -439,7 +439,7 @@ function ImageContext(ui, cfg){
                 return;
             }
 
-            var svg = scope.ui.querySelector("#svg-boxes");
+            let svg = scope.ui.querySelector("#svg-boxes");
 
             // draw boxes
             scope.world.boxes.forEach(function(box){
@@ -451,6 +451,7 @@ function ImageContext(ui, cfg){
 
             });
 
+            svg = scope.ui.querySelector("#svg-points");
             // draw radar points
             scope.world.radars.radarList.forEach(radar=>{
                 let pts = radar.get_unoffset_radar_points();
