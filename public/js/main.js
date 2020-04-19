@@ -77,7 +77,7 @@ function start(metaData){
       };
 
       let dataCfg = {
-        disableLabels: true,
+        //disableLabels: true,
       }
       
       let data = new Data(metaData, dataCfg);

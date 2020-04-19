@@ -24,6 +24,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.container = null;
     this.name = name;
 
+
     this.data = data;
     this.scene = null;
     this.renderer = null;
@@ -49,6 +50,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.imageContext = null;
     this.boxOp = null;
     this.boxEditorManager  = null; 
+
+    this.params={};
+
     this.init = function(editorUi) {
     
         let self = this;
@@ -97,7 +101,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     
         this.floatLabelManager = createFloatLabelManager(this.editorUi, this.container, this.viewManager.mainView,function(box){self.selectBox(box);});
     
-        //this.init_gui();
+        this.init_gui();
         
         this.scene.add( new THREE.AxesHelper( 1 ) );
     
@@ -665,67 +669,67 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var self=this;
         var cfgFolder = gui.addFolder( 'View' );
 
-        params["toggle side views"] = function(){
+        this.params["toggle side views"] = function(){
             sideview_enabled = !sideview_enabled;
             self.render();
         };  
 
-        params["bird's eye view"] = false;
-        params["hide image"] = false;
+        this.params["bird's eye view"] = false;
+        this.params["hide image"] = false;
             
-        params["toggle id"] = function(){
+        this.params["toggle id"] = function(){
             self.floatLabelManager.toggle_id();
             
         };
-        params["toggle category"] = function(){
+        this.params["toggle category"] = function(){
             self.floatLabelManager.toggle_category();
             
         };
 
-        params["toggle background"] = function(){
+        this.params["toggle background"] = function(){
             self.data.toggle_background();
             self.render();
         };
 
-        // params["test2"] = function(){
+        // this.params["test2"] = function(){
         //     grow_box(0.2, {x:1, y:1, z:3});
         //     on_box_changed(this.selected_box);
         // };
         
-        params["reset main view"] = function(){
+        this.params["reset main view"] = function(){
             this.viewManager.mainView.reset_camera();
             this.viewManager.mainView.reset_birdseye();
             //render();
         };
 
-        params["rotate bird's eye view"] = function(){
+        this.params["rotate bird's eye view"] = function(){
             this.viewManager.mainView.rotate_birdseye();
             this.render();
         };
         
-        //params["side view width"] = 0.2;
+        //this.params["side view width"] = 0.2;
 
-        params["point size+"] = function(){
-            self.data.scale_point_size(1.2);
-            self.render();
+        this.params["point size+"] = ()=>{
+            this.data.scale_point_size(1.2);
+            this.render();
         };
         
-        params["point size-"] = function(){
-            self.data.scale_point_size(0.8);
-            self.render();
+        this.params["point size-"] = ()=>{
+            this.data.scale_point_size(0.8);
+            this.render();
         };
 
-        params["point brightness+"] = function(){
-            self.data.scale_point_brightness(1.2);
-            load_world(self.data.world.frameInfo.scene, self.data.world.frameInfo.frame);
+        this.params["point brightness+"] = ()=>{
+            this.data.scale_point_brightness(1.2);
+            this.render();
         };
         
-        params["point brightness-"] = function(){
-            self.data.scale_point_brightness(0.8);
-            load_world(self.data.world.frameInfo.scene, self.data.world.frameInfo.frame);
+        this.params["point brightness-"] = ()=>{
+            this.data.scale_point_brightness(0.8);
+            this.render();
         };
 
-        params["toggle box"] = function(){
+        this.params["toggle box"] = function(){
             self.data.toggle_box_opacity();
             if (self.selected_box){
                 self.selected_box.material.opacity = 1;                
@@ -734,51 +738,54 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             self.render();
         }
 
-        params["toggle obj color"] = function(){
+        this.params["toggle obj color"] = function(){
             self.data.toggle_color_obj();
             self.render();
         }
 
-        cfgFolder.add( params, "point size+");
-        cfgFolder.add( params, "point size-");
-        cfgFolder.add( params, "point brightness+");
-        cfgFolder.add( params, "point brightness-");
+        cfgFolder.add( this.params, "point size+");
+        cfgFolder.add( this.params, "point size-");
+        cfgFolder.add( this.params, "point brightness+");
+        cfgFolder.add( this.params, "point brightness-");
 
-        //cfgFolder.add( params, "test2");
+        //cfgFolder.add( this.params, "test2");
 
-        cfgFolder.add( params, "toggle side views");
-        //cfgFolder.add( params, "side view width");
-        cfgFolder.add( params, "bird's eye view");
-        cfgFolder.add( params, "hide image");
+        //cfgFolder.add( this.params, "toggle side views");
+        //cfgFolder.add( this.params, "side view width");
+        //cfgFolder.add( this.params, "bird's eye view");
+        //cfgFolder.add( this.params, "hide image");
 
-        cfgFolder.add( params, "toggle background");
-        cfgFolder.add( params, "toggle box");
-        cfgFolder.add( params, "toggle obj color");
-        cfgFolder.add( params, "toggle id");
-        cfgFolder.add( params, "toggle category");
+        cfgFolder.add( this.params, "toggle background");
+        cfgFolder.add( this.params, "toggle box");
+        cfgFolder.add( this.params, "toggle obj color");
+        cfgFolder.add( this.params, "toggle id");
+        cfgFolder.add( this.params, "toggle category");
 
-        cfgFolder.add( params, "reset main view");
-        cfgFolder.add( params, "rotate bird's eye view");
+        //cfgFolder.add( this.params, "reset main view");
+        //cfgFolder.add( this.params, "rotate bird's eye view");
 
 
-        params["play"] = function(){
-            play_current_scene_with_buffer(flase, function(w){self.on_load_world_finished(w)});
+        this.params["play"] = ()=>{
+            this.playControl.play_current_scene_with_buffer(false,
+                function(w){
+                    this.on_load_world_finished(w)
+                });
         }
-        params["stop"] = stop_play;
-        params["previous frame"] = previous_frame;
-        params["next frame"] = next_frame;
+        this.params["stop"] = ()=>this.playControl.stop_play();
+        this.params["previous frame"] = ()=>this.previous_frame();
+        this.params["next frame"] = ()=>this.next_frame();
 
-        cfgFolder.add( params, "play");
-        cfgFolder.add( params, "stop");
-        cfgFolder.add( params, "previous frame");
-        cfgFolder.add( params, "next frame");
+        cfgFolder.add( this.params, "play");
+        cfgFolder.add( this.params, "stop");
+        cfgFolder.add( this.params, "previous frame");
+        cfgFolder.add( this.params, "next frame");
     };
 
     this.init_gui= function(){
         var gui = new GUI();
 
         // view
-        install_view_menu(gui);
+        this.install_view_menu(gui);
 
         //edit
         // var editFolder = gui.addFolder( 'Edit' );
@@ -812,11 +819,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
 
         //file
-        var fileFolder = gui.addFolder( 'File' );
-        params['save'] = ()=> {
-            saveWorld(this.data.world);
-        };
-        fileFolder.add( params, 'save');
+        // var fileFolder = gui.addFolder( 'File' );
+        // params['save'] = ()=> {
+        //     saveWorld(this.data.world);
+        // };
+        // fileFolder.add( params, 'save');
 
         
         // params['reload'] = function () {
@@ -837,9 +844,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         //load_data_meta(dataFolder);
 
 
-        var toolsFolder = gui.addFolder( 'Experimental Tools' );
+        // var toolsFolder = gui.addFolder( 'Experimental Tools' );
 
-        install_calib_menu(toolsFolder);
+        // install_calib_menu(toolsFolder);
 
         // params['calibrate_axes'] = function () {
         //     ml.calibrate_axes(data.world.get_all_pionts());

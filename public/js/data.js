@@ -141,7 +141,15 @@ function Data(metaData, cfg){
     };
 
     this.scale_point_brightness = function(v){
-        this.config.point_brightness *= v;        
+        this.config.point_brightness *= v;
+
+        if (this.world){
+            this.world.recolor_all_points();
+        }
+
+        this.worldList.forEach(w=>{
+            w.recolor_all_points();
+        })
     };
 
     this.toggle_box_opacity = function(){

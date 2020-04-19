@@ -1340,6 +1340,16 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         });
     };
 
+    // this is used when pointbrightness is updated.
+    this.recolor_all_points = function(){
+        this.set_points_color({
+            x: this.data.config.point_brightness,
+            y: this.data.config.point_brightness,
+            z: this.data.config.point_brightness,
+        });        
+        this.color_points();  
+    };
+
     // set all points to specified color
     this.set_points_color=function(target_color){
         var color = this.points.geometry.getAttribute("color");
@@ -1349,6 +1359,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             color.array[i*3+2] = target_color.z;
         }
     };
+
 
     this.update_points_color=function(){
         if (this.points){ //some time points may fail to load.
