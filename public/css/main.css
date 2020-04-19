@@ -113,8 +113,10 @@ canvas {
 	/*z-index: 1; /* TODO Solve this in HTML */
 }
 #maincanvas-svg {
-	
-
+	width: 100%;
+	height:100%;
+	border: 0px;
+	padding: 0px;
 }
 
 /* 
