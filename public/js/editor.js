@@ -209,10 +209,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.wrapperUi.style.display="block";
     };
 
-    this.setBatchEditor = function(editor){
-        this.batchEditor = editor;
-    };
-
     this.addRangeCircle= function(){
         
         var h = 1;
@@ -463,7 +459,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
         };
 
-
         menuUi.querySelector("#cm-play").onclick = (event)=>{
             this.playControl.play_current_scene_with_buffer(false,
                 function(w){
@@ -498,8 +493,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 console.error("no track id");
             }
 
-            //this.batchEditor.show();
-            
             this.editBatch(
                 this.data.world.frameInfo.scene,
                 this.data.world.frameInfo.frame,
@@ -1485,12 +1478,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case '+':
             case '=':
                 this.data.scale_point_size(1.2);
-                //this.batchEditor.data.scale_point_size(1.2);
                 this.render();
                 break;
             case '-':
                 this.data.scale_point_size(0.8);
-                //this.batchEditor.data.scale_point_size(0.8);
                 this.render();
                 break;
             case '1': 

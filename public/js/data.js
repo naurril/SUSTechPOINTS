@@ -2,11 +2,11 @@
 
 import {World} from "./world.js";
 
-function Data(metaData){
+function Data(metaData, cfg){
 
     // multiple world support
     // place world by a offset so they don't overlap
-
+    this.cfg = cfg;
     this.worldGap=200.0;
     this.worldList=[];
     this.MaxWorldNumber=40;

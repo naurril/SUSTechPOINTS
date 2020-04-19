@@ -46,6 +46,15 @@ function reloadWorldList(worldList, done){
 
 
 function saveWorldList(worldList, done){
+
+    if (worldList.length>0){
+        if (worldList[0].data.cfg.disableLabels){
+            console.log("labels not loaded, save action is prohibitted.")
+            return;
+        }
+    }
+
+
     console.log(worldList.length, "frames");
     let ann = worldList.map(w=>{
         return {
@@ -79,6 +88,11 @@ function saveWorldList(worldList, done){
 
 
 function saveWorld(world, done){
+    if (world.data.cfg.disableLabels){
+        console.log("labels not loaded, save action is prohibitted.")
+        return;
+    }
+
     console.log(world.boxes.length, "boxes");
     let bbox_annotations = world.toBoxAnnotations();
 

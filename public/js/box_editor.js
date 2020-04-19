@@ -395,12 +395,10 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
             case '+':
             case '=':
                 this.editingTarget.data.scale_point_size(1.2);
-                //this.batchEditor.data.scale_point_size(1.2);
                 this.viewManager.render();
                 break;
             case '-':
                 this.editingTarget.data.scale_point_size(0.8);
-                //this.batchEditor.data.scale_point_size(0.8);
                 this.viewManager.render();
                 break;
             default:

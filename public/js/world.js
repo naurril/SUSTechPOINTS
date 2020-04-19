@@ -489,22 +489,26 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.load_annotation=function(on_load){
-        var xhr = new XMLHttpRequest();
-        // we defined the xhr
-        var _self = this;
-        xhr.onreadystatechange = function () {
-            if (this.readyState != 4) return;
-        
-            if (this.status == 200) {
-                let ann = _self.frameInfo.anno_to_boxes(this.responseText);
-                on_load(ann);
-            }
-        
-            // end of state change: it can be after some time (async)
-        };
-        
-        xhr.open('GET', "/load_annotation"+"?scene="+this.frameInfo.scene+"&frame="+this.frameInfo.frame, true);
-        xhr.send();
+        if (this.data.cfg.disableLabels){
+            on_load([]);
+        }else {
+            var xhr = new XMLHttpRequest();
+            // we defined the xhr
+            var _self = this;
+            xhr.onreadystatechange = function () {
+                if (this.readyState != 4) return;
+            
+                if (this.status == 200) {
+                    let ann = _self.frameInfo.anno_to_boxes(this.responseText);
+                    on_load(ann);
+                }
+            
+                // end of state change: it can be after some time (async)
+            };
+            
+            xhr.open('GET', "/load_annotation"+"?scene="+this.frameInfo.scene+"&frame="+this.frameInfo.frame, true);
+            xhr.send();
+        }
     };
 
     this.reloadAnnotation=function(done){

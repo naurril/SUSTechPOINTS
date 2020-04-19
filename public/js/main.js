@@ -75,8 +75,11 @@ function start(metaData){
           //disableMainViewKeyDown:true
       };
 
+      let dataCfg = {
+        disableLabels: true,
+      }
       
-      let data = new Data(metaData);
+      let data = new Data(metaData, dataCfg);
       let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "main-editor")
       editor.run();
       return editor;
@@ -84,41 +87,8 @@ function start(metaData){
 
 
 
- function createBatchEditor(){
-    let maindiv  = document.querySelector("#batch-editor");
-    maindiv.style.display = "block";
-    let main_ui = template.content.cloneNode(true);
-    maindiv.appendChild(main_ui); // input parameter is changed after `append`
-
-    let editorCfg={
-      //disableSceneSelector: true,
-      //disableFrameSelector: true,
-      //disableCameraSelector: true,
-      //disableFastToolbox: true,
-      disableMainView: true,
-      disableMainImageContext: true,
-      disableGrid:true,
-      disableRangeCircle:true,
-      enableAutoSave:true,
-      //disableMainViewKeyDown:true
-    };
-
-    let data = new Data(metaData);
-    let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "batch-editor")
-    editor.run();
-    
-    // let meta = data.getMetaBySceneName(globalInfo.scene);
-    // editor.boxEditorManager.edit(data, meta, globalInfo.objTrackId);
-    return editor;
-  }
-
 
   let mainEditor = createMainEditor();
-  // let batchEditor = createBatchEditor();
-  // batchEditor.hide();
-
-  // mainEditor.setBatchEditor(batchEditor);
-
 
 }
 
