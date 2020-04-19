@@ -126,10 +126,10 @@ class Root(object):
       os.system("rm ./temp/src.pcd ./temp/tgt.pcd ./temp/out.pcd ./temp/trans.json")
 
 
-      tgt_pcd_file = "./data/"+scene +"/pcd/"+ref_frame+".pcd"
+      tgt_pcd_file = "./data/"+scene +"/lidar/"+ref_frame+".pcd"
       tgt_json_file = "./data/"+scene +"/label/"+ref_frame+".json"
 
-      src_pcd_file = "./data/"+scene +"/pcd/"+adj_frame+".pcd"      
+      src_pcd_file = "./data/"+scene +"/lidar/"+adj_frame+".pcd"      
       src_json_file = "./data/"+scene +"/label/"+adj_frame+".json"
 
       cmd = extract_object_exe +" "+ src_pcd_file + " " + src_json_file + " " + object_id + " " +"./temp/src.pcd"

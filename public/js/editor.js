@@ -1210,16 +1210,16 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             // switch camera
             if (!this.editorCfg.disableMainImageContext){
-                var best_iamge = this.imageContext.choose_best_camera_for_point(
+                var best_image = this.imageContext.choose_best_camera_for_point(
                     this.selected_box.world.frameInfo.sceneMeta,
                     this.selected_box.getTruePosition());
 
-                if (best_iamge){
+                if (best_image){
                     
-                    var image_changed = this.data.set_active_image(best_iamge);
+                    var image_changed = this.data.set_active_image(best_image);
 
                     if (image_changed){
-                        this.editorUi.querySelector("#camera-selector").value=best_iamge;
+                        this.editorUi.querySelector("#camera-selector").value=best_image;
                         this.imageContext.image_manager.display_image();
                     }
                 }

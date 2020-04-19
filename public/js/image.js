@@ -19,11 +19,11 @@ function FocusImageContext(ui){
             return;           
         }
 
-        if (!scene_meta.calib){
+        if (!scene_meta.calib.image){
             return;
         }
         
-        var calib = scene_meta.calib[bestImage]
+        var calib = scene_meta.calib.image[bestImage]
         if (!calib){
             return;
         }
@@ -349,12 +349,12 @@ function ImageContext(ui, cfg){
         var scene_meta = scope.world.sceneMeta;
 
             
-        if (!scene_meta.calib){
+        if (!scene_meta.calib.image){
             return null;
         }
 
         var active_image_name = scope.world.images.active_name;
-        var calib = scene_meta.calib[active_image_name];
+        var calib = scene_meta.calib.image[active_image_name];
 
         return calib;
     }
@@ -693,8 +693,8 @@ function choose_best_camera_for_point(scene_meta, center){
     }
 
     var proj_pos = [];
-    for (var i in scene_meta.calib){
-        var imgpos = matmul(scene_meta.calib[i].extrinsic, [center.x,center.y,center.z,1], 4);
+    for (var i in scene_meta.calib.image){
+        var imgpos = matmul(scene_meta.calib.image[i].extrinsic, [center.x,center.y,center.z,1], 4);
         proj_pos.push({calib: i, pos: vector4to3(imgpos)});
     }
 

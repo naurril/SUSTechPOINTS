@@ -3,6 +3,7 @@ import { PCDLoader } from './lib/PCDLoader.js';
 import { get_obj_cfg_by_type } from './obj_cfg.js';
 import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 import {settings} from "./settings.js"
+import {RadarManager} from "./radar.js"
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
     
@@ -27,10 +28,10 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
 
         
     this.get_pcd_path = function(){
-            return 'data/'+ this.scene + "/pcd/" + this.frame + this.sceneMeta.pcd_ext;
+            return 'data/'+ this.scene + "/lidar/" + this.frame + this.sceneMeta.lidar_ext;
         };
-    this.get_radar_path = function(){
-        return 'data/'+ this.scene + "/radar/front/" + this.frame + this.sceneMeta.pcd_ext;
+    this.get_radar_path = function(name){
+        return `data/${this.scene}/radar/${name}/${this.frame}${this.sceneMeta.radar_ext}`;
     };
     
     this.get_anno_path = function(){
@@ -199,6 +200,8 @@ function Images(sceneMeta, sceneName, frame){
     }
 }
 
+
+
 function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.coordinatesOffset = coordinatesOffset;
     this.data = data;
@@ -208,17 +211,16 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
     this.points = null;
         //points_backup: null, //for restore from highlight
-    this.boxes = null;
         
     this.images = new Images(this.sceneMeta, sceneName, frame);
-    
+    this.radars = new RadarManager(this.sceneMeta, this, this.frameInfo);
     // todo: state of world could be put in  a variable
     // but still need mulitple flags.
 
     this.points_loaded = false,
 
     this.preload_finished=function(){
-        return this.points_loaded && this.boxes && this.images.loaded() && this.radar_points_loaded;
+        return this.points_loaded && this.boxes && this.images.loaded() && this.radars.preloaded();
     };
 
     this.reset=function(){this.points=null; this.boxes=null;};
@@ -271,7 +273,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         var _self = this;
 
         this.images.load(function(){_self.on_image_loaded();}, this.data.active_image_name);
-        this.load_radar();
+        this.radars.preload(on_preload_finished);
     };
 
     // color points according to object category
@@ -301,12 +303,6 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         }  
     };
 
-    this.get_points=function(){
-        return {
-        position: this.points.geometry.getAttribute("position"),
-        color: this.points.geometry.getAttribute("color"),
-        };
-    };
 
     this.transformPointsByOffset = function(points){
         let newPoints=[];
@@ -317,165 +313,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         return newPoints;
     };
 
-    this.restorePointByOffset = function(points){
 
-    };
-
-    this.radar_points_raw = null;  // read from file, centered at 0
-    this.radar_points = null;   // geometry points
-    this.radar_points_loaded = false;
-    this.load_radar=function(){
-        var loader = new PCDLoader();
-
-        var _self = this;
-        loader.load( this.frameInfo.get_radar_path(), 
-            //ok
-            function ( pcd ) {
-                var position = pcd.position;
-
-                //_self.points_parse_time = new Date().getTime();
-                //console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
-                _self.radar_points_raw = position;
-
-                if (_self.sceneMeta.calib_radar && _self.sceneMeta.calib_radar.front){
-                    _self.radar_box = _self.createCuboid(
-                        {
-                            x: _self.sceneMeta.calib_radar.front.translation[0] + _self.coordinatesOffset[0],
-                            y: _self.sceneMeta.calib_radar.front.translation[1] + _self.coordinatesOffset[1],
-                            z: _self.sceneMeta.calib_radar.front.translation[2] + _self.coordinatesOffset[2],
-                        }, 
-                        {x:1,y:1, z:1}, 
-                        {
-                            x: _self.sceneMeta.calib_radar.front.rotation[0],
-                            y: _self.sceneMeta.calib_radar.front.rotation[1],
-                            z: _self.sceneMeta.calib_radar.front.rotation[2],
-                        }, 
-                        "radar", 
-                        "");
-                
-                }else {
-                    _self.radar_box = _self.createCuboid(
-                        {x: _self.coordinatesOffset[0],
-                         y: _self.coordinatesOffset[1],
-                         z: _self.coordinatesOffset[2]}, 
-                        {x:1,y:1, z:1}, 
-                        {x:0,y:0,z:0}, 
-                        "radar", 
-                        "");
-                }
-
-                //position = _self.transformPointsByOffset(position);
-                position = _self.move_radar_points(_self.radar_box);
-                let mesh = _self.buildRadarPointsGeometry(position);
-                _self.radar_points = mesh;
-                //_self.points_backup = mesh;
-
-                _self.radar_points_loaded = true;
-
-                // add one box to calibrate radar with lidar
-               
-                
-                if (_self.preload_finished()){
-                    if (_self.on_preload_finished)
-                        _self.on_preload_finished(_self);
-                }
-
-                if (_self.active){
-                    _self.go();
-                }                       
-                
-                //var center = points.geometry.boundingSphere.center;
-                //controls.target.set( center.x, center.y, center.z );
-                //controls.update();
-            },
-
-            // on progress,
-            function(){
-
-            },
-
-            // on error
-            function(){
-                //error
-                console.log("load pcd failed.");
-
-                _self.radar_points_loaded = true;
-                
-                //go ahead, may load picture
-                if (_self.preload_finished()){                    
-                    if (_self.on_preload_finished)
-                        _self.on_preload_finished(_self);
-                }
-
-                if (_self.active){
-                    _self.go();
-                }                       
-                
-
-            },
-
-            // on file loaded
-            function(){
-                _self.points_readfile_time = new Date().getTime();
-                console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "read file ", _self.points_readfile_time - _self.create_time, "ms");
-            }
-        );
-    };
-
-
-    this.buildRadarPointsGeometry = function(position){
-        // build geometry
-        let geometry = new THREE.BufferGeometry();
-        if ( position.length > 0 ) 
-            geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
-        
-        
-        let color = [];
-        for (var i =0; i< position.length; i+=3){
-
-            color.push(this.data.config.point_brightness);
-            color.push(0);
-            color.push(0);
-        }
-        geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
-
-        geometry.computeBoundingSphere();
-        // build material
-        let material = new THREE.PointsMaterial( { size: this.data.config.point_size*4, vertexColors: THREE.VertexColors } );
-        //material.size = 2;
-        material.sizeAttenuation = false;
-
-        // build mesh
-
-        let mesh = new THREE.Points( geometry, material );                        
-        mesh.name = "radar";
-        return mesh;
-    };
-
-
-    this.move_radar_points = function(box){
-        let trans = euler_angle_to_rotate_matrix_3by3(box.rotation);
-        let points = this.radar_points_raw;
-        let rotated_points = matmul(trans, points, 3);
-        let translation=[box.position.x, box.position.y, box.position.z];
-        let translated_points = rotated_points.map((p,i)=>{
-            return p + translation[i % 3];
-        });
-        return translated_points;
-    };
-
-    this.move_radar= function(box){
-
-        let translated_points = this.move_radar_points(box);
-
-        let geometry = this.buildRadarPointsGeometry(translated_points);
-        
-        // remove old points
-        this.scene.remove(this.radar_points);
-
-        this.scene.add(geometry);
-        this.radar_points = geometry;
-    };
 
 
     this.load_points=function(){
@@ -1561,24 +1399,16 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             if (this.points)
                 this.scene.add( this.points );
 
-            if (this.radar_points){
-                this.scene.add( this.radar_points );
+            this.radars.go(this.scene);
 
-                if (this.radar_box)
-                    this.scene.add( this.radar_box);
-            }
-            var _self=this;
-            
-            this.boxes.forEach(function(b){
-                _self.scene.add(b);
-            })
+            this.boxes.forEach((b)=>this.scene.add(b));
 
-            if (!_self.data.config.show_background){
-                _self.hide_background();
+            if (!this.data.config.show_background){
+                this.hide_background();
             }
 
-            _self.finish_time = new Date().getTime();
-            console.log(_self.finish_time, sceneName, frame, "loaded in ", _self.finish_time - _self.create_time, "ms");
+            this.finish_time = new Date().getTime();
+            console.log(this.finish_time, sceneName, frame, "loaded in ", this.finish_time - this.create_time, "ms");
                 
 
             // render is called in on_finished() callback
