@@ -342,6 +342,14 @@ function ImageContext(ui, cfg){
                 boxes[c].remove();                    
             }
         }
+
+        var points = scope.ui.querySelector("#svg-points").children;
+        
+        if (points.length>0){
+            for (var c=points.length-1; c >= 0; c--){
+                points[c].remove();                    
+            }
+        }
     }
 
 
@@ -445,7 +453,7 @@ function ImageContext(ui, cfg){
             scope.world.boxes.forEach(function(box){
                 var imgfinal = box_to_2d_points(box, calib);
                 if (imgfinal){
-                    var box_svg = box_to_svg(box, imgfinal, trans_ratio, get_selected_box() == box);
+                    var box_svg = box_to_svg (box, imgfinal, trans_ratio, get_selected_box() == box);
                     svg.appendChild(box_svg);
                 }
 
