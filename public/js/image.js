@@ -450,7 +450,7 @@ function ImageContext(ui, cfg){
             let svg = scope.ui.querySelector("#svg-boxes");
 
             // draw boxes
-            scope.world.boxes.forEach(function(box){
+            scope.world.annotation.boxes.forEach(function(box){
                 var imgfinal = box_to_2d_points(box, calib);
                 if (imgfinal){
                     var box_svg = box_to_svg (box, imgfinal, trans_ratio, get_selected_box() == box);
@@ -686,7 +686,7 @@ function box_to_2d_points(box, calib){
 
     var box3d = psr_to_xyz(pos, scale, rotation);
 
-    console.log(box.obj_track_id, box3d.slice(8*4));
+    //console.log(box.obj_track_id, box3d.slice(8*4));
 
     box3d = box3d.slice(0,8*4);
     return points3d_homo_to_image2d(box3d, calib);

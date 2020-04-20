@@ -47,7 +47,7 @@ function load_obj_ids_of_scene(scene, done){
 
 function generate_new_unique_id(world){
     var id = 1;
-    var objs_of_current_frame = world.boxes.map(function(b){return b.obj_track_id;});
+    var objs_of_current_frame = world.annotation.boxes.map(function(b){return b.obj_track_id;});
     var allobjs = objs_of_current_frame.concat(obj_id_list);
     while (allobjs.findIndex(function(x){return x == id;}) >= 0){
         id++;

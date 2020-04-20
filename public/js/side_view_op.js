@@ -783,7 +783,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     //direction is in 3d
     function auto_stick(delta, direction, use_box_bottom_as_limit){
-        //let old_dim = scope.box.world.get_points_dimmension_of_box(scope.box, true);
+        //let old_dim = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
         //let old_scale = scope.box.scale;
 
         let virtbox = {
@@ -812,7 +812,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
 
         // note dim is the relative value
-        let new_dim = scope.box.world.get_points_dimmension_of_box(virtbox, use_box_bottom_as_limit);
+        let new_dim = scope.box.world.lidar.get_points_dimmension_of_box(virtbox, use_box_bottom_as_limit);
 
 
         for (var axis in direction){
@@ -864,7 +864,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
     ///////////////////////////////////////////////////////////////////////////////////
     // direction is null if triggered by dbclick on 'move' handler 
     function on_z_auto_shrink(direction){
-        var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, true);
+        var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
         
         if (!direction){
             ['x','y'].forEach(function(axis){
@@ -1005,7 +1005,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         
         
         if (!direction){
-            var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
+            var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
             ['x','z'].forEach(function(axis){
 
                 scope.boxOp.translate_box(scope.box, axis, (extreme.max[axis] + extreme.min[axis])/2);
@@ -1022,10 +1022,10 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             }
 
             if (direction.z != 0){
-                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
+                var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
                 auto_shrink(extreme, direction)
             }else {
-                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, true);
+                var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
                 auto_shrink(extreme, direction)
             }
             
@@ -1120,7 +1120,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     function on_x_auto_shrink(direction){
         if (!direction){
-            var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
+            var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
 
             ['y','z'].forEach(function(axis){
 
@@ -1138,10 +1138,10 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             }
 
             if (direction.z != 0){
-                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, false);
+                var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
                 auto_shrink(extreme, direction)
             } else {
-                var  extreme = scope.box.world.get_points_dimmension_of_box(scope.box, true);
+                var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
                 auto_shrink(extreme, direction)
             }
         }

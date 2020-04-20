@@ -18,7 +18,7 @@ function reloadWorldList(worldList, done){
                             w.frameInfo.frame == a.frame);
                     });
                 if (world){
-                    world.reaplyAnnotation(a.annotation);
+                    world.annotation.reaplyAnnotation(a.annotation);
                 }
                 else{
                     console.error("bug?");
@@ -93,8 +93,8 @@ function saveWorld(world, done){
         return;
     }
 
-    console.log(world.boxes.length, "boxes");
-    let bbox_annotations = world.toBoxAnnotations();
+    console.log(world.annotation.boxes.length, "boxes");
+    let bbox_annotations = world.annotation.toBoxAnnotations();
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/saveworld" +"?scene="+world.frameInfo.scene+"&frame="+world.frameInfo.frame, true);

@@ -60,7 +60,9 @@ function Data(metaData, cfg){
     
     this.preloadScene = function(sceneName, currentWorld){
 
-        
+        if (this.cfg.disablePreload)
+            return;
+
         this.deleteWorldExcept(sceneName);
         this.deleteWorldNotNear(currentWorld);
 
@@ -103,7 +105,7 @@ function Data(metaData, cfg){
         frames.forEach(f=>{
             let world = this.worldList.find(w=>(w.frameInfo.scene==scene && w.frameInfo.frame==f));
             if (world)
-                world.reloadAnnotation();
+                world.annotation.reloadAnnotation();
         })
     };
 
@@ -132,7 +134,7 @@ function Data(metaData, cfg){
     this.scale_point_size = function(v){
         this.config.point_size *= v;
         if (this.world){
-            this.world.set_point_size(this.config.point_size);
+            this.world.lidar.set_point_size(this.config.point_size);
         }
 
         this.worldList.forEach(w=>{
@@ -144,7 +146,7 @@ function Data(metaData, cfg){
         this.config.point_brightness *= v;
 
         if (this.world){
-            this.world.recolor_all_points();
+            this.world.lidar.recolor_all_points();
         }
 
         this.worldList.forEach(w=>{
@@ -154,33 +156,33 @@ function Data(metaData, cfg){
 
     this.toggle_box_opacity = function(){
         this.config.box_opacity = 1- this.config.box_opacity;
-        this.world.set_box_opacity(this.config.box_opacity);
+        this.world.annotation.set_box_opacity(this.config.box_opacity);
     };
 
     this.toggle_background = function(){
         this.config.show_background = !this.config.show_background;
 
         if (this.config.show_background){
-            this.world.cancel_highlight();
+            this.world.lidar.cancel_highlight();
         }
         else{
-            this.world.hide_background();
+            this.world.lidar.hide_background();
         }
     };
 
     this.toggle_color_obj = function(){
         this.config.color_obj = !this.config.color_obj;
         if (this.config.color_obj){
-            this.world.color_points();
+            this.world.lidar.color_points();
         } else {
-            this.world.set_points_color({
+            this.world.lidar.set_points_color({
                 x: this.config.point_brightness,
                 y: this.config.point_brightness,
                 z: this.config.point_brightness,
             });            
         }
 
-        this.world.update_points_color();
+        this.world.lidar.update_points_color();
     };
 
     this.active_image_name = "";

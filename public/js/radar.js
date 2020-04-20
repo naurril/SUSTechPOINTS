@@ -15,9 +15,10 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     this.radar_points = null;   // geometry points
 
     this.preloaded = false;
-    this.go_cmd_received = false;
     this.loaded = false;
 
+
+    this.go_cmd_received = false;
     this.webglScene = null;
     this.on_go_finished = null;
     this.go = function(webglScene, on_go_finished){
@@ -36,8 +37,13 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     };
 
     this.get_unoffset_radar_points = function(){
-        let pts = this.radar_points.geometry.getAttribute("position").array;
-        return pts.map((p,i)=>p-this.world.coordinatesOffset[i %3]);
+        if (this.radar_points){
+            let pts = this.radar_points.geometry.getAttribute("position").array;
+            return pts.map((p,i)=>p-this.world.coordinatesOffset[i %3]);
+        }
+        else{
+            return [];
+        }
     };
 
     // todo: what if it's not preloaded yet
@@ -95,7 +101,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
                 _self.radar_points = mesh;
                 //_self.points_backup = mesh;
 
-                _self._afterPreLoad();
+                _self._afterPreload();
 
             },
 
@@ -106,7 +112,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             function(){
                 //error
                 console.log("load radar failed.");
-                _self._afterPreLoad();
+                _self._afterPreload();
             },
 
             // on file loaded
@@ -118,10 +124,9 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     };
 
     // internal funcs below
-    this._afterPreLoad = function(){
+    this._afterPreload = function(){
         this.preloaded = true;
-        
-        //go ahead, may load picture
+        console.log(`radar ${this.radarname} preloaded`);
         if (this.on_preload_finished){
             this.on_preload_finished();
         }                
@@ -132,7 +137,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     this.createRadarBox = function(){
         if (this.sceneMeta.calib.radar && this.sceneMeta.calib.radar[this.name]){
-            return this.world.createCuboid(
+            return this.world.annotation.createCuboid(
                 {
                     x: this.sceneMeta.calib.radar[this.name].translation[0] + this.coordinatesOffset[0],
                     y: this.sceneMeta.calib.radar[this.name].translation[1] + this.coordinatesOffset[1],
@@ -148,7 +153,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
                 this.name);
         
         }else {
-            return this.world.createCuboid(
+            return this.world.annotation.createCuboid(
                 {x: this.coordinatesOffset[0],
                  y: this.coordinatesOffset[1],
                  z: this.coordinatesOffset[2]}, 
@@ -242,11 +247,6 @@ function RadarManager(sceneMeta, world, frameInfo){
         return true;
     };
 
-    
-    this.loaded = function(){
-
-    }
-
     this.go = function(webglScene, on_go_finished){
         this.radarList.forEach(r=>r.go(webglScene, on_go_finished));
     };
@@ -257,10 +257,14 @@ function RadarManager(sceneMeta, world, frameInfo){
 
     this.unload = function(){
         this.radarList.forEach(r=>r.unload());
-    }
+    };
 
     this.deleteAll = function(){
         this.radarList.forEach(r=>r.deleteAll());
+    };
+
+    this.getOperableObjects = function(){
+        return this.radarList.flatMap(r=>r.getOperableObjects());
     }
 };
 

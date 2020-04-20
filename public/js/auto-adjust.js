@@ -31,7 +31,7 @@ function AutoAdjust(mouse, header){
     this.followsRef = function(box){
         //find ref object in current frame
         let world = box.world;
-        let refObj = world.boxes.find(b=>b.obj_track_id == this.marked_object.obj_track_id);
+        let refObj = world.annotation.boxes.find(b=>b.obj_track_id == this.marked_object.obj_track_id);
         if (refObj){
             console.log("found ref obj in current frame");
 
@@ -141,7 +141,7 @@ function AutoAdjust(mouse, header){
 
     this.syncFollowers = function(box){
         let world = box.world;
-        let allFollowers = world.boxes.filter(b=>b.follows && b.follows.obj_track_id === box.obj_track_id);
+        let allFollowers = world.annotation.boxes.filter(b=>b.follows && b.follows.obj_track_id === box.obj_track_id);
 
         if (allFollowers.length == 0){
             console.log("no followers");

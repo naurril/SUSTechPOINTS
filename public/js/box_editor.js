@@ -63,7 +63,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         // find target box, attach to me
         if (this.target){
 
-            let box = this.target.world.findBoxByTrackId(this.target.objTrackId);
+            let box = this.target.world.annotation.findBoxByTrackId(this.target.objTrackId);
             if (box){
                 this.attachBox(box);
             }
@@ -191,7 +191,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.refreshAnnotation = function(){
         if (this.target){
-            this.target.world.reloadAnnotation(()=>{
+            this.target.world.annotation.reloadAnnotation(()=>{
                 this.tryAttach();
                 this.update(); // update calls render
                 //this.viewManager.render();

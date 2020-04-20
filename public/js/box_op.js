@@ -12,7 +12,7 @@ import {dotproduct, euler_angle_to_rotate_matrix_3by3, matmul} from "./util.js"
 
 function BoxOp(){
     this.auto_rotate_xyz=function(box, callback, apply_mask, on_box_changed, noscaling){
-        let points = box.world.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
+        let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
         //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
 
         points = points.filter(function(p){
@@ -30,7 +30,7 @@ function BoxOp(){
 
 
             //var points_indices = box.world.get_points_indices_of_box(box);
-            let points_indices = box.world.get_points_of_box(box,1.5).index;
+            let points_indices = box.world.lidar.get_points_of_box(box,1.5).index;
             
             var euler_delta = {
                 x: angle[0],
@@ -70,7 +70,7 @@ function BoxOp(){
         
             // rotation set, now rescaling the box
             
-            var extreme = box.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
 
             let auto_adj_dimension = [];
 
@@ -138,7 +138,7 @@ function BoxOp(){
         //box.rotation.x += theta;
         //on_box_changed(box);
         
-        var points_indices = box.world.get_points_indices_of_box(box);
+        var points_indices = box.world.lidar.get_points_indices_of_box(box);
         
         var _tempQuaternion = new Quaternion();
         var rotationAxis = new Vector3(0, 1, 0);
@@ -150,7 +150,7 @@ function BoxOp(){
         box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, -theta ) ).normalize();
 
         if (sticky){
-            var extreme = box.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
 
             ['x','z'].forEach((axis)=>{
 
@@ -166,7 +166,7 @@ function BoxOp(){
 
 
     this.auto_rotate_y=function(box, on_box_changed){
-        let points = box.world.get_points_of_box(box, 2.0);
+        let points = box.world.lidar.get_points_of_box(box, 2.0);
 
         // 1. find surounding points
         var side_indices = []
@@ -197,9 +197,9 @@ function BoxOp(){
 
         
 
-        box.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-        box.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-        box.world.update_points_color();
+        box.world.lidar.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+        box.world.lidar.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+        box.world.lidar.update_points_color();
         
         var x = end_points.map(function(x){return x[0]});
         //var y = side_points.map(function(x){return x[1]});
@@ -215,7 +215,7 @@ function BoxOp(){
 
 
     this.change_rotation_x=function(box, theta, sticky, on_box_changed){
-        var points_indices = box.world.get_points_indices_of_box(box);
+        var points_indices = box.world.lidar.get_points_indices_of_box(box);
 
         //box.rotation.x += theta;
         //on_box_changed(box);
@@ -224,7 +224,7 @@ function BoxOp(){
         box.quaternion.multiply( _tempQuaternion.setFromAxisAngle( rotationAxis, theta ) ).normalize();
 
         if (sticky){
-            var extreme = box.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
 
             ['y','z'].forEach((axis)=>{
 
@@ -243,7 +243,7 @@ function BoxOp(){
     this.auto_rotate_x=function(box, on_box_changed){
         console.log("x auto ratote");
         
-        let points = box.world.get_points_of_box(box, 2.0);
+        let points = box.world.lidar.get_points_of_box(box, 2.0);
 
         // 1. find surounding points
         var side_indices = []
@@ -274,9 +274,9 @@ function BoxOp(){
 
         
 
-        box.world.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-        box.world.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-        box.world.update_points_color();
+        box.world.lidar.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+        box.world.lidar.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+        box.world.lidar.update_points_color();
         //render();
 
         var x = side_points.map(function(x){return x[0]});
@@ -311,7 +311,7 @@ function BoxOp(){
 
     this.rotate_z=function(box, theta, sticky){
         // points indices shall be obtained before rotation.
-        var points_indices = box.world.get_points_indices_of_box(box);
+        var points_indices = box.world.lidar.get_points_indices_of_box(box);
             
 
         var _tempQuaternion = new Quaternion();
@@ -320,7 +320,7 @@ function BoxOp(){
 
         if (sticky){
         
-            var extreme = box.world.get_dimension_of_points(points_indices, box);
+            var extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
 
             ['x','y'].forEach((axis)=>{
 
@@ -375,7 +375,7 @@ function BoxOp(){
     this.interpolateSync = function(worldList, boxList){
         
         // if annotator is not null, it's annotated by us algorithms
-        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.ann_to_vector(b));
+        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector(b));
         console.log(anns);
         let ret = ml.interpolate_annotation(anns);
         console.log(ret);
@@ -388,19 +388,19 @@ function BoxOp(){
             if (!boxList[i]){
                 // create new box
                 let world = worldList[i];
-                let ann = world.vector_to_ann(ret[i]);
+                let ann = world.annotation.vector_to_ann(ret[i]);
                 
-                let newBox  = world.add_box(ann.position, 
+                let newBox  = world.annotation.add_box(ann.position, 
                               ann.scale, 
                               ann.rotation, 
                               obj_type, 
                               obj_track_id);
                 newBox.annotator="M";
-                world.load_box(newBox);
+                world.annotation.load_box(newBox);
 
             } else if (boxList[i].annotator) {
                 // modify box attributes
-                let b = boxList[i].world.vector_to_ann(anns[i]);
+                let b = boxList[i].world.annotation.vector_to_ann(anns[i]);
                 boxList[i].position.x = b.position.x;
                 boxList[i].position.y = b.position.y;
                 boxList[i].position.z = b.position.z;
@@ -415,10 +415,6 @@ function BoxOp(){
             }
         }
     };
-
-
-
 }
-
 
 export {BoxOp}

@@ -335,7 +335,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         box.in_highlight = false;
         //view_state.lock_obj_in_highlight = false; // when user unhighlight explicitly, set it to false
-        this.data.world.cancel_highlight(box);
+        this.data.world.lidar.cancel_highlight(box);
         this.floatLabelManager.restore_all();
         
         this.viewManager.mainView.save_orbit_state(box.scale);
@@ -347,7 +347,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             return;
 
         if (box){
-            this.data.world.highlight_box_points(box);
+            this.data.world.lidar.highlight_box_points(box);
             
             this.floatLabelManager.hide_all();
             this.viewManager.mainView.orbit.saveState();
@@ -954,7 +954,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
 
 
-        var intersects = this.mouse.getIntersects( this.mouse.onUpPosition, this.data.world.boxes );
+        var intersects = this.mouse.getIntersects( this.mouse.onUpPosition, this.data.world.annotation.boxes );
         if ( intersects.length > 0 ) {
             //var object = intersects[ 0 ].object;
             var object = intersects[ 0 ].object;
@@ -1024,7 +1024,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var self=this;
         var center_pos = this.mouse.get_screen_location_in_world(x+w/2, y+h/2);
         
-        var box = this.data.world.create_box_by_view_rect(x,y,w,h, this.viewManager.mainView.camera, center_pos);
+        var box = this.data.world.lidar.create_box_by_view_rect(x,y,w,h, this.viewManager.mainView.camera, center_pos);
         this.scene.add(box);
         
         this.imageContext.image_manager.add_box(box);
@@ -1064,11 +1064,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             else{
                 //select box /unselect box
-                if (!this.data.world || !this.data.world.boxes){
+                if (!this.data.world || !this.data.world.annotation.boxes){
                     return;
                 }
             
-                let intersects = this.mouse.getIntersects( this.mouse.onUpPosition, this.data.world.boxes );
+                let intersects = this.mouse.getIntersects( this.mouse.onUpPosition, this.data.world.annotation.boxes );
 
                 if (intersects.length == 0){
                     if (this.data.world.radar_box){
@@ -1098,7 +1098,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.select_locked_object= function(){
         var self=this;
         if (this.view_state.lock_obj_track_id != ""){
-            var box = this.data.world.boxes.find(function(x){
+            var box = this.data.world.annotation.boxes.find(function(x){
                 return x.obj_track_id == self.view_state.lock_obj_track_id;
             })
 
@@ -1168,7 +1168,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 if (this.selected_box.in_highlight){
                     this.cancelFocus(this.selected_box); 
                     if (!keep_lock){
-                        view_state.lock_obj_in_highlight = false;
+                        this.view_state.lock_obj_in_highlight = false;
                     }
                 }
 
@@ -1322,7 +1322,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.add_box= function(pos, scale, rotation, obj_type, obj_track_id){
-        let box = this.data.world.add_box(pos, scale, rotation, obj_type, obj_track_id);
+        let box = this.data.world.annotation.add_box(pos, scale, rotation, obj_type, obj_track_id);
 
         this.scene.add(box);
 
@@ -1452,7 +1452,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     // }
 
     this.auto_shrink_box= function(box){
-        var  extreme = this.data.world.get_points_dimmension_of_box(box);
+        var  extreme = this.data.world.lidar.get_points_dimmension_of_box(box);
         
         
         ['x', 'y','z'].forEach((axis)=>{
@@ -1466,7 +1466,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.grow_box= function(box, min_distance, init_scale_ratio){
 
-        var extreme = this.data.world.grow_box(box, min_distance, init_scale_ratio);
+        var extreme = this.data.world.lidar.grow_box(box, min_distance, init_scale_ratio);
 
         if (extreme){
 
@@ -1732,37 +1732,37 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.select_next_object= function(){
 
         var self=this;
-        if (this.data.world.boxes.length<=0)
+        if (this.data.world.annotation.boxes.length<=0)
             return;
 
         if (this.selected_box){
-            this.operation_state.box_navigate_index = this.data.world.boxes.findIndex(function(x){
+            this.operation_state.box_navigate_index = this.data.world.annotation.boxes.findIndex(function(x){
                 return self.selected_box == x;
             });
         }
         
         this.operation_state.box_navigate_index += 1;            
-        this.operation_state.box_navigate_index %= this.data.world.boxes.length;    
+        this.operation_state.box_navigate_index %= this.data.world.annotation.boxes.length;    
         
-        this.selectBox(this.data.world.boxes[this.operation_state.box_navigate_index]);
+        this.selectBox(this.data.world.annotation.boxes[this.operation_state.box_navigate_index]);
 
     };
 
     this.select_previous_object= function(){
         var self=this;
-        if (this.data.world.boxes.length<=0)
+        if (this.data.world.annotation.boxes.length<=0)
             return;
 
         if (this.selected_box){
-            this.operation_state.box_navigate_index = this.data.world.boxes.findIndex(function(x){
+            this.operation_state.box_navigate_index = this.data.world.annotation.boxes.findIndex(function(x){
                 return self.selected_box == x;
             });
         }
         
-        this.operation_state.box_navigate_index += this.data.world.boxes.length-1;            
-        this.operation_state.box_navigate_index %= this.data.world.boxes.length;    
+        this.operation_state.box_navigate_index += this.data.world.annotation.boxes.length-1;            
+        this.operation_state.box_navigate_index %= this.data.world.annotation.boxes.length;    
         
-        this.selectBox(this.data.world.boxes[this.operation_state.box_navigate_index]);
+        this.selectBox(this.data.world.annotation.boxes[this.operation_state.box_navigate_index]);
     };
 
     // this.centerMainView =function(){
@@ -1816,7 +1816,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.load_world = function(sceneName, frame){
         var self=this;
         //stop if current world is not ready!
-        if (this.data.world && !this.data.world.preload_finished()){
+        if (this.data.world && !this.data.world.preloaded()){
             console.error("current world is still loading.");
             return;
         }
@@ -1861,7 +1861,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.scene.remove(box);        
             
             //this.selected_box.dispose();
-            box.world.remove_box(box);
+            box.world.annotation.remove_box(box);
             this.render();
         }
     };
@@ -1947,8 +1947,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.restore_box_points_color= function(box){
         if (this.data.config.color_obj){
-            box.world.set_box_points_color(box, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
-            box.world.update_points_color();
+            box.world.lidar.set_box_points_color(box, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
+            box.world.lidar.update_points_color();
             this.render();
         }
     };
@@ -1956,11 +1956,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.updateBoxPointsColor= function(box){
         if (this.data.config.color_obj){
             if (box.last_info){
-                box.world.set_box_points_color(box.last_info, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
+                box.world.lidar.set_box_points_color(box.last_info, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
             }
 
-            box.world.set_box_points_color(box);
-            box.world.update_points_color();            
+            box.world.lidar.set_box_points_color(box);
+            box.world.lidar.update_points_color();            
         }
     };
 
@@ -1988,7 +1988,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.floatLabelManager.remove_all_labels();
         var self=this;
-        world.boxes.forEach(function(b){
+        world.annotation.boxes.forEach(function(b){
             self.floatLabelManager.add_label(b);
         })
 

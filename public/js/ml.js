@@ -59,17 +59,17 @@ var ml = {
        
 
         data.world.add_line(mean, [-normal_v[0]*10, -normal_v[1]*10, normal_v[2]*10]);
-        data.world.reset_points(points_array);
+        data.world.lidar.reset_points(points_array);
         /*
 
         var trans_matrix = transpose(euler_angle_to_rotate_matrix_3by3({x:Math.atan2(normal_v[1], -1), y: 0, z: 0}));
 
         var transfromed_point_array = matmul(trans_matrix, points_array, 3);
 
-        data.world.reset_points(transfromed_point_array);
+        data.world.lidar.reset_points(transfromed_point_array);
         
-        //data.world.set_spec_points_color(center_point_indices, {x:1,y:0,z:0});
-        //data.world.update_points_color();
+        //data.world.lidar.set_spec_points_color(center_point_indices, {x:1,y:0,z:0});
+        //data.world.lidar.update_points_color();
         */
 
         
