@@ -223,6 +223,7 @@ PCDLoader.prototype = {
 		var position = [];
 		var normal = [];
 		var color = [];
+		var velocity = [];
 
 		// ascii
 
@@ -312,6 +313,12 @@ PCDLoader.prototype = {
 
 				}
 
+				if ( offset.vx !== undefined ) {
+					velocity.push( dataview.getFloat32( row + offset.vx, this.littleEndian ) );
+					velocity.push( dataview.getFloat32( row + offset.vy, this.littleEndian ) );
+					velocity.push( 0 );
+				}
+
 			}
 
 		}
@@ -320,6 +327,7 @@ PCDLoader.prototype = {
 			position: position,
 			color: color,
 			normal: normal,
+			velocity: velocity,
 		};
 		
 	}

@@ -10,9 +10,15 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     this.coordinatesOffset = world.coordinatesOffset;
 
     this.cssStyleSelector = this.sceneMeta.calib.radar[this.name].cssstyleselector;
+    this.color = this.sceneMeta.calib.radar[this.name].color;
+    this.velocityScale = 0.3;
+
+    if (!this.color){
+        this.color = [1.0, 0.0, 0.0];
+    }
 
     this._radar_points_raw = null;  // read from file, centered at 0
-    this.radar_points = null;   // geometry points
+    this.elements = null;   // geometry points
 
     this.preloaded = false;
     this.loaded = false;
@@ -25,7 +31,8 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         this.webglScene = webglScene;
 
         if (this.preloaded){
-            this.webglScene.add(this.radar_points);
+            this.webglScene.add(this.elements.points);
+            this.elements.arrows.forEach(a=>this.webglScene.add(a));
             this.webglScene.add(this.radar_box);
             this.loaded = true;
             if (on_go_finished)
@@ -37,8 +44,8 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     };
 
     this.get_unoffset_radar_points = function(){
-        if (this.radar_points){
-            let pts = this.radar_points.geometry.getAttribute("position").array;
+        if (this.elements){
+            let pts = this.elements.points.geometry.getAttribute("position").array;
             return pts.map((p,i)=>p-this.world.coordinatesOffset[i %3]);
         }
         else{
@@ -48,22 +55,29 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     // todo: what if it's not preloaded yet
     this.unload = function(){
-        this.webglScene.remove(this.radar_points);
+        this.webglScene.remove(this.elements.points);
+        this.elements.arrows.forEach(a=>this.webglScene.remove(a));
         this.webglScene.remove(this.radar_box);
         this.loaded = false;
     };
 
     // todo: its possible to remove points before preloading,
-    this.removeAllPoints = function(){
+    this.deleteAll = function(){
         if (this.loaded){
             this.unload();
         }
 
-        if (this.radar_points){
+        if (this.elements){
             //this.scene.remove(this.points);
-            this.radar_points.geometry.dispose();
-            this.radar_points.material.dispose();
-            this.radar_points = null;
+            this.elements.points.geometry.dispose();
+            this.elements.points.material.dispose();
+
+            this.elements.arrows.forEach(a=>{
+                a.geometry.dispose();
+                a.material.dispose();
+            })
+
+            this.elements = null;
         }
 
         if (this.radar_box){
@@ -82,10 +96,18 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             //ok
             function ( pcd ) {
                 var position = pcd.position;
+                //var velocity = pcd.velocity;
+                // velocity is a vector anchored at position, 
+                // we translate them into position of the vector head
+                var velocity = position.map((p,i)=>pcd.velocity[i]+pcd.position[i]);
+
+                // scale velocity
+                // velocity = velocity.map(v=>v*_self.velocityScale);
 
                 //_self.points_parse_time = new Date().getTime();
                 //console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
                 _self._radar_points_raw = position;
+                _self._radar_velocity_raw = velocity;
 
                 // add one box to calibrate radar with lidar
                 _self.radar_box = _self.createRadarBox();
@@ -97,8 +119,10 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
                 //position = _self.transformPointsByOffset(position);
                 position = _self.move_radar_points(_self.radar_box);
-                let mesh = _self.buildRadarPointsGeometry(position);
-                _self.radar_points = mesh;
+                velocity = _self.move_radar_velocity(_self.radar_box);
+                let elements = _self.buildRadarGeometry(position, velocity);
+                
+                _self.elements = elements;
                 //_self.points_backup = mesh;
 
                 _self._afterPreload();
@@ -164,17 +188,14 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         }
     };
 
-    this.buildRadarPointsGeometry = function(position){
+    this.buildPoints = function(position){
         // build geometry
         let geometry = new THREE.BufferGeometry();
         if ( position.length > 0 ) 
             geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
         
-        let pointColor = [1.0, 0.0, 0.0];
-        if (this.sceneMeta.calib.radar && this.sceneMeta.calib.radar[this.name] && this.sceneMeta.calib.radar[this.name].color){
-            pointColor = this.sceneMeta.calib.radar[this.name].color;
-        }
         
+        let pointColor = this.color;
         let color=[];
         for (var i =0; i< position.length; i+=3){
 
@@ -186,22 +207,65 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
 
         geometry.computeBoundingSphere();
+        
         // build material
-        let material = new THREE.PointsMaterial( { size: 4, vertexColors: THREE.VertexColors } );
+        let pointSize = this.sceneMeta.calib.radar[this.name].point_size;
+        if (!pointSize)
+            pointSize = 4;
+
+        let material = new THREE.PointsMaterial( { size: pointSize, vertexColors: THREE.VertexColors } );
         //material.size = 2;
         material.sizeAttenuation = false;
 
         // build mesh
-
         let mesh = new THREE.Points( geometry, material );                        
         mesh.name = "radar";
+
         return mesh;
     };
 
+    this.buildArrow = function(position, velocity){
+        var h = 0.5;
+        
+        let p=position;
+        let v=velocity;
 
-    this.move_radar_points = function(box){
-        let trans = euler_angle_to_rotate_matrix_3by3(box.rotation);
-        let points = this._radar_points_raw;
+        var body = [
+            p[0],p[1],p[2],
+            v[0],v[1],v[2],
+        ];
+        
+
+        var geo = new THREE.BufferGeometry();
+        geo.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
+        
+
+        let color = this.color.map(c=>Math.round(c*255)).reduce((a,b)=>a*256+b, 0);
+
+        var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: 1, transparent: true } );
+        var arrow = new THREE.LineSegments( geo, material );
+        return arrow;
+    }
+
+    this.buildRadarGeometry = function(position, velocity){
+        let points = this.buildPoints(position);
+
+        let arrows = [];
+        
+        for (let i = 0; i<position.length/3; i++)
+        {
+            let arr = this.buildArrow(position.slice(i*3, i*3+3), velocity.slice(i*3, i*3+3));
+            arrows.push(arr);
+        }
+        
+        return {
+            points: points, 
+            arrows: arrows
+        };
+    };
+
+    this.move_points = function(points, box){
+        let trans = euler_angle_to_rotate_matrix_3by3(box.rotation);        
         let rotated_points = matmul(trans, points, 3);
         let translation=[box.position.x, box.position.y, box.position.z];
         let translated_points = rotated_points.map((p,i)=>{
@@ -210,18 +274,26 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         return translated_points;
     };
 
+    this.move_radar_points = function(box){        
+        return this.move_points(this._radar_points_raw, box);
+    };
+
+    this.move_radar_velocity = function(box){
+        return this.move_points(this._radar_velocity_raw, box);
+    }
+
     this.move_radar= function(box){
 
         let translated_points = this.move_radar_points(box);
+        let translated_velocity = this.move_radar_velocity(box);
 
-        let geometry = this.buildRadarPointsGeometry(translated_points);
+        let elements = this.buildRadarGeometry(translated_points, translated_velocity);
         
         // remove old points
         this.unload();
         this.removeAllPoints();
 
-        
-        this.radar_points = geometry;
+        this.elements = elements;
         this.golive(this.webglScene);
     };
 
