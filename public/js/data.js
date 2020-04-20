@@ -138,7 +138,7 @@ function Data(metaData, cfg){
         }
 
         this.worldList.forEach(w=>{
-            w.set_point_size(this.config.point_size);
+            w.lidar.set_point_size(this.config.point_size);
         })
     };
 
@@ -150,7 +150,7 @@ function Data(metaData, cfg){
         }
 
         this.worldList.forEach(w=>{
-            w.recolor_all_points();
+            w.lidar.recolor_all_points();
         })
     };
 

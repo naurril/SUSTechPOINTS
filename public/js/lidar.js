@@ -879,6 +879,7 @@ function Lidar(sceneMeta, world, frameInfo){
             z: this.data.config.point_brightness,
         });        
         this.color_points();  
+        this.update_points_color();
     };
 
     // set all points to specified color
