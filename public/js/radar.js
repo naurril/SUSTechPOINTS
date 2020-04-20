@@ -31,9 +31,12 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         this.webglScene = webglScene;
 
         if (this.preloaded){
-            this.webglScene.add(this.elements.points);
-            this.elements.arrows.forEach(a=>this.webglScene.add(a));
-            this.webglScene.add(this.radar_box);
+            if (this.elements){
+                this.webglScene.add(this.elements.points);
+                this.elements.arrows.forEach(a=>this.webglScene.add(a));
+                this.webglScene.add(this.radar_box);
+            }
+
             this.loaded = true;
             if (on_go_finished)
                 on_go_finished();
@@ -55,9 +58,11 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     // todo: what if it's not preloaded yet
     this.unload = function(){
-        this.webglScene.remove(this.elements.points);
-        this.elements.arrows.forEach(a=>this.webglScene.remove(a));
-        this.webglScene.remove(this.radar_box);
+        if (this.elements){
+            this.webglScene.remove(this.elements.points);
+            this.elements.arrows.forEach(a=>this.webglScene.remove(a));
+            this.webglScene.remove(this.radar_box);
+        }
         this.loaded = false;
     };
 
@@ -306,7 +311,14 @@ function RadarManager(sceneMeta, world, frameInfo){
     this.radarList = [];
 
     if (sceneMeta.radar){
-        this.radarList = sceneMeta.radar.map(name=>{
+        let radars = [];
+        
+        for (let r in sceneMeta.calib.radar){
+            if (!sceneMeta.calib.radar[r].disable)
+                radars.push(r);
+        }
+
+        this.radarList = radars.map(name=>{
             return new Radar(sceneMeta, world, frameInfo, name);
         });
     }

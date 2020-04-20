@@ -1,6 +1,6 @@
 // size is the dimension of the object in x/y/z axis, with unit meter.
 var obj_type_map = {
-    Car:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+    Car:            {color: '#008800',  size:[4.5, 1.8, 1.5]},
     Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
     Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
     Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
