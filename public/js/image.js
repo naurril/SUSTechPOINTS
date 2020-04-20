@@ -464,8 +464,12 @@ function ImageContext(ui, cfg){
             scope.world.radars.radarList.forEach(radar=>{
                 let pts = radar.get_unoffset_radar_points();
                 let ptsOnImg = points3d_to_image2d(pts, calib);
-                let pts_svg = points_to_svg(ptsOnImg, trans_ratio, radar.cssStyleSelector);
-                svg.appendChild(pts_svg);
+
+                // there may be none after projecting
+                if (ptsOnImg && ptsOnImg.length>0){
+                    let pts_svg = points_to_svg(ptsOnImg, trans_ratio, radar.cssStyleSelector);
+                    svg.appendChild(pts_svg);
+                }
             })
 
         }

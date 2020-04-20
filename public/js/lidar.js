@@ -342,13 +342,10 @@ function Lidar(sceneMeta, world, frameInfo){
         var pos = this.points.geometry.getAttribute("position");
         var color = this.points.geometry.getAttribute("color");
 
-                        
-
-
         var hl_point=[];
         var hl_color=[];
         var highlight_point_indices = [];
-        this.boxes.forEach(function(box){
+        this.world.annotation.boxes.forEach(function(box){
             var indices= _self._get_points_index_of_box(_self.points, box, 1);
 
             indices.forEach(function(i){
