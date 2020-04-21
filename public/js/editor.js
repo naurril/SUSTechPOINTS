@@ -101,11 +101,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     
         this.floatLabelManager = createFloatLabelManager(this.editorUi, this.container, this.viewManager.mainView,function(box){self.selectBox(box);});
     
-        this.init_gui();
+        this.controlGui = this.init_gui();
         
         this.scene.add( new THREE.AxesHelper( 1 ) );
-    
-        
     
         window.addEventListener( 'resize', function(){self.onWindowResize();}, false );
         
@@ -633,6 +631,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.viewManager.mainView.disable();
         this.boxEditor.hide();
         this.hideGridLines();
+        this.controlGui.hide();
 
         this.boxEditorManager.edit(this.data, 
             this.data.getMetaBySceneName(sceneName), 
@@ -645,6 +644,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.boxEditor.show();
                 this.showGridLines();
                 this.render();
+                this.controlGui.show();
             }
             );
     };
@@ -915,6 +915,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
         gui.open();
+        return gui;
     };
 
     this.object_category_changed= function(event){
@@ -1946,7 +1947,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
         this.header.mark_changed_flag();
         box.world.annotation.setModified();
-        
+
         this.updateBoxPointsColor(box);
         this.save_box_info(box);
 

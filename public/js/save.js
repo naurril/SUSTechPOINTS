@@ -18,7 +18,7 @@ function reloadWorldList(worldList, done){
                             w.frameInfo.frame == a.frame);
                     });
                 if (world){
-                    world.annotation.reaplyAnnotation(a.annotation);
+                    world.annotation.reapplyAnnotation(a.annotation);
                 }
                 else{
                     console.error("bug?");

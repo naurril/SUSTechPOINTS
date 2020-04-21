@@ -371,12 +371,12 @@ function Annotation(sceneMeta, world, frameInfo){
 
     this.reloadAnnotation=function(done){
         this.load_annotation(ann=>{
-            this.reaplyAnnotation(ann, done);
+            this.reapplyAnnotation(ann, done);
         });
     };
 
     
-    this.reaplyAnnotation = function(boxes, done){
+    this.reapplyAnnotation = function(boxes, done){
             // these boxes haven't attached a world
             boxes = this.transformBoxesByOffset(boxes);
 
@@ -414,7 +414,7 @@ function Annotation(sceneMeta, world, frameInfo){
                 if (b.boxEditor)
                     b.boxEditor.detach();
 
-                if (this.everythingDone)
+                if (this.loaded)
                     this.webglScene.remove(b);
                 this.remove_box(b);
             })
@@ -428,15 +428,10 @@ function Annotation(sceneMeta, world, frameInfo){
             //todo, update imagecontext, selected box, ...
             //refer to normal delete operation
             // re-color again
-            this.set_points_color({
-                x: this.data.config.point_brightness,
-                y: this.data.config.point_brightness,
-                z: this.data.config.point_brightness,
-            });        
-            this.color_points();   
+            this.world.lidar.recolor_all_points(); 
 
             // add to scene if current world is active.
-            if (this.everythingDone){
+            if (this.loaded){
                 // add new boxes
                 pendingBoxList.forEach(b=>{
                     this.webglScene.add(b);                    
