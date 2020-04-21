@@ -79,7 +79,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.data.set_webgl_scene(this.scene);
         this.boxOp = new BoxOp(this.data);
 
-        this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+        this.renderer = new THREE.WebGLRenderer( { antialias: true, preserveDrawingBuffer: true } );
         this.renderer.setPixelRatio( window.devicePixelRatio );
         
         this.container = editorUi.querySelector("#container");
@@ -665,6 +665,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         event.currentTarget.blur();
     };
 
+    this.downloadWebglScreenShot = function(){
+        let link = document.createElement("a");
+        link.download=`${this.data.world.frameInfo.scene}-${this.data.world.frameInfo.frame}-webgl`;
+        link.href=this.renderer.domElement.toDataURL("image/png", 1);
+        link.click();
+    };
+
     this.install_view_menu= function(gui){
         var self=this;
         var cfgFolder = gui.addFolder( 'View' );
@@ -779,6 +786,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         cfgFolder.add( this.params, "stop");
         cfgFolder.add( this.params, "previous frame");
         cfgFolder.add( this.params, "next frame");
+
+        this.params["take screenshot"] = ()=>{
+            this.downloadWebglScreenShot();
+        }
+        cfgFolder.add( this.params, "take screenshot");
     };
 
     this.init_gui= function(){
@@ -1503,7 +1515,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case '4':
                 this.next_frame();
                 break;
-
+            case 'p':
+                this.downloadWebglScreenShot();
+                break;
+            
             case 'v':
                 this.change_transform_control_view();
                 break;

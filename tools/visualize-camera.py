@@ -4,22 +4,36 @@ import json
 import numpy as np
 import math
 import cv2
+import pypcd.pypcd as pypcd
 
-rootdir = "./data/20200411-2hz"
+
+
+###############################
+# config 
+
+rootdir = "../data/20200411-2hz"
 camera = "front"
-targetdir = "./image_temp/camera_colortype"
-linewidth = 2
+linewidth = 1  #box line width
 
+targetdir = "../image_temp/camera_2radars"
+radar_name_list = ["front_tracks", "front_points"]
+radar_point_size = 8
+
+
+############################################################################################3
+# implementation
 imgfolder  = os.path.join(rootdir, "image", camera)
-lidarfolder = os.path.join(rootdir, "pcd")
+lidarfolder = os.path.join(rootdir, "lidar")
 labelfolder = os.path.join(rootdir, "label")
+radarfolder = os.path.join(rootdir, "radar")
+
 images = os.listdir(imgfolder)
 frames = os.listdir(lidarfolder)
 frames.sort()
 image_ext = os.path.splitext(images[0])[1]
 
 
-with open(os.path.join(rootdir,"calib", camera+".json")) as f:
+with open(os.path.join(rootdir,"calib","image", camera+".json")) as f:
     calib = json.load(f)
 
 extrinsic = np.array(calib["extrinsic"])
@@ -166,11 +180,9 @@ def box_to_nparray(box):
     ])
     #box_to_nparray({"rotation":{"x":0, "y":np.pi/3, "z":np.pi/2}, "position":{"x":1,"y":2,"z":3}, "scale":{"x":10,"y":2,"z":5}})
 
-def box_to_2d_points(box):
-    "box is a ndarray"
-    box3d = psr_to_xyz(box[0], box[1], box[2])
-    
-    imgpos = np.matmul(extrinsic_matrix, box3d)
+def proj_pts3d_to_img(pts):
+
+    imgpos = np.matmul(extrinsic_matrix, pts)
 
     # rect matrix shall be applied here, for kitti
 
@@ -183,22 +195,32 @@ def box_to_2d_points(box):
 
     imgfinal = imgpos2[0:2,:]/imgpos2[2:,:]
     return imgfinal
+def box_to_2d_points(box):
+    "box is a ndarray"
+    box3d = psr_to_xyz(box[0], box[1], box[2])
+    return proj_pts3d_to_img(box3d)
+    
 
 
 
-for i,f in enumerate(frames):
-    #f = frames[0]
+for f in frames:
+    #f = frames[20]
+    print(f)
     frameid = os.path.splitext(f)[0]
     imgfile = frameid+image_ext
     labelfile = frameid+".json"
-    with open(os.path.join(labelfolder, labelfile)) as f:
-        labels  = json.load(f)
+    
+    with open(os.path.join(labelfolder, labelfile)) as tempfile:
+        labels  = json.load(tempfile)
 
     imgfile_path = os.path.join(rootdir, "image", camera, imgfile)
     img = cv2.imread(imgfile_path, cv2.IMREAD_UNCHANGED)
 
 
     img = img*1.3
+
+
+    # draw boxes
 
     #cv2.imshow("img", imgcanvas)
 
@@ -234,17 +256,64 @@ for i,f in enumerate(frames):
             cv2.line(imgcanvas,tuple(pts[2]),tuple(pts[6]),color,linewidth)
             cv2.line(imgcanvas,tuple(pts[3]),tuple(pts[7]),color,linewidth)
 
+
     final_img = img
     final_img[imgcanvas!=0] = 0.2 * final_img[imgcanvas!=0]
     final_img = final_img + imgcanvas*0.8
 
-    final_img[imgcanvas_headplane!=0] = 0.7 * final_img[imgcanvas_headplane!=0]
-    final_img = final_img + imgcanvas_headplane*0.3
+    final_img[imgcanvas_headplane!=0] = 0.8 * final_img[imgcanvas_headplane!=0]
+    final_img = final_img + imgcanvas_headplane*0.2
 
-    cv2.imwrite(os.path.join(targetdir, "{0:06d}.jpg".format(i)), final_img)
-    print("{0:s} written".format(str(i)))
+
+    # draw radar points
+
+    imgcanvas_radar = np.zeros(img.shape, dtype=img.dtype)
+    for radar_name in radar_name_list:
+        radar_calib_file = os.path.join(rootdir, "calib", "radar", radar_name+".json")
+        with open(radar_calib_file) as tempf:
+            radar_calib = json.load(tempf)
+
+        c = radar_calib["color"]
+        color = [c[2]*255, c[1]*255, c[0]*255]
+
+        #color = np.int8(np.array(color)*255)
+        print(color)
+        radar_file = os.path.join(radarfolder, radar_name, f)
+
+
+        if os.path.exists(radar_file):
+            pc = pypcd.PointCloud.from_path(radar_file)
+            position =  np.stack([pc.pc_data['x'], pc.pc_data['y'], pc.pc_data['z']])
+            position = np.concatenate([position, np.ones((1,position.shape[1]))])
+            #print(position)
+
+            #
+            trans = euler_angle_to_rotate_matrix(np.array(radar_calib["rotation"]), np.array(radar_calib["translation"]))
+            translated_position = np.matmul(trans, position)
+            #translated_position = translated_position[0:3,:]
+
+            img_pts = np.int32(proj_pts3d_to_img(translated_position))
+
+            for p in img_pts.T:
+                cv2.circle(imgcanvas_radar, tuple(p), radar_point_size, color, radar_point_size+2)
+
+            #combine
+            final_img[imgcanvas_radar!=0] = 0.1 * final_img[imgcanvas_radar!=0]
+            final_img = final_img + imgcanvas_radar*0.9
+    
+
+
+
+
+
+
+    #cv2.imwrite(os.path.join(targetdir, "{0:s}.jpg".format(frameid)), final_img)
+    cv2.imwrite(os.path.join(targetdir, "{0:s}.jpg".format(frameid)), final_img)
+    #print("{0:s} written".format(frameid))
+
+
 
 # ffmpeg -framerate 4 -i ./image_temp/%06d.jpg -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p  -vf "crop=2048:800:0:400"  front_camera_2x.mp4
 
-
 # ffmpeg -framerate 4 -i ./image_temp/lidar/%06d.png -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p  -vf "crop=1870:954:50:126"  lidar_2x.mp4
+
