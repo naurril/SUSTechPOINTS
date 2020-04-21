@@ -53,6 +53,7 @@ function Lidar(sceneMeta, world, frameInfo){
                 position = _self.transformPointsByOffset(position);
 
                 // build geometry
+                _self.world.data.dbg.alloc();
                 var geometry = new THREE.BufferGeometry();
                 if ( position.length > 0 ) geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
                 if ( normal.length > 0 ) geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
@@ -363,6 +364,7 @@ function Lidar(sceneMeta, world, frameInfo){
         
 
         // build new geometry
+        this.world.data.dbg.alloc();
         var geometry = new THREE.BufferGeometry();
         
         if (hl_point.length > 0 ) {
@@ -433,6 +435,7 @@ function Lidar(sceneMeta, world, frameInfo){
     this.reset_points=function(points){  // coordinates of points
         
         
+        this.world.data.dbg.alloc();
         var geometry = new THREE.BufferGeometry();
         
         
@@ -492,6 +495,7 @@ function Lidar(sceneMeta, world, frameInfo){
         
 
         // build new geometry
+        this.world.data.dbg.alloc();
         var geometry = new THREE.BufferGeometry();
         
         if (hl_point.length > 0 ) {
@@ -901,15 +905,18 @@ function Lidar(sceneMeta, world, frameInfo){
 
     this.remove_all_points=function(){
         if (this.points){
+            this.world.data.dbg.free();
             this.points.geometry.dispose();
             this.points.material.dispose();
         
             
             if (this.points.points_backup){
+                this.world.data.dbg.free();
                 this.points.points_backup.geometry.dispose();
                 this.points.points_backup.material.dispose();
 
                 if (this.points.points_backup.points_backup){
+                    this.world.data.dbg.free();
                     this.points.points_backup.points_backup.geometry.dispose();
                     this.points.points_backup.points_backup.material.dispose();
                     this.points.points_backup.points_backup = null;

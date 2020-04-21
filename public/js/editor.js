@@ -233,6 +233,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             body.push(x1,y1,h,x2,y2,h);
         }
 
+        this.data.dbg.alloc();
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
@@ -621,8 +622,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         var frame =  event.currentTarget.value;
         console.log(sceneName, frame);
-        this.load_world(sceneName, frame);
-
+        this.load_world(sceneName, frame);        
         event.currentTarget.blur();
     };
 
@@ -1829,6 +1829,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.load_world = function(sceneName, frame){
+
+        this.data.dbg.dump();
+
+
         var self=this;
         //stop if current world is not ready!
         if (this.data.world && !this.data.world.preloaded()){
@@ -1897,7 +1901,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.scene.remove(target_box);        
             
             //this.selected_box.dispose();
-            this.data.world.remove_box(target_box);
+            this.data.world.annotation.remove_box(target_box);
 
             
             this.selected_box = null;
@@ -1934,13 +1938,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     //box edited
-    this.on_box_changed= function(box){
+    this.on_box_changed = function(box){
 
         this.imageContext.image_manager.update_box(box);
 
         this.header.update_box_info(box);
         //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
         this.header.mark_changed_flag();
+        box.world.annotation.setModified();
+        
         this.updateBoxPointsColor(box);
         this.save_box_info(box);
 

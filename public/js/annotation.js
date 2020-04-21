@@ -12,6 +12,12 @@ function Annotation(sceneMeta, world, frameInfo){
     this.boxes_load_time = 0;
     this.frameInfo = frameInfo;
 
+
+    this.modified = false;
+    this.setModified = function(){this.modified=true;};
+    this.resetModified = function(){this.modified=false;};
+
+
     this.sort_boxes = function(){
         this.boxes = this.boxes.sort(function(x,y){
             return x.position.y - y.position.y;
@@ -157,6 +163,7 @@ function Annotation(sceneMeta, world, frameInfo){
         if (this.boxes){
             this.boxes.forEach((b)=>{
                 //this.webglScene.remove(b);
+                this.world.data.dbg.free();
                 b.geometry.dispose();
                 b.material.dispose();
                 b.world = null;
@@ -205,6 +212,8 @@ function Annotation(sceneMeta, world, frameInfo){
             
         ];
         
+
+        this.world.data.dbg.alloc();
 
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
@@ -289,6 +298,7 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
     this.remove_box=function(box){
+        this.world.data.dbg.free();
         box.geometry.dispose();
         box.material.dispose();
         //selected_box.dispose();

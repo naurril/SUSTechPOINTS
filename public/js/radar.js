@@ -74,10 +74,12 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
         if (this.elements){
             //this.scene.remove(this.points);
+            this.world.data.dbg.free();
             this.elements.points.geometry.dispose();
             this.elements.points.material.dispose();
 
             this.elements.arrows.forEach(a=>{
+                this.world.data.dbg.free();
                 a.geometry.dispose();
                 a.material.dispose();
             })
@@ -86,6 +88,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         }
 
         if (this.radar_box){
+            this.world.data.dbg.free();
             this.radar_box.geometry.dispose();
             this.radar_box.material.dispose();
             this.radar_box = null;
@@ -195,6 +198,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     this.buildPoints = function(position){
         // build geometry
+        this.world.data.dbg.alloc();
         let geometry = new THREE.BufferGeometry();
         if ( position.length > 0 ) 
             geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
@@ -241,6 +245,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         ];
         
 
+        this.world.data.dbg.alloc();
         var geo = new THREE.BufferGeometry();
         geo.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         

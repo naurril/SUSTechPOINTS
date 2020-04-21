@@ -1,15 +1,18 @@
 
 
 import {World} from "./world.js";
+import {Debug} from "./debug.js";
+
 
 function Data(metaData, cfg){
 
     // multiple world support
     // place world by a offset so they don't overlap
+    this.dbg = new Debug();
     this.cfg = cfg;
     this.worldGap=200.0;
     this.worldList=[];
-    this.MaxWorldNumber=40;
+    this.MaxWorldNumber=0;
     this.createWorldIndex = 0; // this index shall not repeat, so it increases permanently
     this.getWorld = function(sceneName, frame, on_preload_finished){
         // find in list
@@ -36,7 +39,7 @@ function Data(metaData, cfg){
         let currentWorldIndex = world.frameInfo.frame_index;
 
         let disposable = (w)=>{
-            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>=this.MaxWorldNumber;
+            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>this.MaxWorldNumber;
             let active  = w.everythingDone;
             return distant && !active;
         }
@@ -60,11 +63,14 @@ function Data(metaData, cfg){
     
     this.preloadScene = function(sceneName, currentWorld){
 
+        this.deleteWorldExcept(sceneName);
+        this.deleteWorldNotNear(currentWorld);
+
+        
         if (this.cfg.disablePreload)
             return;
 
-        this.deleteWorldExcept(sceneName);
-        this.deleteWorldNotNear(currentWorld);
+        
 
         //this.deleteWorldExcept(sceneName);
         let meta = currentWorld.sceneMeta;

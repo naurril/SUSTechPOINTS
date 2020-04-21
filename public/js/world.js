@@ -19,6 +19,7 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
     this.annotation_format = this.sceneMeta.boxtype, //xyz(24 number), csr(center, scale, rotation, 9 number)
 
     
+    
     // this.set = function(scene, frame_index, frame, transform_matrix, annotation_format){
     //         this.scene = scene;
     //         this.frame = frame;
@@ -331,6 +332,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.new_line=function(start, end, color){
 
         var vertex = start.concat(end);
+        this.world.data.dbg.alloc();
         var line = new THREE.BufferGeometry();
         line.addAttribute( 'position', new THREE.Float32BufferAttribute(vertex, 3 ) );
         
