@@ -7,7 +7,7 @@ import {
 } from "./lib/three.module.js";
 
 import{ml} from "./ml.js";
-import {dotproduct, euler_angle_to_rotate_matrix_3by3, matmul} from "./util.js"
+import {dotproduct, transpose, euler_angle_to_rotate_matrix_3by3, matmul} from "./util.js"
 
 
 function BoxOp(){
@@ -96,6 +96,7 @@ function BoxOp(){
             }else {
                 //anyway, we move the box in a way
                 let trans  = euler_angle_to_rotate_matrix_3by3(box.rotation);
+                trans = transpose(trans, 3);
 
                 // compute the relative position of the origin point,that is, the lidar's position
                 // note the origin point is offseted.
