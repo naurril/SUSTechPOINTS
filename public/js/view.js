@@ -40,13 +40,25 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         view.backgroundColor=new THREE.Color( 0.0, 0.0, 0.0 );
         view.zoom_ratio = 1.0; //useless for mainview
             
-        var camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+        let camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
         camera.position.x = 0;
         camera.position.z = 50;
         camera.position.y = 0;
         camera.up.set( 0, 0, 1);
         camera.lookAt( 0, 0, 0 );
         view.camera_perspective = camera;
+
+
+        // make a blind camera to clean background when batch editing is enabled.
+        camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+        camera.position.x = -1000;
+        camera.position.z = 50;
+        camera.position.y = 0;
+        camera.up.set( 0, 0, 1);
+        camera.lookAt( 0, 0, 0 );
+        view.blind_camera = camera;
+
+
         view.container = container;
         view.renderer = renderer;
         view.scene = scene;
@@ -54,43 +66,47 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         view.active = true;
         view.disable = function(){
             this.active = false;
-            this.render();
+            this.renderWithCamera(this.blind_camera);
         };
+
         view.enable = function(){
             this.active = true;
             this.render();
-        }
+        };
 
         //var cameraOrthoHelper = new THREE.CameraHelper( camera );
         //cameraOrthoHelper.visible=true;
         //scene.add( cameraOrthoHelper );
 
         view.render=function(){
-
             if (this.active){
-
                 this.switch_camera(false);
-
-                //view.updateCamera( camera, scene, mouseX, mouseY );
-
-                var left = 0;
-                var bottom = 0;
-                var width = this.container.scrollWidth;
-                var height = this.container.scrollHeight;
-
-                // update viewport, so the operating lines over these views 
-                // will be updated in time.
-                
-                
-                //console.log(left,bottom, width, height);
-
-                this.renderer.setViewport( left, bottom, width, height );
-                this.renderer.setScissor( left, bottom, width, height );
-                this.renderer.setClearColor(view.backgroundColor );
-                this.renderer.setScissorTest( true );
-
-                this.renderer.render( this.scene, this.camera );
+                this.renderWithCamera(this.camera);
             }
+        };
+
+        view.cleanView = function(){
+            this.renderWithCamera(this.blind_camera);
+        };
+
+        view.renderWithCamera = function(camera){
+            var left = 0;
+            var bottom = 0;
+            var width = this.container.scrollWidth;
+            var height = this.container.scrollHeight;
+
+            // update viewport, so the operating lines over these views 
+            // will be updated in time.
+            
+            
+            //console.log(left,bottom, width, height);
+
+            this.renderer.setViewport( left, bottom, width, height );
+            this.renderer.setScissor( left, bottom, width, height );
+            this.renderer.setClearColor(view.backgroundColor );
+            this.renderer.setScissorTest( true );
+
+            this.renderer.render( this.scene, camera );
         };
 
         var orbit_perspective = new OrbitControls( view.camera_perspective, view.container );
@@ -99,7 +115,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         orbit_perspective.enabled = false;
         view.orbit_perspective = orbit_perspective;
 
-        var transform_control = new TransformControls(camera, view.container );
+        var transform_control = new TransformControls(view.camera_perspective , view.container );
         transform_control.setSpace("local");
         transform_control.addEventListener( 'change', globalRenderFunc );
         transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);});
