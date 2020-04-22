@@ -96,12 +96,16 @@ function BoxOp(){
             }else {
                 //anyway, we move the box in a way
                 let trans  = euler_angle_to_rotate_matrix_3by3(box.rotation);
-                let orgPoint = [
-                    - box.position.x,
-                    - box.position.y,
-                    - box.position.z,
+
+                // compute the relative position of the origin point,that is, the lidar's position
+                // note the origin point is offseted.
+                let boxpos = box.getTruePosition();
+                let orgPoint = [  
+                    - boxpos.x,
+                    - boxpos.y,
+                    - boxpos.z,
                 ];
-                let orgPointInBoxCoord = matmul(trans, orgPoint);
+                let orgPointInBoxCoord = matmul(trans, orgPoint, 3);
                 let relativePosition = {
                     x: orgPointInBoxCoord[0],
                     y: orgPointInBoxCoord[1],

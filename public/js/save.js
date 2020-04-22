@@ -110,7 +110,7 @@ function saveWorld(world, done){
             }
 
             //reload obj-ids of the scene
-            //this shall be moved to done
+            //todo: this shall be moved to done
             load_obj_ids_of_scene(world.frameInfo.scene);
         }
     
