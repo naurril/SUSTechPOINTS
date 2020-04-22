@@ -12,7 +12,7 @@ function Data(metaData, cfg){
     this.cfg = cfg;
     this.worldGap=200.0;
     this.worldList=[];
-    this.MaxWorldNumber=0;
+    this.MaxWorldNumber=60;
     this.createWorldIndex = 0; // this index shall not repeat, so it increases permanently
     this.getWorld = function(sceneName, frame, on_preload_finished){
         // find in list

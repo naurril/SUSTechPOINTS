@@ -196,15 +196,17 @@ function Lidar(sceneMeta, world, frameInfo){
     this.set_point_size=function(v){
         if (this.points){
             this.points.material.size = v;
-        }
 
-        if (this.points.points_backup){
-            this.points.points_backup.material.size = v;
+            // this could happen if the points are still loading
+            if (this.points.points_backup){
+                this.points.points_backup.material.size = v;
 
-            if (this.points.points_backup.points_backup){
-                this.points.points_backup.points_backup.material.size = v;
+                if (this.points.points_backup.points_backup){
+                    this.points.points_backup.points_backup.material.size = v;
+                }
             }
         }
+
     };
 
     // color points according to object category

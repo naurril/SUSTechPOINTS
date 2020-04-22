@@ -60,7 +60,7 @@ function saveWorldList(worldList, done){
         return {
             scene: w.frameInfo.scene,
             frame: w.frameInfo.frame,
-            annotation: w.toBoxAnnotations(),
+            annotation: w.annotation.toBoxAnnotations(),
         };
     })
 

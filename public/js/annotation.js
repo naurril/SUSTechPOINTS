@@ -288,12 +288,12 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
     this.load_box = function(box){
-        if (this.everythingDone)
+        if (this.loaded)
             this.webglScene.add(box);
     };
 
     this.unload_box = function(box){
-        if (this.everythingDone)
+        if (this.loaded)
             this.webglScene.remove(box);
     };
 

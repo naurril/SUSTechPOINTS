@@ -158,6 +158,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             (b)=>this.on_box_changed(b),
             (b)=>this.remove_box(b),
             "main-boxe-ditor");
+        this.boxEditor.detach(); // hide it
 
         this.mouse = new Mouse(
             this.viewManager.mainView,

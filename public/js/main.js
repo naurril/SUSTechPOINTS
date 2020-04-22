@@ -78,7 +78,7 @@ function start(metaData){
 
       let dataCfg = {
         //disableLabels: true,
-        disablePreload: true,
+        //disablePreload: true,
       }
       
       let data = new Data(metaData, dataCfg);
