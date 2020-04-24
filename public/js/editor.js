@@ -549,7 +549,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         objMenuUi.querySelector("#cm-modify-obj-size").onclick = (event)=>{
             let saveList=[];
             this.data.worldList.forEach(w=>{
-                let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
                 if (box && box !== this.selected_box){
                     box.scale.x = this.selected_box.scale.x;
                     box.scale.y = this.selected_box.scale.y;

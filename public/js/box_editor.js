@@ -341,11 +341,19 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         this.refreshAllAnnotation();
     };
 
-    this.parentUi.querySelector("#transfer").onclick = ()=>{
+    this.parentUi.querySelector("#interpolate").onclick = async ()=>{
         //this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
         let boxList = this.activeEditorList().map(e=>e.box);
         let worldList = this.activeEditorList().map(e=>e.target.world);
-        this.boxOp.interpolateSync(worldList, boxList)
+        await this.boxOp.interpolateAsync(worldList, boxList)
+        this.activeEditorList().forEach(e=>e.tryAttach());
+        this.viewManager.render();
+    };
+
+    this.parentUi.querySelector("#auto-label").onclick = async ()=>{
+        let boxList = this.activeEditorList().map(e=>e.box);
+        let worldList = this.activeEditorList().map(e=>e.target.world);
+        await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList)
         this.activeEditorList().forEach(e=>e.tryAttach());
         this.viewManager.render();
     };
@@ -392,6 +400,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
                     this._save();
                     console.log("saved for batch editor");
                 }
+                break;
             case '+':
             case '=':
                 this.editingTarget.data.scale_point_size(1.2);

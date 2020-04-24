@@ -411,8 +411,10 @@ function Annotation(sceneMeta, world, frameInfo){
             // delete removed
             let toBeDelBoxes = this.boxes.filter(b=>b.delete);
             toBeDelBoxes.forEach(b=>{
-                if (b.boxEditor)
-                    b.boxEditor.detach();
+                if (b.boxEditor){
+
+                    b.boxEditor.detach("donthide");
+                }
 
                 if (this.loaded)
                     this.webglScene.remove(b);

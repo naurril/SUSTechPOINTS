@@ -170,30 +170,53 @@ var ml = {
     }
     ,
 
-    predict_rotation: function(data, callback){
-        var xhr = new XMLHttpRequest();
+    // predict_rotation_cb: function(data, callback){
+    //     var xhr = new XMLHttpRequest();
+    //     // we defined the xhr
+        
+    //     xhr.onreadystatechange = function () {
+    //         if (this.readyState != 4) 
+    //             return;
+        
+    //         if (this.status == 200) {
+    //             var ret = JSON.parse(this.responseText);
+    //             console.log(ret);
+    //             callback(ret.angle);
+    //         }
+    //         else{
+    //             console.log(this);
+    //         }
+
+    //     };
+        
+    //     xhr.open('POST', "/predict_rotation", true);
+    //     xhr.send(JSON.stringify({"points": data}));
+    // },
+
+    predict_rotation: function(data){
+        const req = new Request("/predict_rotation");
+        let init = {
+            method: 'POST',
+            body: JSON.stringify({"points": data})
+          };
         // we defined the xhr
         
-        xhr.onreadystatechange = function () {
-            if (this.readyState != 4) 
-                return;
-        
-            if (this.status == 200) {
-                var ret = JSON.parse(this.responseText);
-                console.log(ret);
-                callback(ret.angle);
+        return fetch(req, init)
+        .then(response=>{
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }else{
+                return response.json();
             }
-            else{
-                console.log(this);
-            }
-
-        };
+        })        
+        .catch(reject=>{
+            console.log("error predicting yaw angle!");            
+        });
         
-        xhr.open('POST', "/predict_rotation", true);
-        xhr.send(JSON.stringify({"points": data}));
     },
 
-    interpolate_annotation: function(anns){
+    // autoadj is async
+    interpolate_annotation: async function(anns, autoAdj){
         
         let i = 0;
         while(true){
@@ -214,7 +237,12 @@ var ml = {
                 let interpolate_step = tf.div(tf.sub(anns[end], anns[start]), (end-start));
 
                 for (let inserti=start+1; inserti<end; inserti++){
-                    anns[inserti] = tf.add(anns[start], tf.mul(interpolate_step, inserti-start)).dataSync();
+                    let tempAnn = tf.add(anns[start], tf.mul(interpolate_step, inserti-start)).dataSync();
+
+                    if (autoAdj)
+                        tempAnn = await autoAdj(inserti, tempAnn);
+                        
+                    anns[inserti] = tempAnn;
                 }
             }else{
                 break;
@@ -303,4 +331,4 @@ function MaFilter(initX){
 
 }
 
-export {ml};
+export {ml, MaFilter};

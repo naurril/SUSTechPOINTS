@@ -11,7 +11,7 @@ import {dotproduct, transpose, euler_angle_to_rotate_matrix_3by3, matmul} from "
 
 
 function BoxOp(){
-    this.auto_rotate_xyz=function(box, callback, apply_mask, on_box_changed, noscaling){
+    this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling){
         let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
         //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
 
@@ -21,8 +21,10 @@ function BoxOp(){
 
         //points is N*3 shape
 
-        var angle = ml.predict_rotation(points, (angle)=>{
+        let retBox = await ml.predict_rotation(points)
+         .then((ret)=>{
             
+            let angle = ret.angle;
             if (!angle){
                 console.log("prediction not implemented?");
                 return;
@@ -99,7 +101,7 @@ function BoxOp(){
                 trans = transpose(trans, 3);
 
                 // compute the relative position of the origin point,that is, the lidar's position
-                // note the origin point is offseted.
+                // note the origin point is offseted, we need to restore first.
                 let boxpos = box.getTruePosition();
                 let orgPoint = [  
                     - boxpos.x,
@@ -134,7 +136,11 @@ function BoxOp(){
             if (callback){
                 callback();
             }
+
+            return box;
         });
+
+        return retBox;
     }
 
 
@@ -377,12 +383,12 @@ function BoxOp(){
         }
     }
 
-    this.interpolateSync = function(worldList, boxList){
+    this.interpolateAsync = async function(worldList, boxList){
         
         // if annotator is not null, it's annotated by us algorithms
         let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector(b));
         console.log(anns);
-        let ret = ml.interpolate_annotation(anns);
+        let ret = await ml.interpolate_annotation(anns);
         console.log(ret);
 
         let refObj = boxList.find(b=>!!b);
@@ -420,6 +426,75 @@ function BoxOp(){
             }
         }
     };
+
+    this.interpolateAndAutoAdjustAsync = async function(worldList, boxList){
+        
+        
+
+        // if annotator is not null, it's annotated by us algorithms
+        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector(b));
+        console.log(anns);
+
+        let autoAdjAsync = async (index, newAnn)=>{
+            //let box = boxList[index];
+            let world = worldList[index];
+
+            let tempBox = world.annotation.vector_to_ann(newAnn);
+            tempBox.world = world;
+            tempBox.getTruePosition = function(){
+                return {
+                    x: this.position.x-this.world.coordinatesOffset[0],
+                    y: this.position.y-this.world.coordinatesOffset[1],
+                    z: this.position.z-this.world.coordinatesOffset[2]
+                };
+            };
+            
+            let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, {x:false, y:false, z:true}, null, true);
+            return world.annotation.ann_to_vector(adjustedBox);
+        };
+
+
+        let ret = await ml.interpolate_annotation(anns, autoAdjAsync);
+        console.log(ret);
+
+        let refObj = boxList.find(b=>!!b);
+        let obj_type = refObj.obj_type;
+        let obj_track_id = refObj.obj_track_id;
+
+        for (let i = 0; i< boxList.length; i++){
+            if (!boxList[i]){
+                // create new box
+                let world = worldList[i];
+                let ann = world.annotation.vector_to_ann(ret[i]);
+                
+                let newBox  = world.annotation.add_box(ann.position, 
+                              ann.scale, 
+                              ann.rotation, 
+                              obj_type, 
+                              obj_track_id);
+                newBox.annotator="M";
+                world.annotation.load_box(newBox);
+
+            } else if (boxList[i].annotator) {
+                // modify box attributes
+                let b = boxList[i].world.annotation.vector_to_ann(anns[i]);
+                boxList[i].position.x = b.position.x;
+                boxList[i].position.y = b.position.y;
+                boxList[i].position.z = b.position.z;
+                
+                boxList[i].scale.x = b.scale.x;
+                boxList[i].scale.y = b.scale.y;
+                boxList[i].scale.z = b.scale.z;
+
+                boxList[i].rotation.x = b.rotation.x;
+                boxList[i].rotation.y = b.rotation.y;
+                boxList[i].rotation.z = b.rotation.z;
+            }
+        }
+    };
+
+
+    
 }
 
 export {BoxOp}
