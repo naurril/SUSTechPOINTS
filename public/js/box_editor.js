@@ -100,6 +100,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         }
 
         this.box = null;
+        this.show();
 
         if (box){
             box.boxEditor = this;
@@ -113,13 +114,15 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
         }
 
-        this.show();
+        
 
     };
 
     this.detach = function(dontHide){
         if (this.box){
-            this.box.boxEditor = null;
+            if (this.box.boxEditor === this){
+                this.box.boxEditor = null;
+            }
             //this.boxOp.unhighlightBox(this.box);
             //todo de-highlight box
             this.projectiveViewOps.detach();

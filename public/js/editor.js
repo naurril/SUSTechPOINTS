@@ -642,7 +642,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.imageContext.show();
                 this.floatLabelManager.show();
                 this.viewManager.mainView.enable();
-                this.boxEditor.show();
+                if (this.selected_box){
+                    // attach again, restore box.boxEditor 
+
+                    this.boxEditor.attachBox(this.selected_box);
+                    this.boxEditor.update();
+                }
                 this.showGridLines();
                 this.render();
                 this.controlGui.show();
@@ -1865,8 +1870,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.remove_box = function(box){
         if (box === this.selected_box){
             this.remove_selected_box();
-        } else {
-
+        } 
+        
+        if (box.boxEditor)
+        {
             if (box.boxEditor){
                 box.boxEditor.detach("donthide");
             }
@@ -1900,9 +1907,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.imageContext.image_manager.remove_box(target_box.obj_local_id);
 
             this.floatLabelManager.remove_box(target_box);
-            this.scene.remove(target_box);        
+            //this.scene.remove(target_box);        
             
             //this.selected_box.dispose();
+            this.data.world.annotation.unload_box(target_box);
             this.data.world.annotation.remove_box(target_box);
 
             
@@ -1995,7 +2003,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.imageContext.image_manager.onBoxSelected(box.obj_local_id, box.obj_type);
 
 
-            this.boxEditor.attachBox(box);
+            //this.boxEditor.attachBox(box);
             this.render();
             //this.updateSubviewRangeByWindowResize(box);
             
