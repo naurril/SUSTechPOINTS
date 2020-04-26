@@ -254,8 +254,6 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
         this.show();
         this.reset();
 
-        this.showFastToolBox();
-
         if (onExit){
             // next/prev call will not update onExit
             this.onExit = onExit;

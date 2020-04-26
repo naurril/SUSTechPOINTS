@@ -16,7 +16,9 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
         id_enabled: true,
         category_enabled: true,
         labelsUi: editor_ui.querySelector("#floating-labels"),
+        floatingUi: editor_ui.querySelector("#floating-things"),
         fastToolboxUi: editor_ui.querySelector("#obj-editor"),
+        
         style: document.createElement('style'),
         temp_style: document.createElement('style'),
         on_label_clicked: func_on_label_clicked,
@@ -25,25 +27,13 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
             document.head.appendChild(this.temp_style);            
         },
 
-        hideLabels: function(){
-            this.labelsUi.style.display="none";
+        hide: function(){
+            this.floatingUi.style.display="none";
         },
-        showLabels: function(){
-            this.labelsUi.style.display="";
-        },
-
-        showFastToolbox: function(pos){
-            this.fastToolboxUi.style.display = "";
-
-            if (pos){
-                this.fastToolboxUi.style.top = pos.top;
-                this.fastToolboxUi.style.left = pos.left;
-            }
+        show: function(){
+            this.floatingUi.style.display="";
         },
 
-        hideFastBoolbox: function(){
-            this.fastToolboxUi.style.display = "none";
-        },
 
         toggle_id: function(){
             

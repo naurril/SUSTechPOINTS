@@ -629,7 +629,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.editBatch = function(sceneName, frame, objectTrackId){
         // hide something
         this.imageContext.hide();
-        this.floatLabelManager.hideLabels();
+        this.floatLabelManager.hide();
 
         //this.floatLabelManager.showFastToolbox();
 
@@ -644,7 +644,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             objectTrackId,
             ()=>{
                 this.imageContext.show();
-                this.floatLabelManager.showLables();
+                this.floatLabelManager.show();
                 this.viewManager.mainView.enable();
                 if (this.selected_box){
                     // attach again, restore box.boxEditor 
@@ -2051,8 +2051,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             options += '<option value="'+o+'" class="' +o+ '">'+o+ '</option>';        
         }
 
-        this.editorUi.querySelector("#object-category-selector").innerHTML = options;
-
+        this.editorUi.querySelector("#floating-things #object-category-selector").innerHTML = options;
+        this.editorUi.querySelector("#batch-editor-tools-wrapper #object-category-selector").innerHTML = options;
 
         // submenu of new
         var items = "";
@@ -2073,8 +2073,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 var obj_type = event.currentTarget.getAttribute("uservalue");
                 let box = self.add_box_on_mouse_pos(obj_type);
                 //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
-                self.grow_box(box, 0.2, {x:1.2, y:1.2, z:3});
-                self.auto_shrink_box(box);
+                self.grow_box(box, 0.2, {x:2, y:2, z:3});
+                //self.auto_shrink_box(box);
                 self.on_box_changed(box);
 
                 self.boxOp.auto_rotate_xyz(box, null, null, function(b){

@@ -11,6 +11,9 @@ import {dotproduct, transpose, euler_angle_to_rotate_matrix_3by3, matmul} from "
 
 
 function BoxOp(){
+    console.log("BoxOp called");
+
+
     this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling){
         let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
         //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
@@ -32,7 +35,7 @@ function BoxOp(){
 
 
             //var points_indices = box.world.get_points_indices_of_box(box);
-            let points_indices = box.world.lidar.get_points_of_box(box,1.5).index;
+            let points_indices = box.world.lidar.get_points_of_box(box,1.0).index;
             
             var euler_delta = {
                 x: angle[0],
@@ -496,5 +499,7 @@ function BoxOp(){
 
     
 }
+
+var boxOp = new BoxOp();
 
 export {BoxOp}

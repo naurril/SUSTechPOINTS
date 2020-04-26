@@ -35,7 +35,7 @@ function Data(metaData, cfg){
 
     };
 
-    this.deleteWorldNotNear = function(world){
+    this.deleteDistantWorlds = function(world){
         let currentWorldIndex = world.frameInfo.frame_index;
 
         let disposable = (w)=>{
@@ -52,7 +52,7 @@ function Data(metaData, cfg){
 
     };
 
-    this.deleteWorldExcept=function(keepScene){
+    this.deleteOtherWorldsExcept=function(keepScene){
         // release resources if scene changed
         this.worldList.forEach(w=>{
             if (w.frameInfo.scene != keepScene)
@@ -63,8 +63,8 @@ function Data(metaData, cfg){
     
     this.preloadScene = function(sceneName, currentWorld){
 
-        this.deleteWorldExcept(sceneName);
-        this.deleteWorldNotNear(currentWorld);
+        this.deleteOtherWorldsExcept(sceneName);
+        this.deleteDistantWorlds(currentWorld);
 
         
         if (this.cfg.disablePreload)
@@ -72,7 +72,7 @@ function Data(metaData, cfg){
 
         
 
-        //this.deleteWorldExcept(sceneName);
+        //this.deleteOtherWorldsExcept(sceneName);
         let meta = currentWorld.sceneMeta;
 
         let currentWorldIndex = currentWorld.frameInfo.frame_index;
@@ -115,14 +115,6 @@ function Data(metaData, cfg){
         })
     };
 
-    this.saveWorldList = function(worldList){
-        worldList.forEach(w=>{
-            saveWorld(world, ()=>{
-                e.box.changed=false;
-                e.updateInfo();
-            });
-        });
-    };
 
     this.webgl_scene = null;
     this.set_webgl_scene=function(s){

@@ -685,8 +685,10 @@ function Lidar(sceneMeta, world, frameInfo){
         
         var trans = transpose(euler_angle_to_rotate_matrix(box.rotation, {x:0, y:0, z:0}), 4);
 
-        var indices=[];
-        var outer_indices=[];
+        var indices=[];       // points inside current box
+        var outer_indices=[]; //points between current box, and box scaled by init_sacle_ratio, they
+                              // are candidates to be included for an object
+        
         var cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio);
         
         var extreme= {
@@ -715,39 +717,39 @@ function Lidar(sceneMeta, world, frameInfo){
 
             
             // if indices is provided by caller, don't filter
-            if ((Math.abs(tp[0]) > box.scale.x/2 * scale_ratio.x+0.01) 
-                || (Math.abs(tp[1]) > box.scale.y/2 * scale_ratio.y+0.01)
-                || (Math.abs(tp[2]) > box.scale.z/2 *scale_ratio.z+0.01) ){
+            if ((Math.abs(tp[0]) > box.scale.x/2+0.01) 
+                || (Math.abs(tp[1]) > box.scale.y/2+0.01)
+                || (Math.abs(tp[2]) > box.scale.z/2 * scale_ratio.z +0.01) ){
                 outer_indices.push(i);
+                
                 return;
-            }
+            } else{
+               if (tp[0] > extreme.max.x) {
+                    extreme.max.x = tp[0];
+                } 
+                
+                if (tp[0] < extreme.min.x){
+                    extreme.min.x = tp[0];
+                }
+        
+                if (tp[1] > extreme.max.y){
+                    extreme.max.y = tp[1];
+                }
+                
+                if (tp[1] < extreme.min.y){
+                    extreme.min.y = tp[1];
+                }
+        
+                if (tp[2] > extreme.max.z){
+                    extreme.max.z = tp[2];
+                }
+                
+                if (tp[2] < extreme.min.z){
+                    extreme.min.z = tp[2];
+                }
 
-
-            if (tp[0] > extreme.max.x) {
-                extreme.max.x = tp[0];
-            } 
-            
-            if (tp[0] < extreme.min.x){
-                extreme.min.x = tp[0];
+                indices.push(i);
             }
-    
-            if (tp[1] > extreme.max.y){
-                extreme.max.y = tp[1];
-            }
-            
-            if (tp[1] < extreme.min.y){
-                extreme.min.y = tp[1];
-            }
-    
-            if (tp[2] > extreme.max.z){
-                extreme.max.z = tp[2];
-            }
-            
-            if (tp[2] < extreme.min.z){
-                extreme.min.z = tp[2];
-            }
-
-            indices.push(i);
         });
         
 
@@ -755,44 +757,63 @@ function Lidar(sceneMeta, world, frameInfo){
             return null;
         }
 
-        for (var t_o in outer_indices){
-            var o = outer_indices[t_o];
-            for (var t_i in indices){
-                var i = indices[t_i];
-                var x = pos_array[i*3] - pos_array[o*3];
-                var y = pos_array[i*3+1] - pos_array[o*3+1];
-                var z = pos_array[i*3+2] - pos_array[o*3+2];
+        // todo: we should start from the nearest point.
+        // it's a naive but working alg , need improve performance.
+        let new_points_added = true;
+        var outer_indices_added_flag=[];
+        while (new_points_added){
+            new_points_added = false;
+            for (var t_o in outer_indices){
+                var o = outer_indices[t_o];
+                
+                if (pos_array[o*3+2] < extreme.min.z+0.3){// ground shall be removed to grow a box
+                    continue; 
+                }
+                
+                if (outer_indices_added_flag[t_o]){
+                    //already added to object
+                    continue;
+                }
 
-                if (x*x+y*y+z*z < min_distance*min_distance){
-                    indices.push(o);
+                for (var t_i in indices){
+                    var i = indices[t_i];
+                    var x = pos_array[i*3] - pos_array[o*3];
+                    var y = pos_array[i*3+1] - pos_array[o*3+1];
+                    var z = pos_array[i*3+2] - pos_array[o*3+2];
 
-                    var p = [pos_array[o*3]-box.position.x, pos_array[o*3+1]-box.position.y, pos_array[o*3+2]-box.position.z, 1];
-                    var tp = matmul(trans, p, 4);
-                    if (tp[0] > extreme.max.x) {
-                        extreme.max.x = tp[0];
-                    } 
-                    
-                    if (tp[0] < extreme.min.x){
-                        extreme.min.x = tp[0];
-                    }
-            
-                    if (tp[1] > extreme.max.y){
-                        extreme.max.y = tp[1];
-                    }
-                    
-                    if (tp[1] < extreme.min.y){
-                        extreme.min.y = tp[1];
-                    }
-            
-                    if (tp[2] > extreme.max.z){
-                        extreme.max.z = tp[2];
-                    }
-                    
-                    if (tp[2] < extreme.min.z){
-                        extreme.min.z = tp[2];
-                    }
+                    if (x*x+y*y+z*z < min_distance*min_distance){
+                        indices.push(o);
+                        new_points_added = true;
+                        outer_indices_added_flag[t_o] = true;
 
-                    break;
+                        var p = [pos_array[o*3]-box.position.x, pos_array[o*3+1]-box.position.y, pos_array[o*3+2]-box.position.z, 1];
+                        var tp = matmul(trans, p, 4);
+                        if (tp[0] > extreme.max.x) {
+                            extreme.max.x = tp[0];
+                        } 
+                        
+                        if (tp[0] < extreme.min.x){
+                            extreme.min.x = tp[0];
+                        }
+                
+                        if (tp[1] > extreme.max.y){
+                            extreme.max.y = tp[1];
+                        }
+                        
+                        if (tp[1] < extreme.min.y){
+                            extreme.min.y = tp[1];
+                        }
+                
+                        if (tp[2] > extreme.max.z){
+                            extreme.max.z = tp[2];
+                        }
+                        
+                        if (tp[2] < extreme.min.z){
+                            extreme.min.z = tp[2];
+                        }
+
+                        break;
+                    }
                 }
             }
         }

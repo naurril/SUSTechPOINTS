@@ -314,6 +314,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 #batch-editor-tools{
+	background-color: #222;
 	display: inherit;
 }
 
