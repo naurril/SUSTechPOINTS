@@ -662,7 +662,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                         event.stopPropagation();
                         on_direction_changed(0.005, true);
                         break;
-    
+                    case 'g':
+                        event.preventDefault();
+                        event.stopPropagation();
+                        on_direction_changed(Math.PI, true);
+                        break;
                     case 'w':
                     case 'ArrowUp':
                         event.preventDefault();
@@ -1102,7 +1106,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         };
 
         let direction3d ={
-            y: direction2d.x,
+            y: -direction2d.x,
             z: direction2d.y,
             x: 0,
         };
@@ -1133,7 +1137,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         } else{
             direction = {
                 x: 0,
-                y: direction.x,
+                y: -direction.x,
                 z: direction.y,
             }
 

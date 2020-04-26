@@ -1551,7 +1551,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case '5':            
             case '6':
             case '7':
-                this.views[ev.key-'4'].cameraHelper.visible = !this.views[ev.key-'4'].cameraHelper.visible;
+                this.boxEditor.boxView.views[ev.key-5].cameraHelper.visible = !this.boxEditor.boxView.views[ev.key-5].cameraHelper.visible;
                 this.render();
                 break;
             /*

@@ -621,7 +621,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         camera.position.z = 0;
         camera.position.y = 0;
         camera.up.set( 0, 0, 1);
-        camera.lookAt( -3, 0, 0 );
+        camera.lookAt( 3, 0, 0 );
 
         camera.rotation.x=Math.PI/2;
         camera.rotation.y=Math.PI/2;
@@ -642,7 +642,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
     
             var up3 = matmul2(trans_matrix, [0, 0, 1, 0], 4);
             this.camera.up.set( up3[0], up3[1], up3[2]);
-            var at3 = matmul2(trans_matrix, [-1, 0, 0, 1], 4);
+            var at3 = matmul2(trans_matrix, [1, 0, 0, 1], 4);
             this.camera.lookAt( at3[0], at3[1], at3[2] );
             
     
