@@ -12,9 +12,29 @@ import {dotproduct, transpose, euler_angle_to_rotate_matrix_3by3, matmul} from "
 
 function BoxOp(){
     console.log("BoxOp called");
-
+    this.grow_box_distance_threshold = 0.3;
 
     this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling){
+
+        // auto grow
+        // save scale
+        let org_scale = {
+            x: box.scale.x,
+            y: box.scale.y,
+            z: box.scale.z,
+        };
+        this.grow_box(box, grow_box_distance_threshold, {x:2, y:2, z:3});
+        this.auto_shrink_box(box);
+        // now box has been centered.
+
+        // restore scale
+        if (noscaling){
+            box.scale.x = org_scale.x;
+            box.scale.y = org_scale.y;
+            box.scale.z = org_scale.z;
+        }
+        //
+
         let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
         //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
 
@@ -146,7 +166,31 @@ function BoxOp(){
         return retBox;
     }
 
+    this.auto_shrink_box= function(box){
+        var  extreme = box.world.lidar.get_points_dimmension_of_box(box);
+        
+        ['x', 'y','z'].forEach((axis)=>{
 
+            this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+            box.scale[axis] = extreme.max[axis]-extreme.min[axis];        
+
+        }) 
+
+    };
+
+    this.grow_box= function(box, min_distance, init_scale_ratio){
+
+        var extreme = box.world.lidar.grow_box(box, min_distance, init_scale_ratio);
+
+        if (extreme){
+
+            ['x','y', 'z'].forEach((axis)=>{
+                this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+            }) 
+        }
+
+    };
 
     this.change_rotation_y = function(box, theta, sticky, on_box_changed){
         //box.rotation.x += theta;

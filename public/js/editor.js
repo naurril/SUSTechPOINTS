@@ -1052,7 +1052,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         this.imageContext.image_manager.add_box(box);
         
-        this.auto_shrink_box(box);
+        this.boxOp.auto_shrink_box(box);
         
         // guess obj type here
         
@@ -1474,32 +1474,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
     // }
 
-    this.auto_shrink_box= function(box){
-        var  extreme = this.data.world.lidar.get_points_dimmension_of_box(box);
-        
-        
-        ['x', 'y','z'].forEach((axis)=>{
-
-            this.boxOp.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-            box.scale[axis] = extreme.max[axis]-extreme.min[axis];        
-
-        }) 
-
-    };
-
-    this.grow_box= function(box, min_distance, init_scale_ratio){
-
-        var extreme = this.data.world.lidar.grow_box(box, min_distance, init_scale_ratio);
-
-        if (extreme){
-
-            ['x','y', 'z'].forEach((axis)=>{
-                this.boxOp.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-                box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
-            }) 
-        }
-
-    };
+    
 
     this.keydown= function( ev ) {
         this.operation_state.key_pressed = true;
@@ -2073,7 +2048,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 var obj_type = event.currentTarget.getAttribute("uservalue");
                 let box = self.add_box_on_mouse_pos(obj_type);
                 //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
-                self.grow_box(box, 0.2, {x:2, y:2, z:3});
+                self.boxOp.grow_box(box, 0.2, {x:2, y:2, z:3});
                 //self.auto_shrink_box(box);
                 self.on_box_changed(box);
 

@@ -766,7 +766,7 @@ function Lidar(sceneMeta, world, frameInfo){
             for (var t_o in outer_indices){
                 var o = outer_indices[t_o];
                 
-                if (pos_array[o*3+2] < extreme.min.z+0.3){// ground shall be removed to grow a box
+                if (pos_array[o*3+2] - box.position.z < extreme.min.z+0.3){// ground shall be removed to grow a box
                     continue; 
                 }
                 
