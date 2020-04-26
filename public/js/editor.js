@@ -645,12 +645,17 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             ()=>{
                 this.imageContext.show();
                 this.floatLabelManager.show();
+                
                 this.viewManager.mainView.enable();
                 if (this.selected_box){
                     // attach again, restore box.boxEditor 
-
+                    // obj type/id may have changed in batch mode
+                    this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
                     this.boxEditor.attachBox(this.selected_box);
                     this.boxEditor.update();
+
+                    // update fasttoolbox
+                    this.floatLabelManager.update_label_editor(this.selected_box.obj_type, this.selected_box.obj_track_id);
                 }
                 this.showGridLines();
                 this.render();

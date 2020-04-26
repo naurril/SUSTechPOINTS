@@ -23,7 +23,7 @@ function BoxOp(){
             y: box.scale.y,
             z: box.scale.z,
         };
-        this.grow_box(box, grow_box_distance_threshold, {x:2, y:2, z:3});
+        this.grow_box(box, this.grow_box_distance_threshold, {x:2, y:2, z:3});
         this.auto_shrink_box(box);
         // now box has been centered.
 

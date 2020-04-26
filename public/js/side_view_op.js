@@ -997,7 +997,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             on_edge_changed(delta, direction3d);
             on_y_auto_shrink(direction2d);
         } else if (lockScale){
-            auto_stick(delta, direction3d, false);
+            auto_stick(delta, direction3d, direction2d.y===0);
         }
     }
 
@@ -1113,7 +1113,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             on_edge_changed(delta, direction3d);
             on_x_auto_shrink(direction2d);
         } else if (lockScale){
-            auto_stick(delta, direction3d, false);
+            auto_stick(delta, direction3d, direction2d.y===0);
         }
     }
 

@@ -44,7 +44,7 @@ function load_obj_ids_of_scene(scene, done){
     xhr.send();
 }
 
-
+//todo: should use all worldlist
 function generate_new_unique_id(world){
     var id = 1;
     var objs_of_current_frame = world.annotation.boxes.map(function(b){return b.obj_track_id;});

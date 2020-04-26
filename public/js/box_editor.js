@@ -1,7 +1,7 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import {FocusImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
-import { ml } from "./ml.js";
+import {generate_new_unique_id} from "./obj_id_list.js"
 
 /*
 2 ways to attach and edit a box
@@ -265,6 +265,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
         this.editingTarget.objTrackId = objTrackId;
         this.editingTarget.frame = frame;
 
+        this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
+        
 
         let centerIndex = sceneMeta.frames.findIndex(f=>f==frame);
         this.editingTarget.frameIndex = centerIndex;
@@ -342,6 +344,16 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
         reloadWorldList(worldList, done);
     }
 
+    this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
+        e.stopPropagation();});
+    
+    this.parentUi.querySelector("#object-track-id-editor").addEventListener("keyup", function(e){
+        e.stopPropagation();
+    });
+
+    this.parentUi.querySelector("#object-track-id-editor").onchange = (ev)=>this.object_track_id_changed(ev);
+    this.parentUi.querySelector("#object-category-selector").onchange = (ev)=>this.object_category_changed(ev);
+
     // this should follow addToolBox
     this.parentUi.querySelector("#refresh").onclick = (e)=>{
         this.refreshAllAnnotation();
@@ -396,6 +408,10 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
         this._save();
     };
 
+    this.parentUi.querySelector("#finalize").onclick = ()=>{
+        this.finalize();
+    };
+
     this.parentUi.addEventListener( 'keydown', (event)=>{
         event.preventDefault();
         event.stopPropagation();
@@ -420,6 +436,41 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
                 break;
         }
     });
+
+    this.finalize = function(){
+        this.activeEditorList().forEach(e=>{
+            if (e.box){
+                delete e.box.annotator;
+                e.updateInfo();
+            }
+        })
+    };
+
+    this.object_track_id_changed = function(event){
+        var id = event.currentTarget.value;
+
+        if (id == "new"){
+            id = generate_new_unique_id(this.editingTarget.data.world);            
+            this.parentUi.querySelector("#object-track-id-editor").value=id;
+        }
+
+        this.activeEditorList().forEach(e=>{
+            if (e.box){
+                e.box.obj_track_id = id;
+            }
+        });
+
+    };
+
+    this.object_category_changed = function(event){
+        let obj_type = event.currentTarget.value;
+        this.activeEditorList().forEach(e=>{
+            if (e.box){
+                e.box.obj_type = obj_type;
+            }
+        });
+    };
+
 
     this._save = function(){
         let worldList = []

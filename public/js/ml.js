@@ -267,7 +267,19 @@ var ml = {
             }
 
             while (i < anns.length && !anns[i]){
-                anns[i] = filter.predict();
+                let tempAnn = filter.predict();
+
+                if (autoAdj){
+                    tempAnn = await autoAdj(i, tempAnn);
+                    filter.update(tempAnn);
+                }
+                else{
+                    filter.nextStep();
+                }
+
+                anns[i] = tempAnn;
+                // we should update 
+
                 i++;
             }
         }
@@ -288,13 +300,21 @@ var ml = {
             }
 
             while (i >= 0 && !anns[i]){
-                anns[i] = filter.predict();
+                let tempAnn = filter.predict();
+                if (autoAdj){
+                    tempAnn = await autoAdj(i, tempAnn);
+                    filter.update(tempAnn);
+                }
+                else{
+                    filter.nextStep();
+                }
+
+                anns[i] = tempAnn;
                 i--;
             }
         }
 
         return anns;
-
     },
 
     
@@ -324,10 +344,12 @@ function MaFilter(initX){
 
     this.predict = function(){
         this.x = tf.concat([tf.add(this.x, this.v).slice(0,6), this.x.slice(6)]);
-        this.step++;
         return this.x.dataSync();
     };
 
+    this.nextStep = function(){
+        this.step++;
+    };
 
 }
 
