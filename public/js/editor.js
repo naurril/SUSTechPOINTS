@@ -141,6 +141,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.boxEditorManager = new BoxEditorManager(
             this.editorUi.querySelector("#batch-box-editor-wrapper"),
+            this.floatLabelManager.fastToolboxUi,
             this.viewManager,
             this.editorCfg,
             this.boxOp,
@@ -628,7 +629,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.editBatch = function(sceneName, frame, objectTrackId){
         // hide something
         this.imageContext.hide();
-        this.floatLabelManager.hide();
+        this.floatLabelManager.hideLabels();
+
+        //this.floatLabelManager.showFastToolbox();
+
         this.viewManager.mainView.disable();
         this.boxEditor.hide();
         this.hideGridLines();
@@ -640,7 +644,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             objectTrackId,
             ()=>{
                 this.imageContext.show();
-                this.floatLabelManager.show();
+                this.floatLabelManager.showLables();
                 this.viewManager.mainView.enable();
                 if (this.selected_box){
                     // attach again, restore box.boxEditor 

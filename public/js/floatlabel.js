@@ -15,9 +15,8 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
         container: container_div,
         id_enabled: true,
         category_enabled: true,
-        wrapperUi: editor_ui.querySelector("#floating-labels-wrapper"),
-        html_labels: editor_ui.querySelector("#floating-labels"),
-
+        labelsUi: editor_ui.querySelector("#floating-labels"),
+        fastToolboxUi: editor_ui.querySelector("#obj-editor"),
         style: document.createElement('style'),
         temp_style: document.createElement('style'),
         on_label_clicked: func_on_label_clicked,
@@ -26,11 +25,24 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
             document.head.appendChild(this.temp_style);            
         },
 
-        hide: function(){
-            this.wrapperUi.style.display="none";
+        hideLabels: function(){
+            this.labelsUi.style.display="none";
         },
-        show: function(){
-            this.wrapperUi.style.display="";
+        showLabels: function(){
+            this.labelsUi.style.display="";
+        },
+
+        showFastToolbox: function(pos){
+            this.fastToolboxUi.style.display = "";
+
+            if (pos){
+                this.fastToolboxUi.style.top = pos.top;
+                this.fastToolboxUi.style.left = pos.left;
+            }
+        },
+
+        hideFastBoolbox: function(){
+            this.fastToolboxUi.style.display = "none";
         },
 
         toggle_id: function(){
@@ -88,18 +100,18 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
             
             var _self = this;
 
-            if (this.html_labels.children.length>0){
-                for (var c=this.html_labels.children.length-1; c >= 0; c--){
-                    this.html_labels.children[c].remove();                    
+            if (this.labelsUi.children.length>0){
+                for (var c=this.labelsUi.children.length-1; c >= 0; c--){
+                    this.labelsUi.children[c].remove();                    
                 }
             }
         },
 
         
         update_all_position: function(){
-            if (this.html_labels.children.length>0){
-                for (var c=0; c < this.html_labels.children.length; c++){
-                    var element = this.html_labels.children[c];
+            if (this.labelsUi.children.length>0){
+                for (var c=0; c < this.labelsUi.children.length; c++){
+                    var element = this.labelsUi.children[c];
                     
                     var best_pos = this.compute_best_position(element.vertices);
                     var pos = this.coord_to_pixel(best_pos);
@@ -120,8 +132,8 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
             var label = this.editor_ui.querySelector("#obj-local-"+local_id);
             
             if (label){
-                this.editor_ui.querySelector("#obj-editor").style.top = label.style.top;
-                this.editor_ui.querySelector("#obj-editor").style.left = label.style.left;
+                this.fastToolboxUi.style.top = label.style.top;
+                this.fastToolboxUi.style.left = label.style.left;
             }
         },
 
@@ -135,11 +147,11 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
                     label.hidden = true;
                     label.selected = true;                
                     
-                    this.editor_ui.querySelector("#obj-editor").style.display = "inline-block";
+                    this.fastToolboxUi.style.display = "inline-block";
 
                     this.editor_ui.querySelector("#category-id-editor").style.display = "inherit";//"none";
-                    this.editor_ui.querySelector("#obj-label").style.display = "none";
-                    this.editor_ui.querySelector("#obj-label").innerText = label.innerText;
+                    //this.editor_ui.querySelector("#obj-label").style.display = "none";
+                    //this.editor_ui.querySelector("#obj-label").innerText = label.innerText;
                     
                 }
             }
@@ -151,7 +163,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
                 label.className = "float-label" + " " + label.obj_type;
                 label.hidden = false;
                 label.selected = false;
-                this.editor_ui.querySelector("#obj-editor").style.display = "none";
+                this.fastToolboxUi.style.display = "none";
             }
         },
 
@@ -247,7 +259,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
 
             label.selected = false;
 
-            this.html_labels.appendChild(label);
+            this.labelsUi.appendChild(label);
 
             let self = this;
             label.onclick = ()=>{

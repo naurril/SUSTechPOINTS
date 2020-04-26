@@ -224,7 +224,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
 
 //parentUi  #batch-box-editor-wrapper
-function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove){
+function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove){
     this.viewManager = viewManager;
     this.boxOp = boxOp;
     this.activeIndex = 0;
@@ -232,6 +232,8 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
     this.cfg = cfg;
     this.globalHeader = globalHeader;
     this.parentUi = parentUi;
+    this.fastToolBoxUi = fastToolBoxUi;
+    this.batchSize = 20;
 
     this.activeEditorList = function(){
         return this.editorList.slice(0, this.activeIndex);
@@ -252,6 +254,8 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         this.show();
         this.reset();
 
+        this.showFastToolBox();
+
         if (onExit){
             // next/prev call will not update onExit
             this.onExit = onExit;
@@ -263,6 +267,7 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
         this.editingTarget.objTrackId = objTrackId;
         this.editingTarget.frame = frame;
 
+
         let centerIndex = sceneMeta.frames.findIndex(f=>f==frame);
         this.editingTarget.frameIndex = centerIndex;
 
@@ -270,10 +275,10 @@ function BoxEditorManager(parentUi, viewManager, cfg, boxOp, globalHeader, func_
             centerIndex = 0;
         }
 
-        let N = 20;
+
         let startIndex = Math.max(0, centerIndex-10);
 
-        sceneMeta.frames.slice(startIndex, startIndex+N).forEach((frame)=>{
+        sceneMeta.frames.slice(startIndex, startIndex+this.batchSize).forEach((frame)=>{
             let world = data.getWorld(sceneName, frame);
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId);
