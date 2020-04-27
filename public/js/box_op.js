@@ -87,14 +87,11 @@ function BoxOp(){
                     box.rotation.y = euler_delta.y;
                     box.rotation.z = euler_delta.z;
                 }
-                return box;
-        }
-        let doMove = (box)=>{
+       
+       
             // rotation set, now rescaling the box
-                // after rotated, the points of object may changed,
-                // so we need to estimate dimension from scratch, not reusing 
-                // points before rotation.
-                var extreme = box.world.lidar.get_dimension_of_points(null, box);
+                // important: should use original points before rotation set
+                var extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
     
                 let auto_adj_dimension = [];
     
@@ -177,12 +174,17 @@ function BoxOp(){
             
             let retBox = await ml.predict_rotation(points)
              .then(applyRotation)
-             .then(doMove)
              .then(postProc);
 
             return retBox;
         }else{
-            doMove(box);
+            applyRotation({
+                angle:[
+                    box.rotation.x, // use original rotation
+                    box.rotation.y, // use original rotation
+                    box.rotation.z, // use original rotation
+                ]
+            });
             postProc(box);
             return box;
         }
