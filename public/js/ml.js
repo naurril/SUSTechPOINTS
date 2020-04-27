@@ -276,7 +276,7 @@ var ml = {
                     filter.update(tempAnn);
                 }
                 else{
-                    filter.nextStep();
+                    filter.nextStep(tempAnn);
                 }
 
                 anns[i] = tempAnn;
@@ -310,7 +310,7 @@ var ml = {
                     filter.update(tempAnn);
                 }
                 else{
-                    filter.nextStep();
+                    filter.nextStep(tempAnn);
                 }
 
                 anns[i] = tempAnn;
@@ -349,11 +349,12 @@ function MaFilter(initX){
     };
 
     this.predict = function(){
-        this.x = tf.concat([tf.add(this.x, this.v).slice(0,6), this.x.slice(6)]);
-        return this.x.dataSync();
+        let pred = tf.concat([tf.add(this.x, this.v).slice(0,6), this.x.slice(6)]);
+        return pred.dataSync();
     };
 
-    this.nextStep = function(){
+    this.nextStep = function(x){
+        this.x = x;
         this.step++;
     };
 

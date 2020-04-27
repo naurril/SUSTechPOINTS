@@ -58,7 +58,7 @@ function AutoAdjust(mouse, header){
                     return;
                 }
                 
-                let existedBox = w.boxes.find(b=>b.obj_track_id === box.obj_track_id);
+                let existedBox = w.annotation.boxes.find(b=>b.obj_track_id === box.obj_track_id);
                 
                 if (existedBox && !existedBox.annotator)
                 {
