@@ -1156,7 +1156,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     function on_x_moved(ratio){
         var delta = {
-            y: scope.box.scale.y*ratio.x,
+            y: scope.box.scale.y*(-ratio.x),
             z: scope.box.scale.z*ratio.y
         };
 
