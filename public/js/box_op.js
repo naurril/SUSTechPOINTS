@@ -500,7 +500,7 @@ function BoxOp(){
         }
     };
 
-    this.interpolateAndAutoAdjustAsync = async function(worldList, boxList){
+    this.interpolateAndAutoAdjustAsync = async function(worldList, boxList, onFinishOneBoxCB){
         
         
 
@@ -522,23 +522,23 @@ function BoxOp(){
                 };
             };
             
-            let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, {x:false, y:false, z:true}, null, true);
+            let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true);
             return world.annotation.ann_to_vector(adjustedBox);
         };
 
 
-        let ret = await ml.interpolate_annotation(anns, autoAdjAsync);
-        console.log(ret);
 
         let refObj = boxList.find(b=>!!b);
         let obj_type = refObj.obj_type;
         let obj_track_id = refObj.obj_track_id;
 
-        for (let i = 0; i< boxList.length; i++){
+        let onFinishOneBox= (index)=>{
+            console.log(`auto insert ${index} ${worldList[index].frameInfo.frame}done`);
+            let i = index;
             if (!boxList[i]){
                 // create new box
                 let world = worldList[i];
-                let ann = world.annotation.vector_to_ann(ret[i]);
+                let ann = world.annotation.vector_to_ann(anns[i]);
                 
                 let newBox  = world.annotation.add_box(ann.position, 
                               ann.scale, 
@@ -563,7 +563,17 @@ function BoxOp(){
                 boxList[i].rotation.y = b.rotation.y;
                 boxList[i].rotation.z = b.rotation.z;
             }
-        }
+
+            if (onFinishOneBoxCB)
+                onFinishOneBoxCB(i);
+        };
+
+        let ret = await ml.interpolate_annotation(anns, autoAdjAsync, onFinishOneBox);
+        console.log(ret);
+
+        // for (let i = 0; i< boxList.length; i++){
+        //     onFinishOneBox(i);
+        // }
     };
 
 

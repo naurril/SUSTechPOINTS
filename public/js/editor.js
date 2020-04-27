@@ -537,7 +537,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         objMenuUi.querySelector("#cm-modify-obj-type").onclick = (event)=>{
             let saveList=[];
             this.data.worldList.forEach(w=>{
-                let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
                 if (box && box !== this.selected_box){
                     box.obj_type = this.selected_box.obj_type;
                     saveList.push(w);

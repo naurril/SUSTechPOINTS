@@ -369,11 +369,18 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
     };
 
     this.parentUi.querySelector("#auto-label").onclick = async ()=>{
-        let boxList = this.activeEditorList().map(e=>e.box);
-        let worldList = this.activeEditorList().map(e=>e.target.world);
-        await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList)
-        this.activeEditorList().forEach(e=>e.tryAttach());
-        this.viewManager.render();
+        let editors = this.activeEditorList();
+        let boxList = editors.map(e=>e.box);
+        let worldList = editors.map(e=>e.target.world);
+
+        let onFinishOneBox = (i)=>{
+            editors[i].tryAttach();
+            this.viewManager.render();
+        }
+        
+        await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox)
+        // this.activeEditorList().forEach(e=>e.tryAttach());
+        // this.viewManager.render();
     };
 
     this.parentUi.querySelector("#exit").onclick = ()=>{

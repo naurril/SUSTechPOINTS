@@ -680,6 +680,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
     this.grow_box=function(box, min_distance, init_scale_ratio){
 
+        let start_time = new Date().getTime();
         var points = this.points;
         var pos_array = points.geometry.getAttribute("position").array;
         
@@ -830,33 +831,11 @@ function Lidar(sceneMeta, world, frameInfo){
         //     index: indices,                 
         //     extreme: extreme,
         // }
+        let end_time = new Date().getTime();
+        console.log(`grow box cpu time ${end_time-start_time}ms`)
         return extreme;
     };
 
-    this.select_points_by_view_rect=function(x,y,w,h, camera){
-        var points = this.points;
-        var pos_array = points.geometry.getAttribute("position").array;
-
-        var indices = [];
-        var p = new THREE.Vector3();
-
-        for (var i=0; i< pos_array.length/3; i++){
-            p.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
-            p.project(camera);
-            //p.x = p.x/p.z;
-            //p.y = p.y/p.z;
-            //console.log(p);
-            if ((p.x > x) && (p.x < x+w) && (p.y>y) && (p.y<y+h) && (p.z>0)){
-                indices.push(i);
-            }
-        }
-
-        console.log("select rect points", indices.length);
-        this.set_spec_points_color(indices, {x:1,y:0,z:0});
-        this.update_points_color();
-    };
-
-    
 
     this.get_box_points_number=function(box){
         var indices = this._get_points_index_of_box(this.points, box, 1.0);
@@ -955,6 +934,32 @@ function Lidar(sceneMeta, world, frameInfo){
         }
     };
 
+
+
+    this.select_points_by_view_rect=function(x,y,w,h, camera){
+        var points = this.points;
+        var pos_array = points.geometry.getAttribute("position").array;
+
+        var indices = [];
+        var p = new THREE.Vector3();
+
+        for (var i=0; i< pos_array.length/3; i++){
+            p.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
+            p.project(camera);
+            //p.x = p.x/p.z;
+            //p.y = p.y/p.z;
+            //console.log(p);
+            if ((p.x > x) && (p.x < x+w) && (p.y>y) && (p.y<y+h) && (p.z>0)){
+                indices.push(i);
+            }
+        }
+
+        console.log("select rect points", indices.length);
+        this.set_spec_points_color(indices, {x:1,y:0,z:0});
+        this.update_points_color();
+    };
+
+    
 
     this.create_box_by_view_rect=function(x,y,w,h, camera, center){
         var rotation_z = camera.rotation.z + Math.PI/2;

@@ -216,7 +216,7 @@ var ml = {
     },
 
     // autoadj is async
-    interpolate_annotation: async function(anns, autoAdj){
+    interpolate_annotation: async function(anns, autoAdj, onFinishOneBox){
         
         let i = 0;
         while(true){
@@ -243,6 +243,8 @@ var ml = {
                         tempAnn = await autoAdj(inserti, tempAnn);
                         
                     anns[inserti] = tempAnn;
+                    if (onFinishOneBox)
+                        onFinishOneBox(inserti);
                 }
             }else{
                 break;
@@ -279,6 +281,8 @@ var ml = {
 
                 anns[i] = tempAnn;
                 // we should update 
+                if (onFinishOneBox)
+                    onFinishOneBox(i);
 
                 i++;
             }
@@ -310,6 +314,8 @@ var ml = {
                 }
 
                 anns[i] = tempAnn;
+                if (onFinishOneBox)
+                    onFinishOneBox(i);
                 i--;
             }
         }
