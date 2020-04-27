@@ -14,156 +14,180 @@ function BoxOp(){
     console.log("BoxOp called");
     this.grow_box_distance_threshold = 0.3;
 
-    this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling){
+    this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling, dontrotate){
 
         // auto grow
         // save scale
-        let org_scale = {
-            x: box.scale.x,
-            y: box.scale.y,
-            z: box.scale.z,
+        let grow = (box)=>{
+            let org_scale = {
+                x: box.scale.x,
+                y: box.scale.y,
+                z: box.scale.z,
+            };
+            this.grow_box(box, this.grow_box_distance_threshold, {x:2, y:2, z:3});
+            this.auto_shrink_box(box);
+            // now box has been centered.
+
+            // restore scale
+            if (noscaling){
+                box.scale.x = org_scale.x;
+                box.scale.y = org_scale.y;
+                box.scale.z = org_scale.z;
+            }
+            //
+            return box;
         };
-        this.grow_box(box, this.grow_box_distance_threshold, {x:2, y:2, z:3});
-        this.auto_shrink_box(box);
-        // now box has been centered.
-
-        // restore scale
-        if (noscaling){
-            box.scale.x = org_scale.x;
-            box.scale.y = org_scale.y;
-            box.scale.z = org_scale.z;
-        }
-        //
-
-        let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
-        //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
-
-        points = points.filter(function(p){
-            return p[2] > - box.scale.z/2 + 0.3;
-        })
 
         //points is N*3 shape
 
-        let retBox = await ml.predict_rotation(points)
-         .then((ret)=>{
+        let applyRotation = (ret)=>{
             
-            let angle = ret.angle;
-            if (!angle){
-                console.log("prediction not implemented?");
-                return;
-            }
-
-
-            //var points_indices = box.world.get_points_indices_of_box(box);
-            let points_indices = box.world.lidar.get_points_of_box(box,1.0).index;
-            
-            var euler_delta = {
-                x: angle[0],
-                y: angle[1],
-                z: angle[2]
-            };
-
-            if (euler_delta.z > Math.PI){
-                euler_delta.z -= Math.PI*2;
-            };
-
-            /*
-            var composite_angel = linalg_std.euler_angle_composite(box.rotation, euler_delta);
-
-            console.log("orig ", box.rotation.x, box.rotation.y, box.rotation.z);
-            console.log("delt ", euler_delta.x, euler_delta.y, euler_delta.z);
-            console.log("comp ", composite_angel.x, composite_angel.y, composite_angel.z);
-
-            box.rotation.x = composite_angel.x;
-            box.rotation.y = composite_angel.y;
-            box.rotation.z = composite_angel.z;
-            */
-            
-            if (apply_mask){
-                if (apply_mask.x)
-                    box.rotation.x = euler_delta.x;
-                if (apply_mask.y)
-                    box.rotation.y = euler_delta.y;
-                if (apply_mask.z)
-                    box.rotation.z = euler_delta.z;
-            } 
-            else{
-                box.rotation.x = euler_delta.x;
-                box.rotation.y = euler_delta.y;
-                box.rotation.z = euler_delta.z;
-            }
-        
-            // rotation set, now rescaling the box
-            
-            var extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
-
-            let auto_adj_dimension = [];
-
-            if (apply_mask){
-                if (apply_mask.x || apply_mask.y)
-                    auto_adj_dimension.push('z');
-
-                if (apply_mask.x || apply_mask.z)
-                    auto_adj_dimension.push('y');
-
-                if (apply_mask.y || apply_mask.z)
-                    auto_adj_dimension.push('x');
-            }
-            else{
-                auto_adj_dimension = ['x','y','z'];
-            }
-
-            if (!noscaling){
-                auto_adj_dimension.forEach((axis)=>{
-                    this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
-                    box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
-                }) 
-            }else {
-                //anyway, we move the box in a way
-                let trans  = euler_angle_to_rotate_matrix_3by3(box.rotation);
-                trans = transpose(trans, 3);
-
-                // compute the relative position of the origin point,that is, the lidar's position
-                // note the origin point is offseted, we need to restore first.
-                let boxpos = box.getTruePosition();
-                let orgPoint = [  
-                    - boxpos.x,
-                    - boxpos.y,
-                    - boxpos.z,
-                ];
-                let orgPointInBoxCoord = matmul(trans, orgPoint, 3);
-                let relativePosition = {
-                    x: orgPointInBoxCoord[0],
-                    y: orgPointInBoxCoord[1],
-                    z: orgPointInBoxCoord[2],
+                let angle = ret.angle;
+                if (!angle){
+                    console.log("prediction not implemented?");
+                    return;
                 }
-
-                auto_adj_dimension.forEach((axis)=>{
-                    if (relativePosition[axis]>0){
-                        //stick to max
-                        this.translate_box(box, axis, extreme.max[axis] - box.scale[axis]/2);
-                    }else{
-                        //stick to min
-                        this.translate_box(box, axis, extreme.min[axis] + box.scale[axis]/2);
+    
+    
+                //var points_indices = box.world.get_points_indices_of_box(box);
+                let points_indices = box.world.lidar.get_points_of_box(box,1.0).index;
+                
+                var euler_delta = {
+                    x: angle[0],
+                    y: angle[1],
+                    z: angle[2]
+                };
+    
+                if (euler_delta.z > Math.PI){
+                    euler_delta.z -= Math.PI*2;
+                };
+    
+                /*
+                var composite_angel = linalg_std.euler_angle_composite(box.rotation, euler_delta);
+    
+                console.log("orig ", box.rotation.x, box.rotation.y, box.rotation.z);
+                console.log("delt ", euler_delta.x, euler_delta.y, euler_delta.z);
+                console.log("comp ", composite_angel.x, composite_angel.y, composite_angel.z);
+    
+                box.rotation.x = composite_angel.x;
+                box.rotation.y = composite_angel.y;
+                box.rotation.z = composite_angel.z;
+                */
+                
+                if (apply_mask){
+                    if (apply_mask.x)
+                        box.rotation.x = euler_delta.x;
+                    if (apply_mask.y)
+                        box.rotation.y = euler_delta.y;
+                    if (apply_mask.z)
+                        box.rotation.z = euler_delta.z;
+                } 
+                else{
+                    box.rotation.x = euler_delta.x;
+                    box.rotation.y = euler_delta.y;
+                    box.rotation.z = euler_delta.z;
+                }
+                return box;
+        }
+        let doMove = (box)=>{
+            // rotation set, now rescaling the box
+                // after rotated, the points of object may changed,
+                // so we need to estimate dimension from scratch, not reusing 
+                // points before rotation.
+                var extreme = box.world.lidar.get_dimension_of_points(null, box);
+    
+                let auto_adj_dimension = [];
+    
+                if (apply_mask){
+                    if (apply_mask.x || apply_mask.y)
+                        auto_adj_dimension.push('z');
+    
+                    if (apply_mask.x || apply_mask.z)
+                        auto_adj_dimension.push('y');
+    
+                    if (apply_mask.y || apply_mask.z)
+                        auto_adj_dimension.push('x');
+                }
+                else{
+                    auto_adj_dimension = ['x','y','z'];
+                }
+    
+                if (!noscaling){
+                    auto_adj_dimension.forEach((axis)=>{
+                        this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
+                        box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
+                    }) 
+                }else {
+                    //anyway, we move the box in a way
+                    let trans  = euler_angle_to_rotate_matrix_3by3(box.rotation);
+                    trans = transpose(trans, 3);
+    
+                    // compute the relative position of the origin point,that is, the lidar's position
+                    // note the origin point is offseted, we need to restore first.
+                    let boxpos = box.getTruePosition();
+                    let orgPoint = [  
+                        - boxpos.x,
+                        - boxpos.y,
+                        - boxpos.z,
+                    ];
+                    let orgPointInBoxCoord = matmul(trans, orgPoint, 3);
+                    let relativePosition = {
+                        x: orgPointInBoxCoord[0],
+                        y: orgPointInBoxCoord[1],
+                        z: 1, //orgPointInBoxCoord[2],
                     }
+    
+                    auto_adj_dimension.forEach((axis)=>{
+                        if (relativePosition[axis]>0){
+                            //stick to max
+                            this.translate_box(box, axis, extreme.max[axis] - box.scale[axis]/2);
+                        }else{
+                            //stick to min
+                            this.translate_box(box, axis, extreme.min[axis] + box.scale[axis]/2);
+                        }
+    
+                        
+                        
+                    }) 
+    
+                }
+    
+                return box;
+        };
 
-                    
-                    
-                }) 
-
-            }
-
+        let postProc = (box)=>{
             if (on_box_changed)
                 on_box_changed(box);
-            
+                
             if (callback){
                 callback();
             }
-
             return box;
-        });
+        };
 
-        return retBox;
+        grow(box);
+
+        if (!dontrotate){
+            let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
+            //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
+
+            points = points.filter(function(p){
+                return p[2] > - box.scale.z/2 + 0.3;
+            })
+            
+            let retBox = await ml.predict_rotation(points)
+             .then(applyRotation)
+             .then(doMove)
+             .then(postProc);
+
+            return retBox;
+        }else{
+            doMove(box);
+            postProc(box);
+            return box;
+        }
+
+        
     }
 
     this.auto_shrink_box= function(box){

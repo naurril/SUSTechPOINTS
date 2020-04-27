@@ -22,6 +22,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         on_moved, 
         on_scale, 
         on_wheel, 
+        on_auto_move,
         on_auto_rotate, 
         on_reset_rotate, 
         on_focus=default_on_focus, 
@@ -71,6 +72,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         }
     
         var buttons = {
+            auto_move: ui.querySelector("#v-auto-move"),
             auto_rotate_wo_scaling: ui.querySelector("#v-auto-rotate-wo-scaling"),
             auto_rotate: ui.querySelector("#v-auto-rotate"),
             reset_rotate: ui.querySelector("#v-reset-rotate"),
@@ -428,6 +430,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                     on_auto_rotate("noscaling")
                 };
             }
+            if (buttons.auto_move && on_auto_move){
+                buttons.auto_move.onclick = function(event){
+                    on_auto_move();
+                };
+            }
         
             buttons.auto_rotate.onclick = function(event){
                 //console.log("auto rotate button clicked.");
@@ -665,7 +672,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                     case 'g':
                         event.preventDefault();
                         event.stopPropagation();
-                        on_direction_changed(Math.PI, true);
+                        on_direction_changed(Math.PI, false);
                         break;
                     case 'w':
                     case 'ArrowUp':
@@ -784,6 +791,8 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             }
         }
     }
+
+
 
     //direction is in 3d
     function auto_stick(delta, direction, use_box_bottom_as_limit){
@@ -965,9 +974,17 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         //z_view_handle.update_view_handle(scope.views[0].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
+    function on_z_auto_move(){
+
+        scope.boxOp.auto_rotate_xyz(scope.box, null, 
+            null,//{x:false, y:false, z:true}, 
+            scope.on_box_changed, "noscaling", "dontrotate");
+    }
+
     function on_z_auto_rotate(noscaling){
 
-        scope.boxOp.auto_rotate_xyz(scope.box, null, {x:false, y:false, z:true}, 
+        scope.boxOp.auto_rotate_xyz(scope.box, null, 
+            noscaling?null:{x:false, y:false, z:true}, 
             scope.on_box_changed, noscaling);
     }
 
@@ -976,7 +993,16 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         scope.on_box_changed(scope.box);
     }
 
-    var z_view_handle = create_view_handler(scope.ui.querySelector("#z-view-manipulator"), on_z_edge_changed, on_z_direction_changed, on_z_auto_shrink, on_z_moved, on_z_scaled, on_z_wheel, on_z_auto_rotate, on_z_reset_rotate);
+    var z_view_handle = create_view_handler(scope.ui.querySelector("#z-view-manipulator"), 
+                                           on_z_edge_changed, 
+                                           on_z_direction_changed, 
+                                           on_z_auto_shrink, 
+                                           on_z_moved, 
+                                           on_z_scaled, 
+                                           on_z_wheel, 
+                                           on_z_auto_move, 
+                                           on_z_auto_rotate, 
+                                           on_z_reset_rotate);
 
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -1091,6 +1117,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     var y_view_handle = create_view_handler(scope.ui.querySelector("#y-view-manipulator"), on_y_edge_changed, 
                                                 on_y_direction_changed, on_y_auto_shrink, on_y_moved, on_y_scaled, on_y_wheel, 
+                                                null,
                                                 on_y_auto_rotate,
                                                 on_y_reset_rotate);
 
@@ -1168,7 +1195,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
     }
 
     function on_x_direction_changed(theta, sticky){
-        scope.boxOp.change_rotation_x(scope.box, theta, sticky, scope.on_box_changed)
+        scope.boxOp.change_rotation_x(scope.box, -theta, sticky, scope.on_box_changed)
     }
 
     function on_x_scaled(ratio){
@@ -1209,6 +1236,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                                                 on_x_moved, 
                                                 on_x_scaled, 
                                                 on_x_wheel, 
+                                                null,
                                                 on_x_auto_rotate,
                                                 on_x_reset_rotate);
 
