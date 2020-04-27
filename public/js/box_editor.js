@@ -266,7 +266,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
         this.editingTarget.frame = frame;
 
         this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
-        
+        //this.parentUi.querySelector("#object-category-selector").value=objTrackId;
+        //we don't know the obj type
 
         let centerIndex = sceneMeta.frames.findIndex(f=>f==frame);
         this.editingTarget.frameIndex = centerIndex;

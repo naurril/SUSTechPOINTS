@@ -50,13 +50,16 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             bottom: ui.querySelector("#line-bottom"),
             left: ui.querySelector("#line-left"),
             right: ui.querySelector("#line-right"),
-            direction: ui.querySelector("#line-direction"),
-        }
+            direction: ui.querySelector("#line-direction"),            
+        };
+
+        var orgPointInd = ui.querySelector("#origin-point-indicator");
     
         var svg = ui.querySelector("#view-svg");
         var div = ui;
     
         var handles = {
+            
             top: ui.querySelector("#line-top-handle"),
             bottom: ui.querySelector("#line-bottom-handle"),
             left: ui.querySelector("#line-left-handle"),
@@ -163,6 +166,65 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             lines.right.setAttribute("y2", "100%");
         }
     
+        function set_org_point_ind_pos(viewWidth, viewHeight, objPos, objRot){
+            /*
+            cos -sin 
+            sin  cos
+            *
+            objPos.x
+            objPos.y
+
+            */
+           let c = Math.cos(objRot);  // for topview, x goes upward, so we add pi/2
+           let s = Math.sin(objRot);
+
+           let relx = c*(-objPos.x) + s*(-objPos.y);
+           let rely = -s*(-objPos.x) + c*(-objPos.y);
+
+           let radius = Math.sqrt(viewWidth*viewWidth/4 + viewHeight*viewHeight/4);
+           let distToRog = Math.sqrt(relx*relx + rely*rely)
+
+           let indPosX3d = relx*radius/distToRog;
+           let indPosY3d = rely*radius/distToRog;
+
+           let indPosX = -indPosY3d;
+           let indPosY = -indPosX3d;
+        
+           let dotRelPos = 0.8;
+           // now its pixel coordinates, x goes right, y goes down
+           if (indPosX > viewWidth/2*dotRelPos){
+                let shrinkRatio = viewWidth/2*dotRelPos/indPosX;
+
+                indPosX = viewWidth/2*dotRelPos;
+                indPosY = indPosY*shrinkRatio;
+           }
+
+            if (indPosX < -viewWidth/2*dotRelPos){
+                let shrinkRatio = -viewWidth/2*dotRelPos/indPosX;
+
+                indPosX = -viewWidth/2*dotRelPos;
+                indPosY = indPosY*shrinkRatio;
+            }
+
+            if (indPosY > viewHeight/2*dotRelPos){
+                let shrinkRatio = viewHeight/2*dotRelPos/indPosY;
+
+                indPosY = viewHeight/2*dotRelPos;
+                indPosX = indPosX*shrinkRatio;
+           }
+
+            if (indPosY < -viewHeight/2*dotRelPos){
+                let shrinkRatio = -viewHeight/2*dotRelPos/indPosY;
+
+                indPosY = -viewHeight/2*dotRelPos;
+                indPosX = indPosX*shrinkRatio;
+            }
+
+
+           orgPointInd.setAttribute("cx", viewWidth/2+indPosX);
+           orgPointInd.setAttribute("cy", viewHeight/2+indPosY);
+        }
+
         // when direction handler is draging
         function rotate_lines(theta){
     
@@ -247,7 +309,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
     
         }
         
-        function update_view_handle(viewport, obj_dimension){
+        function update_view_handle(viewport, obj_dimension, obj_pos, obj_rot){
             var viewport_ratio = viewport.width/viewport.height;
             var box_ratio = obj_dimension.x/obj_dimension.y;
         
@@ -271,6 +333,8 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             view_handle_dimension.x = width;
             view_handle_dimension.y = height;
         
+            // viewport width/height is position-irrelavent
+            // so x and y is relative value.
             var x = viewport.width/2;//viewport.left + viewport.width/2;
             var y = viewport.height/2//viewport.bottom - viewport.height/2;
         
@@ -282,7 +346,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             view_center.x = x;
             view_center.y = y;
         
-            set_line_pos(left, right, top, bottom);    
+            set_line_pos(left, right, top, bottom);
+
+            if (obj_pos && obj_rot){
+                set_org_point_ind_pos(viewport.width, viewport.height, obj_pos, obj_rot);
+            }
         
             // note when the object is too thin, the height/width value may be negative,
             // this causes error reporting, but we just let it be.
@@ -1283,7 +1351,9 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
 
     this.update_view_handle = function(){
         if (this.box){
-            z_view_handle.update_view_handle(this.views[0].getViewPort(), {x: this.box.scale.y, y:this.box.scale.x});
+            let boxPos = this.box.getTruePosition();
+
+            z_view_handle.update_view_handle(this.views[0].getViewPort(), {x: this.box.scale.y, y:this.box.scale.x}, {x: boxPos.x, y: boxPos.y}, this.box.rotation.z);
             y_view_handle.update_view_handle(this.views[1].getViewPort(), {x: this.box.scale.x, y:this.box.scale.z});
             x_view_handle.update_view_handle(this.views[2].getViewPort(), {x: this.box.scale.y, y:this.box.scale.z});
         }
