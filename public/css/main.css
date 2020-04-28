@@ -559,5 +559,6 @@ td {
 #output-window #textarea{
 	height: 200px;
     width: 400px;
-    overflow-y: auto;
+	overflow-y: auto;
+	overflow-wrap: break-word;
 }
