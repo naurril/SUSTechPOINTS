@@ -467,8 +467,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         };
 
         menuUi.querySelector("#cm-play").onclick = (event)=>{
-            this.playControl.play_current_scene_with_buffer(false,
-                function(w){
+            this.playControl.play(false,
+                (w)=>{
                     this.on_load_world_finished(w)
                 });
         };
@@ -790,7 +790,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
         this.params["play"] = ()=>{
-            this.playControl.play_current_scene_with_buffer(false,
+            this.playControl.play(false,
                 function(w){
                     this.on_load_world_finished(w)
                 });
@@ -1796,6 +1796,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.select_locked_object();
         this.header.unmark_changed_flag();
         load_obj_ids_of_scene(world.frameInfo.scene);
+
+        // preload after the first world loaded
+        // otherwise the loading of the first world would be too slow
+        this.data.preloadScene(world.frameInfo.scene, world);
     };
 
     this.mainViewOffset = [0,0,0];
@@ -1844,9 +1848,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             function(){
                 self.on_load_world_finished(world);
 
-                // preload after the first world loaded
-                // otherwise the loading of the first world would be too slow
-                self.data.preloadScene(sceneName, world);
+                
             }
         );
 

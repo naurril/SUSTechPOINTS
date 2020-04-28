@@ -207,21 +207,21 @@ function Data(metaData, cfg){
 
     this.world=null;
 
-    this.future_world_buffer = [];
-    this.put_world_into_buffer= function(world){
-        this.future_world_buffer.push(world);
-    };
+    // this.future_world_buffer = [];
+    // this.put_world_into_buffer= function(world){
+    //     this.future_world_buffer.push(world);
+    // };
 
-    this.reset_world_buffer= function(){
-        this.future_world_buffer=[];
-    };
+    // this.reset_world_buffer= function(){
+    //     this.future_world_buffer=[];
+    // };
 
-    this.activateMultiWorld=function(world, on_finished){
-        world.activate(this.webgl_scene, 
-            null,  //don't destroy old world
-            on_finished);
-        this.worldList.push(world);
-    };
+    // this.activateMultiWorld=function(world, on_finished){
+    //     world.activate(this.webgl_scene, 
+    //         null,  //don't destroy old world
+    //         on_finished);
+    //     this.worldList.push(world);
+    // };
 
     this.activate_world= function(world, on_finished, dontDestroyOldWorld){
 
