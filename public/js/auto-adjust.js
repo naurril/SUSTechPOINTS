@@ -1,6 +1,7 @@
 
 import {saveWorld, saveWorldList} from "./save.js"
 import {transpose, matmul2, euler_angle_to_rotate_matrix_3by3 } from "./util.js";
+import { log } from "./log.js";
 
 // todo: this module needs a proper name
 
@@ -67,7 +68,7 @@ function AutoAdjust(mouse, header){
                     return;
                 }
 
-                let refObjInW = w.boxes.find(b=>b.obj_track_id === refObj.obj_track_id);
+                let refObjInW = w.annotation.boxes.find(b=>b.obj_track_id === refObj.obj_track_id);
                 if (!refObjInW){
                     // not found refobj in this world, give up
                     return;
@@ -111,8 +112,10 @@ function AutoAdjust(mouse, header){
                         },
                         relative_rotation: relativeRot,
                     };
+
+                    log.println(`modified box in ${w}`);
                 } else{
-                    let newBox  = w.add_box(newObjPos, 
+                    let newBox  = w.annotation.add_box(newObjPos, 
                         box.scale, 
                         newObjRot, 
                         box.obj_type, 
@@ -128,7 +131,8 @@ function AutoAdjust(mouse, header){
                         relative_rotation: relativeRot,
                     };
 
-                    w.load_box(newBox);
+                    w.annotation.load_box(newBox);
+                    log.println(`inserted box in ${w}`);
                 }
 
                 console.log("added box in ", w.frameInfo.frame);

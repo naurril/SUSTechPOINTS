@@ -541,3 +541,23 @@ td {
 
 
 
+#output-window{
+
+    position: absolute;
+    bottom: 0%;
+    right: 0%;
+    border-color: #888;
+    border-width: 1px;
+    border-style: solid;
+    padding: 3px;
+	background-color: #000000a0;
+	resize:both;
+	font-size: smaller;
+}
+
+
+#output-window #textarea{
+	height: 200px;
+    width: 400px;
+    overflow-y: auto;
+}

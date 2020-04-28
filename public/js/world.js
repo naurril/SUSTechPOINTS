@@ -4,7 +4,7 @@ import * as THREE from './lib/three.module.js';
 import {RadarManager} from "./radar.js"
 import {Lidar} from "./lidar.js"
 import {Annotation} from "./annotation.js"
-
+import {log} from "./log.js"
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
     
@@ -210,7 +210,9 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.sceneMeta = this.data.getMetaBySceneName(sceneName);
     this.frameInfo = new FrameInfo(this.data, this.sceneMeta, sceneName, frame);
 
-
+    this.toString = function(){
+        return this.frameInfo.scene + "," + this.frameInfo.frame;
+    }
     //points_backup: null, //for restore from highlight
         
     this.images = new Images(this.sceneMeta, sceneName, frame);
@@ -237,6 +239,9 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     
     this.on_subitem_preload_finished = function(on_preload_finished){
         if (this.preloaded()){
+            
+            log.println(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
+
             if (this.on_preload_finished){
                 this.on_preload_finished(this);                
             }
@@ -368,9 +373,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.deleteAll = function(){
         var _self= this;
 
-        console.log("delete world!", 
-            this.frameInfo.scene, 
-            this.frameInfo.frame);
+        log.println(`delete world ${this.frameInfo.scene},${this.frameInfo.frame}`);
 
         if (this.everythingDone){
             this.unload();

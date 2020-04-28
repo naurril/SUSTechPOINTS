@@ -2,7 +2,7 @@
 
 import {World} from "./world.js";
 import {Debug} from "./debug.js";
-
+import {log} from "./log.js"
 
 function Data(metaData, cfg){
 
@@ -79,27 +79,32 @@ function Data(metaData, cfg){
         let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/2);
         let endIndex = Math.min(meta.frames.length, 1 + currentWorldIndex + this.MaxWorldNumber/2);
 
-        console.log(`preload ${startIndex}, ${endIndex}`);
+        
 
         let numLoaded = 0;
-        let _do_create = (frame)=>{
+        let _need_create = (frame)=>{
             let world = this.worldList.find((w)=>{
                 return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
             })
-
-            if (!world){
-                this._createWorld(sceneName, frame);
-                numLoaded++;
-            }
+            
+            return !world;
         }
 
-        meta.frames.slice(startIndex, endIndex).forEach(_do_create);
+        let _do_create = (frame)=>{
+            this._createWorld(sceneName, frame);
+            numLoaded++;
+        };
+
+        let pendingFrames = meta.frames.slice(startIndex, endIndex).filter(_need_create);
+
+        log.println(`preload ${meta.scene} ${pendingFrames}`);
+        // if (numLoaded > 0){
+        //     meta.frames.slice(endIndex, Math.min(endIndex+5, meta.frames.length)).forEach(_do_create);
+        //     meta.frames.slice(Math.max(0, startIndex-5), startIndex).forEach(_do_create);
+        // }
+
+        pendingFrames.forEach(_do_create);
         
-        if (numLoaded > 0){
-            meta.frames.slice(endIndex, Math.min(endIndex+5, meta.frames.length)).forEach(_do_create);
-            meta.frames.slice(Math.max(0, startIndex-5), startIndex).forEach(_do_create);
-        }
-
         console.log(`${numLoaded} frames created`);
     };
 

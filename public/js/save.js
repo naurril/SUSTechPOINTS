@@ -1,6 +1,7 @@
 
 
 import {load_obj_ids_of_scene} from "./obj_id_list.js"
+import {log} from "./log.js"
 
 function reloadWorldList(worldList, done){
     var xhr = new XMLHttpRequest();
@@ -72,7 +73,9 @@ function saveWorldList(worldList, done){
         if (this.readyState != 4) return;
     
         if (this.status == 200) {
-            console.log("save worldlist finished.");
+            
+            log.println(`save annotation finished: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
+
             if(done){
                 done();
             }
@@ -89,7 +92,7 @@ function saveWorldList(worldList, done){
 
 function saveWorld(world, done){
     if (world.data.cfg.disableLabels){
-        console.log("labels not loaded, save action is prohibitted.")
+        log.println("labels not loaded, save action is prohibitted.")
         return;
     }
 
@@ -104,7 +107,7 @@ function saveWorld(world, done){
         if (this.readyState != 4) return;
     
         if (this.status == 200) {
-            console.log("save annotation finished.");
+            log.println(`save annotation finished: ${world}`);
             if(done){
                 done();
             }

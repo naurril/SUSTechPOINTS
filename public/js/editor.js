@@ -14,6 +14,8 @@ import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
 import {saveWorld, reloadWorldList, saveWorldList} from "./save.js"
+import {log} from "./log.js"
+
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -1823,6 +1825,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.data.dbg.dump();
 
+        log.println(`load ${sceneName}, ${frame}`);
 
         var self=this;
         //stop if current world is not ready!
@@ -1953,9 +1956,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.autoAdjust.syncFollowers(box);
 
-        if (box === this.data.world.radar_box){
-            this.data.world.move_radar(box);
-        }
+        // if (box === this.data.world.radar_box){
+        //     this.data.world.move_radar(box);
+        // }
 
         this.render();
     };
