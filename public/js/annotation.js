@@ -91,23 +91,32 @@ function Annotation(sceneMeta, world, frameInfo){
     this.deleteAll = function(){
         this.remove_all_boxes();
     };
-    this.toBoxAnnotations = function(){
-        return this.boxes.map(function(b){
-            //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
-            let ann = {
-                psr: {
-                    position:b.getTruePosition(),
-                    scale:b.scale,
-                    rotation:{
-                        x:b.rotation.x,
-                        y:b.rotation.y,
-                        z:b.rotation.z,
-                    },
+    this.boxToAnn = function(box){
+        let ann = {
+            psr: {
+                position:box.getTruePosition(),
+                scale:{
+                    x: box.scale.x,
+                    y: box.scale.y,
+                    z: box.scale.z,                    
                 },
-                obj_type: b.obj_type,
-                obj_id: String(b.obj_track_id),
-                //vertices: vertices,
-            };
+                rotation:{
+                    x:box.rotation.x,
+                    y:box.rotation.y,
+                    z:box.rotation.z,
+                },
+            },
+            obj_type: box.obj_type,
+            obj_id: String(box.obj_track_id),
+            //vertices: vertices,
+        };
+        return ann;
+    };
+
+    this.toBoxAnnotations = function(){
+        return this.boxes.map((b)=>{
+            //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
+            let ann = this.boxToAnn(b);
 
             if (b.annotator)
                 ann.annotator = b.annotator;

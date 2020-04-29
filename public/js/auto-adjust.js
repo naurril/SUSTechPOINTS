@@ -5,7 +5,8 @@ import { log } from "./log.js";
 
 // todo: this module needs a proper name
 
-function AutoAdjust(mouse, header){
+function AutoAdjust(boxOp, mouse, header){
+    this.boxOp = boxOp,
     this.mouse = mouse;
     this.header = header;
     var marked_object = null;
@@ -16,14 +17,10 @@ function AutoAdjust(mouse, header){
             this.marked_object = {
                 frame: box.world.frameInfo.frame,
                 scene: box.world.frameInfo.scene,
-                obj_type: box.obj_type,
-                obj_track_id: box.obj_track_id,
-                position: box.position,  //todo, copy x,y,z, not object
-                scale: box.scale,
-                rotation: box.rotation,
+                ann: box.world.annotation.boxToAnn(box),
             }
     
-            console.log(this.marked_object);
+            log.println(`selected reference objcet ${this.marked_object}`);
     
             this.header.set_ref_obj(this.marked_object);
         }
@@ -32,7 +29,7 @@ function AutoAdjust(mouse, header){
     this.followsRef = function(box){
         //find ref object in current frame
         let world = box.world;
-        let refObj = world.annotation.boxes.find(b=>b.obj_track_id == this.marked_object.obj_track_id);
+        let refObj = world.annotation.boxes.find(b=>b.obj_track_id == this.marked_object.ann.obj_track_id);
         if (refObj){
             console.log("found ref obj in current frame");
 
@@ -177,12 +174,12 @@ function AutoAdjust(mouse, header){
     this.paste_bbox=function(pos, add_box){
     
         if (!pos)
-           pos = this.marked_object.position;
+           pos = this.marked_object.ann.psr.position;
         else
-           pos.z = this.marked_object.position.z;
+           pos.z = this.marked_object.ann.psr.position.z;
     
-        return  add_box(pos, this.marked_object.scale, this.marked_object.rotation,
-            this.marked_object.obj_type, this.marked_object.obj_track_id);    
+        return  add_box(pos, this.marked_object.ann.psr.scale, this.marked_object.ann.psr.rotation,
+            this.marked_object.ann.obj_type, this.marked_object.ann.obj_id);    
     };
     
     
@@ -266,17 +263,28 @@ function AutoAdjust(mouse, header){
         }
     };
 
-    this.smart_paste=function(selected_box, add_box, saveWorld, on_box_changed){
+    this.smart_paste=function(selected_box, add_box, on_box_changed){
         var box = selected_box;
         if (!box){
             box = this.paste_bbox(this.mouse.get_mouse_location_in_world(), add_box);
         }
+        else{
+            box.scale.x = this.marked_object.ann.psr.scale.x;
+            box.scale.y = this.marked_object.ann.psr.scale.y;
+            box.scale.z = this.marked_object.ann.psr.scale.z;
+        }
         
-        this.auto_adjust_bbox(box,
-                function(){saveWorld();},
-                on_box_changed);
+        // this.auto_adjust_bbox(box,
+        //         function(){saveWorld();},
+        //         on_box_changed);
     
-        this.header.mark_changed_flag();
+        // this.header.mark_changed_flag();
+
+        
+        
+        this.boxOp.auto_rotate_xyz(box, null, null, 
+            on_box_changed,
+            "noscaling");
     };
     
 }

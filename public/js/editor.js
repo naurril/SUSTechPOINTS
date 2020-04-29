@@ -172,7 +172,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             function(ev){self.handleRightClick(ev);}, 
             function(x,y,w,h){self.handleSelectRect(x,y,w,h);});
 
-        this.autoAdjust=new AutoAdjust(this.mouse, this.header);
+        this.autoAdjust=new AutoAdjust(this.boxOp, this.mouse, this.header);
 
 
         this.install_fast_tool();
@@ -300,7 +300,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
 
         this.editorUi.querySelector("#label-paste").onclick = (event)=>{
-            this.autoAdjust.smart_paste(self.selected_box);
+            this.autoAdjust.smart_paste(self.selected_box, null, (b)=>this.on_box_changed(b));
             //event.currentTarget.blur();
         }
 
@@ -443,7 +443,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         menuUi.querySelector("#cm-paste").onclick = (event)=>{
             this.autoAdjust.smart_paste(this.selected_box,
                 (p,s,r,t,i)=>this.add_box(p,s,r,t,i),
-                ()=>saveWorld(this.data.world),
                 (b)=>this.on_box_changed(b)
                 );
         };
@@ -2058,9 +2057,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 var obj_type = event.currentTarget.getAttribute("uservalue");
                 let box = self.add_box_on_mouse_pos(obj_type);
                 //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
-                self.boxOp.grow_box(box, 0.2, {x:2, y:2, z:3});
+                //self.boxOp.grow_box(box, 0.2, {x:2, y:2, z:3});
                 //self.auto_shrink_box(box);
-                self.on_box_changed(box);
+                //self.on_box_changed(box);
 
                 self.boxOp.auto_rotate_xyz(box, null, null, function(b){
                     self.on_box_changed(b);
