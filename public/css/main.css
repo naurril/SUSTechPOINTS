@@ -555,7 +555,18 @@ td {
 	font-size: smaller;
 }
 
+#output-window #handle{
+	cursor: default;
+}
 
+#output-window #clear{
+	position: absolute;
+	top: 0%;
+	right: 1%;
+}
+#output-window #clear:hover{
+	color: yellow;	
+}
 #output-window #textarea{
 	height: 200px;
     width: 400px;
