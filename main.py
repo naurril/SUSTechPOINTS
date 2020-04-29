@@ -20,8 +20,8 @@ import algos.rotation as rotation
 #sys.path.append(os.path.join(BASE_DIR, '../tracking'))
 import algos.trajectory as trajectory
 
-extract_object_exe = "~/code/pcltest/build/extract_object"
-registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
+# extract_object_exe = "~/code/pcltest/build/extract_object"
+# registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
 
 
 class Root(object):
@@ -118,38 +118,38 @@ class Root(object):
       return anns
         
 
-    @cherrypy.expose    
-    @cherrypy.tools.json_out()
-    def auto_adjust(self, scene, ref_frame, object_id, adj_frame):
+    # @cherrypy.expose    
+    # @cherrypy.tools.json_out()
+    # def auto_adjust(self, scene, ref_frame, object_id, adj_frame):
       
-      #os.chdir("./temp")
-      os.system("rm ./temp/src.pcd ./temp/tgt.pcd ./temp/out.pcd ./temp/trans.json")
+    #   #os.chdir("./temp")
+    #   os.system("rm ./temp/src.pcd ./temp/tgt.pcd ./temp/out.pcd ./temp/trans.json")
 
 
-      tgt_pcd_file = "./data/"+scene +"/lidar/"+ref_frame+".pcd"
-      tgt_json_file = "./data/"+scene +"/label/"+ref_frame+".json"
+    #   tgt_pcd_file = "./data/"+scene +"/lidar/"+ref_frame+".pcd"
+    #   tgt_json_file = "./data/"+scene +"/label/"+ref_frame+".json"
 
-      src_pcd_file = "./data/"+scene +"/lidar/"+adj_frame+".pcd"      
-      src_json_file = "./data/"+scene +"/label/"+adj_frame+".json"
+    #   src_pcd_file = "./data/"+scene +"/lidar/"+adj_frame+".pcd"      
+    #   src_json_file = "./data/"+scene +"/label/"+adj_frame+".json"
 
-      cmd = extract_object_exe +" "+ src_pcd_file + " " + src_json_file + " " + object_id + " " +"./temp/src.pcd"
-      print(cmd)
-      os.system(cmd)
+    #   cmd = extract_object_exe +" "+ src_pcd_file + " " + src_json_file + " " + object_id + " " +"./temp/src.pcd"
+    #   print(cmd)
+    #   os.system(cmd)
 
-      cmd = extract_object_exe + " "+ tgt_pcd_file + " " + tgt_json_file + " " + object_id + " " +"./temp/tgt.pcd"
-      print(cmd)
-      os.system(cmd)
+    #   cmd = extract_object_exe + " "+ tgt_pcd_file + " " + tgt_json_file + " " + object_id + " " +"./temp/tgt.pcd"
+    #   print(cmd)
+    #   os.system(cmd)
 
-      cmd = registration_exe + " ./temp/tgt.pcd ./temp/src.pcd ./temp/out.pcd ./temp/trans.json"
-      print(cmd)
-      os.system(cmd)
+    #   cmd = registration_exe + " ./temp/tgt.pcd ./temp/src.pcd ./temp/out.pcd ./temp/trans.json"
+    #   print(cmd)
+    #   os.system(cmd)
 
-      with open("./temp/trans.json", "r") as f:
-        trans = json.load(f)
-        print(trans)
-        return trans
+    #   with open("./temp/trans.json", "r") as f:
+    #     trans = json.load(f)
+    #     print(trans)
+    #     return trans
 
-      return {}
+    #   return {}
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
