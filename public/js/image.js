@@ -19,17 +19,17 @@ function FocusImageContext(ui){
             return;           
         }
 
-        if (!scene_meta.calib.image){
+        if (!scene_meta.calib.camera){
             return;
         }
         
-        var calib = scene_meta.calib.image[bestImage]
+        var calib = scene_meta.calib.camera[bestImage]
         if (!calib){
             return;
         }
         
         if (calib){
-            var img = box.world.images.getImageByName(bestImage);
+            var img = box.world.cameras.getImageByName(bestImage);
             if (img && (img.naturalWidth > 0)){
 
                 this.clear_canvas();
@@ -357,12 +357,12 @@ function ImageContext(ui, cfg){
         var scene_meta = scope.world.sceneMeta;
 
             
-        if (!scene_meta.calib.image){
+        if (!scene_meta.calib.camera){
             return null;
         }
 
-        var active_image_name = scope.world.images.active_name;
-        var calib = scene_meta.calib.image[active_image_name];
+        var active_camera_name = scope.world.cameras.active_name;
+        var calib = scene_meta.calib.camera[active_camera_name];
 
         return calib;
     }
@@ -371,7 +371,7 @@ function ImageContext(ui, cfg){
 
 
     function get_trans_ratio(){
-        var img = scope.world.images.active_image();       
+        var img = scope.world.cameras.active_image();       
 
         if (!img || img.width==0){
             return null;
@@ -394,7 +394,7 @@ function ImageContext(ui, cfg){
         var svgimage = scope.ui.querySelector("#svg-image");
 
         // active img is set by global, it's not set sometimes.
-        var img = scope.world.images.active_image();
+        var img = scope.world.cameras.active_image();
         if (img){
             svgimage.setAttribute("xlink:href", img.src);
         }
@@ -431,7 +431,7 @@ function ImageContext(ui, cfg){
 
         function draw_svg(){
             // draw picture
-            var img = scope.world.images.active_image();       
+            var img = scope.world.cameras.active_image();       
 
             if (!img || img.width==0){
                 hide_canvas();
@@ -756,8 +756,8 @@ function choose_best_camera_for_point(scene_meta, center){
     }
 
     var proj_pos = [];
-    for (var i in scene_meta.calib.image){
-        var imgpos = matmul(scene_meta.calib.image[i].extrinsic, [center.x,center.y,center.z,1], 4);
+    for (var i in scene_meta.calib.camera){
+        var imgpos = matmul(scene_meta.calib.camera[i].extrinsic, [center.x,center.y,center.z,1], 4);
         proj_pos.push({calib: i, pos: vector4to3(imgpos)});
     }
 

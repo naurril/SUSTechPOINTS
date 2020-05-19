@@ -48,19 +48,19 @@ def get_one_scene(s):
         return x.strip()
 
     calib = {}
-    calib_image={}
+    calib_camera={}
     calib_radar={}
     if os.path.exists(os.path.join(scene_dir, "calib")):
-        if os.path.exists(os.path.join(scene_dir, "calib","image")):
-            calibs = os.listdir(os.path.join(scene_dir, "calib", "image"))
+        if os.path.exists(os.path.join(scene_dir, "calib","camera")):
+            calibs = os.listdir(os.path.join(scene_dir, "calib", "camera"))
             for c in calibs:
-                calib_file = os.path.join(scene_dir, "calib", "image", c)
+                calib_file = os.path.join(scene_dir, "calib", "camera", c)
                 calib_name, _ = os.path.splitext(c)
                 if os.path.isfile(calib_file):
                     #print(calib_file)
                     with open(calib_file)  as f:
                         cal = json.load(f)
-                        calib_image[calib_name] = cal
+                        calib_camera[calib_name] = cal
 
     
         if os.path.exists(os.path.join(scene_dir, "calib", "radar")):
@@ -75,25 +75,25 @@ def get_one_scene(s):
                         calib_radar[calib_name] = cal
 
     # camera names
-    image = []
-    image_ext = ""
-    cam_path = os.path.join(scene_dir, "image")
+    camera = []
+    camera_ext = ""
+    cam_path = os.path.join(scene_dir, "camera")
     if os.path.exists(cam_path):
         cams = os.listdir(cam_path)
         for c in cams:
-            cam_file = os.path.join(scene_dir, "image", c)
+            cam_file = os.path.join(scene_dir, "camera", c)
             if os.path.isdir(cam_file):
-                image.append(c)
+                camera.append(c)
 
-                if image_ext == "":
-                    #detect image file ext
+                if camera_ext == "":
+                    #detect camera file ext
                     files = os.listdir(cam_file)
                     if len(files)>=2:
-                        _,image_ext = os.path.splitext(files[0])
+                        _,camera_ext = os.path.splitext(files[0])
 
-    if image_ext == "":
-        image_ext = ".jpg"
-    scene["image_ext"] = image_ext
+    if camera_ext == "":
+        camera_ext = ".jpg"
+    scene["camera_ext"] = camera_ext
 
 
     # radar names
@@ -107,7 +107,7 @@ def get_one_scene(s):
             if os.path.isdir(radar_file):
                 radar.append(r)
                 if radar_ext == "":
-                    #detect image file ext
+                    #detect camera file ext
                     files = os.listdir(radar_file)
                     if len(files)>=2:
                         _,radar_ext = os.path.splitext(files[0])
@@ -122,24 +122,24 @@ def get_one_scene(s):
         scene["boxtype"] = "psr"
         if point_transform_matrix:
             scene["point_transform_matrix"] = point_transform_matrix
-        if image:
-            scene["image"] = image
+        if camera:
+            scene["camera"] = camera
         if radar:
             scene["radar"] = radar
-        if calib_image:
-            calib["image"] = calib_image
+        if calib_camera:
+            calib["camera"] = calib_camera
         if calib_radar:
             calib["radar"] = calib_radar
     else:
         scene["boxtype"] = "xyz"
         if point_transform_matrix:
             scene["point_transform_matrix"] = point_transform_matrix
-        if image:
-            scene["image"] = image
+        if camera:
+            scene["camera"] = camera
         if radar:
             scene["radar"] = radar
-        if calib_image:
-            calib["image"] = calib_image
+        if calib_camera:
+            calib["camera"] = calib_camera
         if calib_radar:
             calib["radar"] = calib_radar
 

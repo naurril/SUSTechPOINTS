@@ -74,7 +74,7 @@ function saveWorldList(worldList, done){
     
         if (this.status == 200) {
             
-            log.println(`save annotation finished: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
+            log.println(`saved: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
 
             if(done){
                 done();
@@ -107,7 +107,7 @@ function saveWorld(world, done){
         if (this.readyState != 4) return;
     
         if (this.status == 200) {
-            log.println(`save annotation finished: ${world}`);
+            log.println(`saved: ${world}`);
             if(done){
                 done();
             }

@@ -604,8 +604,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.editorUi.querySelector("#frame-selector").innerHTML = frame_selector_str;
         
         
-        if (meta.image){
-            var camera_selector_str = meta.image.map(function(c){
+        if (meta.camera){
+            var camera_selector_str = meta.camera.map(function(c){
                 return '<option value="'+c+'">'+c+'</option>';
             }).reduce(function(x,y){return x+y;}, "<option>--camera--</option>");
             this.editorUi.querySelector("#camera-selector").innerHTML = camera_selector_str;

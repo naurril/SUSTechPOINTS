@@ -149,7 +149,7 @@ function Images(sceneMeta, sceneName, frame){
         return true;
     };
 
-    this.names = sceneMeta.image; //["image","left","right"],
+    this.names = sceneMeta.camera; //["image","left","right"],
     this.loaded_flag = {};
     this.active_name = "";
     this.active_image = function(){
@@ -178,18 +178,18 @@ function Images(sceneMeta, sceneName, frame){
         var _self = this;
 
         if (this.names){
-            this.names.forEach(function(img){
-                _self.content[img] = new Image();
-                _self.content[img].onload= function(){ 
-                    _self.loaded_flag[img] = true;
+            this.names.forEach(function(cam){
+                _self.content[cam] = new Image();
+                _self.content[cam].onload= function(){ 
+                    _self.loaded_flag[cam] = true;
                     _self.on_image_loaded();
                 };
-                _self.content[img].onerror=function(){ 
-                    _self.loaded_flag[img] = true;
+                _self.content[cam].onerror=function(){ 
+                    _self.loaded_flag[cam] = true;
                     _self.on_image_loaded();
                 };
 
-                _self.content[img].src = 'data/'+sceneName+'/image/' + img + '/'+ frame + sceneMeta.image_ext;
+                _self.content[cam].src = 'data/'+sceneName+'/camera/' + cam + '/'+ frame + sceneMeta.camera_ext;
                 console.log("image set")
             });
         }
@@ -215,7 +215,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     }
     //points_backup: null, //for restore from highlight
         
-    this.images = new Images(this.sceneMeta, sceneName, frame);
+    this.cameras = new Images(this.sceneMeta, sceneName, frame);
     this.radars = new RadarManager(this.sceneMeta, this, this.frameInfo);
     this.lidar = new Lidar(this.sceneMeta, this, this.frameInfo);
     this.annotation = new Annotation(this.sceneMeta, this, this.frameInfo);
@@ -229,7 +229,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.preloaded=function(){
         return this.lidar.preloaded && 
                this.annotation.preloaded && 
-               this.images.loaded() && 
+               this.cameras.loaded() && 
                this.radars.preloaded();
     };
 
@@ -261,7 +261,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         this.lidar.preload(_preload_cb);
         this.annotation.preload(_preload_cb)
         this.radars.preload(_preload_cb);
-        this.images.load(_preload_cb, this.data.active_image_name);
+        this.cameras.load(_preload_cb, this.data.active_camera_name);
         
     };
 

@@ -66,3 +66,5 @@
 62.  focused image context: make its aspect ratio  to 1:1
 63.  show trajectory of one object
 64.  reload objects w/o tracking id.
+65.  linear interpolation: auto adjust is also helpful
+66.  save modified anns only, in batch mode

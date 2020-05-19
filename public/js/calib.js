@@ -12,8 +12,8 @@ function save_calibration(){
     var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
 
-    var active_image_name = data.world.images.active_name;
-    var calib = scene_meta.calib.image[active_image_name]
+    var active_camera_name = data.world.cameras.active_name;
+    var calib = scene_meta.calib.camera[active_camera_name]
     
     var extrinsic = calib.extrinsic.map(function(x){return x*1.0;});
 
@@ -34,8 +34,8 @@ function save_calibration(){
 function reset_calibration(){
     var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
-    var active_image_name = data.world.images.active_name;
-    var calib = scene_meta.calib.image[active_image_name]
+    var active_camera_name = data.world.cameras.active_name;
+    var calib = scene_meta.calib.camera[active_camera_name]
 
     calib.extrinsic = euler_angle_to_rotate_matrix(euler_angle, translate);
     render_2d_image();
@@ -48,8 +48,8 @@ function reset_calibration(){
 function calibrate(ax, value){
     var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
 
-    var active_image_name = data.world.images.active_name;
-    var calib = scene_meta.calib.image[active_image_name]
+    var active_camera_name = data.world.cameras.active_name;
+    var calib = scene_meta.calib.camera[active_camera_name]
     var extrinsic = calib.extrinsic.map(function(x){return x*1.0;});
 
     var euler_angle = rotation_matrix_to_euler_angle(extrinsic);

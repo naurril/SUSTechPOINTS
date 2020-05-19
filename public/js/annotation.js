@@ -396,7 +396,7 @@ function Annotation(sceneMeta, world, frameInfo){
 
             boxes.forEach(nb=>{  // nb is annotation format, not a true box
                 let old_box = this.boxes.find(function(x){
-                    return x.obj_track_id == nb.obj_id;
+                    return x.obj_track_id == nb.obj_id && x.obj_track_id != "" && nb.obj_id != "";
                 });
 
                 if (old_box){

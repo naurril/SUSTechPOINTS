@@ -188,19 +188,19 @@ function Data(metaData, cfg){
         this.world.lidar.update_points_color();
     };
 
-    this.active_image_name = "";
+    this.active_camera_name = "";
 
     // return null means not changed.
     this.set_active_image = function(name){
-        if (name === this.active_image_name){
+        if (name === this.active_camera_name){
             return null;
         }
 
-        this.active_image_name = name;
+        this.active_camera_name = name;
         if (this.world){
-            this.world.images.activate(name);
+            this.world.cameras.activate(name);
         }
-        this.worldList.forEach(w=>w.images.activate(name));
+        this.worldList.forEach(w=>w.cameras.activate(name));
         
         return name;
     };
