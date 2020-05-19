@@ -22,7 +22,7 @@ radar_point_size = 8
 
 ############################################################################################3
 # implementation
-imgfolder  = os.path.join(rootdir, "image", camera)
+imgfolder  = os.path.join(rootdir, "camera", camera)
 lidarfolder = os.path.join(rootdir, "lidar")
 labelfolder = os.path.join(rootdir, "label")
 radarfolder = os.path.join(rootdir, "radar")
@@ -33,7 +33,7 @@ frames.sort()
 image_ext = os.path.splitext(images[0])[1]
 
 
-with open(os.path.join(rootdir,"calib","image", camera+".json")) as f:
+with open(os.path.join(rootdir,"calib","camera", camera+".json")) as f:
     calib = json.load(f)
 
 extrinsic = np.array(calib["extrinsic"])
@@ -195,6 +195,7 @@ def proj_pts3d_to_img(pts):
 
     imgfinal = imgpos2[0:2,:]/imgpos2[2:,:]
     return imgfinal
+    
 def box_to_2d_points(box):
     "box is a ndarray"
     box3d = psr_to_xyz(box[0], box[1], box[2])
@@ -213,7 +214,7 @@ for f in frames:
     with open(os.path.join(labelfolder, labelfile)) as tempfile:
         labels  = json.load(tempfile)
 
-    imgfile_path = os.path.join(rootdir, "image", camera, imgfile)
+    imgfile_path = os.path.join(rootdir, "camera", camera, imgfile)
     img = cv2.imread(imgfile_path, cv2.IMREAD_UNCHANGED)
 
 
