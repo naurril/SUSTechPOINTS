@@ -53,23 +53,33 @@ python main.py
 public
    +- data
        +- scene1
-             +- image
-                  +- front
-                       +- 0000.jpg
-                       +- 0001.jpg
-                  +- left
-                       +- ...
-             +- pcd
-                  +- 0000.pcd
-                  +- 0001.pcd
-             +- label
-                  +- 0000.json
-             +- calib
-                  +- front.json
-                  +- left.json
-                  +- ...
+          +- lidar
+               +- 0000.pcd
+               +- 0001.pcd
+          +- camera
+               +- front
+                    +- 0000.jpg
+                    +- 0001.jpg
+               +- left
+                    +- ...
+          +- radar
+               +- front_points
+                    +- 0000.pcd
+                    +- 0001.pcd
+               +- front_tracks
+                    +- ...
+          +- calib
+               +- camera
+                    +- front.json
+                    +- left.json
+               +- radar
+                    +- front_points.json
+                    +- front_tracks.json
+          +- label
+               +- 0000.json
+               +- 0001.json
        +- scene2
-             
+
 ````
 
 label is the directory to save the annotation result.
