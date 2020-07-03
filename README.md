@@ -11,17 +11,17 @@ This project is still under heavy development, some features/algorithms need pac
 ## Features
 
 - 9 DoF box editing
-- editing on perspective view and projective views
-- multiple camera images as context, with auto-camera-switching
-- camera-LiDAR fusion
-- binary/ascii pcd files
-- jpg/png image files
-- semi-auto box annotation (need extra package)
-- objects/boxes color by category
-- focus mode to hide background to check details easily
-- stream play/stop
-- auto object tracking id generation
-- interactive box fitting
+- Editing on perspective view and projective views
+- Multiple camera images as context, with auto-camera-switching
+- Camera-LiDAR fusion
+- Binary/ascii pcd files
+- Jpg/png image files
+- Semi-auto box annotation (need extra package)
+- Objects/boxes color by category
+- Focus mode to hide background to check details easily
+- Stream play/stop
+- Auto object tracking id generation
+- Interactive box fitting
 
 
 
@@ -30,11 +30,11 @@ This project is still under heavy development, some features/algorithms need pac
 python, cherrypy, tensorflow>=2.1
 
 ## Install
-1. install packages
+1. Install packages
      ```
      pip install -r requirement.txt
      ```
-1. download models 
+1. Download model
 
      download pretrained model file [deep_annotation_inference.h5](https://github.com/naurril/SUSTechPOINTS/releases/download/0.1/deep_annotation_inference.h5), put it into `./algos/models`
      ```
@@ -42,7 +42,7 @@ python, cherrypy, tensorflow>=2.1
      ```
 
 ## Start
-run the following script in shell, then go to http://127.0.0.1:8081
+Run the following command in shell, then go to http://127.0.0.1:8081
 ```
 python main.py
 ```
