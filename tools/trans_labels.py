@@ -2,6 +2,11 @@ import json
 import os
 import math
 
+
+# this script is used to translate labels from old version
+# x-y rotation are switched, and x goes forward.
+# ref commit ab0c8dff4e31839de02da8897c4a3df424becd09
+
 root_dir = "./data/example/label"
 
 for f in os.listdir(root_dir):
