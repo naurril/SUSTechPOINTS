@@ -1,6 +1,6 @@
 
 
-from filterpy.kalman import KalmanFilter
+# from filterpy.kalman import KalmanFilter
 import numpy as np
 
 import sys
@@ -36,46 +36,46 @@ class MAFilter:
 def get_my_filter(init_x):
   return MAFilter(init_x)
 
-  
-def get_kalman_filter(init_x):
-  dim_z = 9
-  kf = KalmanFilter(dim_x=12, dim_z=dim_z)
-  kf.F = np.array([ [1,0,0,0,0,0,0,0,0,1,0,0],      # state transition matrix
-                    [0,1,0,0,0,0,0,0,0,0,1,0],
-                    [0,0,1,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,1,0,0,0,0,0,0,0,0],  
-                    [0,0,0,0,1,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,1,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,1,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,1,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,1,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,1,0,0],
-                    [0,0,0,0,0,0,0,0,1,0,1,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,1],
-                    ])
-    
-  kf.H = np.array([ [1,0,0,0,0,0,0,0,0,0,0,0],      # measurement function,
-                    [0,1,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,1,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,1,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,1,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,1,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,1,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,1,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,1,0,0,0],
-                    ])
 
-  # self.kf.R[0:,0:] *= 10. # measurement uncertainty
-  #kf.P[dim_z:,dim_z:] *= 1000. #state uncertainty, give high uncertainty to the unobservable initial velocities, covariance matrix
-  #kf.P *= 10.
+# def get_kalman_filter(init_x):
+#   dim_z = 9
+#   kf = KalmanFilter(dim_x=12, dim_z=dim_z)
+#   kf.F = np.array([ [1,0,0,0,0,0,0,0,0,1,0,0],      # state transition matrix
+#                     [0,1,0,0,0,0,0,0,0,0,1,0],
+#                     [0,0,1,0,0,0,0,0,0,0,0,0],
+#                     [0,0,0,1,0,0,0,0,0,0,0,0],  
+#                     [0,0,0,0,1,0,0,0,0,0,0,0],
+#                     [0,0,0,0,0,1,0,0,0,0,0,0],
+#                     [0,0,0,0,0,0,1,0,0,0,0,0],
+#                     [0,0,0,0,0,0,0,1,0,0,0,0],
+#                     [0,0,0,0,0,0,0,0,1,0,0,0],
+#                     [0,0,0,0,0,0,0,0,0,1,0,0],
+#                     [0,0,0,0,0,0,0,0,1,0,1,0],
+#                     [0,0,0,0,0,0,0,0,0,0,0,1],
+#                     ])
     
-  # self.kf.Q[-1,-1] *= 0.01    # process uncertainty
-  #kf.Q[dim_z:,dim_z:] *= 0.01
-  #kf.x = kf.x * 0.0
-  kf.x[:dim_z] = init_x.reshape((dim_z, 1))
+#   kf.H = np.array([ [1,0,0,0,0,0,0,0,0,0,0,0],      # measurement function,
+#                     [0,1,0,0,0,0,0,0,0,0,0,0],
+#                     [0,0,1,0,0,0,0,0,0,0,0,0],
+#                     [0,0,0,1,0,0,0,0,0,0,0,0],
+#                     [0,0,0,0,1,0,0,0,0,0,0,0],
+#                     [0,0,0,0,0,1,0,0,0,0,0,0],
+#                     [0,0,0,0,0,0,1,0,0,0,0,0],
+#                     [0,0,0,0,0,0,0,1,0,0,0,0],
+#                     [0,0,0,0,0,0,0,0,1,0,0,0],
+#                     ])
 
-  print(kf.P)
-  return kf
+#   # self.kf.R[0:,0:] *= 10. # measurement uncertainty
+#   #kf.P[dim_z:,dim_z:] *= 1000. #state uncertainty, give high uncertainty to the unobservable initial velocities, covariance matrix
+#   #kf.P *= 10.
+    
+#   # self.kf.Q[-1,-1] *= 0.01    # process uncertainty
+#   #kf.Q[dim_z:,dim_z:] *= 0.01
+#   #kf.x = kf.x * 0.0
+#   kf.x[:dim_z] = init_x.reshape((dim_z, 1))
+
+#   print(kf.P)
+#   return kf
     
 
 def get_obj_ann(scene, frame, id):
