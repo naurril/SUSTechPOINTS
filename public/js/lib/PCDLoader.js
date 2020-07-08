@@ -84,7 +84,7 @@ PCDLoader.prototype = {
 		var position = [];
 		var normal = [];
 		var color = [];
-
+		var intensity = [];
 		//kitti format, xyzi
 		var offset = 0;
 
@@ -92,12 +92,14 @@ PCDLoader.prototype = {
 			position.push( dataview.getFloat32( row*16 + 0, this.littleEndian ) );
 			position.push( dataview.getFloat32( row*16 + 4, this.littleEndian ) );
 			position.push( dataview.getFloat32( row*16 + 8, this.littleEndian ) );
+			intensity.push(dataview.getFloat32( row*16 + 12, this.littleEndian ) )
 		}
 
 		return {
 			position: position,
 			color: color,
 			normal: normal,
+			intensity: intensity,
 		};
 	},
 
@@ -224,6 +226,7 @@ PCDLoader.prototype = {
 		var normal = [];
 		var color = [];
 		var velocity = [];
+		var intensity = [];
 
 		// ascii
 
@@ -267,6 +270,10 @@ PCDLoader.prototype = {
 					normal.push( parseFloat( line[ offset.normal_y ] ) );
 					normal.push( parseFloat( line[ offset.normal_z ] ) );
 
+				}
+
+				if (offset.intensity !== undefined) {
+					intensity.push( parseInt( line[ offset.intensity ] ) );
 				}
 
 			}
@@ -319,6 +326,10 @@ PCDLoader.prototype = {
 					velocity.push( 0 );
 				}
 
+				if (offset.intensity !== undefined) {
+
+					intensity.push( dataview.getUint8(row + offset.intensity));
+				}
 			}
 
 		}
@@ -328,6 +339,7 @@ PCDLoader.prototype = {
 			color: color,
 			normal: normal,
 			velocity: velocity,
+			intensity: intensity,
 		};
 		
 	}

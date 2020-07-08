@@ -62,9 +62,23 @@ function Lidar(sceneMeta, world, frameInfo){
                 }
                 else {
                     color = []
-                    for (var i =0; i< position.length; ++i){                                
-                        color.push(_self.data.config.point_brightness);                                
+
+                    
+                    if (pcd.intensity.length>0){
+                        // map intensity to color
+                        for (var i =0; i< position.length; ++i){                                
+                            color.push( pcd.intensity[Math.floor(i/3)]);
+                        }
+                    } else {
+                        // set all points to same color
+                        for (var i =0; i< position.length; ++i){                                
+                            color.push(_self.data.config.point_brightness);                                
+                        }
                     }
+
+                    
+
+
                     geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
                 }
 
