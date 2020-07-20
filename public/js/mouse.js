@@ -89,7 +89,10 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
             this.operation_state.key_pressed = false;
         } else if (event.which == 1){
             console.log("mouse left key down!");
-            if (event.ctrlKey){
+            if (event.ctrlKey || event.shiftKey){
+                event.stopPropagation();
+                event.preventDefault();
+
                 in_select_mode = true;
             
                 select_start_pos={
@@ -206,10 +209,8 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
                     h = this.onDownPosition.y - this.onUpPosition.y;
                 }
 
-
-
                 console.log("select rect",x,y,w,h);
-                this.handleSelectRect(x,y,w,h, this.onUpPosition);
+                this.handleSelectRect(x,y,w,h, event.ctrlKey, event.shiftKey);
             }
         }
 

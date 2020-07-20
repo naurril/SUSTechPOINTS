@@ -170,7 +170,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.editorUi,
             function(ev){self.handleLeftClick(ev);}, 
             function(ev){self.handleRightClick(ev);}, 
-            function(x,y,w,h){self.handleSelectRect(x,y,w,h);});
+            function(x,y,w,h,ctl,shift){self.handleSelectRect(x,y,w,h,ctl,shift);});
 
         this.autoAdjust=new AutoAdjust(this.boxOp, this.mouse, this.header);
 
@@ -1034,7 +1034,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         menu.style.display = "none";
     };
 
-    this.handleSelectRect= function(x,y,w,h){
+    this.handleSelectRect= function(x,y,w,h, ctrl, shift){
         y = y+h;
         x = x*2-1;
         y = -y*2+1;
@@ -1058,7 +1058,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         this.imageContext.image_manager.add_box(box);
         
-        this.boxOp.auto_shrink_box(box);
+        if (!shift){
+            this.boxOp.auto_shrink_box(box);
+        }
         
         // guess obj type here
         
@@ -1069,13 +1071,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.selectBox(box);
         this.on_box_changed(box);
 
-        this.boxOp.auto_rotate_xyz(box, function(){
-            box.obj_type = guess_obj_type_by_dimension(box.scale);
-            self.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
-            self.floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
-            self.on_box_changed(box);
-        });
-
+        if (!shift){
+            this.boxOp.auto_rotate_xyz(box, function(){
+                box.obj_type = guess_obj_type_by_dimension(box.scale);
+                self.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
+                self.floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
+                self.on_box_changed(box);
+            });
+        }
         
         
         //floatLabelManager.add_label(box);
