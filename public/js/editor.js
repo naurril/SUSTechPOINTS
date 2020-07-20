@@ -1682,6 +1682,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.transform_bbox("reset");
                 break;
             
+            case 'd':
+            case 'D':
+                if (ev.ctrlKey){
+                    this.remove_selected_box();
+                    this.header.mark_changed_flag();    
+                }
+                break;
             case 'Delete':
                 this.remove_selected_box();
                 this.header.mark_changed_flag();
