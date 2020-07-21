@@ -64,8 +64,8 @@
 
 - delete 删除该box
 - delete other instance 删除其他framｅ里该object的box
-- sync object type 其它frame中改物体的类型设置为当前box的类型
-- sync object size 其它frame中改物体的大小设置为当前box的类型
+- sync object type 其它frame中该物体的类型设置为当前box的类型
+- sync object size 其它frame中该物体的大小设置为当前box的类型
 - inspect all instances 唤起批量标注界面
 - select as ref  选择当前box为参考box (同copy)
 - follows ref　设置当前box为跟随参考box(即相对位置固定)
@@ -102,7 +102,7 @@
 
 ### box操作
 
-左键点击一个目标,会选中该目标物体．　选择的物体同时会在屏幕左侧显示３个投影窗口,分别是鸟瞰试图,侧试图和后视图．　如果有相机图片的话,还会显示box在图片上的投影．同时在box的旁边还会显示快速工具栏(下图)．
+左键点击一个目标,会选中该目标物体．　选择的物体同时会在屏幕左侧显示３个投影窗口,分别是鸟瞰视图,侧视图和后视图．　如果有相机图片的话,还会显示box在图片上的投影．同时在box的旁边还会显示快速工具栏(下图)．
 
 ![fast-toolbox](./doc/fast-toolbox.png)
 
@@ -121,7 +121,7 @@ box被选择后, 左边的３个子窗口都可以对box进行调整．鼠标移
 按住Ctrl键拖动虚线, 释放鼠标会让对应的虚线自动向内侧贴近点.
 按照Shift键拖动虚线有类似的效果, 但是会保持box的大小不变, 对box进行平移.
 
-鸟瞰试图里的toolbox提供了几个常用功能的按钮:
+鸟瞰视图里的toolbox提供了几个常用功能的按钮:
 
 ![bird's eye view-toolbox](./doc/bev-toolbox.png)
 
@@ -153,7 +153,7 @@ box被选择后, 左边的３个子窗口都可以对box进行调整．鼠标移
 
      1,2  选择上一个／下一个box
      3,4  切换到上一帧／下一帧
-     5,6,7  显示／隐藏３个子试图的相机参数（调试功能）
+     5,6,7  显示／隐藏３个子视图的相机参数（调试功能）
 
      space: 暂停／继续播放
 
