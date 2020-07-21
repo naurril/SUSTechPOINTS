@@ -79,6 +79,8 @@ function start(metaData){
       let dataCfg = {
         //disableLabels: true,
         //disablePreload: true,
+        //enablePointIntensity: true,
+        enableRadar:true,
       }
       
       let data = new Data(metaData, dataCfg);

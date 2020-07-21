@@ -315,7 +315,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 function RadarManager(sceneMeta, world, frameInfo){
     this.radarList = [];
 
-    if (sceneMeta.radar){
+    if (world.data.cfg.enableRadar && sceneMeta.radar){
         let radars = [];
         
         for (let r in sceneMeta.calib.radar){

@@ -3,3 +3,5 @@ data/*
 temp
 *.pyc
 **.h5
+image_temp
+tools/pypcd

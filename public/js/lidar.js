@@ -64,7 +64,7 @@ function Lidar(sceneMeta, world, frameInfo){
                     color = []
 
                     
-                    if (pcd.intensity.length>0){
+                    if (_self.data.cfg.enablePointIntensity && pcd.intensity.length>0){
                         // map intensity to color
                         for (var i =0; i< pcd.intensity.length; ++i){
                             let intensity = pcd.intensity[i];
