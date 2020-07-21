@@ -37,6 +37,7 @@
 
 ### 输出窗口
 右下角窗口会输出运行信息, 可以点击标题栏隐藏/显示．
+
 ![screenshot](./doc/output-window.png)
 
 ### 右键菜单
@@ -66,7 +67,7 @@
 - sync object type 其它frame中改物体的类型设置为当前box的类型
 - sync object size 其它frame中改物体的大小设置为当前box的类型
 - inspect all instances 唤起批量标注界面
-- select as ref  选择当前box为参考box
+- select as ref  选择当前box为参考box (同copy)
 - follows ref　设置当前box为跟随参考box(即相对位置固定)
 - sync followers　将所有跟随当前box的物体标注出来．
 
