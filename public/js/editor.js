@@ -788,18 +788,18 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         //cfgFolder.add( this.params, "rotate bird's eye view");
 
 
-        this.params["play"] = ()=>{
-            this.playControl.play(false,
-                function(w){
-                    this.on_load_world_finished(w)
-                });
-        }
-        this.params["stop"] = ()=>this.playControl.stop_play();
+        // this.params["play"] = ()=>{
+        //     this.playControl.play(false,
+        //         function(w){
+        //             this.on_load_world_finished(w)
+        //         });
+        // }
+        // this.params["stop"] = ()=>this.playControl.stop_play();
         this.params["previous frame"] = ()=>this.previous_frame();
         this.params["next frame"] = ()=>this.next_frame();
 
-        cfgFolder.add( this.params, "play");
-        cfgFolder.add( this.params, "stop");
+        //cfgFolder.add( this.params, "play");
+        //cfgFolder.add( this.params, "stop");
         cfgFolder.add( this.params, "previous frame");
         cfgFolder.add( this.params, "next frame");
 

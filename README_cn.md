@@ -1,4 +1,4 @@
-# SUSTechPOINTS: Point Cloud 3D Bounding Box Annotation Tool
+# SUSTechPOINTS: 3D Point Cloud Annotation Tool
 
 ![screenshot](./doc/screenshot.png)
 
@@ -9,11 +9,11 @@
 
 ![screenshot](./doc/header.png)
 
-     scene选择
-     frame选择
+     Scene选择
+     Frame选择
      目标id选择(试验用，不完善)
      相机选择
-     box信息
+     Box信息
           类别-ID | x y z | 长宽高 | roll pitch yaw | 点数
 
 ### 菜单
@@ -22,11 +22,11 @@
 
 ### 相机图片
 
-拖动图片的右下角可以调整图片显示的大小
+拖动图片的右下角可以调整大小, 选择不同的相机会显示不同图片．
 
 ### 输出窗口
-右下角窗口会输出一下运行信息，　可以点击标题栏隐藏/显示．
-
+右下角窗口会输出运行信息, 可以点击标题栏隐藏/显示．
+![screenshot](./doc/output-window.png)
 
 ### 右键菜单
 
@@ -47,7 +47,7 @@
 - follows ref　设置当前box为跟随参考box(即相对位置固定)
 - sync followers　将所有跟随当前box的物体标注出来．
 
-注意后３个功能处于试验状态，尚不完善．
+(该菜单部分功能处于试验状态，尚不完善．)
 
 
 ## Operations
