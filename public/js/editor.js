@@ -383,7 +383,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         };
 
         menuWrapper.oncontextmenu = function(event){
-            event.currentTarget.style.display="none"; 
+            //event.currentTarget.style.display="none"; 
             event.preventDefault();
             event.stopPropagation();
         };
