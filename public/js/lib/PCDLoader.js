@@ -236,6 +236,15 @@ PCDLoader.prototype = {
 			var pcdData = textData.substr( PCDheader.headerLen );
 			var lines = pcdData.split( '\n' );
 
+			var intensity_index = PCDheader.fields.findIndex(n=>n==="intensity");
+			var intensity_type = "F";
+			var intensity_size = 4;
+
+			if (intensity_index >= 0){
+				intensity_type = PCDheader.type[intensity_index];
+				intensity_size = PCDheader.size[intensity_index];
+			}
+
 			for ( var i = 0, l = lines.length; i < l; i ++ ) {
 
 				if ( lines[ i ] === '' ) continue;
@@ -272,8 +281,9 @@ PCDLoader.prototype = {
 
 				}
 
+
 				if (offset.intensity !== undefined) {
-					intensity.push( parseInt( line[ offset.intensity ] ) );
+					intensity.push( parseInt( line[ offset.intensity ] ) / 255.0 );
 				}
 
 			}
@@ -293,6 +303,16 @@ PCDLoader.prototype = {
 
 			var dataview = new DataView( data, PCDheader.headerLen );
 			var offset = PCDheader.offset;
+
+			var intensity_index = PCDheader.fields.findIndex(n=>n==="intensity");
+			var intensity_type = "F";
+			var intensity_size = 4;
+
+			if (intensity_index >= 0){
+				intensity_type = PCDheader.type[intensity_index];
+				intensity_size = PCDheader.size[intensity_index];
+			}
+
 
 			for ( var i = 0, row = 0; i < PCDheader.points; i ++, row += PCDheader.rowSize ) {
 
@@ -327,8 +347,12 @@ PCDLoader.prototype = {
 				}
 
 				if (offset.intensity !== undefined) {
-
-					intensity.push( dataview.getUint8(row + offset.intensity));
+					if (intensity_type == "U" && intensity_size == 1){
+						intensity.push( dataview.getUint8(row + offset.intensity)/255.0);
+					}
+					else if (intensity_type == "F" && intensity_size == 4){
+						intensity.push( dataview.getFloat32(row + offset.intensity, this.littleEndian)/255.0);
+					}
 				}
 			}
 

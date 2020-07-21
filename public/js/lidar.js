@@ -66,8 +66,21 @@ function Lidar(sceneMeta, world, frameInfo){
                     
                     if (pcd.intensity.length>0){
                         // map intensity to color
-                        for (var i =0; i< position.length; ++i){                                
-                            color.push( pcd.intensity[Math.floor(i/3)]);
+                        for (var i =0; i< pcd.intensity.length; ++i){
+                            let intensity = pcd.intensity[i];
+                            intensity *= 8;
+                            
+                            if (intensity > 1)
+                                intensity = 1.0;
+                            
+                            
+                            //color.push( 2 * Math.abs(0.5-intensity));
+                            
+                            color.push( intensity);
+                            color.push( intensity);
+                            color.push( 1 - intensity); 
+                            
+                            
                         }
                     } else {
                         // set all points to same color
