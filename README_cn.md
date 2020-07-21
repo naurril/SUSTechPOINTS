@@ -20,6 +20,17 @@
 
 ![screenshot](./doc/view-menu.png)
 
+- point size +/- 增加/减小点的大小
+- point brightness +/- 增强/减弱点的亮度
+- toggle background
+- toggle box
+- toggle obj color
+- toggle id
+- toggle category
+- previous frame
+- next frame
+- take screenshot 下载屏幕截图(仅3D场景)
+
 ### 相机图片
 
 拖动图片的右下角可以调整大小, 选择不同的相机会显示不同图片．
@@ -33,6 +44,18 @@
 右键点击空白区域
 
 ![screenshot](./doc/contextmenu.png)
+
+- New 在鼠标当前位置创建对应的box
+- Paste 在鼠标当前位置paste
+- Previous frame
+- Next frame
+- play
+- pause/resume
+- stop
+- previous object
+- next object
+- save 保存
+- reload 放弃当前修改刷新上一次保存的内容
 
 右键点击box
 
