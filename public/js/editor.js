@@ -732,22 +732,22 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         //this.params["side view width"] = 0.2;
 
-        this.params["point size+"] = ()=>{
+        this.params["point size +"] = ()=>{
             this.data.scale_point_size(1.2);
             this.render();
         };
         
-        this.params["point size-"] = ()=>{
+        this.params["point size -"] = ()=>{
             this.data.scale_point_size(0.8);
             this.render();
         };
 
-        this.params["point brightness+"] = ()=>{
+        this.params["point brightness +"] = ()=>{
             this.data.scale_point_brightness(1.2);
             this.render();
         };
         
-        this.params["point brightness-"] = ()=>{
+        this.params["point brightness -"] = ()=>{
             this.data.scale_point_brightness(0.8);
             this.render();
         };
@@ -766,10 +766,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             self.render();
         }
 
-        cfgFolder.add( this.params, "point size+");
-        cfgFolder.add( this.params, "point size-");
-        cfgFolder.add( this.params, "point brightness+");
-        cfgFolder.add( this.params, "point brightness-");
+        cfgFolder.add( this.params, "point size +");
+        cfgFolder.add( this.params, "point size -");
+        cfgFolder.add( this.params, "point brightness +");
+        cfgFolder.add( this.params, "point brightness -");
 
         //cfgFolder.add( this.params, "test2");
 
