@@ -94,6 +94,10 @@ canvas {
 	
 }
 
+#changed-mark{
+	padding: 8px;
+}
+
 #maincanvas {
 	position: absolute;
 	top: 0%;

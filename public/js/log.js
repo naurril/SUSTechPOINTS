@@ -4,7 +4,7 @@ function Log(){
     this.handle = document.querySelector("#output-window #handle");
     this.clear = document.querySelector("#output-window #clear");
 
-    this.handle.onclick = (event)=>{
+    this.handle.onclick = ()=>{
         if (this.div.style.display===""){
             this.div.style.display="none";
             this.clear.style.display="none";
@@ -12,6 +12,11 @@ function Log(){
             this.div.style.display="";
             this.clear.style.display="";
         }
+    };
+
+    this.hide = function(){
+        this.div.style.display="none";
+        this.clear.style.display="none";
     };
 
     this.clear.onclick = (evnet) =>{
@@ -32,6 +37,7 @@ function Log(){
     };
 
     this.println("Welcome.");
+    this.hide();
 }
 
 
