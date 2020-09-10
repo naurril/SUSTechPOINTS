@@ -32,6 +32,15 @@
 # ]
 
 
+#
+# rotation_y_kitti = - ( psr.rotation.z + pi/2)
+#
+#  http://www.cvlibs.net/datasets/kitti/setup.php
+#
+# camera coordinates:  x  goes right, y goes down, z goes forward.
+# note x-y place has the same direction as a image.
+#
+
 import os
 import json
 import math
@@ -40,6 +49,13 @@ import numpy as np
 label_path = './data/kitti/label_2'
 my_label_path = './data/kitti/label'
 calib_path = "./data/kitti/calib_2"
+
+
+
+# label_path = './data/vehicle.tesla.cybertruck_187/label00'
+# my_label_path = './data/vehicle.tesla.cybertruck_187/label'
+# calib_path = "./data/vehicle.tesla.cybertruck_187/calib00"
+
 
 #label_path = '/home/lie/disk640/data/kitti/label_2'
 #my_label_path = '/home/lie/disk640/data/kitti/sustechpoints_label'
@@ -68,7 +84,7 @@ def get_inv_matrix(frame):
         
         m = np.matmul(rect, velo_to_cam)
 
-        
+
         m = np.linalg.inv(m)
         
         return m
@@ -104,6 +120,7 @@ for fname in files:
                             "position": {"x":trans_pos[0], "y":trans_pos[1], "z":trans_pos[2]+float(words[8])/2},
                             "rotation": {"x":0, 
                                          "y":0,
+                                         #"z": +math.pi/2 +float(words[14])}}
                                          "z": -math.pi/2 -float(words[14])}}
             obj["obj_id"] = ""
             return obj
