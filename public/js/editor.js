@@ -1041,6 +1041,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         w *= 2;
         h *= 2;
         
+        // x,y: start cornor, w: width, h: height
+
         /*
         console.log("main select rect", x,y,w,h);
 
@@ -1050,6 +1052,24 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         render_2d_image();
         */
 
+        // check if any box is inside the rectangle
+        let boxes = this.data.world.annotation.find_boxes_inside_rect(x,y,w,h, this.viewManager.mainView.camera);
+        if (boxes.length > 0) {
+
+            if (boxes.length == 1){
+                this.selectBox(boxes[0])
+            }
+            else{
+                for (let b in boxes){
+                    this.remove_box(boxes[b],false)
+                }
+                this.render();
+            }
+
+            return;
+        }
+
+        // create new box
         var self=this;
         var center_pos = this.mouse.get_screen_location_in_world(x+w/2, y+h/2);
         
@@ -1865,9 +1885,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
 
-    this.remove_box = function(box){
+    this.remove_box = function(box, render=true){
         if (box === this.selected_box){
-            this.remove_selected_box();
+            this.unselectBox(null);
+            this.unselectBox(null); //twice to safely unselect.
+            this.selected_box = null;
+            //this.remove_selected_box();
         } 
         
         if (box.boxEditor)
@@ -1878,46 +1901,30 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             else{
                 console.error("what?");
             }
-
-            this.restore_box_points_color(box);
-
-            this.imageContext.image_manager.remove_box(box.obj_local_id);
-
-            this.floatLabelManager.remove_box(box);
-            this.scene.remove(box);        
-            
-            //this.selected_box.dispose();
-            box.world.annotation.remove_box(box);
-            this.render();
         }
+
+        this.do_remove_box(box, render);
+
+        if (render)
+            this.render();
+        
     };
 
     this.remove_selected_box= function(){
-        if (this.selected_box){
-            var target_box = this.selected_box;
-            this.unselectBox(null);
-            this.unselectBox(null); //twice to safely unselect.
-            //transform_control.detach();
-            
-            // restroe color
-            this.restore_box_points_color(target_box);
-
-            this.imageContext.image_manager.remove_box(target_box.obj_local_id);
-
-            this.floatLabelManager.remove_box(target_box);
-            //this.scene.remove(target_box);        
-            
-            //this.selected_box.dispose();
-            this.data.world.annotation.unload_box(target_box);
-            this.data.world.annotation.remove_box(target_box);
-
-            
-            this.selected_box = null;
-            
-            this.render();
-            
-        }
+        this.remove_box(this.selected_box);
     };
+
+    this.do_remove_box = function(box, render=true){
+        this.restore_box_points_color(box, render);
+
+        this.imageContext.image_manager.remove_box(box.obj_local_id);
+
+        this.floatLabelManager.remove_box(box);
+                    
+        //this.selected_box.dispose();
+        box.world.annotation.unload_box(box);
+        box.world.annotation.remove_box(box);
+    },
 
     this.clear= function(){
 
@@ -1974,11 +1981,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.render();
     };
 
-    this.restore_box_points_color= function(box){
+    this.restore_box_points_color= function(box,render=true){
         if (this.data.config.color_obj){
             box.world.lidar.set_box_points_color(box, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
             box.world.lidar.update_points_color();
-            this.render();
+            if (render)
+                this.render();
         }
     };
 

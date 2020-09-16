@@ -337,7 +337,32 @@ function Annotation(sceneMeta, world, frameInfo){
         }
     };
 
-    
+    this.find_boxes_inside_rect = function(x,y,w,h, camera){
+        
+        let selected_boxes_by_rect = [];
+
+        if (!this.boxes)
+            return selected_boxes_by_rect;
+
+        
+        var p = new THREE.Vector3();
+
+        for (var i=0; i< this.boxes.length; i++){
+            let box_center = this.boxes[i].position;
+
+            p.set(box_center.x, box_center.y, box_center.z);
+            p.project(camera);
+            //p.x = p.x/p.z;
+            //p.y = p.y/p.z;
+            //console.log(p);
+            if ((p.x > x) && (p.x < x+w) && (p.y>y) && (p.y<y+h) && (p.z>0)){
+                selected_boxes_by_rect.push(this.boxes[i]);
+            }
+        }
+
+        console.log("select boxes", selected_boxes_by_rect.length);
+        return selected_boxes_by_rect;
+    },
 
 
     this.proc_annotation = function(boxes){
