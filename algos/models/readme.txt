@@ -1,1 +1,1 @@
-This folder is usded to store models
+This folder is used to store models

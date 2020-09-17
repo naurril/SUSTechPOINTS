@@ -15,7 +15,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 
 sys.path.append(os.path.join(BASE_DIR, './algos'))
-import algos.rotation as rotation
+#import algos.rotation as rotation
+import algos.pre_annotate as pre_annotate
+
 
 #sys.path.append(os.path.join(BASE_DIR, '../tracking'))
 import algos.trajectory as trajectory
@@ -95,8 +97,16 @@ class Root(object):
       
       data = json.loads(rawbody)
       
-      return {"angle": rotation.predict(data["points"])}
+      return {"angle": pre_annotate.predict_yaw(data["points"])}
       #return {}
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def auto_annotate(self, scene, frame):
+      print("auto annotate ", scene, frame)
+      return pre_annotate.annotate_file('./data/{}/lidar/{}.pcd'.format(scene,frame))
+      
+
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()

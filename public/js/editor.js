@@ -15,7 +15,7 @@ import {AutoAdjust} from "./auto-adjust.js"
 import {PlayControl} from "./play.js"
 import {saveWorld, reloadWorldList, saveWorldList} from "./save.js"
 import {log} from "./log.js"
-
+import {autoAnnotate} from "./auto_annotate.js"
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -688,6 +688,22 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         link.click();
     };
 
+
+    this.annotateByAlg1 = function(){
+        autoAnnotate(this.data.world, ()=>this.on_load_world_finished(this.data.world));
+    };
+
+    this.install_experimental_menu = function(gui){
+        var self=this;
+        var expFolder = gui.addFolder( 'Experimental' );
+
+        this.params["annotate by alg1"] = function(){
+            self.annotateByAlg1();
+        };  
+
+        expFolder.add( this.params, "annotate by alg1");
+    };
+
     this.install_view_menu= function(gui){
         var self=this;
         var cfgFolder = gui.addFolder( 'View' );
@@ -814,6 +830,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         // view
         this.install_view_menu(gui);
+        this.install_experimental_menu(gui);
 
         //edit
         // var editFolder = gui.addFolder( 'Edit' );
