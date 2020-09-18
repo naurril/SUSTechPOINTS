@@ -137,9 +137,19 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.hide = function(){
         this.ui.style.display="none";
+
+        // this is a hack, if we don't have manager, this is the main editor
+        // hide parent ui
+        // todo, add a pseudo manager, hide itself when child hide
+        if (!this.boxEditorManager){
+            this.parentUi.style.display="none";
+        }
     }
     this.show = function(){
         this.ui.style.display="";//"inline-block";
+        if (!this.boxEditorManager){
+            this.parentUi.style.display="";
+        }
     }
 
     this.onBoxChanged=function(){
