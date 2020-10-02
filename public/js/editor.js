@@ -697,11 +697,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var self=this;
         var expFolder = gui.addFolder( 'Experimental' );
 
-        this.params["annotate by alg1"] = function(){
-            self.annotateByAlg1();
-        };  
+        // experimental
+        // this.params["annotate by alg1"] = function(){
+        //     self.annotateByAlg1();
+        // };  
 
-        expFolder.add( this.params, "annotate by alg1");
+        // expFolder.add( this.params, "annotate by alg1");
     };
 
     this.install_view_menu= function(gui){
