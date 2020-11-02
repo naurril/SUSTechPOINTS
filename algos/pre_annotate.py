@@ -61,11 +61,14 @@ predict_yaw(np.random.random([1000,3]))
 # filter_model.load_weights(weights_path)
 # filter_model.summary()
 
-
-
-filter_model_file = './algos/models/deepannotate_rp_discrimination_v2.h5'  #"./deepannotate_rp_discrimination.back.h5"
+use_env = False
+if use_env:
+    filter_model_file = './algos/models/deepannotate_rp_discrimination_env.h5'  #"./deepannotate_rp_discrimination.back.h5"
+else:
+    filter_model_file = './algos/models/deepannotate_rp_discrimination_obj_xyzi.h5'  #"./deepannotate_rp_discrimination.back.h5"
 filter_model = tf.keras.models.load_model(filter_model_file)
 filter_model.summary()
+
 
 
 # rotation_model_file = "../SUSTechPoints-be/algos/models/deep_annotation_inference.h5"
@@ -91,12 +94,16 @@ def cluster_points(pcdfile):
 
     pre_cluster_pcd(pcdfile, temp_output_folder)
 
-    cluster_files = glob.glob(temp_output_folder+"/*.bin")
-    cluster_files.sort()
-
+    obj_files = glob.glob(temp_output_folder+"/*-obj.bin")
+    env_files = glob.glob(temp_output_folder+"/*-env.bin")
+    obj_files.sort()
+    env_files.sort()
+    
     ## note these clusters are already sorted by points number
-    clusters = [np.fromfile(c, dtype=np.float32).reshape(-1, 4)[:,0:3] for c in cluster_files]
-    return clusters,cluster_files
+    objs = [np.fromfile(c, dtype=np.float32).reshape(-1, 4) for c in obj_files]
+    envs = [np.fromfile(c, dtype=np.float32).reshape(-1, 4) for c in env_files]
+    clusters = list(zip(objs, envs))
+    return clusters
 
 def euler_angle_to_rotate_matrix(eu, t):
     theta = eu
@@ -129,9 +136,15 @@ def euler_angle_to_rotate_matrix(eu, t):
 
 
 def sample_one_obj(points, num):
-    centroid = np.mean(points, axis=0)
+    centroid = list(np.mean(points[:,:3], axis=0))  # intensity
+
+    if points.shape[1] > 3:
+        centroid = np.append(centroid, np.zeros(points.shape[1]-3))
+        print(centroid)
+        centroid.reshape(1,-1)
     points = points - centroid
 
+    # padding or sample
     if points.shape[0]>num:
         idx = np.arange(points.shape[0])
         np.random.shuffle(idx)
@@ -141,14 +154,15 @@ def sample_one_obj(points, num):
         padding = points[sample_idx]
         points = np.concatenate([points, padding], axis=0)
 
-    return points
+    print("input shape", points.shape)
+    return points[:,:3]
 
 def filter_nearby_objects(clusters):
-    def nearby(c):
+    def nearby(c): # c is a pair
         center = np.mean(c,axis=0)
         return np.sum((center*center)[0:2]) < 70*70
 
-    ind = [nearby(c) for c in clusters]
+    ind = [nearby(c[0]) for c in clusters]
     return np.array(clusters)[ind]
 
 
@@ -156,7 +170,9 @@ def filter_nearby_objects(clusters):
 def filter_candidate_objects(clusters):
 
     ## all clusters stacked into a batch
-    input_cluster_points = np.stack([sample_one_obj(p, NUM_POINT) for p in clusters], axis=0)
+    
+    objidx = 1 if use_env else 0
+    input_cluster_points = np.stack([sample_one_obj(p[objidx], NUM_POINT) for p in clusters], axis=0) # use env to do filtering
 
     pred_val = filter_model.predict(input_cluster_points)
     #print(pred_val)
@@ -207,7 +223,7 @@ def calculate_box_dimension(objs, rotation):
 
 ## main func
 def pre_annotate(pcdfile):
-    clusters,cluster_files = cluster_points(pcdfile)
+    clusters = cluster_points(pcdfile)
 
     clusters = filter_nearby_objects(clusters)
     cand_ind = filter_candidate_objects(clusters)
@@ -224,6 +240,9 @@ def pre_annotate(pcdfile):
 
     # calculate box
     cand_clusters = np.array(clusters)[cand_ind]
+
+    # only objs is needed from now on
+    cand_clusters = [x[0][:,:3] for x in cand_clusters] 
     cand_rotation = decide_obj_rotation(cand_clusters)
 
     # print(cand_rotation)
