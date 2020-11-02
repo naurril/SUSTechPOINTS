@@ -17,6 +17,44 @@ function Lidar(sceneMeta, world, frameInfo){
     this.points = null;
     this.points_load_time = 0;
 
+    this.remove_high_ponts = function(pcd, z){
+        let position = [];
+        let color = [];
+        let normal = [];
+        let intensity = [];
+        //3, 3, 3, 1
+
+        for (let i = 0; i < pcd.position.length/3; i++){
+            if (pcd.position[i*3+2] < z){
+                position.push(pcd.position[i*3+0]);
+                position.push(pcd.position[i*3+1]);
+                position.push(pcd.position[i*3+2]);
+                
+                if (pcd.color.length>0){
+                    color.push(pcd.color[i*3+0]);
+                    color.push(pcd.color[i*3+1]);
+                    color.push(pcd.color[i*3+2]);
+                }
+
+                if (pcd.normal.length>0){
+                    normal.push(pcd.normal[i*3+0]);
+                    normal.push(pcd.normal[i*3+1]);
+                    normal.push(pcd.normal[i*3+2]);
+                }
+
+                if (pcd.intensity){
+                    intensity.push(pcd.intensity[i]);
+                }
+            }
+        }
+
+        pcd.position = position;
+        pcd.intensity = intensity;
+        pcd.color = color;
+        pcd.normal = normal;
+
+        return pcd;
+    };
 
     this.preload=function(on_preload_finished){
         this.on_preload_finished = on_preload_finished;
@@ -28,8 +66,8 @@ function Lidar(sceneMeta, world, frameInfo){
             //ok
             function ( pcd ) {
                 var position = pcd.position;
-                var color = pcd.color;
-                var normal = pcd.normal;
+                
+                
 
                 _self.points_parse_time = new Date().getTime();
                 console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
@@ -50,6 +88,13 @@ function Lidar(sceneMeta, world, frameInfo){
                     //points.geometry.computeBoundingSphere();
                 }
 
+                
+                // do some filtering work here
+                pcd = _self.remove_high_ponts(pcd, 2.0);
+                let color = pcd.color;
+                let normal = pcd.normal;
+
+                position = pcd.position;
                 position = _self.transformPointsByOffset(position);
 
                 // build geometry
@@ -264,6 +309,17 @@ function Lidar(sceneMeta, world, frameInfo){
         return this.points.geometry.getAttribute("position");
     };
     
+    this.get_all_points_unoffset = function(){
+        let points = this.get_all_pionts();
+        let newPoints = [];
+        points.array.forEach((p,i)=>{
+            newPoints.push(p - this.coordinatesOffset[i % 3]);
+        });
+
+        return newPoints;
+    }
+
+
     this.build_points_index=function(){
         var ps = this.points.geometry.getAttribute("position");
         var points_index = {};
@@ -986,7 +1042,100 @@ function Lidar(sceneMeta, world, frameInfo){
         this.update_points_color();
     };
 
-    
+    this.get_centroid = function(point_indices){
+        let points = this.points;
+        let pos_array = points.geometry.getAttribute("position").array;
+
+        let center ={
+            x:0,y:0,z:0
+        };
+
+        point_indices.forEach(i=>{
+            center.x += pos_array[i*3];
+            center.y += pos_array[i*3+1];
+            center.z += pos_array[i*3+2];
+        });
+
+        center.x /= point_indices.length;
+        center.y /= point_indices.length;
+        center.z /= point_indices.length;
+        
+        return center;
+
+    };
+
+    this.create_box_by_points = function(point_indices, camera){
+
+        
+        let indices = point_indices;
+        let points = this.points;
+        let pos_array = points.geometry.getAttribute("position").array;
+
+        // todo: copied the following code from next function. refactor it!
+        console.log("select rect points", indices.length);
+
+        //compute center, no need to tranform to box coordinates, and can't do it in this stage.
+        /*
+        var extreme = array_as_vector_index_range(pos_array, 3, indices);
+
+        var center = {
+            x: (extreme.max[0]+extreme.min[0])/2,
+            y: (extreme.max[1]+extreme.min[1])/2,
+            z: (extreme.max[2]+extreme.min[2])/2,
+        };
+        */
+        var rotation_z = camera.rotation.z + Math.PI/2;
+        var trans = transpose(euler_angle_to_rotate_matrix({x:0,y:0,z:rotation_z}, {x:0, y:0, z:0}), 4);
+
+        let center ={
+            x:0,y:0,z:0
+        };
+
+        point_indices.forEach(i=>{
+            center.x += pos_array[i*3];
+            center.y += pos_array[i*3+1];
+            center.z += pos_array[i*3+2];
+        });
+
+        center.x /= point_indices.length;
+        center.y /= point_indices.length;
+        center.z /= point_indices.length;
+        center.z = 0;
+
+        
+        var relative_position = [];
+        indices.forEach(function(i){
+        //for (var i  = 0; i < pos.count; i++){
+            var x = pos_array[i*3];
+            var y = pos_array[i*3+1];
+            var z = pos_array[i*3+2];
+            var p = [x-center.x, y-center.y, z-center.z, 1];
+            var tp = matmul(trans, p, 4);
+            relative_position.push([tp[0],tp[1],tp[2]]);
+        });
+
+        var relative_extreme = vector_range(relative_position);
+        var scale = {
+            x: relative_extreme.max[0] - relative_extreme.min[0],
+            y: relative_extreme.max[1] - relative_extreme.min[1],
+            z: relative_extreme.max[2] - relative_extreme.min[2],
+        };
+
+        // enlarge scale a little
+
+
+        // adjust center
+        this.world.annotation.translate_box_position(center, rotation_z, "x", relative_extreme.min[0] + scale.x/2);
+        this.world.annotation.translate_box_position(center, rotation_z, "y", relative_extreme.min[1] + scale.y/2);
+        this.world.annotation.translate_box_position(center, rotation_z, "z", relative_extreme.min[2] + scale.z/2);
+        
+
+        scale.x += 0.02;
+        scale.y += 0.02;
+        scale.z += 0.02;
+
+        return this.world.annotation.add_box(center, scale, {x:0,y:0,z:rotation_z}, "Unknown", "");
+    };
 
     this.create_box_by_view_rect=function(x,y,w,h, camera, center){
         var rotation_z = camera.rotation.z + Math.PI/2;

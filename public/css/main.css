@@ -123,6 +123,10 @@ canvas {
 	padding: 0px;
 }
 
+line {
+	stroke-width: 3;
+}
+
 /* 
 this css can be moved to dynamic css in main.js, after obj-type css being set 
 for now when a box is selected, its objtype class in css is removed so the color is set by selected state.

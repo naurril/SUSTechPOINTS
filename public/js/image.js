@@ -182,14 +182,14 @@ function FocusImageContext(ui){
 
 
 
-function ImageContext(ui, cfg){
+function ImageContext(ui, cfg, on_img_click){
     this.ui = ui;
     this.cfg = cfg;
     this.init_image_op = init_image_op;    
     this.clear_main_canvas= clear_main_canvas;
     this.choose_best_camera_for_point = choose_best_camera_for_point;
     //this.image_manager = image_manager;
-
+    this.on_img_click = on_img_click;
     this.world = null;
     this.attachWorld = function(world){
         this.world = world;
@@ -200,6 +200,7 @@ function ImageContext(ui, cfg){
     this.show = function(){
         this.ui.style.display="";
     };
+    this.img = null;
 
     //internal
     let scope =this;
@@ -209,6 +210,7 @@ function ImageContext(ui, cfg){
 
     var all_lines=[];
     
+    this.img_lidar_point_map = {};
 
     function to_polyline_attr(points){
         return points.reduce(function(x,y){
@@ -245,7 +247,9 @@ function ImageContext(ui, cfg){
         var p= to_viewbox_coord(e.layerX, e.layerY);
         var x=p[0];
         var y=p[1];
-        console.log(x,y);
+        
+        console.log("clicked",x,y);
+
         
         if (!drawing){
 
@@ -268,6 +272,41 @@ function ImageContext(ui, cfg){
                 c.ondblclick = on_dblclick;   
                 c.onkeydown = on_key;    
             
+            }
+            else{
+                // not drawing
+                let nearest_x = 100000;
+                let nearest_y = 100000;
+                let selected_pts = [];
+                
+                for (let i =x-100; i<x+100; i++){
+                    if (i < 0 || i >= scope.img.width)
+                        continue;
+
+                    for (let j = y-100; j<y+100; j++){
+                        if (j < 0 || j >= scope.img.height)
+                            continue;
+
+                        let lidarpoint = scope.img_lidar_point_map[j*scope.img.width+i];
+                        if (lidarpoint){
+                            //console.log(i,j, lidarpoint);
+                            selected_pts.push(lidarpoint); //index of lidar point
+
+                            if (((i-x) * (i-x) + (j-y)*(j-y)) < ((nearest_x-x)*(nearest_x-x) + (nearest_y-y)*(nearest_y-y))){
+                                nearest_x = i;
+                                nearest_y = j;                                
+                            }
+                        }
+                            
+                    }
+                }
+                console.log("nearest", nearest_x, nearest_y);
+                scope.draw_point(nearest_x, nearest_y);
+                if (nearest_x < 100000)
+                {
+                    scope.on_img_click([scope.img_lidar_point_map[nearest_y*scope.img.width+nearest_x][0]]);
+                }
+                
             }
 
         } else {
@@ -398,11 +437,49 @@ function ImageContext(ui, cfg){
         if (img){
             svgimage.setAttribute("xlink:href", img.src);
         }
+
+        scope.img = img;
     }
+
+
+    function points_to_svg(points, trans_ratio, cssclass){
+        var ptsFinal = points.map(function(x, i){
+            if (i%2==0){
+                return Math.round(x * trans_ratio.x);
+            }else {
+                return Math.round(x * trans_ratio.y);
+            }
+        });
+
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+        svg.setAttribute("class", cssclass);
+        for (let i = 0; i < ptsFinal.length; i+=2){
+            let x = ptsFinal[i];
+            let y = ptsFinal[i+1];
+            let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+            p.setAttribute("cx", x);
+            p.setAttribute("cy", y);
+            p.setAttribute("r", 2);            
+            p.setAttribute("stroke-width", "2");            
+            svg.appendChild(p);
+        }
+        
+        return svg;
+    }
+
+    this.draw_point = function(x,y){
+        let trans_ratio = get_trans_ratio();
+        let svg = scope.ui.querySelector("#svg-points");
+        let pts_svg = points_to_svg([x,y], trans_ratio, "radar-points");
+        svg.appendChild(pts_svg);
+    };
+
+
 
 
     this.render_2d_image = function(){
 
+        let self = this;
         if (this.cfg.disableMainImageContext)
             return;
 
@@ -472,35 +549,25 @@ function ImageContext(ui, cfg){
                 }
             })
 
-        }
-
-    }
 
 
-    function points_to_svg(points, trans_ratio, cssclass){
-        var ptsFinal = points.map(function(x, i){
-            if (i%2==0){
-                return Math.round(x * trans_ratio.x);
-            }else {
-                return Math.round(x * trans_ratio.y);
+            // draw lidar points            
+            if (self.cfg.draw_lidar_points){
+                let pts = scope.world.lidar.get_all_points_unoffset();
+                let ptsOnImg = points3d_to_image2d(pts, calib, true, self.img_lidar_point_map, img.width, img.height);
+
+                // there may be none after projecting
+                if (ptsOnImg && ptsOnImg.length>0){
+                    let pts_svg = points_to_svg(ptsOnImg, trans_ratio, "radar-tracks");
+                    svg.appendChild(pts_svg);
+                }
             }
-        });
 
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-        svg.setAttribute("class", cssclass);
-        for (let i = 0; i < ptsFinal.length; i+=2){
-            let x = ptsFinal[i];
-            let y = ptsFinal[i+1];
-            let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-            p.setAttribute("cx", x);
-            p.setAttribute("cy", y);
-            p.setAttribute("r", 10);            
-            p.setAttribute("stroke-width", "3");            
-            svg.appendChild(p);
         }
-        
-        return svg;
+
     }
+
+
 
     function box_to_svg(box, box_corners, trans_ratio, selected){
         
@@ -698,7 +765,7 @@ function box_to_2d_points(box, calib){
 
 // points3d is length 4 row vector, homogeneous coordinates
 // returns 2d row vectors
-function points3d_homo_to_image2d(points3d, calib){
+function points3d_homo_to_image2d(points3d, calib, accept_partial=false,save_map, img_dx, img_dy){
     var imgpos = matmul(calib.extrinsic, points3d, 4);
     
     if (calib.rect){
@@ -714,10 +781,43 @@ function points3d_homo_to_image2d(points3d, calib){
     else
         imgpos2 = matmul(calib.intrinsic, imgpos3, 3);
 
-    if (!all_points_in_image_range(imgpos3)){
-        return null;
+    let imgfinal = vector3_nomalize(imgpos2);
+    let imgfinal_filterd = [];
+     
+    if (accept_partial){
+        let temppos=[];
+        let p = imgpos3;
+        for (var i = 0; i<p.length/3; i++){
+            if (p[i*3+2]>0){
+                let x = imgfinal[i*2];
+                let y = imgfinal[i*2+1];
+                
+                x = Math.round(x);
+                y = Math.round(y);
+                if (x > 0 && x < img_dx && y > 0 && y < img_dy){
+                    if (save_map){
+                        save_map[img_dx*y+x] = [i, points3d[i*4+0], points3d[i*4+1], points3d[i*4+2]];  //save index? a little dangerous! //[points3d[i*4+0], points3d[i*4+1], points3d[i*4+2]];
+                    }
+
+                    imgfinal_filterd.push(x);
+                    imgfinal_filterd.push(y);
+
+                }
+                else{
+                    // console.log("points outside of image",x,y);
+                }
+
+            }
+        }        
+
+        imgfinal = imgfinal_filterd;
+        //warning: what if calib.intrinsic.length
+        //todo: this function need clearance
+        //imgpos2 = matmul(calib.intrinsic, temppos, 3);
     }
-    var imgfinal = vector3_nomalize(imgpos2);
+    else  if (!accept_partial && !all_points_in_image_range(imgpos3)){
+            return null;
+    }
 
     return imgfinal;
 }
@@ -733,9 +833,9 @@ function point3d_to_homo(points){
 
     return homo;
 }
-function points3d_to_image2d(points, calib){
+function points3d_to_image2d(points, calib, accept_partial=false, save_map, img_dx, img_dy){
     // 
-    return points3d_homo_to_image2d(point3d_to_homo(points), calib);
+    return points3d_homo_to_image2d(point3d_to_homo(points), calib, accept_partial, save_map, img_dx, img_dy);
 }
 
 function all_points_in_image_range(p){
@@ -747,6 +847,7 @@ function all_points_in_image_range(p){
     
     return true;
 }
+
 
 
 function choose_best_camera_for_point(scene_meta, center){

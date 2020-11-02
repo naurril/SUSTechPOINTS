@@ -69,4 +69,7 @@
 66.  linear interpolation: auto adjust is also helpful
 67.  save modified anns only, in batch mode
 68.  enable adding a tag to each label. issue #
-69.  
+69.  ctrl+move to automatically resize/rotate, shift+move to automatically rotate (only)
+70.  the transformation subnetwork in pointnet for our rotation prediction is possibly unnecessary because we don't want a rotation-invariant model.
+71.  add contextmenu for projective sub-views, so that we can use them in batch-mode
+72.  crop point clouds, so to remove points of trees reaching out above the roads

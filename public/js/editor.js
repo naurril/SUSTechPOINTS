@@ -95,7 +95,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.imageContext = new ImageContext(
                  this.editorUi.querySelector("#maincanvas-wrapper"), 
-                this.editorCfg);
+                this.editorCfg,
+                (lidar_points)=>this.on_img_click(lidar_points));
 
 
         if (!this.editorCfg.disableRangeCircle)
@@ -1051,6 +1052,67 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         menu.style.display = "none";
     };
 
+    this.on_img_click = function(lidar_point_indices){
+        
+        console.log(lidar_point_indices);
+
+        var self=this;
+        let obj_type = "Car";
+        this.data.world.lidar.set_spec_points_color(lidar_point_indices, {x:0,y:0,z:1});
+        this.data.world.lidar.update_points_color();
+        this.render();
+        //return;
+
+        let pos = this.data.world.lidar.get_centroid(lidar_point_indices);
+        pos.z = 0;
+
+        let rotation = {x:0, y:0, z:this.viewManager.mainView.camera.rotation.z+Math.PI/2};
+
+        let obj_cfg = get_obj_cfg_by_type(obj_type);
+        let scale = {   
+            x: obj_cfg.size[0],
+            y: obj_cfg.size[1],
+            z: obj_cfg.size[2]
+        };
+
+        let box = this.add_box(pos, scale, rotation, obj_type, "");
+        self.boxOp.auto_rotate_xyz(box, null, null, function(b){
+            self.on_box_changed(b);
+        });
+
+        return;
+        /*
+        var box = this.data.world.lidar.create_box_by_points(lidar_point_indices, this.viewManager.mainView.camera);
+        
+
+        this.scene.add(box);
+        
+        this.imageContext.image_manager.add_box(box);
+        
+        
+        this.boxOp.auto_shrink_box(box);
+        
+        
+        // guess obj type here
+        
+        box.obj_type = guess_obj_type_by_dimension(box.scale);
+        
+        this.floatLabelManager.add_label(box);
+
+        this.selectBox(box);
+        this.on_box_changed(box);
+
+        
+        this.boxOp.auto_rotate_xyz(box, function(){
+            box.obj_type = guess_obj_type_by_dimension(box.scale);
+            self.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
+            self.floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
+            self.on_box_changed(box);
+        });
+        */
+        
+    };
+    
     this.handleSelectRect= function(x,y,w,h, ctrl, shift){
         y = y+h;
         x = x*2-1;
