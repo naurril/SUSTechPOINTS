@@ -150,7 +150,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.boxOp,
             this.header,
             (b)=>this.on_box_changed(b),
-            (b)=>this.remove_box(b));
+            (b)=>this.remove_box(b),
+            ()=>this.on_load_world_finished(this.data.world));
         this.boxEditorManager.hide();
          
         this.boxEditor= new BoxEditor(
@@ -488,6 +489,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.select_previous_object();
         };
 
+
+        /////////////////////////////////////////////////////////////////////////////////
+
         let objMenuUi = this.editorUi.querySelector("#object-context-menu");
         objMenuUi.querySelector("#cm-delete").onclick = (event)=>{
             this.remove_selected_box();
@@ -563,6 +567,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             saveWorldList(saveList);
         };
+
     };
 
 

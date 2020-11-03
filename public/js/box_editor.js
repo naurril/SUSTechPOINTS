@@ -234,7 +234,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
 
 //parentUi  #batch-box-editor-wrapper
-function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove){
+function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
     this.viewManager = viewManager;
     this.boxOp = boxOp;
     this.activeIndex = 0;
@@ -348,6 +348,9 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
                 e.update("dontrender");
             });
 
+            // reload main view
+            if (func_on_annotation_reloaded)
+                func_on_annotation_reloaded();
             // render all, at last
             this.viewManager.render();
         };

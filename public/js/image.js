@@ -768,6 +768,7 @@ function box_to_2d_points(box, calib){
 function points3d_homo_to_image2d(points3d, calib, accept_partial=false,save_map, img_dx, img_dy){
     var imgpos = matmul(calib.extrinsic, points3d, 4);
     
+    //rect matrix shall be applied here, for kitti
     if (calib.rect){
         imgpos = matmul(calib.rect, imgpos, 4);
     }
