@@ -1201,11 +1201,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             else{
                 //select box /unselect box
-                if (!this.data.world || !this.data.world.annotation.boxes){
+                if (!this.data.world || (!this.data.world.annotation.boxes && this.data.world.radars.radarList.length==0)){
                     return;
                 }
-            
-                let intersects = this.mouse.getIntersects( this.mouse.onUpPosition, this.data.world.annotation.boxes );
+
+                let all_boxes = this.data.world.annotation.boxes.concat(this.data.world.radars.getAllBoxes());
+                
+                let intersects = this.mouse.getIntersects( this.mouse.onUpPosition, all_boxes);
 
                 if (intersects.length == 0){
                     if (this.data.world.radar_box){
@@ -2063,6 +2065,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         //     this.data.world.move_radar(box);
         // }
 
+        if (box.on_box_changed){
+            box.on_box_changed();
+        }
+        
         this.render();
     };
 

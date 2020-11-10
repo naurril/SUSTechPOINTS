@@ -9,6 +9,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     this.sceneMeta = sceneMeta;
     this.coordinatesOffset = world.coordinatesOffset;
 
+    this.showPointsOnly = true;
     this.cssStyleSelector = this.sceneMeta.calib.radar[this.name].cssstyleselector;
     this.color = this.sceneMeta.calib.radar[this.name].color;
     this.velocityScale = 0.3;
@@ -33,7 +34,10 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         if (this.preloaded){
             if (this.elements){
                 this.webglScene.add(this.elements.points);
-                this.elements.arrows.forEach(a=>this.webglScene.add(a));
+
+                if (!this.showPointsOnly)
+                    this.elements.arrows.forEach(a=>this.webglScene.add(a));
+
                 this.webglScene.add(this.radar_box);
             }
 
@@ -60,7 +64,8 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     this.unload = function(){
         if (this.elements){
             this.webglScene.remove(this.elements.points);
-            this.elements.arrows.forEach(a=>this.webglScene.remove(a));
+            if (!this.showPointsOnly)
+                this.elements.arrows.forEach(a=>this.webglScene.remove(a));
             this.webglScene.remove(this.radar_box);
         }
         this.loaded = false;
@@ -75,14 +80,21 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         if (this.elements){
             //this.scene.remove(this.points);
             this.world.data.dbg.free();
-            this.elements.points.geometry.dispose();
-            this.elements.points.material.dispose();
 
-            this.elements.arrows.forEach(a=>{
-                this.world.data.dbg.free();
-                a.geometry.dispose();
-                a.material.dispose();
-            })
+            if (this.elements.points)
+            {
+                this.elements.points.geometry.dispose();
+                this.elements.points.material.dispose();
+            }
+
+            if (this.elements.arrows)
+            {
+                this.elements.arrows.forEach(a=>{
+                    this.world.data.dbg.free();
+                    a.geometry.dispose();
+                    a.material.dispose();
+                })
+            }
 
             this.elements = null;
         }
@@ -220,7 +232,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         // build material
         let pointSize = this.sceneMeta.calib.radar[this.name].point_size;
         if (!pointSize)
-            pointSize = 4;
+            pointSize = 2;
 
         let material = new THREE.PointsMaterial( { size: pointSize, vertexColors: THREE.VertexColors } );
         //material.size = 2;
@@ -262,10 +274,13 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
         let arrows = [];
         
-        for (let i = 0; i<position.length/3; i++)
+        if (!this.showPointsOnly)
         {
-            let arr = this.buildArrow(position.slice(i*3, i*3+3), velocity.slice(i*3, i*3+3));
-            arrows.push(arr);
+            for (let i = 0; i<position.length/3; i++)
+            {
+                let arr = this.buildArrow(position.slice(i*3, i*3+3), velocity.slice(i*3, i*3+3));
+                arrows.push(arr);
+            }
         }
         
         return {
@@ -327,6 +342,10 @@ function RadarManager(sceneMeta, world, frameInfo){
             return new Radar(sceneMeta, world, frameInfo, name);
         });
     }
+
+    this.getAllBoxes = function(){
+        return this.radarList.map(r=>r.radar_box);
+    };
 
     this.preloaded = function(){
         for (let r in this.radarList){

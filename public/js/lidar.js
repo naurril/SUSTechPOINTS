@@ -90,7 +90,8 @@ function Lidar(sceneMeta, world, frameInfo){
 
                 
                 // do some filtering work here
-                pcd = _self.remove_high_ponts(pcd, 2.0);
+                //pcd = _self.remove_high_ponts(pcd, 2.0);
+
                 let color = pcd.color;
                 let normal = pcd.normal;
 
@@ -478,7 +479,7 @@ function Lidar(sceneMeta, world, frameInfo){
     };
 
     this.cancel_highlight=function(box){
-        if (this.points.points_backup){
+        if (this.points && this.points.points_backup){
             
             this.world.annotation.set_box_opacity(this.data.config.box_opacity);
 

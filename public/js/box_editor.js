@@ -411,7 +411,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
         this.edit(
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
-            this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex+10, maxFrameIndex)],
+            this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex+15, maxFrameIndex)],
             this.editingTarget.objTrackId
         );
     };

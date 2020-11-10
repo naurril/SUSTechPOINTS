@@ -237,7 +237,7 @@ function Annotation(sceneMeta, world, frameInfo){
         */
 
         
-        var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.config.box_opacity, transparent: true } );
+        var material = new THREE.LineBasicMaterial( { color: color, linewidth: 2, opacity: this.data.config.box_opacity, transparent: true } );
         var box = new THREE.LineSegments( bbox, material );
         
         box.scale.x=1.8;

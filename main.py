@@ -173,7 +173,11 @@ class Root(object):
       return self.get_all_unique_objs(os.path.join("./data",scene))
 
     def get_all_unique_objs(self, path):
-      files = os.listdir(os.path.join(path, "label"))
+      label_folder = os.path.join(path, "label")
+      if not os.path.isdir(label_folder):
+        return []
+        
+      files = os.listdir(label_folder)
 
       files = filter(lambda x: x.split(".")[-1]=="json", files)
 
