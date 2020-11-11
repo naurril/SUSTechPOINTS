@@ -44,7 +44,10 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             this.loaded = true;
             if (on_go_finished)
                 on_go_finished();
-        } else {
+        }
+        
+        //anyway we save go cmd 
+        {
             this.go_cmd_received = true;
             this.on_go_finished = on_go_finished;
         }
@@ -61,18 +64,20 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     };
 
     // todo: what if it's not preloaded yet
-    this.unload = function(){
+    this.unload = function(keep_box){
         if (this.elements){
             this.webglScene.remove(this.elements.points);
             if (!this.showPointsOnly)
                 this.elements.arrows.forEach(a=>this.webglScene.remove(a));
-            this.webglScene.remove(this.radar_box);
+            
+            if (!keep_box)
+                this.webglScene.remove(this.radar_box);
         }
         this.loaded = false;
     };
 
     // todo: its possible to remove points before preloading,
-    this.deleteAll = function(){
+    this.deleteAll = function(keep_box){
         if (this.loaded){
             this.unload();
         }
@@ -99,7 +104,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             this.elements = null;
         }
 
-        if (this.radar_box){
+        if (!keep_box && this.radar_box){
             this.world.data.dbg.free();
             this.radar_box.geometry.dispose();
             this.radar_box.material.dispose();
@@ -315,15 +320,17 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         let elements = this.buildRadarGeometry(translated_points, translated_velocity);
         
         // remove old points
-        this.unload();
-        this.removeAllPoints();
+        this.unload(true);
+        this.deleteAll(true);
 
         this.elements = elements;
-        this.golive(this.webglScene);
-    };
-
-    this.onRadarBoxChanged = function(){
-
+        //_self.points_backup = mesh;
+        if (this.go_cmd_received)  // this should be always true
+        {
+            this.webglScene.add(this.elements.points);
+            if (!this.showPointsOnly)
+                this.elements.arrows.forEach(a=>this.webglScene.add(a));
+        }
     };
 }
 
