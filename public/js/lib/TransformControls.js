@@ -560,7 +560,7 @@ var TransformControls = function ( camera, domElement ) {
 
 			offset.copy( pointEnd ).sub( pointStart );
 
-			var ROTATION_SPEED = 20 / worldPosition.distanceTo( _tempVector.setFromMatrixPosition( this.camera.matrixWorld ) );
+			var ROTATION_SPEED = 4 / worldPosition.distanceTo( _tempVector.setFromMatrixPosition( this.camera.matrixWorld ) );
 
 			if ( axis === 'E' ) {
 

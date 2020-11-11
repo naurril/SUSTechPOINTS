@@ -10,6 +10,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     this.coordinatesOffset = world.coordinatesOffset;
 
     this.showPointsOnly = true;
+    this.showRadarBoxFlag = false;
     this.cssStyleSelector = this.sceneMeta.calib.radar[this.name].cssstyleselector;
     this.color = this.sceneMeta.calib.radar[this.name].color;
     this.velocityScale = 0.3;
@@ -38,7 +39,8 @@ function Radar(sceneMeta, world, frameInfo, radarName){
                 if (!this.showPointsOnly)
                     this.elements.arrows.forEach(a=>this.webglScene.add(a));
 
-                this.webglScene.add(this.radar_box);
+                if (this.showRadarBoxFlag)
+                    this.webglScene.add(this.radar_box);
             }
 
             this.loaded = true;
@@ -51,6 +53,16 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             this.go_cmd_received = true;
             this.on_go_finished = on_go_finished;
         }
+    };
+
+    this.showRadarBox = function(){
+        this.showRadarBoxFlag = true;
+        this.webglScene.add(this.radar_box);
+    };
+
+    this.hideRadarBox = function(){
+        this.showRadarBoxFlag = false;
+        this.webglScene.remove(this.radar_box);
     };
 
     this.get_unoffset_radar_points = function(){
@@ -380,6 +392,17 @@ function RadarManager(sceneMeta, world, frameInfo){
 
     this.getOperableObjects = function(){
         return this.radarList.flatMap(r=>r.getOperableObjects());
+    };
+
+    this.showRadarBoxFlag = false;
+    this.showRadarBox = function(){
+        this.showRadarBoxFlag = true;
+        this.radarList.forEach(r=>r.showRadarBox());
+    };
+
+    this.hideRadarBox = function(){
+        this.showRadarBoxFlag = false;
+        this.radarList.forEach(r=>r.hideRadarBox());
     }
 };
 

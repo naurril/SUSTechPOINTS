@@ -830,6 +830,17 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.downloadWebglScreenShot();
         }
         cfgFolder.add( this.params, "take screenshot");
+
+
+        this.params["toggle radar box"] = ()=>{
+
+            if (this.data.world.radars.showRadarBoxFlag)
+                this.data.world.radars.hideRadarBox();
+            else
+                this.data.world.radars.showRadarBox();
+        }
+
+        cfgFolder.add( this.params, "toggle radar box");
     };
 
     this.init_gui= function(){

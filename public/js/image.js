@@ -212,6 +212,27 @@ function ImageContext(ui, cfg, on_img_click){
     
     this.img_lidar_point_map = {};
 
+    function point_color_by_distance(x,y)
+    {
+        // x,y are image coordinates
+        let p = scope.img_lidar_point_map[y*scope.img.width+x];
+
+        let distance = Math.sqrt(p[1]*p[1] + p[2]*p[2] + p[3]*p[3] );
+
+        if (distance > 60.0)
+            distance = 60.0;
+        else if (distance < 10.0)
+            distance = 10.0;
+        
+        return [(distance-10)/50.0, 1- (distance-10)/50.0, 0].map(c=>{
+            let hex = Math.floor(c*255).toString(16);
+            if (hex.length == 1)
+                hex = "0"+hex;
+            return hex;
+        }).reduce((a,b)=>a+b,"#"); 
+
+    }
+
     function to_polyline_attr(points){
         return points.reduce(function(x,y){
             return String(x)+","+y;
@@ -442,7 +463,7 @@ function ImageContext(ui, cfg, on_img_click){
     }
 
 
-    function points_to_svg(points, trans_ratio, cssclass){
+    function points_to_svg(points, trans_ratio, cssclass, radius=2){
         var ptsFinal = points.map(function(x, i){
             if (i%2==0){
                 return Math.round(x * trans_ratio.x);
@@ -452,15 +473,33 @@ function ImageContext(ui, cfg, on_img_click){
         });
 
         var svg = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-        svg.setAttribute("class", cssclass);
+        
+        if (cssclass)
+        {
+            svg.setAttribute("class", cssclass);
+        }
+        
         for (let i = 0; i < ptsFinal.length; i+=2){
+
+            
             let x = ptsFinal[i];
             let y = ptsFinal[i+1];
+
             let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
             p.setAttribute("cx", x);
             p.setAttribute("cy", y);
-            p.setAttribute("r", 2);            
-            p.setAttribute("stroke-width", "2");            
+            p.setAttribute("r", 2);
+            p.setAttribute("stroke-width", "1");            
+
+            if (! cssclass){
+                let image_x = points[i];
+                let image_y = points[i+1];
+                let color = point_color_by_distance(image_x, image_y);
+                color += "44"; //transparency
+                p.setAttribute("stroke", color);
+                p.setAttribute("fill", color);
+            }
+            
             svg.appendChild(p);
         }
         
@@ -551,14 +590,14 @@ function ImageContext(ui, cfg, on_img_click){
 
 
 
-            // draw lidar points            
+            // project lidar points onto camera image   
             if (self.cfg.draw_lidar_points){
                 let pts = scope.world.lidar.get_all_points_unoffset();
                 let ptsOnImg = points3d_to_image2d(pts, calib, true, self.img_lidar_point_map, img.width, img.height);
 
                 // there may be none after projecting
                 if (ptsOnImg && ptsOnImg.length>0){
-                    let pts_svg = points_to_svg(ptsOnImg, trans_ratio, "radar-tracks");
+                    let pts_svg = points_to_svg(ptsOnImg, trans_ratio);
                     svg.appendChild(pts_svg);
                 }
             }
