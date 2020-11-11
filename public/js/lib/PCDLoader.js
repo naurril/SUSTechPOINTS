@@ -257,6 +257,10 @@ PCDLoader.prototype = {
 					y = parseFloat( line[ offset.y ] );
 					z = parseFloat( line[ offset.z ] );
 
+					if (isNaN(x)){
+						continue;
+					}
+
 					position.push( x );
 					position.push( y );
 					position.push( z );
@@ -317,8 +321,14 @@ PCDLoader.prototype = {
 			for ( var i = 0, row = 0; i < PCDheader.points; i ++, row += PCDheader.rowSize ) {
 
 				if ( offset.x !== undefined ) {
+					let xvalue = dataview.getFloat32( row + offset.x, this.littleEndian );
 
-					position.push( dataview.getFloat32( row + offset.x, this.littleEndian ) );
+					if (isNaN(xvalue))
+					{
+						continue;
+					}
+
+					position.push( xvalue );
 					position.push( dataview.getFloat32( row + offset.y, this.littleEndian ) );
 					position.push( dataview.getFloat32( row + offset.z, this.littleEndian ) );
 
