@@ -16,6 +16,7 @@ import {PlayControl} from "./play.js"
 import {saveWorld, reloadWorldList, saveWorldList} from "./save.js"
 import {log} from "./log.js"
 import {autoAnnotate} from "./auto_annotate.js"
+import {Calib} from "./calib.js"
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -47,6 +48,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.lock_obj_in_highlight = focus;
         }
     };
+    this.calib = new Calib(this.data, this);
 
     this.header = null;
     this.imageContext = null;
@@ -850,6 +852,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.install_view_menu(gui);
         this.install_experimental_menu(gui);
 
+        this.calib.install_calib_menu(gui);
+
         //edit
         // var editFolder = gui.addFolder( 'Edit' );
         // params['select-ref-bbox'] = function () {
@@ -909,7 +913,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         // var toolsFolder = gui.addFolder( 'Experimental Tools' );
 
-        // install_calib_menu(toolsFolder);
+        
 
         // params['calibrate_axes'] = function () {
         //     ml.calibrate_axes(data.world.get_all_pionts());
@@ -1212,11 +1216,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             else{
                 //select box /unselect box
-                if (!this.data.world || (!this.data.world.annotation.boxes && this.data.world.radars.radarList.length==0)){
+                if (!this.data.world || (!this.data.world.annotation.boxes && this.data.world.radars.radarList.length==0 && !this.calib.calib_box)){
                     return;
                 }
 
                 let all_boxes = this.data.world.annotation.boxes.concat(this.data.world.radars.getAllBoxes());
+                if (this.calib.calib_box){
+                    all_boxes.push(this.calib.calib_box);
+                }
                 
                 let intersects = this.mouse.getIntersects( this.mouse.onUpPosition, all_boxes);
 

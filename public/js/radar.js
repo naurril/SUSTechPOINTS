@@ -362,8 +362,16 @@ function RadarManager(sceneMeta, world, frameInfo){
         });
     }
 
-    this.getAllBoxes = function(){
-        return this.radarList.map(r=>r.radar_box);
+    this.getAllBoxes = function()
+    {
+        if (this.showRadarBoxFlag)
+        {
+            return this.radarList.map(r=>r.radar_box);
+        }
+        else
+        {
+            return [];
+        }
     };
 
     this.preloaded = function(){

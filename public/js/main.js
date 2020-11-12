@@ -73,8 +73,8 @@ function start(metaData){
           //disableGrid:true,
           //disableRangeCircle:true,
           //disableMainViewKeyDown:true
-          projectRadarToImage:true,
-          draw_lidar_points:true,          
+          //projectRadarToImage:true,
+          //projectLidarToImage:true,     
       };
 
       let dataCfg = {

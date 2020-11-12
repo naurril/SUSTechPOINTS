@@ -69,6 +69,11 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
             this.renderWithCamera(this.blind_camera);
         };
 
+        view.dumpPose = function()
+        {
+            console.log(this.camera.position, this.camera.rotation);
+        };
+
         view.enable = function(){
             this.active = true;
             this.render();

@@ -201,6 +201,7 @@ function ImageContext(ui, cfg, on_img_click){
         this.ui.style.display="";
     };
     this.img = null;
+   
 
     //internal
     let scope =this;
@@ -296,36 +297,39 @@ function ImageContext(ui, cfg, on_img_click){
             }
             else{
                 // not drawing
-                let nearest_x = 100000;
-                let nearest_y = 100000;
-                let selected_pts = [];
-                
-                for (let i =x-100; i<x+100; i++){
-                    if (i < 0 || i >= scope.img.width)
-                        continue;
-
-                    for (let j = y-100; j<y+100; j++){
-                        if (j < 0 || j >= scope.img.height)
+                //this is a test
+                if (false){
+                    let nearest_x = 100000;
+                    let nearest_y = 100000;
+                    let selected_pts = [];
+                    
+                    for (let i =x-100; i<x+100; i++){
+                        if (i < 0 || i >= scope.img.width)
                             continue;
 
-                        let lidarpoint = scope.img_lidar_point_map[j*scope.img.width+i];
-                        if (lidarpoint){
-                            //console.log(i,j, lidarpoint);
-                            selected_pts.push(lidarpoint); //index of lidar point
+                        for (let j = y-100; j<y+100; j++){
+                            if (j < 0 || j >= scope.img.height)
+                                continue;
 
-                            if (((i-x) * (i-x) + (j-y)*(j-y)) < ((nearest_x-x)*(nearest_x-x) + (nearest_y-y)*(nearest_y-y))){
-                                nearest_x = i;
-                                nearest_y = j;                                
+                            let lidarpoint = scope.img_lidar_point_map[j*scope.img.width+i];
+                            if (lidarpoint){
+                                //console.log(i,j, lidarpoint);
+                                selected_pts.push(lidarpoint); //index of lidar point
+
+                                if (((i-x) * (i-x) + (j-y)*(j-y)) < ((nearest_x-x)*(nearest_x-x) + (nearest_y-y)*(nearest_y-y))){
+                                    nearest_x = i;
+                                    nearest_y = j;                                
+                                }
                             }
+                                
                         }
-                            
                     }
-                }
-                console.log("nearest", nearest_x, nearest_y);
-                scope.draw_point(nearest_x, nearest_y);
-                if (nearest_x < 100000)
-                {
-                    scope.on_img_click([scope.img_lidar_point_map[nearest_y*scope.img.width+nearest_x][0]]);
+                    console.log("nearest", nearest_x, nearest_y);
+                    scope.draw_point(nearest_x, nearest_y);
+                    if (nearest_x < 100000)
+                    {
+                        scope.on_img_click([scope.img_lidar_point_map[nearest_y*scope.img.width+nearest_x][0]]);
+                    }
                 }
                 
             }
@@ -460,6 +464,8 @@ function ImageContext(ui, cfg, on_img_click){
         }
 
         scope.img = img;
+
+
     }
 
 
@@ -576,22 +582,26 @@ function ImageContext(ui, cfg, on_img_click){
             });
 
             svg = scope.ui.querySelector("#svg-points");
-            // draw radar points
-            scope.world.radars.radarList.forEach(radar=>{
-                let pts = radar.get_unoffset_radar_points();
-                let ptsOnImg = points3d_to_image2d(pts, calib);
 
-                // there may be none after projecting
-                if (ptsOnImg && ptsOnImg.length>0){
-                    let pts_svg = points_to_svg(ptsOnImg, trans_ratio, radar.cssStyleSelector);
-                    svg.appendChild(pts_svg);
-                }
-            })
+            // draw radar points
+            if (self.cfg.projectRadarToImage)
+            {
+                scope.world.radars.radarList.forEach(radar=>{
+                    let pts = radar.get_unoffset_radar_points();
+                    let ptsOnImg = points3d_to_image2d(pts, calib);
+
+                    // there may be none after projecting
+                    if (ptsOnImg && ptsOnImg.length>0){
+                        let pts_svg = points_to_svg(ptsOnImg, trans_ratio, radar.cssStyleSelector);
+                        svg.appendChild(pts_svg);
+                    }
+                });
+            }
 
 
 
             // project lidar points onto camera image   
-            if (self.cfg.draw_lidar_points){
+            if (self.cfg.projectLidarToImage){
                 let pts = scope.world.lidar.get_all_points_unoffset();
                 let ptsOnImg = points3d_to_image2d(pts, calib, true, self.img_lidar_point_map, img.width, img.height);
 
