@@ -158,3 +158,17 @@ Side sbu-view (projective view):
 
 ## Other Doc
 [Deploy uwsgi](./doc/deploy_server.md)
+
+## Cite
+
+If you find this work useful in your research, please consider cite:
+```
+@inproceedings{li2020sustechpoints,
+     title={{SUSTech POINTS: A Portable 3D Point Cloud Interactive Annotation Platform System}},
+     author={E Li and Shuaijun Wang and Chengyang Li and Dachuan Li and Xiangbin Wu and Qi Hao},
+     booktitle={2020 IEEE Intelligent Vehicles Symposium (IV)},
+     pages={837--844},
+     year={2020},
+     organization={IEEE}
+}
+```
