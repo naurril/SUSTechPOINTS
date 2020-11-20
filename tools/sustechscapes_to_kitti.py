@@ -45,88 +45,77 @@ import os
 import json
 import math
 import numpy as np
+import pypcd.pypcd as pypcd
 
-label_path = './data/kitti/label_2'
-my_label_path = './data/kitti/label'
-calib_path = "./data/kitti/calib_2"
-
-
-
-# label_path = './data/vehicle.tesla.cybertruck_187/label00'
-# my_label_path = './data/vehicle.tesla.cybertruck_187/label'
-# calib_path = "./data/vehicle.tesla.cybertruck_187/calib00"
+rootdir = "./data/sustechscapes-mini-dataset"
+camera = "front"
 
 
-#label_path = '/home/lie/disk640/data/kitti/label_2'
-#my_label_path = '/home/lie/disk640/data/kitti/sustechpoints_label'
-#calib_path = "/home/lie/disk640/data/kitti/data_object_calib/training/calib"
-#pc_path="/home/lie/disk640/data/kitti/velodyne"
+# with open(os.path.join(rootdir,"calib","camera", camera+".json")) as f:
+#     calib = json.load(f)
+
+# extrinsic = np.array(calib["extrinsic"])
+# intrinsic = np.array(calib["intrinsic"])
+# extrinsic_matrix  = np.reshape(extrinsic, [4,4])
+# intrinsic_matrix  = np.reshape(intrinsic, [3,3])
 
 
-def get_inv_matrix(frame):
-    with open(os.path.join(calib_path, frame+".txt")) as f:
-        lines = f.readlines()
-        trans = [x for x in filter(lambda s: s.startswith("Tr_velo_to_cam"), lines)][0]
-        matrix = [m for m in map(lambda x: float(x), trans.split(" ")[1:])]
-        matrix = matrix + [0,0,0,1]
-        m = np.array(matrix)
-        velo_to_cam  = m.reshape([4,4])
+def euler_angle_to_rotate_matrix(eu, t):
+    theta = eu
+    #Calculate rotation about x axis
+    R_x = np.array([
+        [1,       0,              0],
+        [0,       math.cos(theta[0]),   -math.sin(theta[0])],
+        [0,       math.sin(theta[0]),   math.cos(theta[0])]
+    ])
+
+    #Calculate rotation about y axis
+    R_y = np.array([
+        [math.cos(theta[1]),      0,      math.sin(theta[1])],
+        [0,                       1,      0],
+        [-math.sin(theta[1]),     0,      math.cos(theta[1])]
+    ])
+
+    #Calculate rotation about z axis
+    R_z = np.array([
+        [math.cos(theta[2]),    -math.sin(theta[2]),      0],
+        [math.sin(theta[2]),    math.cos(theta[2]),       0],
+        [0,               0,                  1]])
+
+    R = np.matmul(R_x, np.matmul(R_y, R_z))
+
+    t = t.reshape([-1,1])
+    R = np.concatenate([R,t], axis=-1)
+    R = np.concatenate([R, np.array([0,0,0,1]).reshape([1,-1])], axis=0)
+    return R
 
 
-        trans = [x for x in filter(lambda s: s.startswith("R0_rect"), lines)][0]
-        matrix = [m for m in map(lambda x: float(x), trans.split(" ")[1:])]        
-        m = np.array(matrix).reshape(3,3)
-        
-        m = np.concatenate((m, np.expand_dims(np.zeros(3), 1)), axis=1)
-        
-        rect = np.concatenate((m, np.expand_dims(np.array([0,0,0,1]), 0)), axis=0)        
-        
-        
-        m = np.matmul(rect, velo_to_cam)
+rotate_matrix = euler_angle_to_rotate_matrix([0,0,math.pi/2],np.array([0,0,0]))[:3,:3]
+print(rotate_matrix)
 
 
-        m = np.linalg.inv(m)
-        
-        return m
+lidar_folder = rootdir + "/lidar"
+
+lidars = os.listdir(lidar_folder)
+
+for l in lidars:
+    f = lidar_folder + "/" + l
+    print(f)
+    pc = pypcd.PointCloud.from_path(f)
+    frame = os.path.splitext(l)[0]
+
+    position =  np.stack([pc.pc_data['x'], pc.pc_data['y'], pc.pc_data['z']])
+    position = np.concatenate([position, np.ones((1,position.shape[1]))])
+
+    pts =  np.stack([pc.pc_data['x'], 
+                    pc.pc_data['y'], 
+                    pc.pc_data['z']],
+                    axis=-1)
+
+    #pts = np.matmul(pts, np.transpose(rotate_matrix))
+
+    pts = np.concatenate([pts.astype(np.float32), np.expand_dims(pc.pc_data["intensity"].astype(np.float32),-1)], axis=1)
+    print(pts.dtype)
+    pts.tofile(rootdir+"/training/velodyne/{}.bin".format(frame))
 
 
-files = os.listdir(label_path)
-files.sort()
-
-#files = [files[2], files[10]]
-for fname in files:
-    frame, _ = os.path.splitext(fname)
-    print(frame)
-
-  
-    inv_m = get_inv_matrix(frame)
-
-    with open(os.path.join(label_path, fname)) as f:
-        lines = f.readlines()
-        def parse_one_obj(l):
-            words = l.strip().split(" ")
-            obj = {}
-
-            pos = np.array([float(words[11]), float(words[12]), float(words[13]), 1]).T
-            trans_pos = np.matmul(inv_m, pos)
-            #print(trans_pos)
-
-            obj["obj_type"] = words[0]
-            obj["psr"] = {"scale": 
-                           {"z":float(words[8]),    #height
-                             "x":float(words[10]),  #length
-                             "y":float(words[9])},  #width
-                            "position": {"x":trans_pos[0], "y":trans_pos[1], "z":trans_pos[2]+float(words[8])/2},
-                            "rotation": {"x":0, 
-                                         "y":0,
-                                         #"z": +math.pi/2 +float(words[14])}}
-                                         "z": -math.pi/2 -float(words[14])}}
-            obj["obj_id"] = ""
-            return obj
- 
-        objs = map(parse_one_obj, lines)
-        filtered_objs = [x for x in objs]#[x for x in filter(lambda obj: obj["obj_type"]!='DontCare', objs)]
-        #print(filtered_objs)
-
-        with open(os.path.join(my_label_path, frame + ".json"), 'w') as outfile:
-            json.dump(filtered_objs, outfile)
