@@ -108,7 +108,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     
         this.controlGui = this.init_gui();
         
-        this.scene.add( new THREE.AxesHelper( 1 ) );
+        this.axis = new THREE.AxesHelper(1);
+
+        this.scene.add(this.axis);
     
         window.addEventListener( 'resize', function(){self.onWindowResize();}, false );
         
@@ -219,6 +221,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.wrapperUi.style.display="block";
     };
 
+    this.moveRangeCircle = function(world){
+        if (this.rangeCircle){
+            this.rangeCircle.position.x = world.coordinatesOffset[0];
+            this.rangeCircle.position.y = world.coordinatesOffset[1];
+            this.rangeCircle.position.z = world.coordinatesOffset[2];
+        }
+    };
+
     this.addRangeCircle= function(){
         
         var h = 1;
@@ -252,7 +262,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         box.position.y=0;
         box.position.z=0;
         box.computeLineDistances();
-
+        this.rangeCircle = box;
         this.scene.add(box);
     };
 
@@ -1917,7 +1927,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.on_load_world_finished= function(world){
 
         // switch view positoin
-
+        this.moveAxisHelper(world);
+        this.moveRangeCircle(world);
         this.lookAtWorld(world);
         this.unselectBox(null, true);
         this.unselectBox(null, true);
@@ -1934,6 +1945,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         // preload after the first world loaded
         // otherwise the loading of the first world would be too slow
         this.data.preloadScene(world.frameInfo.scene, world);
+    };
+    this.moveAxisHelper = function(world) {
+        this.axis.position.x = world.coordinatesOffset[0];
+        this.axis.position.y = world.coordinatesOffset[1];
+        this.axis.position.z = world.coordinatesOffset[2];
     };
 
     this.mainViewOffset = [0,0,0];
