@@ -1992,6 +1992,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.cancelFocus(this.selected_box);
         }
 
+        if (this.viewManager.mainView && this.viewManager.mainView.transform_control.visible)
+        {
+            //unselect first time
+            this.viewManager.mainView.transform_control.detach();
+        }
+
         var world = this.data.getWorld(sceneName, frame);
         this.data.activate_world(
             world, 
