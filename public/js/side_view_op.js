@@ -90,8 +90,14 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         }
     
         function highlight_lines(lines){
+            let theme = document.documentElement.className;
+
+            let lineColor = "yellow";
+            if (theme == "theme-light")
+                lineColor = "red";
+
             for (var l in lines){
-                lines[l].style.stroke="red";
+                lines[l].style.stroke=lineColor;
             };
         }
     
