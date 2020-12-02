@@ -91,7 +91,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
     
         function highlight_lines(lines){
             for (var l in lines){
-                lines[l].style.stroke="black";
+                lines[l].style.stroke="red";
             };
         }
     
