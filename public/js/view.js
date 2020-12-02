@@ -34,6 +34,27 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         this.boxViewList.forEach(v=>v.render());
     };
 
+    this.setColorScheme = function(){
+        let scheme = document.documentElement.className;
+        if (scheme == "theme-dark")
+        {
+            this.mainView.backgroundColor = new THREE.Color( 0.2, 0.2, 0.2 );
+            this.boxViewList.forEach(v=>{
+                v.views[0].backgroundColor = new THREE.Color( 0.3, 0.2, 0.2 );
+                v.views[1].backgroundColor = new THREE.Color( 0.2, 0.3, 0.2 );
+                v.views[2].backgroundColor = new THREE.Color( 0.2, 0.2, 0.3 );
+            });
+        }
+        else{
+            this.mainView.backgroundColor = new THREE.Color( 1.0, 1.0, 1.0 );
+            this.boxViewList.forEach(v=>{
+                v.views[0].backgroundColor = new THREE.Color( 0.7, 0.8, 0.8 );
+                v.views[1].backgroundColor = new THREE.Color( 0.8, 0.7, 0.8 );
+                v.views[2].backgroundColor = new THREE.Color( 0.8, 0.8, 0.7 );
+            })
+        }
+    };
+
     // no public funcs below
     function create_main_view(scene, renderer, globalRenderFunc, container, on_box_changed){
         var view ={};

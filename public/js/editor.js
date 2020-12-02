@@ -728,6 +728,19 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var self=this;
         var cfgFolder = gui.addFolder( 'View' );
 
+        this.params["toggle light/dark"] = function(){
+            let scheme = document.documentElement.className;
+
+            if (scheme == "theme-dark")
+                document.documentElement.className = "theme-light"
+            else
+                document.documentElement.className = "theme-dark"
+            
+            self.viewManager.setColorScheme();
+            self.render();
+        };  
+        cfgFolder.add( this.params, "toggle light/dark");
+
         this.params["toggle side views"] = function(){
             sideview_enabled = !sideview_enabled;
             self.render();

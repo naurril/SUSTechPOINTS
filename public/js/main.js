@@ -1,14 +1,7 @@
 import{Editor} from "./editor.js"
 import {Data} from './data.js'
 
-
-let url_string = window.location.href
-let url = new URL(url_string);
-//language
-
-let globalInfo = {
-    batch : url.searchParams.get("batch"),
-};
+document.documentElement.className="theme-light";
 
 
 document.body.addEventListener('keydown', event => {
@@ -53,9 +46,6 @@ document.body.addEventListener('keydown', event => {
 function start(metaData){
 
   var template = document.querySelector('#editor-template');
-
-
-
 
   // main editor
   function createMainEditor(){

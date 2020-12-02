@@ -1,9 +1,29 @@
+
+
+.theme-light {
+	--color-primary: #0060df;
+	--color-secondary: #fbfbfe;
+	--color-accent: #fd6f53;
+	--font-color: #000000;
+	--background-color: #ffffff;
+	--widget-background-color: #cccccc;
+}
+
+.theme-dark {
+	--color-primary: #17ed90;
+	--color-secondary: #243133;
+	--color-accent: #12cdea;
+	--font-color: #ffffff;
+	--background-color: #121212;
+	--widget-background-color: #333333;
+}
+
 html,body {
 	margin: 0;
 	height: 100%;
 	width: 100%;
-	/* background-color: #000; 
-	color: #fff; */
+	background-color: var(--background-color);
+	color: var(--font-color);
 	/*font-family: Monospace;*/
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 	font-size: 13px;
@@ -11,10 +31,12 @@ html,body {
 	
 	overflow-x: hidden;
 	overflow-y: hidden;
-	
-	
 }
 
+
+
+
+ 
 a {
 	/* color: #ff0; */
 	text-decoration: none;
@@ -70,8 +92,8 @@ canvas {
 #global-info {
 	position: absolute;
 	top: 0px;
-	color: #000022;
-	background-color: #cccccc;
+	color: var(--font-color);
+	background-color: var(--widget-background-color);
 	width: auto;
 	font-size: inherit;
 	padding: 0px;
@@ -199,7 +221,7 @@ dynamic set obj-type css has higher priority than this one.
 #obj-editor{
 	position: absolute;
 	/*color: #ff00ff; */
-	background-color: #cccccc; 
+	background-color:var(--widget-background-color); 
 	font-size: inherit;
 	padding: 0px;
 	box-sizing: border-box;
@@ -323,12 +345,12 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .ui-button {
-	background-color: #ccc;
+	background-color: var(--widget-background-color);
 	padding-left: 0;
 	padding-right: 0;
 	border-width: 1;
-	border-color: #ccc;
-	color: black;
+	border-color: var(--widget-background-color);
+	color:var(--font-color);
 }
 
 
@@ -346,7 +368,7 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	bottom: 0%;
 	right: 0%;
-	background-color: #cccccc;
+	background-color: var(--widget-background-color);;
 	margin: 1px;
 }
 
@@ -403,7 +425,7 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	top: 0px;
 	/*color: #ffff00; */
-	background-color: #cccccc77;
+	background-color: var(--widget-background-color);;
 	width: auto;
 	padding: 0px;
 	box-sizing: border-box;
