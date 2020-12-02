@@ -188,7 +188,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         //this.projectiveViewOps.hide();
     
-        this.installGridLines()
+        if (!this.editorCfg.disableGrid)
+            this.installGridLines()
     
         window.onbeforeunload = function() {
             return "Exit?";
@@ -253,7 +254,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
-        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x444444, linewidth: 1 } ) );    
+        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0xcccccc, linewidth: 1 } ) );    
         
         box.scale.x=50;
         box.scale.y=50;

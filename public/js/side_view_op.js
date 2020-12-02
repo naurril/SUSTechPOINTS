@@ -91,7 +91,7 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
     
         function highlight_lines(lines){
             for (var l in lines){
-                lines[l].style.stroke="yellow";
+                lines[l].style.stroke="black";
             };
         }
     
@@ -516,18 +516,20 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                 //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
             }
     
-    
+            function highlight(){
+                highlight_lines(lines);
+            }
+
+            function hide(){
+                hide_lines(lines);
+            };
             //install_move_handler();
     
             function install_edge_hanler(handle, lines, direction)
             {
                 
-                function hide(){
-                    hide_lines(lines);
-                };
-                function highlight(){
-                    highlight_lines(lines);
-                }
+                
+                
                 
                 handle.onmouseenter = highlight;    
                 handle.onmouseleave = hide;
@@ -620,9 +622,11 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                 var line = ui.querySelector("#"+linename);
                 var svg = ui.querySelector("#view-svg");
         
-                handle.onmouseenter = function(event){
-                    line.style.stroke="yellow";
+                handle.onmouseenter = highlight;
+                /*function(event){
+                    line.style.stroke="black";
                 };
+                */
         
                 handle.onmouseleave = hide;
         
@@ -634,9 +638,9 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
                 };
         
         
-                function hide(event){
-                    line.style.stroke="#00000000";
-                };
+                // function hide(event){
+                //     line.style.stroke="#00000000";
+                // };
         
                 handle.onmouseup = function(event){
                     //line.style["stroke-dasharray"]="none";

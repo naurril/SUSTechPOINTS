@@ -2,8 +2,8 @@ html,body {
 	margin: 0;
 	height: 100%;
 	width: 100%;
-	background-color: #000;
-	color: #fff;
+	/* background-color: #000; 
+	color: #fff; */
 	/*font-family: Monospace;*/
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 	font-size: 13px;
@@ -16,7 +16,7 @@ html,body {
 }
 
 a {
-	color: #ff0;
+	/* color: #ff0; */
 	text-decoration: none;
 	pointer-events: auto;
 }
@@ -70,8 +70,8 @@ canvas {
 #global-info {
 	position: absolute;
 	top: 0px;
-	color: #ffff00;
-	background-color: #222;
+	color: #000022;
+	background-color: #cccccc;
 	width: auto;
 	font-size: inherit;
 	padding: 0px;
@@ -198,8 +198,8 @@ dynamic set obj-type css has higher priority than this one.
 
 #obj-editor{
 	position: absolute;
-	color: #ff00ff;
-	background-color: #222;
+	/*color: #ff00ff; */
+	background-color: #cccccc; 
 	font-size: inherit;
 	padding: 0px;
 	box-sizing: border-box;
@@ -323,12 +323,12 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .ui-button {
-	background-color: #222;
+	background-color: #ccc;
 	padding-left: 0;
 	padding-right: 0;
 	border-width: 1;
-	border-color: #222;
-	color: yellow;
+	border-color: #ccc;
+	color: black;
 }
 
 
@@ -346,7 +346,7 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	bottom: 0%;
 	right: 0%;
-	background-color: #222;
+	background-color: #cccccc;
 	margin: 1px;
 }
 
@@ -402,8 +402,8 @@ dynamic set obj-type css has higher priority than this one.
 #box-info{
 	position: absolute;
 	top: 0px;
-	color: #ffff00;
-	background-color: #2227;
+	/*color: #ffff00; */
+	background-color: #cccccc77;
 	width: auto;
 	padding: 0px;
 	box-sizing: border-box;
@@ -414,8 +414,8 @@ dynamic set obj-type css has higher priority than this one.
 
 .view-manipulator {
 	width: 100%;		
-	background-color: #00000000;
-	border-width: 0px;
+	/*background-color: #00000000;*/
+	border-width: 1px;
 	position: relative;
 }
 
@@ -538,7 +538,7 @@ td {
 .grid-line {
 	
 	stroke-dasharray: 3,3;
-	stroke: yellow;
+	stroke: gray;
 	stroke-width: 1px;
 	stroke-opacity: 0.2;
 }
@@ -554,7 +554,7 @@ td {
     border-width: 1px;
     border-style: solid;
     padding: 3px;
-	background-color: #000000a0;
+	background-color: #dddddda0;
 	resize:both;
 	font-size: smaller;
 }

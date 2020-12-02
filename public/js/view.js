@@ -37,7 +37,8 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
     // no public funcs below
     function create_main_view(scene, renderer, globalRenderFunc, container, on_box_changed){
         var view ={};
-        view.backgroundColor=new THREE.Color( 0.0, 0.0, 0.0 );
+        //view.backgroundColor=new THREE.Color( 0.0, 0.0, 0.0 );
+        view.backgroundColor=new THREE.Color( 1.0, 1.0, 1.0 );
         view.zoom_ratio = 1.0; //useless for mainview
             
         let camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
@@ -418,7 +419,8 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         let view = Object.create(scope.projViewProto);
         view.name="topview";
         view.zoom_ratio = 1.0;
-        view.backgroundColor = new THREE.Color( 0.1, 0.1, 0.2 );
+        //view.backgroundColor = new THREE.Color( 0.1, 0.1, 0.2 );
+        view.backgroundColor=new THREE.Color( 1.0, 0.95, 0.95 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
@@ -508,7 +510,8 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         let view = Object.create(scope.projViewProto);
         view.name="sideview";
         view.zoom_ratio = 1.0;
-        view.backgroundColor=new THREE.Color( 0.1, 0.2, 0.1 );
+        //view.backgroundColor=new THREE.Color( 0.1, 0.2, 0.1 );
+        view.backgroundColor=new THREE.Color( 0.95, 1.0, 0.95);
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
@@ -604,7 +607,8 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         let view = Object.create(scope.projViewProto);
         view.name="backview";
         view.zoom_ratio = 1.0;
-        view.backgroundColor=new THREE.Color( 0.2, 0.1, 0.1 );
+        //view.backgroundColor=new THREE.Color( 0.2, 0.1, 0.1 );
+        view.backgroundColor=new THREE.Color( 0.95, 0.95, 1.0 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;

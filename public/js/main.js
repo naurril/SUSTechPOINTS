@@ -72,6 +72,7 @@ function start(metaData){
           //disableMainImageContext: true,
           //disableGrid:true,
           //disableRangeCircle:true,
+          //disableAxis:true,
           //disableMainViewKeyDown:true
           //projectRadarToImage:true,
           //projectLidarToImage:true,     
