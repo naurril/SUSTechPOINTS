@@ -1,18 +1,12 @@
 
 
 .theme-light {
-	--color-primary: #0060df;
-	--color-secondary: #fbfbfe;
-	--color-accent: #fd6f53;
 	--font-color: #000000;
 	--background-color: #ffffff;
 	--widget-background-color: #cccccc;
 }
 
 .theme-dark {
-	--color-primary: #17ed90;
-	--color-secondary: #243133;
-	--color-accent: #12cdea;
 	--font-color: #ffffff;
 	--background-color: #121212;
 	--widget-background-color: #333333;
