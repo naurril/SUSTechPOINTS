@@ -340,7 +340,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 #batch-editor-tools{
-	background-color: #222;
+	background-color: var(--widget-background-color);
 	display: inherit;
 }
 
@@ -402,17 +402,17 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	bottom: 0%;
 	right: 0%;
-	background-color: #222;
+	background-color:var(--widget-background-color);
 	margin: 0;
 }
 
 #batch-box-editor-wrapper .ui-button {
 	display: block;
-	background-color: #222;
+	background-color:var(--widget-background-color);
 	padding-left: 0;
 	padding-right: 0;
 	border-width: 1;
-	border-color: #222;
+	border-color: var(--widget-background-color);
 	color: yellow;
 	padding: 0;
     border: 0;
@@ -425,7 +425,7 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	top: 0px;
 	/*color: #ffff00; */
-	background-color: var(--widget-background-color);;
+	/* background-color: var(--widget-background-color);; */
 	width: auto;
 	padding: 0px;
 	box-sizing: border-box;

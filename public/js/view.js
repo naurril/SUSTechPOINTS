@@ -38,7 +38,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         let scheme = document.documentElement.className;
         if (scheme == "theme-dark")
         {
-            this.mainView.backgroundColor = new THREE.Color( 0.2, 0.2, 0.2 );
+            this.mainView.backgroundColor = new THREE.Color( 0.1, 0.1, 0.1 );
             this.boxViewList.forEach(v=>{
                 v.views[0].backgroundColor = new THREE.Color( 0.3, 0.2, 0.2 );
                 v.views[1].backgroundColor = new THREE.Color( 0.2, 0.3, 0.2 );
