@@ -8,7 +8,7 @@ import {matmul2, euler_angle_to_rotate_matrix, dotproduct, linalg_std} from "./u
 import {header} from "./header.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
-import {init_image_op, render_2d_image, update_image_box_projection, clear_canvas, clear_main_canvas, choose_best_camera_for_point, image_manager} from "./image.js"
+import {init_image_op, render_2d_image, show_canvas, hide_canvas, update_image_box_projection, clear_canvas, clear_main_canvas, choose_best_camera_for_point, image_manager} from "./image.js"
 import {install_calib_menu}  from "./calib.js"
 import {mark_bbox, paste_bbox, auto_adjust_bbox, smart_paste} from "./auto-adjust.js"
 import {save_annotation} from "./save.js"
@@ -440,7 +440,6 @@ function render(){
 
 
     views[0].switch_camera(params["bird's eye view"]);
-    //console.log(views[0].camera.rotation.z);
 
     for ( var ii = 0; ii < views.length; ++ ii ) {
 
@@ -646,8 +645,18 @@ function install_view_menu(gui){
 
     cfgFolder.add( params, "toggle side views");
     //cfgFolder.add( params, "side view width");
-    cfgFolder.add( params, "bird's eye view");
-    cfgFolder.add( params, "hide image");
+    cfgFolder.add( params, "bird's eye view").listen().onChange(function(){
+        render();
+    });
+    cfgFolder.add( params, "hide image").listen().onChange(function(){
+        if (params["hide image"]){
+            hide_canvas();
+        }
+        else{
+            show_canvas();
+        }
+
+    });
 
     cfgFolder.add( params, "toggle background");
     cfgFolder.add( params, "toggle box");

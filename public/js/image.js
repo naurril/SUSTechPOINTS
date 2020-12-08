@@ -232,6 +232,14 @@ function show_image(){
 }
 
 
+function hide_canvas(){
+    document.getElementById("maincanvas-wrapper").style.display="none";
+}
+
+function show_canvas(){
+    document.getElementById("maincanvas-wrapper").style.display="inline";
+}
+
 function render_2d_image(){
     console.log("2d iamge rendered!");
 
@@ -246,14 +254,6 @@ function render_2d_image(){
 
     draw_svg();
 
-    function hide_canvas(){
-        //document.getElementsByClassName("ui-wrapper")[0].style.display="none";
-        document.getElementById("maincanvas-wrapper").style.display="none";
-    }
-
-    function show_canvas(){
-        document.getElementById("maincanvas-wrapper").style.display="inline";
-    }
 
 
     
@@ -688,4 +688,4 @@ var image_manager = {
     }
 }
 
-export {init_image_op, render_2d_image, update_image_box_projection, clear_canvas, clear_main_canvas, choose_best_camera_for_point, image_manager}
+export {init_image_op, render_2d_image, show_canvas, hide_canvas, update_image_box_projection, clear_canvas, clear_main_canvas, choose_best_camera_for_point, image_manager}
