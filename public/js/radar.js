@@ -9,7 +9,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     this.sceneMeta = sceneMeta;
     this.coordinatesOffset = world.coordinatesOffset;
 
-    this.showPointsOnly = true;
+    this.showPointsOnly = false;
     this.showRadarBoxFlag = false;
     this.cssStyleSelector = this.sceneMeta.calib.radar[this.name].cssstyleselector;
     this.color = this.sceneMeta.calib.radar[this.name].color;
