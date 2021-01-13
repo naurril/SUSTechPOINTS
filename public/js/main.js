@@ -73,6 +73,7 @@ function start(metaData){
         disablePreload: true,
         //enablePointIntensity: true,
         enableRadar:true,
+        enableAuxLidar: true,
       }
       
       let data = new Data(metaData, dataCfg);

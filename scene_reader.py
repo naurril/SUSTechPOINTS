@@ -50,6 +50,7 @@ def get_one_scene(s):
     calib = {}
     calib_camera={}
     calib_radar={}
+    calib_aux_lidar = {}
     if os.path.exists(os.path.join(scene_dir, "calib")):
         if os.path.exists(os.path.join(scene_dir, "calib","camera")):
             calibs = os.listdir(os.path.join(scene_dir, "calib", "camera"))
@@ -73,6 +74,16 @@ def get_one_scene(s):
                     with open(calib_file)  as f:
                         cal = json.load(f)
                         calib_radar[calib_name] = cal
+        if os.path.exists(os.path.join(scene_dir, "calib", "aux_lidar")):
+            calibs = os.listdir(os.path.join(scene_dir, "calib", "aux_lidar"))
+            for c in calibs:
+                calib_file = os.path.join(scene_dir, "calib", "aux_lidar", c)
+                calib_name, _ = os.path.splitext(c)
+                if os.path.isfile(calib_file):
+                    #print(calib_file)
+                    with open(calib_file)  as f:
+                        cal = json.load(f)
+                        calib_aux_lidar[calib_name] = cal
 
     # camera names
     camera = []
@@ -117,6 +128,28 @@ def get_one_scene(s):
     scene["radar_ext"] = radar_ext
 
 
+    # aux lidar names
+    aux_lidar = []
+    aux_lidar_ext = ""
+    aux_lidar_path = os.path.join(scene_dir, "aux_lidar")
+    if os.path.exists(aux_lidar_path):
+        lidars = os.listdir(aux_lidar_path)
+        for r in lidars:
+            lidar_file = os.path.join(scene_dir, "aux_lidar", r)
+            if os.path.isdir(lidar_file):
+                aux_lidar.append(r)
+                if radar_ext == "":
+                    #detect camera file ext
+                    files = os.listdir(radar_file)
+                    if len(files)>=2:
+                        _,aux_lidar_ext = os.path.splitext(files[0])
+
+    if aux_lidar_ext == "":
+        aux_lidar_ext = ".pcd"
+    scene["aux_lidar_ext"] = aux_lidar_ext
+
+
+
 
     if not os.path.isdir(os.path.join(scene_dir, "bbox.xyz")):
         scene["boxtype"] = "psr"
@@ -126,10 +159,15 @@ def get_one_scene(s):
             scene["camera"] = camera
         if radar:
             scene["radar"] = radar
+        if aux_lidar:
+            scene["aux_lidar"] = aux_lidar
         if calib_camera:
             calib["camera"] = calib_camera
         if calib_radar:
             calib["radar"] = calib_radar
+        if calib_aux_lidar:
+            calib["aux_lidar"] = calib_aux_lidar
+            
     else:
         scene["boxtype"] = "xyz"
         if point_transform_matrix:

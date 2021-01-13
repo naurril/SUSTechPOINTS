@@ -2,6 +2,7 @@ import * as THREE from './lib/three.module.js';
 
 
 import {RadarManager} from "./radar.js"
+import {AuxLidarManager} from "./aux_lidar.js"
 import {Lidar} from "./lidar.js"
 import {Annotation} from "./annotation.js"
 import {log} from "./log.js"
@@ -35,6 +36,9 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
     this.get_radar_path = function(name){
         return `data/${this.scene}/radar/${name}/${this.frame}${this.sceneMeta.radar_ext}`;
     };
+    this.get_aux_lidar_path = function(name){
+        return `data/${this.scene}/aux_lidar/${name}/${this.frame}${this.sceneMeta.radar_ext}`;
+    }
     
     this.get_anno_path = function(){
             if (this.annotation_format=="psr"){
@@ -219,6 +223,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.radars = new RadarManager(this.sceneMeta, this, this.frameInfo);
     this.lidar = new Lidar(this.sceneMeta, this, this.frameInfo);
     this.annotation = new Annotation(this.sceneMeta, this, this.frameInfo);
+    this.aux_lidars = new AuxLidarManager(this.sceneMeta, this, this.frameInfo);
 
     // todo: state of world could be put in  a variable
     // but still need mulitple flags.
@@ -229,7 +234,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.preloaded=function(){
         return this.lidar.preloaded && 
                this.annotation.preloaded && 
-               this.cameras.loaded() && 
+               this.cameras.loaded() &&
+               this.aux_lidars.preloaded() && 
                this.radars.preloaded();
     };
 
@@ -262,6 +268,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         this.annotation.preload(_preload_cb)
         this.radars.preload(_preload_cb);
         this.cameras.load(_preload_cb, this.data.active_camera_name);
+        this.aux_lidars.preload(_preload_cb);
         
     };
 
@@ -311,6 +318,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             this.lidar.go(this.scene);
             this.annotation.go(this.scene);
             this.radars.go(this.scene);            
+            this.aux_lidars.go(this.scene);
 
 
             this.finish_time = new Date().getTime();
@@ -361,6 +369,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             //unload all from scene, but don't destroy elements
             this.lidar.unload();
             this.radars.unload();
+            this.aux_lidars.unload();
             this.annotation.unload();
             
             this.active = false;
@@ -386,6 +395,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
         this.lidar.deleteAll();
         this.radars.deleteAll();
+        this.aux_lidars.deleteAll();
         this.annotation.deleteAll();
 
         this.destroyed = true;
