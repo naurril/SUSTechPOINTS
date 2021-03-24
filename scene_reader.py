@@ -180,6 +180,8 @@ def get_one_scene(s):
             calib["camera"] = calib_camera
         if calib_radar:
             calib["radar"] = calib_radar
+        if calib_aux_lidar:
+            calib["aux_lidar"] = calib_aux_lidar
 
     scene["calib"] = calib
     return scene

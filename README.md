@@ -163,12 +163,14 @@ Side sbu-view (projective view):
 
 If you find this work useful in your research, please consider cite:
 ```
-@inproceedings{li2020sustechpoints,
-     title={{SUSTech POINTS: A Portable 3D Point Cloud Interactive Annotation Platform System}},
-     author={E Li and Shuaijun Wang and Chengyang Li and Dachuan Li and Xiangbin Wu and Qi Hao},
-     booktitle={2020 IEEE Intelligent Vehicles Symposium (IV)},
-     pages={837--844},
-     year={2020},
-     organization={IEEE}
-}
+@INPROCEEDINGS{9304562,
+  author={E. {Li} and S. {Wang} and C. {Li} and D. {Li} and X. {Wu} and Q. {Hao}},
+  booktitle={2020 IEEE Intelligent Vehicles Symposium (IV)}, 
+  title={SUSTech POINTS: A Portable 3D Point Cloud Interactive Annotation Platform System}, 
+  year={2020},
+  volume={},
+  number={},
+  pages={1108-1115},
+  doi={10.1109/IV47402.2020.9304562}}
+  
 ```
