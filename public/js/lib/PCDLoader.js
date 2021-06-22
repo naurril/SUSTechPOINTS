@@ -323,10 +323,22 @@ PCDLoader.prototype = {
 				if ( offset.x !== undefined ) {
 					let xvalue = dataview.getFloat32( row + offset.x, this.littleEndian );
 
-					if (isNaN(xvalue))
+
+
+					let yvalue = dataview.getFloat32( row + offset.y, this.littleEndian ) ;
+					let zvalue = dataview.getFloat32( row + offset.z, this.littleEndian ) ;
+
+
+					if (isNaN(xvalue) || isNaN(yvalue) || isNaN(zvalue))
 					{
 						continue;
 					}
+
+					if (xvalue == 0 && yvalue == 0 && zvalue == 0)
+					{
+						continue;
+					}
+
 
 					position.push( xvalue );
 					position.push( dataview.getFloat32( row + offset.y, this.littleEndian ) );
