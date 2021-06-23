@@ -12,6 +12,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
     this.webgl_scene = webgl_scene;
     this.renderer = renderer;
 
+    
     this.mainView = cfg.disableMainView?null:create_main_view(webgl_scene,  renderer, this.globalRenderFunc, this.mainViewContainer, on_box_changed);
     
     this.boxViewList = [];
@@ -55,11 +56,13 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         }
     };
 
+    this.setColorScheme();
+
     // no public funcs below
     function create_main_view(scene, renderer, globalRenderFunc, container, on_box_changed){
         var view ={};
-        //view.backgroundColor=new THREE.Color( 0.0, 0.0, 0.0 );
-        view.backgroundColor=new THREE.Color( 1.0, 1.0, 1.0 );
+        
+        view.backgroundColor=　(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.0, 0.0, 0.0 ) : new THREE.Color( 1.0, 1.0, 1.0 );
         view.zoom_ratio = 1.0; //useless for mainview
             
         let camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
@@ -440,8 +443,8 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         let view = Object.create(scope.projViewProto);
         view.name="topview";
         view.zoom_ratio = 1.0;
-        //view.backgroundColor = new THREE.Color( 0.1, 0.1, 0.2 );
-        view.backgroundColor=new THREE.Color( 1.0, 0.95, 0.95 );
+        
+        view.backgroundColor= view.backgroundColor=　(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.3, 0.2, 0.2 ) : new THREE.Color( 0.7, 0.8, 0.8 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
@@ -532,7 +535,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         view.name="sideview";
         view.zoom_ratio = 1.0;
         //view.backgroundColor=new THREE.Color( 0.1, 0.2, 0.1 );
-        view.backgroundColor=new THREE.Color( 0.95, 1.0, 0.95);
+        view.backgroundColor=(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.2, 0.3, 0.2 ) : new THREE.Color( 0.8, 0.7, 0.8 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
@@ -629,7 +632,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         view.name="backview";
         view.zoom_ratio = 1.0;
         //view.backgroundColor=new THREE.Color( 0.2, 0.1, 0.1 );
-        view.backgroundColor=new THREE.Color( 0.95, 0.95, 1.0 );
+        view.backgroundColor= (document.documentElement.className == "theme-dark") ? new THREE.Color( 0.2, 0.2, 0.3 ) : new THREE.Color( 0.8, 0.8, 0.7 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;

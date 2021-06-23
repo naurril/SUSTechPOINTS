@@ -501,7 +501,7 @@ function ImageContext(ui, cfg, on_img_click){
                 let image_x = points[i];
                 let image_y = points[i+1];
                 let color = point_color_by_distance(image_x, image_y);
-                color += "44"; //transparency
+                color += "24"; //transparency
                 p.setAttribute("stroke", color);
                 p.setAttribute("fill", color);
             }

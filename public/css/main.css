@@ -1,15 +1,15 @@
 
 
-.theme-light {
-	--font-color: #000000;
-	--background-color: #ffffff;
-	--widget-background-color: #cccccc;
-}
-
 .theme-dark {
 	--font-color: #ffffff;
 	--background-color: #121212;
 	--widget-background-color: #333333;
+}
+
+.theme-light {
+	--font-color: #000000;
+	--background-color: #ffffff;
+	--widget-background-color: #cccccc;
 }
 
 html,body {

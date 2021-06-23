@@ -1,7 +1,7 @@
 import{Editor} from "./editor.js"
 import {Data} from './data.js'
 
-document.documentElement.className="theme-light";
+document.documentElement.className="theme-dark";
 
 
 document.body.addEventListener('keydown', event => {
@@ -71,7 +71,7 @@ function start(metaData){
       let dataCfg = {
         //disableLabels: true,
         disablePreload: true,
-        //enablePointIntensity: true,
+        enablePointIntensity: false,
         enableRadar:true,
         enableAuxLidar: true,
       }

@@ -230,6 +230,17 @@ PCDLoader.prototype = {
 
 		// ascii
 
+		function filterPoint(x,y,z)
+		{
+			if (isNaN(x))
+				return true;
+			if (x == 0 && y== 0 && z==0)
+				return true;
+			if (z >=0.5)
+				return true;
+		}
+
+
 		if ( PCDheader.data === 'ascii' ) {
 
 			var offset = PCDheader.offset;
@@ -257,7 +268,7 @@ PCDLoader.prototype = {
 					y = parseFloat( line[ offset.y ] );
 					z = parseFloat( line[ offset.z ] );
 
-					if (isNaN(x)){
+					if (filterPoint(x,y,z)){
 						continue;
 					}
 
@@ -287,7 +298,7 @@ PCDLoader.prototype = {
 
 
 				if (offset.intensity !== undefined) {
-					intensity.push( parseInt( line[ offset.intensity ] ) / 255.0 );
+					intensity.push( parseInt( line[ offset.intensity ] ));
 				}
 
 			}
@@ -321,16 +332,17 @@ PCDLoader.prototype = {
 			for ( var i = 0, row = 0; i < PCDheader.points; i ++, row += PCDheader.rowSize ) {
 
 				if ( offset.x !== undefined ) {
-					let xvalue = dataview.getFloat32( row + offset.x, this.littleEndian );
+					let x = dataview.getFloat32( row + offset.x, this.littleEndian );
+					let y = dataview.getFloat32( row + offset.y, this.littleEndian );
+					let z = dataview.getFloat32( row + offset.z, this.littleEndian );
 
-					if (isNaN(xvalue))
-					{
+					if (filterPoint(x,y,z)){
 						continue;
 					}
 
-					position.push( xvalue );
-					position.push( dataview.getFloat32( row + offset.y, this.littleEndian ) );
-					position.push( dataview.getFloat32( row + offset.z, this.littleEndian ) );
+					position.push( x );
+					position.push( y );
+					position.push( z );
 
 				}
 
@@ -358,10 +370,10 @@ PCDLoader.prototype = {
 
 				if (offset.intensity !== undefined) {
 					if (intensity_type == "U" && intensity_size == 1){
-						intensity.push( dataview.getUint8(row + offset.intensity)/255.0);
+						intensity.push( dataview.getUint8(row + offset.intensity));
 					}
 					else if (intensity_type == "F" && intensity_size == 4){
-						intensity.push( dataview.getFloat32(row + offset.intensity, this.littleEndian)/255.0);
+						intensity.push( dataview.getFloat32(row + offset.intensity, this.littleEndian));
 					}
 				}
 			}
