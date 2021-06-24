@@ -154,8 +154,18 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.boxOp,
             this.header,
             (b)=>this.on_box_changed(b),
-            (b)=>this.remove_box(b),
-            ()=>this.on_load_world_finished(this.data.world));
+            (b)=>this.remove_box(b),   // on box remove
+            ()=>{
+                // this.on_load_world_finished(this.data.world);
+                // this.imageContext.hide();
+                // this.floatLabelManager.hide();
+
+                // this.viewManager.mainView.disable();
+                // this.boxEditor.hide();
+                // this.hideGridLines();
+                // this.controlGui.hide();
+                
+            });  //func_on_annotation_reloaded
         this.boxEditorManager.hide();
          
         this.boxEditor= new BoxEditor(
@@ -662,11 +672,16 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.data.getMetaBySceneName(sceneName), 
             frame, 
             objectTrackId,
-            ()=>{
-                this.imageContext.show();
-                this.floatLabelManager.show();
+            ()=>{  //on exit
+                
                 
                 this.viewManager.mainView.enable();
+
+                this.imageContext.show();
+                this.floatLabelManager.show();
+
+                this.on_load_world_finished(this.data.world);
+                
                 if (this.selected_box){
                     // attach again, restore box.boxEditor 
                     // obj type/id may have changed in batch mode

@@ -87,7 +87,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     },
     
     this.mark_changed_flag = function(){
-        this.changedMarkUi.innerText="*";
+        this.changedMarkUi.innerHTML="<span title='modified'>*</span>";
     }
 };
 
