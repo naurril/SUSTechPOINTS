@@ -83,7 +83,6 @@ function start(metaData){
   } 
 
 
-
   let mainEditor = createMainEditor();
 
 }

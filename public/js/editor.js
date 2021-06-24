@@ -1737,7 +1737,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             */
         case 's':
                 if (ev.ctrlKey){
-                    saveWorld(this.data.world);
+                    saveWorld(this.data.world, ()=>{
+                        this.header.unmark_changed_flag();
+                    });
                 }
                 break;
             /*

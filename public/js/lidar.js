@@ -847,11 +847,11 @@ function Lidar(sceneMeta, world, frameInfo){
         let new_points_added = true;
         var outer_indices_added_flag=[];
 
-        let max_test_points=300;
+        let max_test_points=300;   // 23jun21, this is another naive performance improvement alg. very effective.
 
         while (new_points_added){
             new_points_added = false;
-            for (let t_o = 0; t_o  < outer_indices.length; t_o += math.max(1, outer_indices.length/300)){
+            for (let t_o = 0; t_o  < outer_indices.length; t_o += Math.max(1, outer_indices.length/300)){
                 var o = outer_indices[t_o];
                 
                 if (pos_array[o*3+2] - box.position.z < extreme.min.z+0.3){// ground shall be removed to grow a box
