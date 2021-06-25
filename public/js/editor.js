@@ -1503,6 +1503,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.add_box_on_mouse_pos= function(obj_type){
         // todo: move to this.data.world
         var pos = this.mouse.get_mouse_location_in_world();
+
         var rotation = {x:0, y:0, z:this.viewManager.mainView.camera.rotation.z+Math.PI/2};
 
         var obj_cfg = get_obj_cfg_by_type(obj_type);
@@ -1512,6 +1513,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             z: obj_cfg.size[2]
         };
 
+        pos.z = -1.8 + scale.z/2;  // -1.8 is height of lidar
         let box = this.add_box(pos, scale, rotation, obj_type, "");
         
         return box;

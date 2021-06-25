@@ -200,12 +200,14 @@ var ml = {
             body: JSON.stringify({"points": data})
           };
         // we defined the xhr
-        
+        console.log("start predict rotatoin.", data.length, 'points')
+
         return fetch(req, init)
         .then(response=>{
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }else{
+                console.log("predict rotatoin response received.")
                 return response.json();
             }
         })        
