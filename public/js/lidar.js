@@ -811,23 +811,29 @@ function Lidar(sceneMeta, world, frameInfo){
                 || (Math.abs(tp[1]) > box.scale.y/2+0.01)
                 || (Math.abs(tp[2]) > box.scale.z/2+0.01) ){
                 
-                inside_points += 1;
+                
                 return;
             } else{
-            if (tp[0] > extreme.max.x) {
-                    extreme.max.x = tp[0];
-                } 
-                
-                if (tp[0] < extreme.min.x){
-                    extreme.min.x = tp[0];
-                }
-        
-                if (tp[1] > extreme.max.y){
-                    extreme.max.y = tp[1];
-                }
-                
-                if (tp[1] < extreme.min.y){
-                    extreme.min.y = tp[1];
+
+                if ((box.scale.z < 0.6) || ((box.scale.z > 0.6) && (tp[2] > -box.scale.z/2 + 0.3)))
+                {
+                    inside_points += 1;
+
+                    if (tp[0] > extreme.max.x) {
+                        extreme.max.x = tp[0];
+                    } 
+                    
+                    if (tp[0] < extreme.min.x){
+                        extreme.min.x = tp[0];
+                    }
+            
+                    if (tp[1] > extreme.max.y){
+                        extreme.max.y = tp[1];
+                    }
+                    
+                    if (tp[1] < extreme.min.y){
+                        extreme.min.y = tp[1];
+                    }
                 }
         
                 if (tp[2] > extreme.max.z){
@@ -841,7 +847,7 @@ function Lidar(sceneMeta, world, frameInfo){
             }
         });
 
-        if (inside_points < 10)
+        if (inside_points < 10)  //too few points, give up.
         {
             return {
                 max:{
@@ -857,12 +863,12 @@ function Lidar(sceneMeta, world, frameInfo){
             };
         }
 
-        let translated_cand_points_with_ground = translated_cand_points;
+        //let translated_cand_points_with_ground = translated_cand_points;
 
         // filter ground points
-        translated_cand_points = translated_cand_points.filter(function(tp, i){
-            return tp[2] > -box.scale.z/2 + 0.3;
-        });
+        // translated_cand_points = translated_cand_points.filter(function(tp, i){
+        //     return tp[2] > -box.scale.z/2 + 0.3;
+        // });
 
 
         let extreme_adjusted = true;
@@ -881,7 +887,7 @@ function Lidar(sceneMeta, world, frameInfo){
             let find_point = translated_cand_points.find(tp=>{
                 return  tp[0] > extreme.max.x && tp[0] < extreme.max.x + min_distance/2 && 
                         tp[1] < extreme.max.y && tp[1] > extreme.min.y &&  
-                        tp[2] < extreme.max.z && tp[2] > extreme.min.z
+                        tp[2] < extreme.max.z && tp[2] > extreme.min.z + 0.3;
             });
 
             if (find_point){
@@ -893,7 +899,7 @@ function Lidar(sceneMeta, world, frameInfo){
             find_point = translated_cand_points.find(tp=>{
                 return tp[0] < extreme.min.x && tp[0] > extreme.min.x - min_distance/2 && 
                        tp[1] < extreme.max.y && tp[1] > extreme.min.y  &&
-                       tp[2] < extreme.max.z && tp[2] > extreme.min.z
+                       tp[2] < extreme.max.z && tp[2] > extreme.min.z + 0.3;
             });
 
             if (find_point){
@@ -904,8 +910,8 @@ function Lidar(sceneMeta, world, frameInfo){
             // y+
             find_point = translated_cand_points.find(tp=>{
                 return tp[1] > extreme.max.y && tp[1] < extreme.max.y + min_distance/2 && 
-                       tp[0] < extreme.max.x && tp[0] > extreme.min.x  
-                       &&  tp[2] < extreme.max.z && tp[2] > extreme.min.z
+                       tp[0] < extreme.max.x && tp[0] > extreme.min.x  &&
+                       tp[2] < extreme.max.z && tp[2] > extreme.min.z + 0.3;
             });
 
             if (find_point){
@@ -917,7 +923,7 @@ function Lidar(sceneMeta, world, frameInfo){
             find_point = translated_cand_points.find(tp=>{
                 return tp[1] < extreme.min.y && tp[1] > extreme.min.y - min_distance/2 && 
                        tp[0] < extreme.max.x && tp[0] > extreme.min.x  &&  
-                       tp[2] < extreme.max.z && tp[2] > extreme.min.z;
+                       tp[2] < extreme.max.z && tp[2] > extreme.min.z  + 0.3;
             });
 
             if (find_point){
@@ -938,15 +944,17 @@ function Lidar(sceneMeta, world, frameInfo){
                 extreme_adjusted = true;
             }
 
-            // // z- 
-            // find_point = translated_cand_points.find(tp=>{
-            //     return tp[1] < extreme.min.y && tp[1] > extreme.min.y - min_distance/2 && tp[0] < extreme.max.x && tp[0] > extreme.min.x  &&  tp[2] < extreme.max.z && tp[2] > extreme.min.z
-            // });
+            // z- 
+            find_point = translated_cand_points.find(tp=>{
+                return tp[0] < extreme.max.x && tp[0] > extreme.min.x  &&  
+                       tp[1] < extreme.max.y && tp[1] > extreme.min.y &&                        
+                       tp[2] < extreme.min.z && tp[2] > extreme.min.z - min_distance/2;
+            });
 
-            // if (find_point){
-            //     extreme.min.y -= min_distance/2;
-            //     extreme_adjusted = true;
-            // }
+            if (find_point){
+                extreme.min.z -= min_distance/2;
+                extreme_adjusted = true;
+            }
 
         }
 
@@ -968,7 +976,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
 
 
-        translated_cand_points_with_ground.forEach(tp=>{
+        translated_cand_points.forEach(tp=>{
             if (tp[0] > extreme.max.x || tp[0] < extreme.min.x  || 
                 tp[1] > extreme.max.y || tp[1] < extreme.min.y  || 
                 tp[2] > extreme.max.z || tp[2] < extreme.min.z)
@@ -976,19 +984,19 @@ function Lidar(sceneMeta, world, frameInfo){
             
             } 
             else{
-                if (tp[0] > refined_extreme.max.x) {
+                if (tp[0] > refined_extreme.max.x && tp[2] > extreme.min.z + 0.3) {
                     refined_extreme.max.x = tp[0];
                 } 
                 
-                if (tp[0] < refined_extreme.min.x){
+                if (tp[0] < refined_extreme.min.x && tp[2] > extreme.min.z + 0.3){
                     refined_extreme.min.x = tp[0];
                 }
         
-                if (tp[1] > refined_extreme.max.y){
+                if (tp[1] > refined_extreme.max.y && tp[2] > extreme.min.z + 0.3){
                     refined_extreme.max.y = tp[1];
                 }
                 
-                if (tp[1] < refined_extreme.min.y){
+                if (tp[1] < refined_extreme.min.y && tp[2] > extreme.min.z + 0.3){
                     refined_extreme.min.y = tp[1];
                 }
         
