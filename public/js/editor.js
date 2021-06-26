@@ -516,6 +516,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
         menuUi.querySelector("#cm-reload").onclick = (event)=>{
+            reloadWorldList([this.data.world], ()=>this.on_load_world_finished(this.data.world));
+        };
+
+        menuUi.querySelector("#cm-reload-all").onclick = (event)=>{
             reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
         };
 

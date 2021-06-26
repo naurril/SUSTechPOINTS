@@ -474,6 +474,8 @@ function Annotation(sceneMeta, world, frameInfo){
                 })
             }
 
+            this.resetModified();
+            
             if (done)
                 done();
             
