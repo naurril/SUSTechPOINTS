@@ -574,7 +574,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .grab-handle:hover{
-	cursor: grab;
+	cursor: move;
 }
 
 .v-table-wrapper {

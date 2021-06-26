@@ -45,6 +45,7 @@ function Data(metaData, cfg){
             {
                 console.log("deleting world not saved. stop.");
             }
+            
             return distant && !active && !w.annotation.modified;
         }
 
