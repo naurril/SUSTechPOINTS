@@ -41,7 +41,11 @@ function Data(metaData, cfg){
         let disposable = (w)=>{
             let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>this.MaxWorldNumber;
             let active  = w.everythingDone;
-            return distant && !active;
+            if (!w.annotation.modified)
+            {
+                console.log("deleting world not saved. stop.");
+            }
+            return distant && !active && !w.annotation.modified;
         }
 
         let distantWorldList = this.worldList.filter(w=>disposable(w));
