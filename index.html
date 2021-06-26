@@ -43,7 +43,16 @@
 							<option>--camera--</option>
 					</select>
 
-					<text id="changed-mark"></text>
+					<div id="changed-mark" class="header-button">
+						<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button" id='save-button'><g>
+							<path d="M 4 4 L 18 4 L 20 6 L 20 20 L 4 20 Z M 8 4 h 8 v 2 h -8 z M 6 10 h 12 V 18 h -12 z "></path>
+						</g></svg>
+						<div id="changed-world-list-wrapper">
+							<div> All modified frames, click to save them all</div>
+							<div id='changed-world-list'></div>
+						</div>
+					</div>
+					<span>|</span>
 					<text id="box"></text>			
 					<text id="ref-obj"></text>
 				</div>
@@ -123,7 +132,7 @@
 						<div id="label-del" class="ui-button"  title="delete (Del)">
 							<!-- <span class="ui-icon ui-icon-trash"></span> -->
 							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
+								<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
 							</g></svg>
 						</div>
 					</div>
@@ -147,14 +156,14 @@
 				<div id="context-menu">
 					<div class="menu-item menu-seperator"></div>
 					<div class="menu-item" id="cm-new">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">New</div>
 						<div id="new-submenu">
 						</div>
 					</div>
 
 					<div class="menu-item" id="cm-paste">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></div>
 						<div class="menu-item-text">Paste/Auto Adjust</div>
 					</div>
 
@@ -166,46 +175,57 @@
 					</div>
 				
 					<div class="menu-item" id="cm-next-frame">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Next frame (4)</div>
 					</div>
 
 					<div class="menu-item" id="cm-play">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-play"></span></div>
+						<div class="menu-item-icon"><span class="ui-icon ui-icon-play"></div>
 						<div class="menu-item-text">Play</div>
 					</div>
 				
 					<div class="menu-item" id="cm-pause">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Pause/Resume (Space)</div>				
 					</div>
 
 					<div class="menu-item" id="cm-stop">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Stop</div>				
 					</div>
 
 					<div class="menu-item menu-seperator"></div>
 
 					<div class="menu-item" id="cm-prev-object">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Previous object (1)</div>
 					</div>
 				
 					<div class="menu-item" id="cm-next-object">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Next object (2)</div>
 					</div>
 					<div class="menu-item menu-seperator"></div>
 
 					<div class="menu-item" id="cm-save">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Save (C-s)</div>				
+					</div>
+					
+					<div class="menu-item" id="cm-save-all">
+						<div class="menu-item-icon"></div>
+						<div class="menu-item-text">Save All</div>
+						<div id="saveall-submenu"></div>		
 					</div>
 
 					<div class="menu-item" id="cm-reload">
-						<div class="menu-item-icon"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Reload (C-r)</div>				
+					</div>
+
+					<div class="menu-item" id="cm-reload-all">
+						<div class="menu-item-icon"></div>
+						<div class="menu-item-text">Reload All</div>				
 					</div>
 				
 				</div>

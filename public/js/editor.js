@@ -482,9 +482,38 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         menuUi.querySelector("#cm-save").onclick = (event)=>{
             saveWorld(this.data.world, ()=>{
+                let frames = this.data.worldList.filter(w=>w.annotation.modified)
+
+                if (frames.length == 0)
+                {
+                    this.header.unmark_changed_flag();
+                }
+            });
+        };
+
+        menuUi.querySelector("#cm-save-all").onclick = (event)=>{
+            saveWorldList(this.data.worldList, ()=>{
                 this.header.unmark_changed_flag();
             });
         };
+
+        menuUi.querySelector("#cm-save-all").onmouseenter = (event)=>{
+            var items = "";
+
+            let frames = this.data.worldList.filter(w=>w.annotation.modified).map(w=>w.frameInfo);
+            frames.forEach(f=>{
+                items += '<div class="menu-item"><div class="menu-item-text">'+f.scene + '-' + f.frame + '</div></div>';        
+            });
+
+            let menus = menuUi.querySelector("#saveall-submenu");
+            menus.innerHTML = items;
+            menus.style.display = "inherit";
+        };
+        menuUi.querySelector("#cm-save-all").onmouseleave = (event)=>{
+            let menus = menuUi.querySelector("#saveall-submenu");            
+            menus.style.display = "none";
+        };
+
 
         menuUi.querySelector("#cm-reload").onclick = (event)=>{
             reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
@@ -1017,11 +1046,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             
             this.selected_box.obj_type = event.currentTarget.value;
             this.floatLabelManager.set_object_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
-            this.header.mark_changed_flag();
-            this.updateBoxPointsColor(this.selected_box);
-            this.imageContext.image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
+            // this.header.mark_changed_flag();
+            // this.updateBoxPointsColor(this.selected_box);
+            // this.imageContext.image_manager.update_obj_type(this.selected_box.obj_local_id, this.selected_box.obj_type);
 
-            this.render();
+            // this.render();
+            this.on_box_changed(this.selected_box);
         }
     };
 
@@ -1037,7 +1067,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             this.selected_box.obj_track_id = id;
             this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
-            this.header.mark_changed_flag();
+            //this.header.mark_changed_flag();
+            this.on_box_changed(this.selected_box);
         }
     };
 
@@ -1972,7 +2003,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.update_frame_info(world.frameInfo.scene, world.frameInfo.frame);
 
         this.select_locked_object();
-        this.header.unmark_changed_flag();
+        
+        if (world.annotation.modified)
+            this.header.mark_changed_flag();
+        else
+            this.header.unmark_changed_flag();
+
         load_obj_ids_of_scene(world.frameInfo.scene);
 
         // preload after the first world loaded
