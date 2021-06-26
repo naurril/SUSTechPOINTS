@@ -421,7 +421,7 @@ function Annotation(sceneMeta, world, frameInfo){
 
             boxes.forEach(nb=>{  // nb is annotation format, not a true box
                 let old_box = this.boxes.find(function(x){
-                    return x.obj_track_id == nb.obj_id && x.obj_track_id != "" && nb.obj_id != "";
+                    return x.obj_track_id == nb.obj_id && x.obj_track_id != "" && nb.obj_id != "" && x.obj_type == nb.obj_type;;
                 });
 
                 if (old_box){
@@ -433,7 +433,7 @@ function Annotation(sceneMeta, world, frameInfo){
                     old_box.rotation.set(nb.psr.rotation.x, nb.psr.rotation.y, nb.psr.rotation.z); 
                     
                     old_box.annotator = nb.annotator;
-                    old_box.changed=false; // clearn changed flag.
+                    old_box.changed=false; // clear changed flag.
                     
                 }else{
                     // not found
