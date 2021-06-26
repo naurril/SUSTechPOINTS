@@ -5,9 +5,9 @@
 		<meta charset="utf-8">
 		<link rel="icon" type="image/png" href="/static/icon2.png">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<script src="/static/js/lib/jquery-1.12.4.js"></script>
+		<!-- <script src="/static/js/lib/jquery-1.12.4.js"></script>
 		<link rel="stylesheet" href="/static/js/lib/jquery-ui-1.12.1/jquery-ui.min.css">
-		<script src="/static/js/lib/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+		<script src="/static/js/lib/jquery-ui-1.12.1/jquery-ui.min.js"></script> -->
 
 		<link type="text/css" rel="stylesheet" href="/static/css/main.css">
 
@@ -57,13 +57,75 @@
 						<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input>						
 					</div>
 					<div id="obj-editor-tools">
-						<div id="label-copy" class="ui-button" title="copy (C-c)"><span class="ui-icon ui-icon-copy"></span></div>
-						<div id="label-paste" class="ui-button"  title="auto-adjust"><span class="ui-icon ui-icon-key"></span></div>
-						<div id="label-highlight" class="ui-button"  title="focus"><span class="ui-icon ui-icon-zoomin"></span></div>
-						<div id="label-edit" class="ui-button"  title="edit"><span class="ui-icon ui-icon-pencil"></span></div>
-						<div id="label-rotate" class="ui-button"  title="rotate (g)"><span class="ui-icon ui-icon-transferthick-e-w"></span></div>
-						<div id="label-reset" class="ui-button"  title="reset"><span class="ui-icon ui-icon-refresh"></span></div>				
-						<div id="label-del" class="ui-button"  title="delete (Del)"><span class="ui-icon ui-icon-trash"></span></div>
+						<div id="label-copy" class="ui-button" title="copy (C-c)">
+							<!-- <span class="ui-icon ui-icon-copy"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<!-- <rect x="4" y="4" width="12" height="12"/> -->
+								<rect x="8" y="8" width="12" height="12"/>
+								<polyline points="8 16 4 16 4 4 16 4 16 8 "/>
+							</g></svg>
+						</div>
+						<div id="label-paste" class="ui-button"  title="auto-adjust">
+							<!-- <span class="ui-icon ui-icon-key"></span></div> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<!-- <rect x="4" y="8" width="16" height="12"/>
+								<circle cx="12" cy="8" r = "4"/>								 -->
+								<circle cx=12 cy=12 r=4 />
+								<rect x=10 y=16 width=4 height=4 />
+								<polyline points='12 3 12 6' />
+								<polyline points='3 12 6 12' />
+								<polyline points='18 12 21 12' />
+								<polyline points='5 5 8 8' />
+								<polyline points='18 5 15 8' />
+							</g></svg>
+						</div>
+						<div id="label-highlight" class="ui-button"  title="focus">
+							<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<circle cx="10" cy="10" r="7"/>
+								<polyline points="15 15 20 20"/>
+								<polyline points="10 6 10 14"/>
+								<polyline points="6 10 14 10"/>
+							</g></svg>
+						</div>
+						<div id="label-edit" class="ui-button"  title="edit">
+							<!-- <span class="ui-icon ui-icon-pencil"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<polyline points="12 4 12 20" />
+								<polyline points="4 9 12 9" />
+								<polyline points="8 5 12 9 8 13" />
+								<polyline points="20 15 12 15" />
+								<!-- <polyline points="16 19 12 15  16 11" /> -->
+							</svg>
+						</div>
+						<div id="label-rotate" class="ui-button"  title="reverse direction (g)">
+							<!-- <span class="ui-icon ui-icon-transferthick-e-w"></span></div> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<!-- <rect x=6 y=4 width=12 height=8 />
+								<polyline points="12 12 12 20" />
+								<polyline points="8 16 12 20 16 16" /> -->
+								<rect x=8 y=8 width=8 height=8 />
+
+								<polyline points="12 12 12 21" />
+								<polyline points="10 19 12 21 14 19" />
+								
+								<polyline points="12 12 12 3"  stroke-dasharray="1" />
+								<polyline points="10 5 12 3 14 5" stroke-dasharray="1" />
+							</g></svg>
+						</div>
+						<div id="label-reset" class="ui-button"  title="reset">
+							<!-- <span class="ui-icon ui-icon-refresh"></span></div>				 -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<circle  cx=12 cy=12 r=6 />
+								<circle  cx=12 cy=12 r=1 />
+							</g></svg>
+							</div>
+						<div id="label-del" class="ui-button"  title="delete (Del)">
+							<!-- <span class="ui-icon ui-icon-trash"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
+							</g></svg>
+						</div>
 					</div>
 				</div>
 				</div>
@@ -85,7 +147,7 @@
 				<div id="context-menu">
 					<div class="menu-item menu-seperator"></div>
 					<div class="menu-item" id="cm-new">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-document"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">New</div>
 						<div id="new-submenu">
 						</div>
@@ -99,12 +161,12 @@
 					<div class="menu-item menu-seperator"></div>
 
 					<div class="menu-item" id="cm-prev-frame">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-w"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Previous frame (3)</div>
 					</div>
 				
 					<div class="menu-item" id="cm-next-frame">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-e"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">Next frame (4)</div>
 					</div>
 
@@ -114,76 +176,77 @@
 					</div>
 				
 					<div class="menu-item" id="cm-pause">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-pause"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">Pause/Resume (Space)</div>				
 					</div>
 
 					<div class="menu-item" id="cm-stop">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-stop"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">Stop</div>				
 					</div>
 
 					<div class="menu-item menu-seperator"></div>
 
 					<div class="menu-item" id="cm-prev-object">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-w"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">Previous object (1)</div>
 					</div>
 				
 					<div class="menu-item" id="cm-next-object">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-caret-1-e"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">Next object (2)</div>
 					</div>
 					<div class="menu-item menu-seperator"></div>
 
 					<div class="menu-item" id="cm-save">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-disk"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">Save (C-s)</div>				
 					</div>
 
 					<div class="menu-item" id="cm-reload">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-disk"></span></div>
+						<div class="menu-item-icon"></span></div>
 						<div class="menu-item-text">Reload (C-r)</div>				
 					</div>
 				
 				</div>
 				<div id="object-context-menu">
 					<div class="menu-item" id="cm-delete">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon">							
+						</div>
 						<div class="menu-item-text">Delete</div>
 					</div>
 					<div class="menu-item" id="cm-delete-obj">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Delete other instances</div>
 					</div>
 					<div class="menu-item" id="cm-modify-obj-type">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Sync object type</div>
 					</div>
 					<div class="menu-item" id="cm-modify-obj-size">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Sync object size</div>
 					</div>
 
 					<div class="menu-item menu-seperator"></div>
 					<div class="menu-item" id="cm-inspect-all-instances">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-document"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Edit multiple instances</div>
 					</div>
 
 					<div class="menu-item menu-seperator"></div>
 					<div class="menu-item" id="cm-select-as-ref">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Select as Ref</div>
 					</div>
 					
 					<div class="menu-item" id="cm-follow-ref">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Follows Ref</div>
 					</div>
 
 					<div class="menu-item" id="cm-sync-followers">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Sync followers</div>
 					</div>
 					
@@ -193,7 +256,7 @@
 				<!-- div id="projective-view-context-menu">
 					<div class="menu-item menu-seperator"></div>
 					<div class="menu-item" id="cm-delete">
-						<div class="menu-item-icon"><span class="ui-icon ui-icon-key"></span></div>
+						<div class="menu-item-icon"></div>
 						<div class="menu-item-text">Delete</div>
 					</div>
 
@@ -230,10 +293,36 @@
 						<rect x="90" y="100" width="40" height="40", fill="#00000000" class="line-handle grab-handle" id="move-handle"/>
 					</svg>
 					<div class="v-buttons-wrapper" id="v-buttons">
-						<div id="v-auto-move" class="ui-button"  title="auto translate"><span class="ui-icon ui-icon-arrow-4"></span></div>
-						<div id="v-auto-rotate-wo-scaling" class="ui-button"  title="auto rotate without scaling"><span class="ui-icon ui-icon-arrow-1-n"></span></div>
-						<div id="v-auto-rotate" class="ui-button"  title="auto rotate"><span class="ui-icon ui-icon-arrow-2-n-s"></span></div>
-						<div id="v-reset-rotate" class="ui-button"  title="reset rotation"><span class="ui-icon ui-icon-refresh"></span></div>
+						<div id="v-auto-move" class="ui-button"  title="auto translate">
+							<!-- <span class="ui-icon ui-icon-arrow-4"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<!-- <polyline points="3 5 15 3 17 13 5 15 3 5" stroke-dasharray="1" /> -->
+								<!-- <polyline points="8 10 20 8 22 18 10 20 8 10" /> -->
+								<rect x="8" y="8" width="12" height="12" stroke-dasharray="1"/>
+   								<rect x="4" y="4" width="12" height="12"/>
+							</g></svg>
+						</div>
+						<div id="v-auto-rotate-wo-scaling" class="ui-button"  title="auto rotate without scaling">
+							<!-- <span class="ui-icon ui-icon-arrow-1-n"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<rect x="8" y="10" width="12" height="10"/>
+   								<polyline points="3 5 15 3 17 13 5 15 3 5" stroke-dasharray="1" />
+							</g></svg>
+						</div>
+						<div id="v-auto-rotate" class="ui-button"  title="auto rotate">
+							<!-- <span class="ui-icon ui-icon-arrow-2-n-s"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<rect x="6" y="6" width="14" height="14"/>
+   								<polyline points="3 5 15 3 17 13 5 15 3 5" stroke-dasharray="1" />
+							</g></svg>
+						</div>
+						<div id="v-reset-rotate" class="ui-button"  title="reset rotation">
+							<!-- <span class="ui-icon ui-icon-refresh"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<circle  cx=12 cy=12 r=8 />
+								<circle  cx=12 cy=12 r=1 />
+							</g></svg>
+						</div>
 					</div>
 				</div>
 				<div class="view-manipulator" id="y-view-manipulator"  tabindex="-1">
@@ -263,8 +352,20 @@
 
 					</svg>
 					<div class="v-buttons-wrapper" id="v-buttons">
-						<div id="v-auto-rotate" class="ui-button"  title="auto-rotate"><span class="ui-icon ui-icon-key"></span></div>
-						<div id="v-reset-rotate" class="ui-button"  title="reset-rotation"><span class="ui-icon ui-icon-refresh"></span></div>			
+						<div id="v-auto-rotate" class="ui-button"  title="auto-rotate">
+							<!-- <span class="ui-icon ui-icon-key"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<rect x="6" y="6" width="14" height="14"/>
+   								<polyline points="3 5 15 3 17 13 5 15 3 5" stroke-dasharray="1" />
+							</g></svg>
+						</div>
+						<div id="v-reset-rotate" class="ui-button"  title="reset-rotation">
+							<!-- <span class="ui-icon ui-icon-refresh"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<circle  cx=12 cy=12 r=8 />
+								<circle  cx=12 cy=12 r=1 />
+							</g></svg>
+						</div>			
 					</div>
 				</div>
 				<div class="view-manipulator" id="x-view-manipulator" tabindex="-1">
@@ -294,8 +395,20 @@
 
 					</svg>
 					<div class="v-buttons-wrapper" id="v-buttons">
-						<div id="v-auto-rotate" class="ui-button"  title="auto-rotate"><span class="ui-icon ui-icon-key"></span></div>
-						<div id="v-reset-rotate" class="ui-button"  title="reset-rotation"><span class="ui-icon ui-icon-refresh"></span></div>
+						<div id="v-auto-rotate" class="ui-button"  title="auto-rotate">
+							<!-- <span class="ui-icon ui-icon-key"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<rect x="6" y="6" width="14" height="14"/>
+								<polyline points="3 5 15 3 17 13 5 15 3 5" stroke-dasharray="1" />
+							</g></svg>
+						</div>
+						<div id="v-reset-rotate" class="ui-button"  title="reset-rotation">
+							<!-- <span class="ui-icon ui-icon-refresh"></span> -->
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<circle  cx=12 cy=12 r=8 />
+								<circle  cx=12 cy=12 r=1 />
+							</g></svg>
+						</div>
 					</div>
 				</div>
 				<canvas id="focuscanvas" width="320" height="240">cavas</canvas>
