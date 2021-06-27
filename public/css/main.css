@@ -683,7 +683,7 @@ td {
 	top: 0%;
 	width: 100%;
 	height: 100%;
-	display: none;
+	/*display: none; */
 
 }
 
@@ -698,6 +698,7 @@ td {
 	border-color: gray;
 	resize: both;
     overflow: hidden;
+	z-index: 4;
 }
 
 #object-track-svg {
@@ -713,4 +714,20 @@ td {
 
 .object-track-current-frame {
 	stroke: purple;
+}
+
+#object-track-header {
+	background-color: var(--widget-background-color);
+}
+#object-track-info {
+	padding-left: 10px
+}
+
+#object-track-buttons {
+	display: inline-flex;
+	float: right;
+}
+
+#btn-restore {
+	display: none;
 }

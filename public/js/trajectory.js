@@ -14,6 +14,32 @@ class Trajectory{
             event.preventDefault();
             event.stopPropagation();             
         };
+
+        this.ui.querySelector("#btn-exit").onclick = (event)=>{
+            this.hide();
+        }
+
+        this.ui.querySelector("#btn-maximize").onclick = (event)=>{
+            let v = this.ui.querySelector("#object-track-view");
+            v.style.top = "0%";
+            v.style.left = "0%";
+            v.style.width = "100%";
+            v.style.height = "100%";
+            v.style["z-index"] = 4;
+
+            event.target.style.display = 'none';
+            this.ui.querySelector("#btn-restore").style.display = "inherit";
+        }
+
+        this.ui.querySelector("#btn-restore").onclick = (event)=>{
+            let v = this.ui.querySelector("#object-track-view");
+            v.style.top = "20%";
+            v.style.left = "20%";
+            v.style.width = "60%";
+            v.style.height = "60%";
+            event.target.style.display = 'none';
+            this.ui.querySelector("#btn-maximize").style.display = "inherit";
+        }
     }
 
     setObject(objType, objId, tracks)  //tracks is a list of [frameId, x, y, direction], in order
