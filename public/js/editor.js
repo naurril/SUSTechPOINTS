@@ -17,6 +17,7 @@ import {saveWorld, reloadWorldList, saveWorldList} from "./save.js"
 import {log} from "./log.js"
 import {autoAnnotate} from "./auto_annotate.js"
 import {Calib} from "./calib.js"
+import {Trajectory} from "./trajectory.js"
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -144,12 +145,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
         });
 
-        
+        this.objectTrackView = new Trajectory(
+            this.editorUi.querySelector("#object-track-wrapper")
+        );
 
         this.boxEditorManager = new BoxEditorManager(
             this.editorUi.querySelector("#batch-box-editor-wrapper"),
             this.floatLabelManager.fastToolboxUi,
             this.viewManager,
+            this.objectTrackView,
             this.editorCfg,
             this.boxOp,
             this.header,
@@ -189,6 +193,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             function(x,y,w,h,ctl,shift){self.handleSelectRect(x,y,w,h,ctl,shift);});
 
         this.autoAdjust=new AutoAdjust(this.boxOp, this.mouse, this.header);
+
 
 
         this.install_fast_tool();
@@ -332,6 +337,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.editorUi.querySelector("#label-edit").onclick = function(event){
             event.currentTarget.blur();
             self.selectBox(self.selected_box);
+            
         }
 
         this.editorUi.querySelector("#label-reset").onclick = function(event){
@@ -554,7 +560,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.header.mark_changed_flag();
         };
 
-        objMenuUi.querySelector("#cm-inspect-all-instances").onclick = (event)=>{
+        objMenuUi.querySelector("#cm-edit-multiple-instances").onclick = (event)=>{
 
             if (!this.selected_box.obj_track_id){
                 console.error("no track id");
@@ -563,7 +569,28 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.editBatch(
                 this.data.world.frameInfo.scene,
                 this.data.world.frameInfo.frame,
-                this.selected_box.obj_track_id
+                this.selected_box.obj_track_id,
+                this.selected_box.obj_type
+            );
+        };
+
+        objMenuUi.querySelector("#cm-show-trajectory").onclick = (event)=>{
+
+            if (!this.selected_box.obj_track_id){
+                console.error("no track id");
+            }
+
+            let tracks = this.data.worldList.map(w=>{
+                let box = w.annotation.findBoxByTrackId(this.selected_box.obj_track_id);
+                return [w.frameInfo.frame, box? w.annotation.boxToAnn(box):null, w===this.data.world]
+            });
+
+            tracks.sort((a,b)=> (a[0] > b[0])? 1 : -1);
+
+            this.objectTrackView.setObject(
+                this.selected_box.obj_type,
+                this.selected_box.obj_track_id,
+                tracks
             );
         };
 
@@ -689,7 +716,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         event.currentTarget.blur();
     };
 
-    this.editBatch = function(sceneName, frame, objectTrackId){
+    this.editBatch = function(sceneName, frame, objectTrackId, objectType){
         // hide something
         this.imageContext.hide();
         this.floatLabelManager.hide();
@@ -705,6 +732,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.data.getMetaBySceneName(sceneName), 
             frame, 
             objectTrackId,
+            objectType,
             ()=>{  //on exit
                 
                 
@@ -1485,6 +1513,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.viewManager.mainView.transform_control.attach( object );
             }
         }
+
+        this.render();
     };
 
     this.onWindowResize= function() {
