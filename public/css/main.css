@@ -4,6 +4,7 @@
 	--font-color: #ffffff;
 	--background-color: #121212;
 	--widget-background-color: #333333;
+	--window-background-color: #222222;
 	--widget-color: gray;
 }
 
@@ -11,6 +12,7 @@
 	--font-color: #000000;
 	--background-color: #ffffff;
 	--widget-background-color: #cccccc;
+	--window-background-color: #dddddd;
 	--widget-color: darkgray;
 }
 
@@ -693,7 +695,7 @@ td {
 	top: 20%;
 	height: 60%;
 	width: 60%;
-	background-color: #000000ee;
+	background-color: var(--window-background-color);
 	border: 1px;
 	border-color: gray;
 	resize: both;
@@ -710,6 +712,7 @@ td {
 
 #svg-arrows {
 	stroke: red;
+	fill:none;
 }
 
 #track-ego-car {

@@ -11,9 +11,14 @@ class Trajectory{
         };
 
         this.ui.addEventListener("keydown", (event)=>{
-            this.hide();
+
+            if (event.key == 'Escape'){
+                this.hide();
+            }
+
             event.stopPropagation();
             event.preventDefault();
+
         });
 
         this.ui.querySelector("#object-track-view").onclick = function(event){
@@ -48,6 +53,7 @@ class Trajectory{
         }
     }
 
+    
     setObject(objType, objId, tracks)  //tracks is a list of [frameId, x, y, direction], in order
     {
         //console.log(objType, objId, tracks);
