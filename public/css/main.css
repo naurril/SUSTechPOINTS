@@ -712,6 +712,11 @@ td {
 	stroke: red;
 }
 
+#track-ego-car {
+	stroke: green;
+}
+
+
 .object-track-current-frame {
 	stroke: purple;
 }

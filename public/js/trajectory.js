@@ -10,6 +10,12 @@ class Trajectory{
             this.hide();
         };
 
+        this.ui.addEventListener("keydown", (event)=>{
+            this.hide();
+            event.stopPropagation();
+            event.preventDefault();
+        });
+
         this.ui.querySelector("#object-track-view").onclick = function(event){
             event.preventDefault();
             event.stopPropagation();             
@@ -149,6 +155,7 @@ class Trajectory{
 
         let g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
         g.innerHTML = `<title>Ego car</title>`;
+        g.setAttribute("id", "track-ego-car");
         svg.appendChild(g);
 
         let p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
@@ -174,6 +181,7 @@ class Trajectory{
     show()
     {
         this.ui.style.display = 'inherit';
+        this.ui.focus();
     }
 
 }
