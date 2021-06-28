@@ -27,9 +27,11 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     this.projectiveViewOps = new ProjectiveViewOps(
         this.ui, //this.editorUi.querySelector("#sub-views"),
         cfg,
+        this,
         this.boxView.views,
         this.boxOp,
-        func_on_box_changed,func_on_box_remove);
+        func_on_box_changed,
+        func_on_box_remove);
 
     this.projectiveViewOps.init_view_operation();
 
@@ -46,6 +48,15 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         this.ui.style.display="inline-block";
         this.updateInfo();
     };
+
+    this.setIndex = function(index){
+        this.index = index; // index as of in all editors.
+    }
+
+    this.onContextMenu = function(event){
+        this.boxEditorManager.onContextMenu(event, this);
+    }
+
 
     this.resetTarget = function(){
         if (this.target.world){
@@ -234,7 +245,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
 
 //parentUi  #batch-box-editor-wrapper
-function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
+function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView, cfg, boxOp, globalHeader, contextMenu, func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
     this.viewManager = viewManager;
     this.objectTrackView = objectTrackView;
     this.boxOp = boxOp;
@@ -242,6 +253,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.editorList = [];
     this.cfg = cfg;
     this.globalHeader = globalHeader;
+    this.contextMenu = contextMenu;
     this.parentUi = parentUi;
     this.fastToolBoxUi = fastToolBoxUi;
     this.batchSize = 20;
@@ -291,10 +303,11 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
         let startIndex = Math.max(0, centerIndex-10);
 
-        sceneMeta.frames.slice(startIndex, startIndex+this.batchSize).forEach((frame)=>{
+        sceneMeta.frames.slice(startIndex, startIndex+this.batchSize).forEach((frame, editorIndex)=>{
             let world = data.getWorld(sceneName, frame);
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId);
+            editor.setIndex(editorIndex);
             
             data.activate_world(world, 
                 ()=>{
@@ -306,6 +319,42 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         });
     };
     
+    this.onContextMenu = function(event, boxEditor)
+    {
+        this.firingBoxEditor = boxEditor;
+        this.contextMenu.show("boxEditorManager", event.clientX, event.clientY, this);
+    };
+
+    this.handleContextMenuEvent = function(event)
+    {
+        console.log(event.currentTarget.id, event.type);
+        switch(event.currentTarget.id)
+        {
+        case 'cm-delete':
+            if (this.firingBoxEditor.box)
+            {
+                func_on_box_remove(this.firingBoxEditor.box)
+            }
+            break;
+        case 'cm-delete-from':
+            this.activeEditorList().slice(this.firingBoxEditor.index).forEach(be=>{
+                if (be.box)
+                {
+                    func_on_box_remove(be.box);
+                }
+            });
+            break;
+        case 'cm-delete-to':
+            this.activeEditorList().slice(0, this.firingBoxEditor.index+1).forEach(be=>{
+                if (be.box)
+                {
+                    func_on_box_remove(be.box);
+                }
+            });
+            break;
+        }
+    };
+
     this.reset = function(){
         this.activeEditorList().forEach(e=>e.resetTarget());
         this.activeIndex = 0;
@@ -338,7 +387,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
     this.toolbox = this._addToolBox();
 
-    this.refreshAllAnnotation = function(){
+    this.reloadAllAnnotation = function(){
         //this.editorList.forEach(e=>e.refreshAnnotation());
         
         let worldList = this.activeEditorList().map(e=>e.target.world);
@@ -388,8 +437,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         );
     };
 
-    this.parentUi.querySelector("#refresh").onclick = (e)=>{
-        this.refreshAllAnnotation();
+    this.parentUi.querySelector("#reload").onclick = (e)=>{
+        this.reloadAllAnnotation();
     };
 
     this.parentUi.querySelector("#interpolate").onclick = async ()=>{
@@ -530,7 +579,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             // if (this.activeEditorList().length > 1){ // are we in batch editing mode?
             //     //transfer
             //     let doneTransfer = ()=>{
-            //         this.refreshAllAnnotation();
+            //         this.reloadAllAnnotation();
             //     };
 
             //     this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
@@ -538,6 +587,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             //         "", 
             //         doneTransfer);
             // }
+
+            this.globalHeader.unmark_changed_flag();
             
         };
 

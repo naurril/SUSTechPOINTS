@@ -6,13 +6,14 @@ import {
 	Vector3
 } from "./lib/three.module.js";
 
-function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func_on_box_remove){
+function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_changed,func_on_box_remove){
 
     this.ui = ui;
     this.cfg = editorCfg;
     this.on_box_changed = func_on_box_changed;
     this.views = views;
     this.boxOp = boxOp;
+    this.boxEditor = boxEditor;
     //internals
 
     function create_view_handler(ui, 
@@ -441,16 +442,20 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
             div.onmouseenter = function(event){
                 div.focus();
 
+                ui.querySelector("#v-buttons").style.display="inherit";
+
                 if (on_focus)
                     on_focus();
             };
             div.onmouseleave = function(event){
+                ui.querySelector("#v-buttons").style.display="none";
                 div.blur();
                 mouseLeftDown = false;
             };
     
-            div.oncontextmenu = function(event){
-                console.log("context menu on prjective view.");
+            div.oncontextmenu = (event)=>{
+                //console.log("context menu on prjective view.");
+                on_contextmenu(event);
                 return false;
             };
     
@@ -838,12 +843,10 @@ function ProjectiveViewOps(ui, editorCfg, views, boxOp, func_on_box_changed,func
         if (scope.box && scope.box.boxEditor.boxEditorManager)
             scope.box.boxEditor.boxEditorManager.globalHeader.update_box_info(scope.box);
     }
-    function default_context_menu(){
-        if (scope.box){
 
-        } else {
-
-        }
+    function default_context_menu(event){
+        console.log("context menu.", scope.boxEditor.index);
+        scope.boxEditor.onContextMenu(event);
     }
 
 

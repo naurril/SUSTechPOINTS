@@ -281,7 +281,31 @@
 
 						<div class="menu-item menu-seperator"></div>
 					</div>
+
+					<div id="box-editor-context-menu">
+						<div class="menu-item" id="cm-delete">
+							<div class="menu-item-icon">							
+							</div>
+							<div class="menu-item-text">Delete</div>
+						</div>
+						
+						<div class="menu-item" id="cm-delete-from">
+							<div class="menu-item-icon">							
+							</div>
+							<div class="menu-item-text">Delete all from this frame</div>
+						</div>
+
+						<div class="menu-item" id="cm-delete-to">
+							<div class="menu-item-icon">							
+							</div>
+							<div class="menu-item-text">Delete all to this frame</div>
+						</div>
+
+						<div class="menu-item menu-seperator"></div>
+					</div>
 				</div>
+
+
 				<!-- div id="projective-view-context-menu">
 					<div class="menu-item menu-seperator"></div>
 					<div class="menu-item" id="cm-delete">
@@ -478,10 +502,10 @@
 			<select title="category"  id="object-category-selector"></select>
 			<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input>
 			<button id="trajectory">Trajectory</button>
-			<button id="refresh">Refresh</button>
-			<button id="finalize">Finalize</button>
 			<button id="auto-label">Auto</button>
 			<button id="interpolate">Interpolate</button>
+			<button id="reload">Reload</button>
+			<button id="finalize">Finalize</button>
 			<button id="save">Save</button>
 			<button id="prev">Previous</button>
 			<button id="next">Next</button>

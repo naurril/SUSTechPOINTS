@@ -18,6 +18,7 @@ import {log} from "./log.js"
 import {autoAnnotate} from "./auto_annotate.js"
 import {Calib} from "./calib.js"
 import {Trajectory} from "./trajectory.js"
+import { ContextMenu } from './context_menu.js';
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -149,6 +150,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.editorUi.querySelector("#object-track-wrapper")
         );
 
+        this.contextMenu = new ContextMenu(this.editorUi.querySelector("#context-menu-wrapper"));        
+
         this.boxEditorManager = new BoxEditorManager(
             this.editorUi.querySelector("#batch-box-editor-wrapper"),
             this.floatLabelManager.fastToolboxUi,
@@ -157,6 +160,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.editorCfg,
             this.boxOp,
             this.header,
+            this.contextMenu,
             (b)=>this.on_box_changed(b),
             (b)=>this.remove_box(b),   // on box remove
             ()=>{
@@ -197,8 +201,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
         this.install_fast_tool();
-    
-        this.install_context_menu();
     
         
         //this.projectiveViewOps.hide();
@@ -402,91 +404,47 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.view_state.lock_obj_in_highlight = true;
         }
     };
+    
+    this.handleContextMenuEvent = function(event){
 
-    this.install_context_menu= function(){
+        switch(event.currentTarget.id)
+        {
+        case 'cm-new':
+            switch (event.type)
+            {
+            case 'click':
+                //add_bbox();
+                //header.mark_changed_flag();
 
-        let menuUi = this.editorUi.querySelector("#context-menu");
-        let menuWrapper = this.editorUi.querySelector("#context-menu-wrapper");
-        menuWrapper.onclick = function(event){
-            event.currentTarget.style.display="none"; 
-            event.preventDefault();
-            event.stopPropagation();             
-        };
+                // all submenus of `new' will forward click event to here
+                // since they are children of `new'
+                // so we should 
+                event.preventDefault();
+                event.stopPropagation();
+                break;
+            case 'mouseenter':
+                menuUi.querySelector("#new-submenu").style.display="inherit";
+                break;
+            case 'mouseleave':
+                menuUi.querySelector("#new-submenu").style.display="none";
+                break;
+            };
+    
+            break;
 
-        menuWrapper.oncontextmenu = function(event){
-            //event.currentTarget.style.display="none"; 
-            event.preventDefault();
-            event.stopPropagation();
-        };
-        
-        /*    
-        this.editorUi.querySelector("#context-menu").onclick = function(enabled){
-            // some items clicked
-            menuWrapper.style.display = "none";
-            event.preventDefault();
-            event.stopPropagation();
-        };
-
-        this.editorUi.querySelector("#new-submenu").onclick = function(enabled){
-            // some items clicked
-            menuWrapper.style.display = "none";
-            event.preventDefault();
-            event.stopPropagation();
-        };
-        */
-
-        menuUi.querySelector("#cm-new").onclick = function(event){
-            //add_bbox();
-            //header.mark_changed_flag();
-
-            // all submenus of `new' will forward click event to here
-            // since they are children of `new'
-            // so we should 
-            event.preventDefault();
-            event.stopPropagation();
-
-
-        };
-
-        menuUi.querySelector("#cm-new").onmouseenter = (event)=>{
-            var item = menuUi.querySelector("#new-submenu");
-            item.style.display="inherit";
-        };
-
-        menuUi.querySelector("#cm-new").onmouseleave = function(event){
-            menuUi.querySelector("#new-submenu").style.display="none";
-            //console.log("leave  new item");
-        };
-
-
-        menuUi.querySelector("#new-submenu").onmouseenter=function(event){
-            var item = menuUi.querySelector("#new-submenu");
-            item.style.display="block";
-        }
-
-        menuUi.querySelector("#new-submenu").onmouseleave=function(event){
-            var item = menuUi.querySelector("#new-submenu");
-            item.style.display="none";
-        }
-
-
-
-        menuUi.querySelector("#cm-paste").onclick = (event)=>{
+        case 'cm-paste':
             this.autoAdjust.smart_paste(this.selected_box,
                 (p,s,r,t,i)=>this.add_box(p,s,r,t,i),
                 (b)=>this.on_box_changed(b)
                 );
-        };
-
-        menuUi.querySelector("#cm-prev-frame").onclick = (event)=>{
+            break;
+        case 'cm-prev-frame':
             this.previous_frame();
-        };
-
-        menuUi.querySelector("#cm-next-frame").onclick = (event)=>{
+            break;
+        case 'cm-next-frame':
             this.next_frame();
-        };
-
-        menuUi.querySelector("#cm-save").onclick = (event)=>{
+            break;
+        case 'cm-save':
             saveWorld(this.data.world, ()=>{
                 let frames = this.data.worldList.filter(w=>w.annotation.modified)
 
@@ -495,72 +453,70 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                     this.header.unmark_changed_flag();
                 }
             });
-        };
-
-        menuUi.querySelector("#cm-save-all").onclick = (event)=>{
-            saveWorldList(this.data.worldList, ()=>{
-                this.header.unmark_changed_flag();
-            });
-        };
-
-        menuUi.querySelector("#cm-save-all").onmouseenter = (event)=>{
-            var items = "";
-
-            let frames = this.data.worldList.filter(w=>w.annotation.modified).map(w=>w.frameInfo);
-            frames.forEach(f=>{
-                items += '<div class="menu-item"><div class="menu-item-text">'+ f.frame + '</div></div>';        
-            });
-
-            let menus = menuUi.querySelector("#saveall-submenu");
-            menus.innerHTML = items;
-            menus.style.display = "inherit";
-        };
-        menuUi.querySelector("#cm-save-all").onmouseleave = (event)=>{
-            let menus = menuUi.querySelector("#saveall-submenu");            
-            menus.style.display = "none";
-        };
-
-
-        menuUi.querySelector("#cm-reload").onclick = (event)=>{
+            break;
+        case 'cm-save-all':
+            switch (event.type)
+            {
+            case 'click':
+                saveWorldList(this.data.worldList, ()=>{
+                    this.header.unmark_changed_flag();
+                });
+                break;
+            case 'mouseenter':
+                {
+                   let menus = event.currentTarget.querySelector("#saveall-submenu");
+                   menus.innerHTML = 
+                         this.data.worldList.filter(w=>w.annotation.modified).
+                                             map(w=>w.frameInfo).
+                                             reduce((a,f)=>a + '<div class="menu-item"><div class="menu-item-text">'+ f.frame + '</div></div>', '');
+                   menus.style.display = "inherit";
+                }
+                break;
+            case 'mouseleave':
+                {
+                    let menus = event.currentTarget.querySelector("#saveall-submenu");            
+                    menus.style.display = "none";
+                }
+                break;
+            }
+            break;
+        case "cm-reload":
             reloadWorldList([this.data.world], ()=>this.on_load_world_finished(this.data.world));
-        };
-
-        menuUi.querySelector("#cm-reload-all").onclick = (event)=>{
+            break;
+        case "cm-reload-all":
             reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
-        };
-
-        menuUi.querySelector("#cm-play").onclick = (event)=>{
+            break;
+    
+        case "cm-play":
             this.playControl.play(false,
                 (w)=>{
                     this.on_load_world_finished(w)
                 });
-        };
-        menuUi.querySelector("#cm-stop").onclick = (event)=>{
+            break;
+        case "cm-stop":
             this.playControl.stop_play();
-        };
-        menuUi.querySelector("#cm-pause").onclick = (event)=>{
+            break;
+        case "cm-pause":
             this.playControl.pause_resume_play();
-        };
-
-
-        menuUi.querySelector("#cm-prev-object").onclick = (event)=>{
+            break;
+        
+        case "cm-prev-object":
             this.select_previous_object();
-        };
-
-        menuUi.querySelector("#cm-next-object").onclick = (event)=>{
+            break;
+    
+        case "cm-next-object":
             this.select_previous_object();
-        };
+            break;
 
 
-        /////////////////////////////////////////////////////////////////////////////////
+        /// object
 
-        let objMenuUi = this.editorUi.querySelector("#object-context-menu");
-        objMenuUi.querySelector("#cm-delete").onclick = (event)=>{
+        case "cm-delete":
             this.remove_selected_box();
             this.header.mark_changed_flag();
-        };
+            break;
 
-        objMenuUi.querySelector("#cm-edit-multiple-instances").onclick = (event)=>{
+        case "cm-edit-multiple-instances":
 
             if (!this.selected_box.obj_track_id){
                 console.error("no track id");
@@ -572,9 +528,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.selected_box.obj_track_id,
                 this.selected_box.obj_type
             );
-        };
+            break;
 
-        objMenuUi.querySelector("#cm-show-trajectory").onclick = (event)=>{
+        case "cm-show-trajectory":
 
             if (!this.selected_box.obj_track_id){
                 console.error("no track id");
@@ -592,67 +548,76 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.selected_box.obj_track_id,
                 tracks
             );
-        };
+            break;
 
-        objMenuUi.querySelector("#cm-select-as-ref").onclick = (event)=>{
+        case "cm-select-as-ref":
             this.autoAdjust.mark_bbox(this.selected_box);
-        };
+            break;
         
 
-        objMenuUi.querySelector("#cm-follow-ref").onclick = (event)=>{
+        case "cm-follow-ref":
             this.autoAdjust.followsRef(this.selected_box);
-        };
+            break;
 
-        objMenuUi.querySelector("#cm-sync-followers").onclick = (event)=>{
+        case "cm-sync-followers":
             this.autoAdjust.syncFollowers(this.selected_box);
             this.render();
-        };
+            break;
 
 
-        objMenuUi.querySelector("#cm-delete-obj").onclick = (event)=>{
-            let saveList=[];
-            this.data.worldList.forEach(w=>{
-                let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
-                if (box && box !== this.selected_box){
-                    w.unload_box(box);
-                    w.remove_box(box);
-                    saveList.push(w);
-                }                
-            });
+        case "cm-delete-obj":
+            {
+                let saveList=[];
+                this.data.worldList.forEach(w=>{
+                    let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                    if (box && box !== this.selected_box){
+                        w.unload_box(box);
+                        w.remove_box(box);
+                        saveList.push(w);
+                    }                
+                });
 
-            saveWorldList(saveList);
-        };
+                saveWorldList(saveList);
+            }
+            break;
 
-        objMenuUi.querySelector("#cm-modify-obj-type").onclick = (event)=>{
-            let saveList=[];
-            this.data.worldList.forEach(w=>{
-                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
-                if (box && box !== this.selected_box){
-                    box.obj_type = this.selected_box.obj_type;
-                    saveList.push(w);
-                }                
-            });
+        case "cm-modify-obj-type":
+            {
+                let saveList=[];
+                this.data.worldList.forEach(w=>{
+                    let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                    if (box && box !== this.selected_box){
+                        box.obj_type = this.selected_box.obj_type;
+                        saveList.push(w);
+                    }                
+                });
 
-            saveWorldList(saveList);
-        };
+                saveWorldList(saveList);
+            }
+            break;
 
-        objMenuUi.querySelector("#cm-modify-obj-size").onclick = (event)=>{
-            let saveList=[];
-            this.data.worldList.forEach(w=>{
-                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
-                if (box && box !== this.selected_box){
-                    box.scale.x = this.selected_box.scale.x;
-                    box.scale.y = this.selected_box.scale.y;
-                    box.scale.z = this.selected_box.scale.z;
-                    saveList.push(w);
-                }                
-            });
+        case "cm-modify-obj-size":
+            {
+                let saveList=[];
+                this.data.worldList.forEach(w=>{
+                    let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                    if (box && box !== this.selected_box){
+                        box.scale.x = this.selected_box.scale.x;
+                        box.scale.y = this.selected_box.scale.y;
+                        box.scale.z = this.selected_box.scale.z;
+                        saveList.push(w);
+                    }                
+                });
 
-            saveWorldList(saveList);
-        };
+                saveWorldList(saveList);
+            }
+            break;
 
+
+        default:
+            console.log('unhandled', event.currentTarget.id, event.type);
+        }
     };
-
 
     // this.animate= function() {
     //     let self=this;
@@ -1138,14 +1103,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.selectBox(target_obj);
             }
 
-            this.hide_world_context_menu();
-            this.show_object_context_menu(event.layerX, event.layerY);
+            // this.hide_world_context_menu();
+            // this.show_object_context_menu(event.layerX, event.layerY);
+            this.contextMenu.show("object",event.layerX, event.layerY, this);
 
         } else {
             // if no object is selected, popup context menu
             //var pos = getMousePosition(renderer.domElement, event.clientX, event.clientY );
-            this.hide_object_context_menu();
-            this.show_world_context_menu(event.layerX, event.layerY);
+            this.contextMenu.show("world",event.layerX, event.layerY, this);
         }
     };
 
@@ -2135,6 +2100,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.do_remove_box(box, render);
 
+        this.header.mark_changed_flag();
+
         if (render)
             this.render();
         
@@ -2152,6 +2119,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.floatLabelManager.remove_box(box);
                     
         //this.selected_box.dispose();
+        box.world.annotation.setModified();
         box.world.annotation.unload_box(box);
         box.world.annotation.remove_box(box);
     },

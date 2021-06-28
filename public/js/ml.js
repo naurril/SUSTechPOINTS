@@ -274,8 +274,14 @@ var ml = {
                 let tempAnn = filter.predict();
 
                 if (autoAdj){
-                    tempAnn = await autoAdj(i, tempAnn);
-                    filter.update(tempAnn);
+                    try {
+                        tempAnn = await autoAdj(i, tempAnn);
+                        filter.update(tempAnn);    
+                    } catch (error) {
+                        console.log(error);
+                        filter.nextStep(tempAnn);
+                    }
+                    
                 }
                 else{
                     filter.nextStep(tempAnn);
