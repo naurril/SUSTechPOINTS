@@ -65,34 +65,33 @@ def generate_dataset(calib_path, raw_path, dataset_path):
     prepare_dirs(os.path.join(dataset_path, 'calib/camera'))
 
     for camera in camera_list:
-        os.chdir(os.path.join(dataset_path, "/camera/", camera))
         prepare_dirs(os.path.join(dataset_path, "camera",  camera))
-        os.system("ln -s ../../../intermediate/camera/" + camera + "/aligned/*.5.jpg  ./)
-        os.system("ln -s ../../../intermediate/camera/" + camera + "/aligned/*.0.jpg  ./")
+        os.chdir(os.path.join(dataset_path, "camera", camera))
+        os.system("ln -s -f  ../../../intermediate/camera/" + camera + "/aligned/*.5.jpg  ./")
+        os.system("ln -s -f ../../../intermediate/camera/" + camera + "/aligned/*.0.jpg  ./")
         
-    os.chdir(os.path.join(dataset_path, "/lidar"))
-    os.system("ln -s ../../intermediate/lidar/*.0.pcd ./")
-    os.system("ln -s ../../intermediate/lidar/*.5.pcd ./")
+    os.chdir(os.path.join(dataset_path, "lidar"))
+    os.system("ln -s -f ../../intermediate/lidar/*.0.pcd ./")
+    os.system("ln -s -f ../../intermediate/lidar/*.5.pcd ./")
     
     
-def process(calib_path, raw_data_path, output_path):
+def process(calib_path, raw_data_path, output_path, gen_dataset_only):
     
     
-    for camera in camera_list:
-        process_one_camera(camera, calib_path, raw_data_path, output_path)
+    if not (gen_dataset_only == 'gen-dataset-only'):
+        for camera in camera_list:
+            process_one_camera(camera, calib_path, raw_data_path, output_path)
 
-    align_frame_time.link_one_folder(os.path.join(raw_data_path, 'pandar_points'),
-                                     os.path.join(output_path, 'intermediate', 'lidar'),
-                                     0)
+        align_frame_time.link_one_folder(os.path.join(raw_data_path, 'pandar_points'),
+                                        os.path.join(output_path, 'intermediate', 'lidar'),
+                                        0)
 
     generate_dataset(calib_path, os.path.join(output_path, 'intermediate'), os.path.join(output_path, "dataset"))
     
 
 
 
-    
-
 if __name__ == "__main__":
-    _, calib_path, raw_data_path, output_path = sys.argv
+    _, calib_path, raw_data_path, output_path, gen_dataset_only = sys.argv
 
-    process(calib_path, raw_data_path, output_path)
+    process(calib_path, raw_data_path, output_path, gen_dataset_only)
