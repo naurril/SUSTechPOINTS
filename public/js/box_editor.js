@@ -234,8 +234,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
 
 //parentUi  #batch-box-editor-wrapper
-function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
+function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView, cfg, boxOp, globalHeader, func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
     this.viewManager = viewManager;
+    this.objectTrackView = objectTrackView;
     this.boxOp = boxOp;
     this.activeIndex = 0;
     this.editorList = [];
@@ -259,7 +260,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
     
     this.onExit = null;
     // frame specifies the center frame to edit
-    this.edit = function(data, sceneMeta, frame, objTrackId, onExit){
+    this.edit = function(data, sceneMeta, frame, objTrackId, objType, onExit){
         
         this.show();
         this.reset();
@@ -273,11 +274,12 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
         this.editingTarget.data = data;
         this.editingTarget.sceneMeta = sceneMeta;
         this.editingTarget.objTrackId = objTrackId;
+        this.editingTarget.objType = objType;
         this.editingTarget.frame = frame;
 
         this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
-        //this.parentUi.querySelector("#object-category-selector").value=objTrackId;
-        //we don't know the obj type
+        this.parentUi.querySelector("#object-category-selector").value=objType;
+        
 
         let centerIndex = sceneMeta.frames.findIndex(f=>f==frame);
         this.editingTarget.frameIndex = centerIndex;
@@ -368,7 +370,24 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, cfg, boxOp, glob
     this.parentUi.querySelector("#object-track-id-editor").onchange = (ev)=>this.object_track_id_changed(ev);
     this.parentUi.querySelector("#object-category-selector").onchange = (ev)=>this.object_category_changed(ev);
 
+    
     // this should follow addToolBox
+
+    this.parentUi.querySelector("#trajectory").onclick = (e)=>{
+        let tracks = this.editingTarget.data.worldList.map(w=>{
+            let box = w.annotation.findBoxByTrackId(this.editingTarget.objTrackId);
+            return [w.frameInfo.frame, box? w.annotation.boxToAnn(box):null, false]
+        });
+
+        tracks.sort((a,b)=> (a[0] > b[0])? 1 : -1);
+
+        this.objectTrackView.setObject(
+            this.editingTarget.objType,
+            this.editingTarget.objTrackId,
+            tracks
+        );
+    };
+
     this.parentUi.querySelector("#refresh").onclick = (e)=>{
         this.refreshAllAnnotation();
     };

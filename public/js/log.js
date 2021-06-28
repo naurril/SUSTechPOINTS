@@ -19,7 +19,7 @@ function Log(){
         this.clear.style.display="none";
     };
 
-    this.clear.onclick = (evnet) =>{
+    this.clear.onclick = (event) =>{
         event.stopPropagation();
         event.preventDefault();
 

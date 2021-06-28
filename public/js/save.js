@@ -3,6 +3,9 @@
 import {load_obj_ids_of_scene} from "./obj_id_list.js"
 import {log} from "./log.js"
 
+
+
+
 function reloadWorldList(worldList, done){
     var xhr = new XMLHttpRequest();
         // we defined the xhr
@@ -74,6 +77,10 @@ function saveWorldList(worldList, done){
     
         if (this.status == 200) {
             
+            worldList.forEach(w=>{
+                w.annotation.resetModified();
+            })
+
             log.println(`saved: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
 
             if(done){
@@ -108,13 +115,18 @@ function saveWorld(world, done){
     
         if (this.status == 200) {
             log.println(`saved: ${world}`);
-            if(done){
-                done();
-            }
+            world.annotation.resetModified();
 
             //reload obj-ids of the scene
             //todo: this shall be moved to done
             load_obj_ids_of_scene(world.frameInfo.scene);
+
+            if(done){
+                done();
+            }
+
+            
+            
         }
     
         // end of state change: it can be after some time (async)
