@@ -17,6 +17,8 @@ class ContextMenu {
                     this.menus[m].children[i].onclick = (event) =>
                     {
                         this.handler.handleContextMenuEvent(event);
+                        event.preventDefault();
+                        event.stopPropagation()
                     }
                 }
             }

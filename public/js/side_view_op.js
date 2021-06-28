@@ -547,12 +547,17 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     
         
                 handle.onmouseup = function(event){
+                    if (event.which!=1)
+                        return;
+
                     //line.style["stroke-dasharray"]="none";
                     hide();
                     handle.onmouseleave = hide;
                 };
         
                 handle.ondblclick= function(event){
+                    if (event.which!=1)
+                        return;
                     event.stopPropagation();
                     event.preventDefault();
                     on_auto_shrink(direction); //if double click on 'move' handler, the directoin is null
@@ -560,6 +565,9 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 };
         
                 handle.onmousedown = function(event){
+                    if (event.which!=1)
+                        return;
+
                     highlight();
                     disable_handle_except(handle);
     
@@ -615,6 +623,9 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                     }
         
                     svg.onmousemove = function(event){
+
+                        if (event.which!=1)
+                            return;
                         
                         mouse_cur_pos={x: event.layerX,y:event.layerY,};
                         
@@ -847,6 +858,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     function default_context_menu(event){
         console.log("context menu.", scope.boxEditor.index);
         scope.boxEditor.onContextMenu(event);
+        event.stopPropagation();
+        event.preventDefault();
     }
 
 
