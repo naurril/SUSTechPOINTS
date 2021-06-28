@@ -456,7 +456,7 @@ function BoxOp(){
         }
     }
 
-    this.interpolateAsync = async function(worldList, boxList){
+    this.interpolateAsync = async function(worldList, boxList, applyIndList){
         
         // if annotator is not null, it's annotated by us algorithms
         let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector(b));
@@ -469,6 +469,11 @@ function BoxOp(){
         let obj_track_id = refObj.obj_track_id;
 
         for (let i = 0; i< boxList.length; i++){
+            if (!applyIndList[i])
+            {
+                continue;
+            }
+
             if (!boxList[i]){
                 // create new box
                 let world = worldList[i];
@@ -500,7 +505,7 @@ function BoxOp(){
         }
     };
 
-    this.interpolateAndAutoAdjustAsync = async function(worldList, boxList, onFinishOneBoxCB){
+    this.interpolateAndAutoAdjustAsync = async function(worldList, boxList, onFinishOneBoxCB, applyIndList){
         
         
 
@@ -535,6 +540,11 @@ function BoxOp(){
         let onFinishOneBox= (index)=>{
             console.log(`auto insert ${index} ${worldList[index].frameInfo.frame}done`);
             let i = index;
+
+            if (!applyIndList[i]){
+                return;
+            }
+
             if (!boxList[i]){
                 // create new box
                 let world = worldList[i];

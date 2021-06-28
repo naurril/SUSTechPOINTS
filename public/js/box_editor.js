@@ -54,7 +54,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     }
 
     this.onContextMenu = function(event){
-        this.boxEditorManager.onContextMenu(event, this);
+        if (this.boxEditorManager)  // there is no manager for box editor in main ui
+            this.boxEditorManager.onContextMenu(event, this);
     }
 
 
@@ -336,21 +337,80 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 func_on_box_remove(this.firingBoxEditor.box)
             }
             break;
-        case 'cm-delete-from':
-            this.activeEditorList().slice(this.firingBoxEditor.index).forEach(be=>{
+        case 'cm-delete-next':
+            this.activeEditorList().slice(this.firingBoxEditor.index+1).forEach(be=>{
                 if (be.box)
                 {
                     func_on_box_remove(be.box);
                 }
             });
             break;
-        case 'cm-delete-to':
-            this.activeEditorList().slice(0, this.firingBoxEditor.index+1).forEach(be=>{
+        case 'cm-delete-previous':
+            this.activeEditorList().slice(0, this.firingBoxEditor.index).forEach(be=>{
                 if (be.box)
                 {
                     func_on_box_remove(be.box);
                 }
             });
+            break;
+        case 'cm-interpolate':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+                applyIndList[this.firingBoxEditor.index]= true;
+                this.interpolate(applyIndList);
+            }
+            break;
+        case 'cm-interpolate-next':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+
+                for (let i = this.firingBoxEditor.index+1; i < applyIndList.length; i++){
+                    applyIndList[i]= true;
+                }
+
+                this.interpolate(applyIndList);
+            }
+            break;
+        case 'cm-interpolate-previous':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+
+                for (let i = 0; i < this.firingBoxEditor.index; i++){
+                    applyIndList[i]= true;
+                }
+
+                this.interpolate(applyIndList);
+            }
+            break;
+
+        case 'cm-auto-annotate':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+                applyIndList[this.firingBoxEditor.index]= true;
+                this.autoAnnotate(applyIndList);
+            }
+            break;
+        case 'cm-auto-annotate-next':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+
+                for (let i = this.firingBoxEditor.index+1; i < applyIndList.length; i++){
+                    applyIndList[i]= true;
+                }
+
+                this.autoAnnotate(applyIndList);
+            }
+            break;
+        case 'cm-auto-annotate-previous':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+
+                for (let i = 0; i < this.firingBoxEditor.index; i++){
+                    applyIndList[i]= true;
+                }
+
+                this.autoAnnotate(applyIndList);
+            }
             break;
         }
     };
@@ -409,6 +469,27 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         reloadWorldList(worldList, done);
     }
 
+    this.interpolate = async function(applyIndList){
+        let boxList = this.activeEditorList().map(e=>e.box);        
+        let worldList = this.activeEditorList().map(e=>e.target.world);
+        await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
+        this.activeEditorList().forEach(e=>e.tryAttach());
+        this.viewManager.render();
+    };
+
+    this.autoAnnotate = async function(applyIndList){
+        let editors = this.activeEditorList();
+        let boxList = editors.map(e=>e.box);
+        let worldList = editors.map(e=>e.target.world);
+
+        let onFinishOneBox = (i)=>{
+            editors[i].tryAttach();
+            this.viewManager.render();
+        }
+        
+        await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList);
+    }
+
     this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
         e.stopPropagation();});
     
@@ -443,26 +524,15 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
     this.parentUi.querySelector("#interpolate").onclick = async ()=>{
         //this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
-        let boxList = this.activeEditorList().map(e=>e.box);
-        let worldList = this.activeEditorList().map(e=>e.target.world);
-        await this.boxOp.interpolateAsync(worldList, boxList)
-        this.activeEditorList().forEach(e=>e.tryAttach());
-        this.viewManager.render();
+        
+        let applyIndList = this.activeEditorList().map(e=>true); //all shoud be applied.
+        this.interpolate(applyIndList);
+        
     };
 
     this.parentUi.querySelector("#auto-label").onclick = async ()=>{
-        let editors = this.activeEditorList();
-        let boxList = editors.map(e=>e.box);
-        let worldList = editors.map(e=>e.target.world);
-
-        let onFinishOneBox = (i)=>{
-            editors[i].tryAttach();
-            this.viewManager.render();
-        }
-        
-        await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox)
-        // this.activeEditorList().forEach(e=>e.tryAttach());
-        // this.viewManager.render();
+        let applyIndList = this.activeEditorList().map(e=>true); //all shoud be applied.
+        this.autoAnnotate(applyIndList);
     };
 
     this.parentUi.querySelector("#exit").onclick = ()=>{

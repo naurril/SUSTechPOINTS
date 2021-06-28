@@ -340,7 +340,7 @@ dynamic set obj-type css has higher priority than this one.
 
 .menu-seperator {
 	padding: 0.5px;
-	background-color: #333;
+	background-color:var(--widget-color);
 }
 
 .dg.ac {
