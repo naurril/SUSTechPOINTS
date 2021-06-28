@@ -508,7 +508,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             let frames = this.data.worldList.filter(w=>w.annotation.modified).map(w=>w.frameInfo);
             frames.forEach(f=>{
-                items += '<div class="menu-item"><div class="menu-item-text">'+f.scene + '-' + f.frame + '</div></div>';        
+                items += '<div class="menu-item"><div class="menu-item-text">'+ f.frame + '</div></div>';        
             });
 
             let menus = menuUi.querySelector("#saveall-submenu");
