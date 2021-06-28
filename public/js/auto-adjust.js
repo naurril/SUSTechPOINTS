@@ -268,7 +268,7 @@ function AutoAdjust(boxOp, mouse, header){
         if (!box){
             box = this.paste_bbox(this.mouse.get_mouse_location_in_world(), add_box);
         }
-        else{
+        else if (this.marked_object){
             box.scale.x = this.marked_object.ann.psr.scale.x;
             box.scale.y = this.marked_object.ann.psr.scale.y;
             box.scale.z = this.marked_object.ann.psr.scale.z;

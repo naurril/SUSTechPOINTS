@@ -332,8 +332,29 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
 
         this.editorUi.querySelector("#label-paste").onclick = (event)=>{
-            this.autoAdjust.smart_paste(self.selected_box, null, (b)=>this.on_box_changed(b));
+            //this.autoAdjust.smart_paste(self.selected_box, null, (b)=>this.on_box_changed(b));
+            this.boxOp.auto_rotate_xyz(this.selected_box, null, null, 
+                (b)=>this.on_box_changed(b),
+                "noscaling");
             //event.currentTarget.blur();
+        }
+
+        this.editorUi.querySelector("#label-batchedit").onclick = (event)=>{
+            if (!this.selected_box.obj_track_id){
+                console.error("no track id");
+            }
+
+            this.editBatch(
+                this.data.world.frameInfo.scene,
+                this.data.world.frameInfo.frame,
+                this.selected_box.obj_track_id,
+                this.selected_box.obj_type
+            );
+        }
+
+
+        this.editorUi.querySelector("#label-trajectory").onclick = (event)=>{
+            this.showTrajectory();            
         }
 
         this.editorUi.querySelector("#label-edit").onclick = function(event){
@@ -405,6 +426,25 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
     };
     
+    this.showTrajectory = function(){
+        if (!this.selected_box.obj_track_id){
+            console.error("no track id");
+        }
+
+        let tracks = this.data.worldList.map(w=>{
+            let box = w.annotation.findBoxByTrackId(this.selected_box.obj_track_id);
+            return [w.frameInfo.frame, box? w.annotation.boxToAnn(box):null, w===this.data.world]
+        });
+
+        tracks.sort((a,b)=> (a[0] > b[0])? 1 : -1);
+
+        this.objectTrackView.setObject(
+            this.selected_box.obj_type,
+            this.selected_box.obj_track_id,
+            tracks
+        );
+    }
+
     this.handleContextMenuEvent = function(event){
 
         switch(event.currentTarget.id)
@@ -478,13 +518,20 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
         case "cm-reload":
             {
-                reloadWorldList([this.data.world], ()=>this.on_load_world_finished(this.data.world));
+                reloadWorldList([this.data.world], ()=>{
+                    this.on_load_world_finished(this.data.world);
+                    this.header.update_modified_flag();
+                });
+                
             }
             break;
         case "cm-reload-all":
             {
-                reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
-                this.header.update_modified_flag();
+                reloadWorldList(this.data.worldList, ()=>{
+                    this.on_load_world_finished(this.data.world);
+                    this.header.update_modified_flag();
+                });
+                
             }
             break;
     
@@ -533,22 +580,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-show-trajectory":
 
-            if (!this.selected_box.obj_track_id){
-                console.error("no track id");
-            }
-
-            let tracks = this.data.worldList.map(w=>{
-                let box = w.annotation.findBoxByTrackId(this.selected_box.obj_track_id);
-                return [w.frameInfo.frame, box? w.annotation.boxToAnn(box):null, w===this.data.world]
-            });
-
-            tracks.sort((a,b)=> (a[0] > b[0])? 1 : -1);
-
-            this.objectTrackView.setObject(
-                this.selected_box.obj_type,
-                this.selected_box.obj_track_id,
-                tracks
-            );
+            this.showTrajectory();
             break;
 
         case "cm-select-as-ref":
@@ -2162,7 +2194,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.save_box_info(box);
         
         this.header.update_modified_flag();
-        
+
         if (box.boxEditor){
             box.boxEditor.onBoxChanged();
         }

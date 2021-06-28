@@ -71,13 +71,13 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
             return [rx, ry, rz];
         };
     
-        /*
-        input is coordinates of 8 vertices
-        bottom-left-front, bottom-right-front, bottom-right-back, bottom-left-back
-        top-left-front,    top-right-front,    top-right-back,    top-left-back
+    /*
+    input is coordinates of 8 vertices
+    bottom-left-front, bottom-right-front, bottom-right-back, bottom-left-back
+    top-left-front,    top-right-front,    top-right-back,    top-left-back
 
-        this format is what SECOND/PointRcnn save their results.
-        */
+    this format is what SECOND/PointRcnn save their results.
+    */
     this.python_xyz_to_psr = function(text){
             var _self = this;
     
