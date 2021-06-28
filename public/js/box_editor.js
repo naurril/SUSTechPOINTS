@@ -463,7 +463,10 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             if (func_on_annotation_reloaded)
                 func_on_annotation_reloaded();
             // render all, at last
+
             this.viewManager.render();
+
+            this.globalHeader.update_modified_flag();
         };
 
         reloadWorldList(worldList, done);
@@ -474,6 +477,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         let worldList = this.activeEditorList().map(e=>e.target.world);
         await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
         this.activeEditorList().forEach(e=>e.tryAttach());
+
+        this.globalHeader.update_modified_flag();
         this.viewManager.render();
     };
 
@@ -488,6 +493,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         }
         
         await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList);
+
+        this.globalHeader.update_modified_flag();
     }
 
     this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
@@ -658,7 +665,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             //         doneTransfer);
             // }
 
-            this.globalHeader.unmark_changed_flag();
+            this.globalHeader.update_modified_flag();
             
         };
 

@@ -322,7 +322,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         let self=this;
         this.editorUi.querySelector("#label-del").onclick = function(){
             self.remove_selected_box();
-            self.header.mark_changed_flag();
+            self.header.update_modified_flag();
             //event.currentTarget.blur();
         };
 
@@ -446,12 +446,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
         case 'cm-save':
             saveWorld(this.data.world, ()=>{
-                let frames = this.data.worldList.filter(w=>w.annotation.modified)
-
-                if (frames.length == 0)
-                {
-                    this.header.unmark_changed_flag();
-                }
+                
+                this.header.update_modified_flag();
             });
             break;
         case 'cm-save-all':
@@ -459,7 +455,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             {
             case 'click':
                 saveWorldList(this.data.worldList, ()=>{
-                    this.header.unmark_changed_flag();
+                    this.header.update_modified_flag();
                 });
                 break;
             case 'mouseenter':
@@ -481,10 +477,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             break;
         case "cm-reload":
-            reloadWorldList([this.data.world], ()=>this.on_load_world_finished(this.data.world));
+            {
+                reloadWorldList([this.data.world], ()=>this.on_load_world_finished(this.data.world));
+            }
             break;
         case "cm-reload-all":
-            reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
+            {
+                reloadWorldList(this.data.worldList, ()=>this.on_load_world_finished(this.data.world));
+                this.header.update_modified_flag();
+            }
             break;
     
         case "cm-play":
@@ -513,7 +514,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-delete":
             this.remove_selected_box();
-            this.header.mark_changed_flag();
+            this.header.update_modified_flag();
             break;
 
         case "cm-edit-multiple-instances":
@@ -1785,7 +1786,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 's':
                 if (ev.ctrlKey){
                     saveWorld(this.data.world, ()=>{
-                        this.header.unmark_changed_flag();
+                        this.header.update_modified_flag();
                     });
                 }
                 break;
@@ -1884,12 +1885,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case 'D':
                 if (ev.ctrlKey){
                     this.remove_selected_box();
-                    this.header.mark_changed_flag();    
+                    this.header.update_modified_flag();    
                 }
                 break;
             case 'Delete':
                 this.remove_selected_box();
-                this.header.mark_changed_flag();
+                this.header.update_modified_flag();
                 break;
             case 'Escape':
                 if (this.selected_box){
@@ -2003,11 +2004,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.select_locked_object();
         
-        if (world.annotation.modified)
-            this.header.mark_changed_flag();
-        else
-            this.header.unmark_changed_flag();
-
         load_obj_ids_of_scene(world.frameInfo.scene);
 
         // preload after the first world loaded
@@ -2100,7 +2096,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.do_remove_box(box, render);
 
-        this.header.mark_changed_flag();
+        this.header.update_modified_flag();
 
         if (render)
             this.render();
@@ -2157,12 +2153,16 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.header.update_box_info(box);
         //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
-        this.header.mark_changed_flag();
+        
         box.world.annotation.setModified();
+        
+        
 
         this.updateBoxPointsColor(box);
         this.save_box_info(box);
-
+        
+        this.header.update_modified_flag();
+        
         if (box.boxEditor){
             box.boxEditor.onBoxChanged();
         }

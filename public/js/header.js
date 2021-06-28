@@ -83,14 +83,16 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
 
     },
     
-    this.unmark_changed_flag = function(){
-        //this.changedMarkUi.innerText=" ";
-        this.ui.querySelector("#changed-mark").className = 'header-button';
-    },
-    
-    this.mark_changed_flag = function(){
-        //this.changedMarkUi.innerHTML="<span title='modified'>*</span>";
-        this.ui.querySelector("#changed-mark").className = 'header-button alarm-mark';
+    this.update_modified_flag = function(){
+        let frames = this.data.worldList.filter(w=>w.annotation.modified);
+        if (frames.length > 0)
+        {
+            this.ui.querySelector("#changed-mark").className = 'header-button alarm-mark';            
+        }
+        else
+        {
+            this.ui.querySelector("#changed-mark").className = 'header-button';
+        }
     }
 
     this.ui.querySelector("#changed-mark").onmouseenter = ()=>{
@@ -113,7 +115,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
 
     this.ui.querySelector("#save-button").onclick = ()=>{
         saveWorldList(this.data.worldList, ()=>{
-            this.unmark_changed_flag();
+            this.update_modified_flag();
             this.ui.querySelector("#changed-world-list-wrapper").style.display = 'none';
         });
     }

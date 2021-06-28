@@ -486,6 +486,7 @@ function BoxOp(){
                               obj_track_id);
                 newBox.annotator="M";
                 world.annotation.load_box(newBox);
+                world.annotation.setModified();
 
             } else if (boxList[i].annotator) {
                 // modify box attributes
@@ -501,6 +502,8 @@ function BoxOp(){
                 boxList[i].rotation.x = b.rotation.x;
                 boxList[i].rotation.y = b.rotation.y;
                 boxList[i].rotation.z = b.rotation.z;
+
+                boxList[i].world.annotation.setModified();
             }
         }
     };
