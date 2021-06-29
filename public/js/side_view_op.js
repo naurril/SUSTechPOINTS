@@ -76,13 +76,12 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
         }
     
         var buttons = {
-            auto_move: ui.querySelector("#v-auto-move"),
+            auto_move_wo_scaling: ui.querySelector("#v-auto-translate-wo-scaling"),
+            auto_move: ui.querySelector("#v-auto-translate"),
             auto_rotate_wo_scaling: ui.querySelector("#v-auto-rotate-wo-scaling"),
             auto_rotate: ui.querySelector("#v-auto-rotate"),
             reset_rotate: ui.querySelector("#v-reset-rotate"),
         };
-    
-        
         
         
     
@@ -509,6 +508,13 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                     on_auto_rotate("noscaling")
                 };
             }
+
+            if (buttons.auto_move_wo_scaling && on_auto_move){
+                buttons.auto_move_wo_scaling.onclick = function(event){
+                    on_auto_move("noscaling");
+                };
+            }
+
             if (buttons.auto_move && on_auto_move){
                 buttons.auto_move.onclick = function(event){
                     on_auto_move();
@@ -1068,11 +1074,11 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
         //z_view_handle.update_view_handle(scope.views[0].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
-    function on_z_auto_move(){
+    function on_z_auto_move(noscaling){
 
         scope.boxOp.auto_rotate_xyz(scope.box, null, 
             null,//{x:false, y:false, z:true}, 
-            scope.on_box_changed, "noscaling", "dontrotate");
+            scope.on_box_changed, noscaling, "dontrotate");
     }
 
     function on_z_auto_rotate(noscaling){
