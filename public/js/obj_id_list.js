@@ -45,7 +45,7 @@ function load_obj_ids_of_scene(scene, done){
 }
 
 //todo: should use all worldlist
-function generate_new_unique_id(world){
+function generateNewUniqueId(world){
     var id = 1;
     var objs_of_current_frame = world.annotation.boxes.map(function(b){return b.obj_track_id;});
     var allobjs = objs_of_current_frame.concat(obj_id_list);
@@ -57,4 +57,4 @@ function generate_new_unique_id(world){
 }
 
 
-export {load_obj_ids_of_scene, generate_new_unique_id};
+export {load_obj_ids_of_scene, generateNewUniqueId};

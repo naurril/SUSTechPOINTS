@@ -83,7 +83,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
 
     },
     
-    this.update_modified_flag = function(){
+    this.updateModifiedStatus = function(){
         let frames = this.data.worldList.filter(w=>w.annotation.modified);
         if (frames.length > 0)
         {
@@ -115,7 +115,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
 
     this.ui.querySelector("#save-button").onclick = ()=>{
         saveWorldList(this.data.worldList, ()=>{
-            this.update_modified_flag();
+            this.updateModifiedStatus();
             this.ui.querySelector("#changed-world-list-wrapper").style.display = 'none';
         });
     }

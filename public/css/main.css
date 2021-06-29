@@ -736,6 +736,17 @@ td {
 	float: right;
 }
 
+.one-track:hover {
+	stroke: yellow;
+	z-index: 10;
+}
+
+.track-wrapper {
+	stroke: #00000000;
+	fill: #00000000;	
+}
+
+
 #btn-restore {
 	display: none;
 }

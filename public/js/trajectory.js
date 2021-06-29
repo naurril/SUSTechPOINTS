@@ -9,7 +9,7 @@ class Trajectory{
         this.ui.onclick = ()=>{
             this.hide();
         };
-
+        
         this.ui.addEventListener("keydown", (event)=>{
 
             if (event.key == 'Escape'){
@@ -25,6 +25,21 @@ class Trajectory{
             event.preventDefault();
             event.stopPropagation();             
         };
+
+        
+        this.resizeObserver = new ResizeObserver(elements=>{
+
+            if (elements[0].contentRect.height == 0)
+                return;
+                
+            this.show();
+            this.clear();
+            this.updateScale();
+
+            this.drawTracks(this.object);
+        });
+
+        this.resizeObserver.observe(ui.querySelector("#object-track-view"));
 
         this.ui.querySelector("#btn-exit").onclick = (event)=>{
             this.hide();
@@ -53,14 +68,33 @@ class Trajectory{
         }
     }
 
+    scale = 1;
+
+    updateScale()
+    {
+        let v = this.ui.querySelector("#object-track-view");
+        this.scale = Math.max(1000/v.clientHeight, 1000/v.clientWidth);
+    }
     
+    object = {};
+
     setObject(objType, objId, tracks)  //tracks is a list of [frameId, x, y, direction], in order
     {
+
+        this.object  = {
+            type: objType,
+            id: objId,
+            tracks:tracks
+        };
+
         //console.log(objType, objId, tracks);
-        this.ui.querySelector("#object-track-info").innerText = objType + " "+ + objId;
+        
+
         this.show();
         this.clear();
-        this.drawTracks(tracks);
+        this.updateScale();
+
+        this.drawTracks(this.object);
     }
 
     clear(){
@@ -105,8 +139,12 @@ class Trajectory{
         }
     }
 
-    drawTracks(tracks)
+    drawTracks(object)
     {
+        this.ui.querySelector("#object-track-info").innerText = object.type + " "+ + object.id;
+        let tracks = object.tracks;
+
+
         let svg = this.ui.querySelector("#svg-arrows");
 
         let trans = this.calculateCoordinateScale(tracks);
@@ -118,18 +156,29 @@ class Trajectory{
                 let [x,y] = trans(track[1].psr.position.x, track[1].psr.position.y)
                 let g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
                 g.innerHTML = `<title>${track[0]}</title>`;
+                g.setAttribute("class","one-track");
 
                 if (track[2])
                 {
-                    g.setAttribute("class", "object-track-current-frame");
+                    g.setAttribute("class", "one-track object-track-current-frame");
                 }
 
                 svg.appendChild(g);
 
+                //wrapper circle
                 let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
                 p.setAttribute("cx", x);
                 p.setAttribute("cy", y);
-                p.setAttribute("r", 10);
+                p.setAttribute("r", 20 * this.scale);
+                p.setAttribute("class","track-wrapper");
+                
+                g.appendChild(p);
+
+
+                p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+                p.setAttribute("cx", x);
+                p.setAttribute("cy", y);
+                p.setAttribute("r", 10 * this.scale);
                 
                 g.appendChild(p);
 
@@ -137,12 +186,12 @@ class Trajectory{
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
                 p.setAttribute("x1", x);
                 p.setAttribute("y1", y);
-                p.setAttribute("x2", x + 30 * Math.cos(track[1].psr.rotation.z + Math.PI));
-                p.setAttribute("y2", y - 30 * Math.sin(track[1].psr.rotation.z + Math.PI));
+                p.setAttribute("x2", x + 30 * this.scale * Math.cos(track[1].psr.rotation.z + Math.PI));
+                p.setAttribute("y2", y - 30  * this.scale* Math.sin(track[1].psr.rotation.z + Math.PI));
                 g.appendChild(p);
 
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-                p.setAttribute("x", x + 50);
+                p.setAttribute("x", x + 50 * this.scale);
                 p.setAttribute("y", y);
                 p.textContent = track[0];
                 g.appendChild(p);
@@ -165,17 +214,17 @@ class Trajectory{
         svg.appendChild(g);
 
         let p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-        p.setAttribute("x1", x-10);
+        p.setAttribute("x1", x-10 * this.scale);
         p.setAttribute("y1", y);
-        p.setAttribute("x2", x+10);
+        p.setAttribute("x2", x+10 * this.scale);
         p.setAttribute("y2", y);
         g.appendChild(p);
 
         p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
         p.setAttribute("x1", x);
-        p.setAttribute("y1", y-10);
+        p.setAttribute("y1", y-10 * this.scale);
         p.setAttribute("x2", x);
-        p.setAttribute("y2", y+10);
+        p.setAttribute("y2", y+10 * this.scale);
         g.appendChild(p);
     }
 

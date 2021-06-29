@@ -8,7 +8,7 @@ import {BoxEditor, BoxEditorManager} from "./box_editor.js"
 import {ImageContext} from "./image.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
-import {load_obj_ids_of_scene, generate_new_unique_id} from "./obj_id_list.js"
+import {load_obj_ids_of_scene, generateNewUniqueId} from "./obj_id_list.js"
 import {Header} from "./header.js"
 import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js"
@@ -322,7 +322,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         let self=this;
         this.editorUi.querySelector("#label-del").onclick = function(){
             self.remove_selected_box();
-            self.header.update_modified_flag();
+            self.header.updateModifiedStatus();
             //event.currentTarget.blur();
         };
 
@@ -487,7 +487,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 'cm-save':
             saveWorld(this.data.world, ()=>{
                 
-                this.header.update_modified_flag();
+                this.header.updateModifiedStatus();
             });
             break;
         case 'cm-save-all':
@@ -495,7 +495,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             {
             case 'click':
                 saveWorldList(this.data.worldList, ()=>{
-                    this.header.update_modified_flag();
+                    this.header.updateModifiedStatus();
                 });
                 break;
             case 'mouseenter':
@@ -520,7 +520,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             {
                 reloadWorldList([this.data.world], ()=>{
                     this.on_load_world_finished(this.data.world);
-                    this.header.update_modified_flag();
+                    this.header.updateModifiedStatus();
                 });
                 
             }
@@ -529,7 +529,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             {
                 reloadWorldList(this.data.worldList, ()=>{
                     this.on_load_world_finished(this.data.world);
-                    this.header.update_modified_flag();
+                    this.header.updateModifiedStatus();
                 });
                 
             }
@@ -561,7 +561,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-delete":
             this.remove_selected_box();
-            this.header.update_modified_flag();
+            this.header.updateModifiedStatus();
             break;
 
         case "cm-edit-multiple-instances":
@@ -1091,7 +1091,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
             if (id == "new"){
-                id = generate_new_unique_id(this.data.world);
+                id = generateNewUniqueId(this.data.world);
                 this.floatLabelManager.update_label_editor(this.selected_box.obj_type, id);
             }
 
@@ -1818,7 +1818,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 's':
                 if (ev.ctrlKey){
                     saveWorld(this.data.world, ()=>{
-                        this.header.update_modified_flag();
+                        this.header.updateModifiedStatus();
                     });
                 }
                 break;
@@ -1917,12 +1917,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case 'D':
                 if (ev.ctrlKey){
                     this.remove_selected_box();
-                    this.header.update_modified_flag();    
+                    this.header.updateModifiedStatus();    
                 }
                 break;
             case 'Delete':
                 this.remove_selected_box();
-                this.header.update_modified_flag();
+                this.header.updateModifiedStatus();
                 break;
             case 'Escape':
                 if (this.selected_box){
@@ -2128,7 +2128,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.do_remove_box(box, render);
 
-        this.header.update_modified_flag();
+        this.header.updateModifiedStatus();
 
         if (render)
             this.render();
@@ -2193,7 +2193,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.updateBoxPointsColor(box);
         this.save_box_info(box);
         
-        this.header.update_modified_flag();
+        this.header.updateModifiedStatus();
 
         if (box.boxEditor){
             box.boxEditor.onBoxChanged();

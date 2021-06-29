@@ -1,7 +1,7 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import {FocusImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
-import {generate_new_unique_id} from "./obj_id_list.js"
+import {generateNewUniqueId} from "./obj_id_list.js"
 
 /*
 2 ways to attach and edit a box
@@ -304,7 +304,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
         let startIndex = Math.max(0, centerIndex-10);
 
-        sceneMeta.frames.slice(startIndex, startIndex+this.batchSize).forEach((frame, editorIndex)=>{
+        let frames = sceneMeta.frames.slice(startIndex, startIndex+this.batchSize);
+        frames.forEach((frame, editorIndex)=>{
             let world = data.getWorld(sceneName, frame);
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId);
@@ -318,6 +319,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 },
                 true);
         });
+
+        
     };
     
     this.onContextMenu = function(event, boxEditor)
@@ -466,7 +469,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
             this.viewManager.render();
 
-            this.globalHeader.update_modified_flag();
+            this.globalHeader.updateModifiedStatus();
         };
 
         reloadWorldList(worldList, done);
@@ -478,11 +481,11 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
         this.activeEditorList().forEach(e=>e.tryAttach());
 
-        this.globalHeader.update_modified_flag();
+        this.globalHeader.updateModifiedStatus();
         this.viewManager.render();
     };
 
-    this.autoAnnotate = async function(applyIndList){
+    this.autoAnnotate = async function(applyIndList, dontRotate){
         let editors = this.activeEditorList();
         let boxList = editors.map(e=>e.box);
         let worldList = editors.map(e=>e.target.world);
@@ -492,9 +495,9 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             this.viewManager.render();
         }
         
-        await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList);
+        await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList, dontRotate);
 
-        this.globalHeader.update_modified_flag();
+        this.globalHeader.updateModifiedStatus();
     }
 
     this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
@@ -537,9 +540,14 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         
     };
 
-    this.parentUi.querySelector("#auto-label").onclick = async ()=>{
+    this.parentUi.querySelector("#auto-annotate").onclick = async ()=>{
         let applyIndList = this.activeEditorList().map(e=>true); //all shoud be applied.
         this.autoAnnotate(applyIndList);
+    };
+
+    this.parentUi.querySelector("#auto-annotate-translate-only").onclick = async ()=>{
+        let applyIndList = this.activeEditorList().map(e=>true); //all shoud be applied.
+        this.autoAnnotate(applyIndList, "dontrotate");
     };
 
     this.parentUi.querySelector("#exit").onclick = ()=>{
@@ -565,7 +573,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.edit(
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
-            this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex-10, 0)],
+            this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex-15, 0)],
             this.editingTarget.objTrackId
         );
     };
@@ -607,16 +615,19 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.activeEditorList().forEach(e=>{
             if (e.box){
                 delete e.box.annotator;
+                e.box.world.annotation.setModified();
                 e.updateInfo();
             }
-        })
+        });
+
+        this.globalHeader.updateModifiedStatus();
     };
 
     this.object_track_id_changed = function(event){
         var id = event.currentTarget.value;
 
         if (id == "new"){
-            id = generate_new_unique_id(this.editingTarget.data.world);            
+            id = generateNewUniqueId(this.editingTarget.data.world);            
             this.parentUi.querySelector("#object-track-id-editor").value=id;
         }
 
@@ -665,7 +676,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             //         doneTransfer);
             // }
 
-            this.globalHeader.update_modified_flag();
+            this.globalHeader.updateModifiedStatus();
             
         };
 

@@ -508,7 +508,7 @@ function BoxOp(){
         }
     };
 
-    this.interpolateAndAutoAdjustAsync = async function(worldList, boxList, onFinishOneBoxCB, applyIndList){
+    this.interpolateAndAutoAdjustAsync = async function(worldList, boxList, onFinishOneBoxCB, applyIndList, dontRotate){
         
         
 
@@ -530,7 +530,7 @@ function BoxOp(){
                 };
             };
             
-            let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true);
+            let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true, dontRotate);
             return world.annotation.ann_to_vector(adjustedBox);
         };
 

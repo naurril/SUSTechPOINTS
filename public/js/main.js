@@ -74,6 +74,7 @@ function start(metaData){
         enablePointIntensity: false,
         enableRadar:true,
         enableAuxLidar: true,
+        enableDynamicGroundLevel: true,
       }
       
       let data = new Data(metaData, dataCfg);
