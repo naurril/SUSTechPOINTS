@@ -415,6 +415,55 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 this.autoAnnotate(applyIndList);
             }
             break;
+
+        case 'cm-auto-annotate-wo-rotation':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+                applyIndList[this.firingBoxEditor.index]= true;
+                this.autoAnnotate(applyIndList, "dontrotate");
+            }
+            break;
+
+        case 'cm-auto-annotate-wo-rotation-next':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+
+                for (let i = this.firingBoxEditor.index+1; i < applyIndList.length; i++){
+                    applyIndList[i]= true;
+                }
+
+                this.autoAnnotate(applyIndList, "dontrotate");
+            }
+            break;
+        case 'cm-auto-annotate-wo-rotation-previous':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+
+                for (let i = 0; i < this.firingBoxEditor.index; i++){
+                    applyIndList[i]= true;
+                }
+
+                this.autoAnnotate(applyIndList, "dontrotate");
+            }
+            break;
+            
+        case 'cm-finalize':
+            {
+                let e = this.firingBoxEditor;
+                
+                if (e.box){
+                    delete e.box.annotator;
+                    e.box.world.annotation.setModified();
+                    e.updateInfo();
+                }
+
+                this.globalHeader.updateModifiedStatus();;
+            }
+            break;
+            
+        case 'cm-reload':
+            this.reloadAnnotation([this.firingBoxEditor]);                
+            break;
         }
     };
 
@@ -450,14 +499,16 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
     this.toolbox = this._addToolBox();
 
-    this.reloadAllAnnotation = function(){
+    this.reloadAnnotation = function(editorList){
         //this.editorList.forEach(e=>e.refreshAnnotation());
         
-        let worldList = this.activeEditorList().map(e=>e.target.world);
+        if (!editorList)
+            editorList = this.activeEditorList()
+        let worldList = editorList.map(e=>e.target.world);
 
         let done = (anns)=>{
             // update editor
-            this.activeEditorList().forEach(e=>{
+            editorList.forEach(e=>{
                 e.tryAttach();
                 e.update("dontrender");
             });
@@ -529,7 +580,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     };
 
     this.parentUi.querySelector("#reload").onclick = (e)=>{
-        this.reloadAllAnnotation();
+        this.reloadAnnotation();
     };
 
     this.parentUi.querySelector("#interpolate").onclick = async ()=>{
@@ -667,7 +718,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             // if (this.activeEditorList().length > 1){ // are we in batch editing mode?
             //     //transfer
             //     let doneTransfer = ()=>{
-            //         this.reloadAllAnnotation();
+            //         this.reloadAnnotation();
             //     };
 
             //     this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
