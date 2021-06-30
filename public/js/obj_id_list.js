@@ -1,60 +1,100 @@
 
 
-var obj_id_list = [];
-function load_obj_ids_of_scene(scene, done){
 
-    var xhr = new XMLHttpRequest();
-    // we defined the xhr
-    
-    xhr.onreadystatechange = function () {
-        if (this.readyState != 4) 
-            return;
-    
-        if (this.status == 200) {
-            var ret = JSON.parse(this.responseText);
-            
-            ret = ret.sort(function(x, y){
-                return x.id - y.id;
-            });
-
-            let obj_id_option_list = ret.map(function(c){
-                return "<option value="+c.id+">"+c.category+"</option>";
-            }).reduce(function(x,y){return x+y;}, 
-                            //"<option value='auto'></option><option value='new'></option>");
-                            "<option value='new'>suggest a new id</option>");
-
-            obj_id_list = ret.map(function(x){return x.id;});
-
-            document.getElementById("obj-ids-of-scene").innerHTML = obj_id_option_list;
-
-
-            let objectList = ret.map(function(c){
-                   return "<option value="+c.id+">"+String(c.id) +"-"+ c.category+"</option>";
-                 }).reduce(function(x,y){return x+y;},
-                           "<option>--object--</option>");
-            document.getElementById("object-selector").innerHTML = objectList;
-
-            if (done)
-                done(ret)
-        }
-
-    };
-    
-    xhr.open('GET', "/objs_of_scene?scene="+scene, true);
-    xhr.send();
-}
-
-//todo: should use all worldlist
-function generateNewUniqueId(world){
-    var id = 1;
-    var objs_of_current_frame = world.annotation.boxes.map(function(b){return b.obj_track_id;});
-    var allobjs = objs_of_current_frame.concat(obj_id_list);
-    while (allobjs.findIndex(function(x){return x == id;}) >= 0){
-        id++;
+class ObjectIdManager
+{
+    maxId = 1;
+    objectList = [];
+    //todo: should use all worldlist
+    generateNewUniqueId(world){
+        this.maxId += 1;
+        return this.maxId;
     }
 
-    return id;
+    scene = "";
+    setCurrentScene(scene, done)
+    {
+        if (scene != this.scene)
+        {
+            this.scene = scene;
+            this.load_obj_ids_of_scene(scene, done);
+        }
+    }
+
+    // should just tell  editor
+    // don't change html elements directly.
+    setObjdIdListOptions()
+    {
+        let objSelOptions = this.objectList.map(function(c){
+            return "<option value="+c.id+">"+String(c.id) +"-"+ c.category+"</option>";
+          }).reduce(function(x,y){return x+y;},
+                    "<option>--object--</option>");
+        document.getElementById("object-selector").innerHTML = objSelOptions;
+
+
+        let objIdsOptions = this.objectList.map(function(c){
+            return "<option value="+c.id+">"+c.category+"</option>";
+        }).reduce(function(x,y){return x+y;}, 
+                        //"<option value='auto'></option><option value='new'></option>");
+                        "<option value='new'>suggest a new id</option>");
+
+        document.getElementById("obj-ids-of-scene").innerHTML = objIdsOptions;
+    }
+
+    // called when 1) new object 2) category/id modified
+    addObject(obj)
+    {
+        if (! this.objectList.find(x=>x.id == obj.id && x.category == obj.category))
+        {
+            this.objectList.push(obj);      
+            this.objectList = this.objectList.sort(function(x, y){
+                return x.id - y.id;
+            });      
+
+            this.setObjdIdListOptions();
+
+            if (obj.id > this.maxId)
+            {
+                this.maxId = obj.id;
+            }
+        }
+    }
+
+    load_obj_ids_of_scene(scene, done){
+
+        var xhr = new XMLHttpRequest();
+        // we defined the xhr
+        let self =this;
+
+        xhr.onreadystatechange = function() {
+            if (this.readyState != 4) 
+                return;
+        
+            if (this.status == 200) {
+                var ret = JSON.parse(this.responseText);
+
+                ret = ret.sort(function(x, y){
+                                    return x.id - y.id;
+                                });
+                                    
+                self.objectList = ret;
+                self.maxId = Math.max(...ret.map(function(x){return x.id;}));
+                self.setObjdIdListOptions();
+    
+                if (done)
+                    done(ret)
+            }
+    
+        };
+        
+        xhr.open('GET', "/objs_of_scene?scene="+scene, true);
+        xhr.send();
+    }
+    
 }
 
 
-export {load_obj_ids_of_scene, generateNewUniqueId};
+let objIdManager = new ObjectIdManager();
+
+
+export {objIdManager};

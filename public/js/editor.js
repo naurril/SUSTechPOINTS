@@ -8,7 +8,7 @@ import {BoxEditor, BoxEditorManager} from "./box_editor.js"
 import {ImageContext} from "./image.js"
 import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
 
-import {load_obj_ids_of_scene, generateNewUniqueId} from "./obj_id_list.js"
+import {objIdManager} from "./obj_id_list.js"
 import {Header} from "./header.js"
 import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js"
@@ -698,7 +698,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.editorUi.querySelector("#camera-selector").innerHTML = camera_selector_str;
         }
 
-        load_obj_ids_of_scene(sceneName);
+        //load_obj_ids_of_scene(sceneName);
     };
 
     this.frame_changed= function(event){
@@ -1082,6 +1082,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             // this.render();
             this.on_box_changed(this.selected_box);
+
+            //todo: we don't know if the old one is already deleted.
+            // could use object count number?
+            objIdManager.addObject({
+                category: this.selected_box.obj_type,
+                id: this.selected_box.obj_track_id,
+            });
         }
     };
 
@@ -1089,9 +1096,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         if (this.selected_box){
             var id = event.currentTarget.value;
 
-
             if (id == "new"){
-                id = generateNewUniqueId(this.data.world);
+                id = objIdManager.generateNewUniqueId();
                 this.floatLabelManager.update_label_editor(this.selected_box.obj_type, id);
             }
 
@@ -1099,6 +1105,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
             //this.header.mark_changed_flag();
             this.on_box_changed(this.selected_box);
+
+            //
+            objIdManager.addObject({
+                category: this.selected_box.obj_type,
+                id: this.selected_box.obj_track_id,
+            });
         }
     };
 
@@ -2036,7 +2048,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.select_locked_object();
         
-        load_obj_ids_of_scene(world.frameInfo.scene);
+        //load_obj_ids_of_scene(world.frameInfo.scene);
+        objIdManager.setCurrentScene(world.frameInfo.scene);
 
         // preload after the first world loaded
         // otherwise the loading of the first world would be too slow

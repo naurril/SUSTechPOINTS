@@ -1,6 +1,6 @@
 
 
-import {load_obj_ids_of_scene} from "./obj_id_list.js"
+
 import {log} from "./log.js"
 
 
@@ -119,7 +119,7 @@ function saveWorld(world, done){
 
             //reload obj-ids of the scene
             //todo: this shall be moved to done
-            load_obj_ids_of_scene(world.frameInfo.scene);
+            //load_obj_ids_of_scene(world.frameInfo.scene);
 
             if(done){
                 done();

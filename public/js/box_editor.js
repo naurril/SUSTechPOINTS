@@ -1,7 +1,7 @@
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import {FocusImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
-import {generateNewUniqueId} from "./obj_id_list.js"
+import {objIdManager} from "./obj_id_list.js"
 
 /*
 2 ways to attach and edit a box
@@ -627,7 +627,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         var id = event.currentTarget.value;
 
         if (id == "new"){
-            id = generateNewUniqueId(this.editingTarget.data.world);            
+            id = objIdManager.generateNewUniqueId();
             this.parentUi.querySelector("#object-track-id-editor").value=id;
         }
 
