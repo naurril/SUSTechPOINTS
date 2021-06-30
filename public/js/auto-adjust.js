@@ -29,10 +29,11 @@ function AutoAdjust(boxOp, mouse, header){
     this.followsRef = function(box){
         //find ref object in current frame
         let world = box.world;
-        let refObj = world.annotation.boxes.find(b=>b.obj_track_id == this.marked_object.ann.obj_track_id);
+        let refObj = world.annotation.boxes.find(b=>b.obj_track_id == this.marked_object.ann.obj_id);
         if (refObj){
             console.log("found ref obj in current frame");
-
+            world.annotation.setModified()
+            
             //compute relative position
             // represent obj in coordinate system of refobj
             
@@ -49,7 +50,7 @@ function AutoAdjust(boxOp, mouse, header){
             };
             
             let worldList = box.world.data.worldList;
-            let saveList = [];
+            //let saveList = [];
             worldList.forEach(w=>{
                 if (w === box.world){
                     //current frame
@@ -133,10 +134,11 @@ function AutoAdjust(boxOp, mouse, header){
                 }
 
                 console.log("added box in ", w.frameInfo.frame);
-                saveList.push(w);
+                //saveList.push(w);
+                w.annotation.setModified();
             });
 
-            saveWorldList(saveList);
+            //saveWorldList(saveList);
         }
     };
 

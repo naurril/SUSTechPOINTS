@@ -590,59 +590,71 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-follow-ref":
             this.autoAdjust.followsRef(this.selected_box);
+            this.header.updateModifiedStatus();
+
             break;
 
         case "cm-sync-followers":
             this.autoAdjust.syncFollowers(this.selected_box);
+            this.header.updateModifiedStatus();
             this.render();
             break;
 
 
         case "cm-delete-obj":
             {
-                let saveList=[];
+                //let saveList=[];
                 this.data.worldList.forEach(w=>{
-                    let box = w.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                    let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
                     if (box && box !== this.selected_box){
                         w.unload_box(box);
                         w.remove_box(box);
-                        saveList.push(w);
+                        //saveList.push(w);
+                        w.annotation.setModified();
                     }                
                 });
 
-                saveWorldList(saveList);
+                //saveWorldList(saveList);
+                this.header.updateModifiedStatus();
             }
             break;
 
         case "cm-modify-obj-type":
             {
-                let saveList=[];
+                //let saveList=[];
                 this.data.worldList.forEach(w=>{
                     let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
                     if (box && box !== this.selected_box){
                         box.obj_type = this.selected_box.obj_type;
-                        saveList.push(w);
+                        //saveList.push(w);
+                        w.annotation.setModified();
                     }                
+                    
                 });
 
-                saveWorldList(saveList);
+                //saveWorldList(saveList);
+                this.header.updateModifiedStatus();
             }
             break;
 
         case "cm-modify-obj-size":
             {
-                let saveList=[];
+                //let saveList=[];
                 this.data.worldList.forEach(w=>{
                     let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
                     if (box && box !== this.selected_box){
                         box.scale.x = this.selected_box.scale.x;
                         box.scale.y = this.selected_box.scale.y;
                         box.scale.z = this.selected_box.scale.z;
-                        saveList.push(w);
+                        //saveList.push(w);
+
+                        w.annotation.setModified();
                     }                
+                    
                 });
 
-                saveWorldList(saveList);
+                //saveWorldList(saveList);
+                this.header.updateModifiedStatus();
             }
             break;
 
@@ -2206,7 +2218,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.updateBoxPointsColor(box);
         this.save_box_info(box);
         
-        this.header.updateModifiedStatus();
+        
 
         if (box.boxEditor){
             box.boxEditor.onBoxChanged();
@@ -2224,7 +2236,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         if (box.on_box_changed){
             box.on_box_changed();
         }
-        
+
+        this.header.updateModifiedStatus();
         this.render();
     };
 
