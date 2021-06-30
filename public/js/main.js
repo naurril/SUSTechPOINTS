@@ -70,7 +70,7 @@ function start(metaData){
 
       let dataCfg = {
         //disableLabels: true,
-        disablePreload: true,
+        //disablePreload: true,
         enablePointIntensity: false,
         enableRadar:true,
         enableAuxLidar: true,
