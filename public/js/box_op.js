@@ -514,7 +514,7 @@ function BoxOp(){
 
         // if annotator is not null, it's annotated by us algorithms
         let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector(b));
-        console.log(anns);
+        console.log("anns to interpolate", anns);
 
         let autoAdjAsync = async (index, newAnn)=>{
             //let box = boxList[index];

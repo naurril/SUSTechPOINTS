@@ -1,6 +1,83 @@
 
 
 import {matmul, euler_angle_to_rotate_matrix_3by3, transpose, matmul2} from "./util.js"
+const annMath = {
+
+    sub: function(a,b){    //pos, rot, scale
+        
+        let c = [];
+        for (let i in a)
+        {
+            c[i] = a[i] - b[i];
+        }
+
+        return this.norm(c);
+    },
+
+    div: function(a, d){  // d is scalar
+        let c = [];
+        for (let i in a)
+        {
+            c[i] = a[i]/d;
+        }
+
+        return c;
+    },
+
+    add: function(a, b){
+        let c = [];
+        for (let i in a)
+        {
+            c[i] = a[i] + b[i];
+        }
+
+        
+        return this.norm(c);
+    },
+
+    mul: function(a, d)  // d is scalar
+    {
+        let c = [];
+        for (let i in a)
+        {
+            c[i] = a[i]*d;
+        }
+
+        return this.norm(c);
+    },
+
+    norm: function(c)
+    {
+        for (let i = 3; i< 6; i++)
+        {
+            if (c[i] > Math.PI)
+            {
+                c[i] -= Math.PI * 2;
+            }
+            else if (c[i] < - Math.PI)
+            {
+                c[i] += Math.PI * 2;
+            }
+        }
+
+        return c;
+    },
+
+    eleMul: function(a,b) //element-wise multiplication
+    {
+        let c = [];
+        for (let i in a)
+        {
+            c[i] = a[i] * b[i];
+        }
+
+        
+        return c;
+    }
+
+};
+
+
 
 var ml = {
     backend: tf.getBackend(),
@@ -236,10 +313,10 @@ var ml = {
             if (i < anns.length){
                 let end = i;
                 // insert (begin, end)
-                let interpolate_step = tf.div(tf.sub(anns[end], anns[start]), (end-start));
+                let interpolate_step = annMath.div(annMath.sub(anns[end], anns[start]), (end-start));
 
                 for (let inserti=start+1; inserti<end; inserti++){
-                    let tempAnn = tf.add(anns[start], tf.mul(interpolate_step, inserti-start)).dataSync();
+                    let tempAnn = annMath.add(anns[start], annMath.mul(interpolate_step, inserti-start));
 
                     if (autoAdj)
                         tempAnn = await autoAdj(inserti, tempAnn);
@@ -335,11 +412,11 @@ var ml = {
 }
 
 
-function MaFilter(initX){
-    this.x = tf.tensor1d(initX);
+function MaFilter_tf(initX){   // moving average filter
+    this.x = tf.tensor1d(initX);  // pose
     this.step = 0;
     
-    this.v = tf.zeros([9]);
+    this.v = tf.zeros([9]);  // velocity
     this.decay = tf.tensor1d([0.5, 0.5, 0.5, 
                               0.5, 0.5, 0.5,
                               0.5, 0.5, 0.5])
@@ -359,6 +436,42 @@ function MaFilter(initX){
     this.predict = function(){
         let pred = tf.concat([tf.add(this.x, this.v).slice(0,6), this.x.slice(6)]);
         return pred.dataSync();
+    };
+
+    this.nextStep = function(x){
+        this.x = x;
+        this.step++;
+    };
+
+}
+
+
+
+function MaFilter(initX){   // moving average filter
+    this.x = initX;  // pose
+    this.step = 0;
+    
+    this.v = [0,0,0, 0,0,0, 0,0,0];  // velocity
+    this.ones = [1,1,1, 1,1,1, 1,1,1];
+    this.decay = [0.5, 0.5, 0.5, 
+                  0.5, 0.5, 0.5,
+                  0.5, 0.5, 0.5];
+
+    this.update = function(x){
+        if (this.step == 0){
+            this.v = annMath.sub(x, this.x);
+        } else {
+            this.v = annMath.add(annMath.eleMul(annMath.sub(x, this.x), this.decay),
+                                 annMath.eleMul(this.v, annMath.sub(this.ones, this.decay)));
+        }
+
+        this.x = x;
+        this.step++;
+    };
+
+    this.predict = function(){
+        let pred = [...annMath.add(this.x, this.v).slice(0,6), ...this.x.slice(6)];
+        return pred;
     };
 
     this.nextStep = function(x){
