@@ -14,11 +14,9 @@ class Trajectory{
 
             if (event.key == 'Escape'){
                 this.hide();
+                event.stopPropagation();
+                event.preventDefault();
             }
-
-            event.stopPropagation();
-            event.preventDefault();
-
         });
 
         this.ui.querySelector("#object-track-view").onclick = function(event){
@@ -174,7 +172,7 @@ class Trajectory{
                 
                 g.appendChild(p);
 
-
+                //object
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
                 p.setAttribute("cx", x);
                 p.setAttribute("cy", y);
@@ -182,7 +180,7 @@ class Trajectory{
                 
                 g.appendChild(p);
 
-
+                //direction
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
                 p.setAttribute("x1", x);
                 p.setAttribute("y1", y);
@@ -190,11 +188,26 @@ class Trajectory{
                 p.setAttribute("y2", y - 30  * this.scale* Math.sin(track[1].psr.rotation.z + Math.PI));
                 g.appendChild(p);
 
-                p = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                // frame
+                // p = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                // p.setAttribute("x", x + 50 * this.scale);
+                // p.setAttribute("y", y);
+                // p.textContent = track[0];
+                // g.appendChild(p);
+
+                p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
                 p.setAttribute("x", x + 50 * this.scale);
                 p.setAttribute("y", y);
-                p.textContent = track[0];
+                // p.setAttribute("width", 200 * this.scale);
+                p.setAttribute("font-size", 10 * this.scale+"px");
+                p.setAttribute("class",'track-label');
+
+                let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
+                text.textContent = track[0];
+                p.appendChild(text);
+
                 g.appendChild(p);
+                
 
             }
         });

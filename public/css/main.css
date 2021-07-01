@@ -720,6 +720,16 @@ td {
 	stroke: green;
 }
 
+.track-label {
+	width: 150px;
+	height: 28px;
+	/* font-size: 18px; */
+}
+/* 
+.track-label:hover {
+	color: yellow;
+}
+ */
 
 .object-track-current-frame {
 	stroke: purple;
@@ -738,6 +748,7 @@ td {
 }
 
 .one-track:hover {
+	color: yellow;
 	stroke: yellow;
 	z-index: 10;
 }
