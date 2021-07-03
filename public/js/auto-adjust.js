@@ -57,7 +57,7 @@ function AutoAdjust(boxOp, mouse, header){
                     return;
                 }
                 
-                let existedBox = w.annotation.boxes.find(b=>b.obj_track_id === box.obj_track_id);
+                let existedBox = w.annotation.boxes.find(b=>b.obj_track_id == box.obj_track_id);
                 
                 if (existedBox && !existedBox.annotator)
                 {
@@ -66,7 +66,7 @@ function AutoAdjust(boxOp, mouse, header){
                     return;
                 }
 
-                let refObjInW = w.annotation.boxes.find(b=>b.obj_track_id === refObj.obj_track_id);
+                let refObjInW = w.annotation.boxes.find(b=>b.obj_track_id == refObj.obj_track_id);
                 if (!refObjInW){
                     // not found refobj in this world, give up
                     return;

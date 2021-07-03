@@ -55,7 +55,7 @@ class ObjectIdManager
 
             if (obj.id > this.maxId)
             {
-                this.maxId = obj.id;
+                this.maxId = parseInt(obj.id);
             }
         }
     }
@@ -79,6 +79,9 @@ class ObjectIdManager
                                     
                 self.objectList = ret;
                 self.maxId = Math.max(...ret.map(function(x){return x.id;}));
+                if (!self.maxId)
+                    self.maxId = 1;
+
                 self.setObjdIdListOptions();
     
                 if (done)

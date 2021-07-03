@@ -694,6 +694,7 @@ td {
 	position: relative;
 	left: 20%;
 	top: 20%;
+	
 	height: 60%;
 	width: 60%;
 	background-color: var(--window-background-color);
