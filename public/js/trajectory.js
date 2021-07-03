@@ -2,6 +2,11 @@
 
 
 class Trajectory{
+
+    mouseDown = false;
+    mouseDwwnPos = {};
+
+    
     constructor(ui)
     {
         this.ui = ui;
@@ -10,6 +15,44 @@ class Trajectory{
             this.hide();
         };
         
+        this.viewUi = this.ui.querySelector("#object-track-view");
+        this.headerUi = this.ui.querySelector("#object-track-header");
+
+
+        this.headerUi.addEventListener("mousedown", (event)=>{
+            this.headerUi.style.cursor = "move";
+            this.mouseDown = true;
+            this.mouseDownPos = {x: event.clientX, y:event.clientY};
+        });
+
+        this.ui.addEventListener("mouseup", (event)=>{
+            if (this.mouseDown){
+                this.headerUi.style.cursor = "";
+                event.stopPropagation();
+                event.preventDefault();
+                this.mouseDown = false;            
+            }
+        });
+
+        this.ui.addEventListener("mousemove", (event)=>{
+
+            if (this.mouseDown){
+                let posDelta = {
+                    x: event.clientX - this.mouseDownPos.x,
+                    y: event.clientY - this.mouseDownPos.y 
+                };
+    
+                this.mouseDownPos = {x: event.clientX, y:event.clientY};
+
+                let left = this.viewUi.offsetLeft;
+                let top  = this.viewUi.offsetTop;
+
+                this.viewUi.style.left = (left + posDelta.x) + 'px';
+                this.viewUi.style.top = (top + posDelta.y) + 'px';
+            }
+
+        });
+
         this.ui.addEventListener("keydown", (event)=>{
 
             if (event.key == 'Escape'){
@@ -68,7 +111,7 @@ class Trajectory{
 
     scale = 1;
 
-    updateScale()
+    updateScale()  //viewport -> view rect
     {
         let v = this.ui.querySelector("#object-track-view");
         this.scale = Math.max(1000/v.clientHeight, 1000/v.clientWidth);
@@ -117,7 +160,7 @@ class Trajectory{
         let max_y = Math.max(...ys, 0);
         let min_y = Math.min(...ys, 0);
 
-        let scale = Math.max(max_x - min_x, max_y - min_y);
+        let scale = Math.max(max_x - min_x, max_y - min_y);  // world -> viewport
 
         if (scale == 0)
             scale = 1;
