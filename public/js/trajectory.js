@@ -32,8 +32,14 @@ class Trajectory{
             event.stopPropagation();             
         };
 
+        this.ui.querySelector("#object-track-view").addEventListener("contextmenu", (e)=>{
+            e.stopPropagation();
+            e.preventDefault();
+        });
+
 
         this.svgUi = this.ui.querySelector("#object-track-svg");
+
         this.svgUi.addEventListener("wheel", (event)=>{
             console.log("wheel", event.wheelDelta);
 
