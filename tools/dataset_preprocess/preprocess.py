@@ -54,7 +54,7 @@ def prepare_dirs(path):
     if not os.path.exists(path):
             os.makedirs(path)
 
-def generate_dataset(calib_path, raw_path, dataset_path):
+def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
 
     
     prepare_dirs(dataset_path)
@@ -64,34 +64,45 @@ def generate_dataset(calib_path, raw_path, dataset_path):
     prepare_dirs(os.path.join(dataset_path, 'calib'))
     prepare_dirs(os.path.join(dataset_path, 'calib/camera'))
 
+    os.chdir(os.path.join(dataset_path, "calib", "camera"))
+    os.system("ln -s -f " + extrinsic_calib_path + "/camera/* ./")
+
+
     for camera in camera_list:
         prepare_dirs(os.path.join(dataset_path, "camera",  camera))
         os.chdir(os.path.join(dataset_path, "camera", camera))
-        os.system("ln -s -f  ../../../intermediate/camera/" + camera + "/aligned/*.5.jpg  ./")
-        os.system("ln -s -f ../../../intermediate/camera/" + camera + "/aligned/*.0.jpg  ./")
+
+        for slot in timeslots:
+            os.system("ln -s -f  ../../../intermediate/camera/" + camera + "/aligned/*."+slot+".jpg  ./")
         
     os.chdir(os.path.join(dataset_path, "lidar"))
-    os.system("ln -s -f ../../intermediate/lidar/*.0.pcd ./")
-    os.system("ln -s -f ../../intermediate/lidar/*.5.pcd ./")
+
+    for slot in timeslots:
+        os.system("ln -s -f ../../intermediate/lidar/*."+slot+".pcd ./")
     
     
-def process(calib_path, raw_data_path, output_path, gen_dataset_only):
     
-    
-    if not (gen_dataset_only == 'gen-dataset-only'):
+def process(intrinsic_calib_path, raw_data_path, output_path):
+          
         for camera in camera_list:
-            process_one_camera(camera, calib_path, raw_data_path, output_path)
+            process_one_camera(camera, intrinsic_calib_path, raw_data_path, output_path)
 
         align_frame_time.link_one_folder(os.path.join(raw_data_path, 'pandar_points'),
                                         os.path.join(output_path, 'intermediate', 'lidar'),
                                         0)
 
-    generate_dataset(calib_path, os.path.join(output_path, 'intermediate'), os.path.join(output_path, "dataset"))
+    
     
 
-
-
 if __name__ == "__main__":
-    _, calib_path, raw_data_path, output_path, gen_dataset_only = sys.argv
 
-    process(calib_path, raw_data_path, output_path, gen_dataset_only)
+    if len(sys.argv) != 8:
+        print("intrinsic_calib_path, extrinsic_calib_path, raw_data_path, output_path, gen_dataset_only, dataset_name, timeslots ")
+        exit()
+
+    _, intrinsic_calib_path, extrinsic_calib_path, raw_data_path, output_path, gen_dataset_only, dataset_name, timeslots = sys.argv
+
+    if not (gen_dataset_only == 'gen-dataset-only'):
+        process(intrinsic_calib_path, raw_data_path, output_path)
+
+    generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )

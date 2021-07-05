@@ -79,8 +79,8 @@ class ObjectIdManager
                                     
                 self.objectList = ret;
                 self.maxId = Math.max(...ret.map(function(x){return x.id;}));
-                if (!self.maxId)
-                    self.maxId = 1;
+                if (self.maxId < 0) // this is -infinity if there is no ids.
+                    self.maxId = 0;
 
                 self.setObjdIdListOptions();
     
