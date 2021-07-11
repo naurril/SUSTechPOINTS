@@ -569,7 +569,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-show-frame-info":
             {
-                
                 let info = {"scend-id": this.data.world.frameInfo.scene,
                             "frame": this.data.world.frameInfo.frame
                            };
@@ -582,7 +581,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                     };
                 }
 
-                this.infoBox.show("Scene info - " + this.data.world.frameInfo.scene, JSON.stringify(info,null,"\t"));
+                this.infoBox.show("Frame info - " + this.data.world.frameInfo.scene, JSON.stringify(info,null,"\t"));
             }
             break;
         case "cm-crop-scene":

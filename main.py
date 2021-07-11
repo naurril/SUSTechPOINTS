@@ -27,8 +27,8 @@ import algos.trajectory as trajectory
 # extract_object_exe = "~/code/pcltest/build/extract_object"
 # registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
 
-sys.path.append(os.path.join(BASE_DIR, './tools'))
-import tools.dataset_preprocess.crop_scene as crop_scene
+# sys.path.append(os.path.join(BASE_DIR, './tools'))
+# import tools.dataset_preprocess.crop_scene as crop_scene
 
 class Root(object):
     @cherrypy.expose
@@ -97,7 +97,7 @@ class Root(object):
       print(
         rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz", # date/scene
         "calib",
-        data["id"],
+        #data["id"],
         data["startTime"],
         data["seconds"],
         data["desc"]
@@ -107,7 +107,7 @@ class Root(object):
         "python ./tools/dataset_preprocess/crop_scene.py "+
         rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz " + # date/scene
         "calib " +
-        data["id"] + " " +
+        #data["id"] + " " +
         data["startTime"] + " " +
         data["seconds"] + " " +
         "\""+ data["desc"] + "\""

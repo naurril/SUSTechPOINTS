@@ -423,11 +423,12 @@
 					<div class="menu-item menu-seperator"></div>				
 				</div -->
 				<div id="object-track-wrapper" tabindex="-1">
-					<div id="object-track-view">
-						<div id="object-track-header">
-							<span>Trajectory</span>
-							<span id ="object-track-info">obj-type-id</span>
-							<div id="object-track-buttons">
+					<div id="view">
+						<div id="header">
+							<span id="title">
+								Trajectory								
+							</span>
+							<div id="buttons">
 								<div id="btn-restore" class="ui-button"  title="restore">
 									<!-- <span class="ui-icon ui-icon-trash"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -457,10 +458,10 @@
 				</div>
 
 				<div id="info-wrapper" tabindex='-1'>
-					<div id="info-view">
-						<div id="info-header">
-							<span id="info-title">Info</span>
-							<div id="info-buttons">
+					<div id="view">
+						<div id="header">
+							<span id="title">Info</span>
+							<div id="buttons">
 								<div id="btn-restore" class="ui-button"  title="restore">
 									<!-- <span class="ui-icon ui-icon-trash"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -486,10 +487,10 @@
 				</div>
 
 				<div id="crop-scene-wrapper" tabindex='-1'>
-					<div id="crop-scene-view">
-						<div id="crop-scene-header">
-							<span id="crop-scene-title">Crop scene</span>
-							<div id="crop-scene-buttons">
+					<div id="view">
+						<div id="header">
+							<span id="title">Crop scene</span>
+							<div id="buttons">
 								<div id="btn-restore" class="ui-button"  title="restore">
 									<!-- <span class="ui-icon ui-icon-trash"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -510,9 +511,9 @@
 								</div>
 							</div>
 						</div>
-						<div id="crop-scene-content">
+						<div id="content">
 							<div>
-								<div><span>scene-id:</span><input id="scene-id" /></div>
+								<!-- <div><span>scene-id:</span><input id="scene-id" /></div> -->
 								<div><span>desc:</span><input id="scene-desc" /></div>
 								<div><span>start time:</span><input id="scene-start-time" /></div>
 								<div><span>seconds:</span><input id="scene-seconds" /></div>

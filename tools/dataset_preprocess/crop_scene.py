@@ -19,10 +19,21 @@ def prepare_dirs(path):
     if not os.path.exists(path):
             os.makedirs(path)
 
+
+def generate_unique_scene_name():
+    scenes = os.listdir(os.path.join("suscape_scenes"))
+    ids = map(lambda s: int(s.split("-")[1]), scenes)
+    maxid = max(ids)    
+    new_scene = "scene-{0:06d}".format(maxid+1)
+    return new_scene
+
 def generate_dataset(src_data_folder,extrinsic_calib_path, scene_name, start_time, seconds, desc):
     
     savecwd = os.getcwd()
     os.chdir(dataset_root)
+
+    if len(scene_name) == 0:
+        scene_name = generate_unique_scene_name()
 
     cwd = os.getcwd()
     print("cwd", cwd)
@@ -71,6 +82,9 @@ def generate_dataset(src_data_folder,extrinsic_calib_path, scene_name, start_tim
 
     os.chdir(savecwd)
 
+
+# if scene_name == ""
+#  a new scene id will be generated automatically.
 
 if __name__ == "__main__":
     _, src_data_folder, extrinsic_calib_path, scene_name, start_time, seconds, comments = sys.argv
