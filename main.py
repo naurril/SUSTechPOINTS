@@ -11,6 +11,8 @@ import os
 import sys
 import scene_reader
 
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 
@@ -25,6 +27,8 @@ import algos.trajectory as trajectory
 # extract_object_exe = "~/code/pcltest/build/extract_object"
 # registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
 
+sys.path.append(os.path.join(BASE_DIR, './tools'))
+import tools.dataset_preprocess.crop_scene as crop_scene
 
 class Root(object):
     @cherrypy.expose
@@ -80,6 +84,36 @@ class Root(object):
       return "ok"
 
 
+    @cherrypy.expose
+    def cropscene(self):
+      rawbody = cherrypy.request.body.readline().decode('UTF-8')
+      data = json.loads(rawbody)
+      
+      rawdata = data["rawSceneId"]
+
+      timestamp = rawdata.split("_")[0]
+
+      print("generate scene")
+      print(
+        rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz", # date/scene
+        "calib",
+        data["id"],
+        data["startTime"],
+        data["seconds"],
+        data["desc"]
+      )
+
+      os.system(
+        "python ./tools/dataset_preprocess/crop_scene.py "+
+        rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz " + # date/scene
+        "calib " +
+        data["id"] + " " +
+        data["startTime"] + " " +
+        data["seconds"] + " " +
+        "\""+ data["desc"] + "\""
+      )
+
+      return "ok"
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -100,12 +134,12 @@ class Root(object):
       return {"angle": pre_annotate.predict_yaw(data["points"])}
       #return {}
 
-    # experimental
-    # @cherrypy.expose    
-    # @cherrypy.tools.json_out()
-    # def auto_annotate(self, scene, frame):
-    #   print("auto annotate ", scene, frame)
-    #   return pre_annotate.annotate_file('./data/{}/lidar/{}.pcd'.format(scene,frame))
+    
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def auto_annotate(self, scene, frame):
+      print("auto annotate ", scene, frame)
+      return pre_annotate.annotate_file('./data/{}/lidar/{}.pcd'.format(scene,frame))
       
 
 

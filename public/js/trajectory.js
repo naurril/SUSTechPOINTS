@@ -16,16 +16,6 @@ class Trajectory{
         this.ui.onclick = ()=>{
             this.hide();
         };
-        
-        this.ui.addEventListener("keydown", (event)=>{
-
-            if (event.key == 'Escape'){
-                this.hide();
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        });
-
 
         this.ui.querySelector("#object-track-view").onclick = function(event){
             event.preventDefault();

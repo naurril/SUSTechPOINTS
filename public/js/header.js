@@ -34,7 +34,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
 
     // update scene selector ui
     var scene_selector_str = data.meta.map(function(c){
-        return "<option value="+c.scene +">"+c.scene + "</option>";
+        return "<option value="+c.scene +">"+(c.desc?(c.scene+" "+c.desc.scene):c.scene) + "</option>";
     }).reduce(function(x,y){return x+y;}, "<option>--scene--</option>");
 
     this.ui.querySelector("#scene-selector").innerHTML = scene_selector_str;

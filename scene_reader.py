@@ -44,8 +44,11 @@ def get_one_scene(s):
             point_transform_matrix=f.read()
             point_transform_matrix = point_transform_matrix.split(",")
 
-    def strip_str(x):
-        return x.strip()
+    
+    if os.path.exists(os.path.join(scene_dir, "desc.json")):
+        with open(os.path.join(scene_dir, "desc.json")) as f:
+            desc = json.load(f)
+            scene["desc"] = desc
 
     calib = {}
     calib_camera={}
@@ -184,6 +187,8 @@ def get_one_scene(s):
             calib["aux_lidar"] = calib_aux_lidar
 
     scene["calib"] = calib
+
+
     return scene
 
 

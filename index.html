@@ -247,7 +247,18 @@
 							<div class="menu-item-icon"></div>
 							<div class="menu-item-text">Reload All</div>				
 						</div>
-					
+
+						<div class="menu-item menu-seperator"></div>
+						<div class="menu-item" id="cm-show-frame-info">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">Frame info</div>				
+						</div>
+
+						<div class="menu-item" id="cm-crop-scene">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">Crop scene</div>				
+						</div>
+
 					</div>
 				
 					<div id="object-context-menu">
@@ -444,6 +455,77 @@
 						</svg>
 					</div>
 				</div>
+
+				<div id="info-wrapper" tabindex='-1'>
+					<div id="info-view">
+						<div id="info-header">
+							<span id="info-title">Info</span>
+							<div id="info-buttons">
+								<div id="btn-restore" class="ui-button"  title="restore">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x = 6 y = 6 width=12 height=12></rect>
+									</g></svg>
+								</div>
+								<div id="btn-maximize" class="ui-button"  title="maximize">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x = 4 y = 4 width=16 height=16></rect>
+									</g></svg>
+								</div>
+								<div id="btn-exit" class="ui-button"  title="exit">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M4 4 L 20 20 M 20 4 L 4 20"></path>
+									</g></svg>
+								</div>
+							</div>
+						</div>
+						<div id="info-content"></div>
+					</div>
+				</div>
+
+				<div id="crop-scene-wrapper" tabindex='-1'>
+					<div id="crop-scene-view">
+						<div id="crop-scene-header">
+							<span id="crop-scene-title">Crop scene</span>
+							<div id="crop-scene-buttons">
+								<div id="btn-restore" class="ui-button"  title="restore">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x = 6 y = 6 width=12 height=12></rect>
+									</g></svg>
+								</div>
+								<div id="btn-maximize" class="ui-button"  title="maximize">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x = 4 y = 4 width=16 height=16></rect>
+									</g></svg>
+								</div>
+								<div id="btn-exit" class="ui-button"  title="exit">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M4 4 L 20 20 M 20 4 L 4 20"></path>
+									</g></svg>
+								</div>
+							</div>
+						</div>
+						<div id="crop-scene-content">
+							<div>
+								<div><span>scene-id:</span><input id="scene-id" /></div>
+								<div><span>desc:</span><input id="scene-desc" /></div>
+								<div><span>start time:</span><input id="scene-start-time" /></div>
+								<div><span>seconds:</span><input id="scene-seconds" /></div>
+
+								<div>
+									<button id="btn-generate">generate</button>
+									<button id="btn-exit">exit</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
 		</template>
 		<template id="box-editor-ui-template"><div id="sub-views">
 				<div class="box-info" id="box-info"></div>

@@ -1,24 +1,27 @@
 import * as THREE from './lib/three.module.js';
 import { GUI } from './lib/dat.gui.module.js';
 
-import {ViewManager} from "./view.js"
-import {createFloatLabelManager} from "./floatlabel.js"
-import {Mouse} from "./mouse.js"
-import {BoxEditor, BoxEditorManager} from "./box_editor.js"
-import {ImageContext} from "./image.js"
-import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js"
+import {ViewManager} from "./view.js";
+import {createFloatLabelManager} from "./floatlabel.js";
+import {Mouse} from "./mouse.js";
+import {BoxEditor, BoxEditorManager} from "./box_editor.js";
+import {ImageContext} from "./image.js";
+import {get_obj_cfg_by_type, obj_type_map, get_next_obj_type_name, guess_obj_type_by_dimension} from "./obj_cfg.js";
 
-import {objIdManager} from "./obj_id_list.js"
-import {Header} from "./header.js"
+import {objIdManager} from "./obj_id_list.js";
+import {Header} from "./header.js";
 import {BoxOp} from './box_op.js';
-import {AutoAdjust} from "./auto-adjust.js"
-import {PlayControl} from "./play.js"
-import {saveWorld, reloadWorldList, saveWorldList} from "./save.js"
-import {log} from "./log.js"
-import {autoAnnotate} from "./auto_annotate.js"
-import {Calib} from "./calib.js"
-import {Trajectory} from "./trajectory.js"
+import {AutoAdjust} from "./auto-adjust.js";
+import {PlayControl} from "./play.js";
+import {saveWorld, reloadWorldList, saveWorldList} from "./save.js";
+import {log} from "./log.js";
+import {autoAnnotate} from "./auto_annotate.js";
+import {Calib} from "./calib.js";
+import {Trajectory} from "./trajectory.js";
 import { ContextMenu } from './context_menu.js';
+import { InfoBox } from './info_box.js';
+import {CropScene} from './crop_scene.js';
+
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -149,6 +152,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.objectTrackView = new Trajectory(
             this.editorUi.querySelector("#object-track-wrapper")
         );
+
+        this.infoBox = new InfoBox(
+            this.editorUi.querySelector("#info-wrapper")
+        );
+
+        this.cropScene = new CropScene(
+            this.editorUi.querySelector("#crop-scene-wrapper")
+        )
 
         this.contextMenu = new ContextMenu(this.editorUi.querySelector("#context-menu-wrapper"));        
 
@@ -556,6 +567,31 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.select_previous_object();
             break;
 
+        case "cm-show-frame-info":
+            {
+                
+                let info = {"scend-id": this.data.world.frameInfo.scene,
+                            "frame": this.data.world.frameInfo.frame
+                           };
+                
+                if (this.data.world.frameInfo.sceneMeta.desc)
+                {
+                    info = {
+                        ...info, 
+                        ...this.data.world.frameInfo.sceneMeta.desc
+                    };
+                }
+
+                this.infoBox.show("Scene info - " + this.data.world.frameInfo.scene, JSON.stringify(info,null,"\t"));
+            }
+            break;
+        case "cm-crop-scene":
+            {
+                this.cropScene.show(
+                    this.data.world.frameInfo
+                );
+            }
+            break;
 
         /// object
 
@@ -802,12 +838,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var self=this;
         var expFolder = gui.addFolder( 'Experimental' );
 
-        // experimental
-        // this.params["annotate by alg1"] = function(){
-        //     self.annotateByAlg1();
-        // };  
+        this.params["annotate by alg1"] = function(){
+            self.annotateByAlg1();
+        };  
 
-        // expFolder.add( this.params, "annotate by alg1");
+        
     };
 
     this.install_view_menu= function(gui){
@@ -1802,7 +1837,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;            
             case ' ': // Spacebar
                 //this.viewManager.mainView.transform_control.enabled = ! this.viewManager.mainView.transform_control.enabled;
-                self.playControl.pause_resume_play();
+                this.playControl.pause_resume_play();
                 break;
                 
             case '5':            
