@@ -30,9 +30,9 @@ function PlayControl(data){
             return;
         }
 
-        if (this.stop_play_flag== false && !resume){
-            return;
-        }
+        // if (this.stop_play_flag == false && !resume){
+        //     return;
+        // }
 
         this.stop_play_flag = false;
         this.pause_play_flag = false;
@@ -71,8 +71,7 @@ function PlayControl(data){
                                     200);
                             } 
                             else{
-                                scope.stop_play_flag = true;
-                                scope.pause_play_flag = false;
+                                scope.stop_play();
                             }
                         
                     });

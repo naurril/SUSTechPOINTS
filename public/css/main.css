@@ -288,7 +288,7 @@ dynamic set obj-type css has higher priority than this one.
 	z-index: 10;
 }
 
-#context-menu, #object-context-menu, #box-editor-context-menu {
+#context-menu, #object-context-menu, #box-editor-context-menu, #box-editor-manager-context-menu {
 	position: absolute;
 	display: block;
 	

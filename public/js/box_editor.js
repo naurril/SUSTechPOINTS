@@ -2,6 +2,7 @@ import {ProjectiveViewOps}  from "./side_view_op.js"
 import {FocusImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
 import {objIdManager} from "./obj_id_list.js"
+import { BooleanKeyframeTrack } from "./lib/three.module.js";
 
 /*
 2 ways to attach and edit a box
@@ -273,6 +274,14 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     
     this.onExit = null;
     // frame specifies the center frame to edit
+    
+    
+    this.parentUi.addEventListener("contextmenu", event=>{
+        this.contextMenu.show("boxEditorManager", event.clientX, event.clientY, this);
+        event.stopPropagation();
+        event.preventDefault();
+    })
+    
     this.edit = function(data, sceneMeta, frame, objTrackId, objType, onExit){
         
         this.show();
@@ -287,7 +296,10 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.editingTarget.data = data;
         this.editingTarget.sceneMeta = sceneMeta;
         this.editingTarget.objTrackId = objTrackId;
+
+        
         this.editingTarget.objType = objType;
+
         this.editingTarget.frame = frame;
 
         this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
@@ -326,7 +338,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.onContextMenu = function(event, boxEditor)
     {
         this.firingBoxEditor = boxEditor;
-        this.contextMenu.show("boxEditorManager", event.clientX, event.clientY, this);
+        this.contextMenu.show("boxEditor", event.clientX, event.clientY, this);
     };
 
     this.handleContextMenuEvent = function(event)
@@ -334,6 +346,31 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         console.log(event.currentTarget.id, event.type);
         switch(event.currentTarget.id)
         {
+
+        // manager
+        case 'cm-increase-box-editor':
+            this.batchSize += 1;
+            this.edit(
+                this.editingTarget.data,
+                this.editingTarget.sceneMeta,
+                this.editingTarget.sceneMeta.frame,
+                this.editingTarget.objTrackId,
+                this.editingTarget.objType
+            );
+            break;
+
+        case 'cm-decrease-box-editor':
+            this.batchSize -= 1;
+            this.edit(
+                this.editingTarget.data,
+                this.editingTarget.sceneMeta,
+                this.editingTarget.sceneMeta.frame,
+                this.editingTarget.objTrackId,
+                this.editingTarget.objType
+            );
+            break;
+
+        /////////////////////// obj instance //
         case 'cm-delete':
             if (this.firingBoxEditor.box)
             {
@@ -616,7 +653,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
             this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex+15, maxFrameIndex)],
-            this.editingTarget.objTrackId
+            this.editingTarget.objTrackId,
+            this.editingTarget.objType
         );
     };
 
@@ -625,7 +663,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
             this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex-15, 0)],
-            this.editingTarget.objTrackId
+            this.editingTarget.objTrackId,
+            this.editingTarget.objType
         );
     };
 

@@ -8,7 +8,8 @@ class ContextMenu {
             this.menus = {
                 world: ui.querySelector("#context-menu"),
                 object: ui.querySelector("#object-context-menu"),
-                boxEditorManager: ui.querySelector("#box-editor-context-menu")
+                boxEditor: ui.querySelector("#box-editor-context-menu"),
+                boxEditorManager: ui.querySelector("#box-editor-manager-context-menu"),
             };
 
             for (let m in this.menus){
