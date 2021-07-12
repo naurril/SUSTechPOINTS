@@ -96,13 +96,29 @@ def process(intrinsic_calib_path, raw_data_path, output_path):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 8:
+    if len(sys.argv) == 8:
+        _, intrinsic_calib_path, extrinsic_calib_path, raw_data_path, output_path, gen_dataset_only, dataset_name, timeslots = sys.argv
+
+        if not (gen_dataset_only == 'gen-dataset-only'):
+            process(intrinsic_calib_path, raw_data_path, output_path)
+
+        generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
+    elif len(sys.argv) == 4:
+        _, intrinsic_calib_path, extrinsic_calib_path, raw_data_root_path = sys.argv
+        for f in os.listdir(raw_data_root_path):
+            if os.path.isdir(f):
+                print(f)
+                raw_data_path = os.path.join(raw_data_root_path, f)
+                output_path = os.path.join(raw_data_root_path, f + "_preprocessed")
+                gen_dataset_only = "no"
+                dataset_name = "dataset_2hz"
+                timeslots = "0,5"
+
+                if not (gen_dataset_only == 'gen-dataset-only'):
+                    process(intrinsic_calib_path, raw_data_path, output_path)
+
+                generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
+    else:
         print("intrinsic_calib_path, extrinsic_calib_path, raw_data_path, output_path, gen_dataset_only, dataset_name, timeslots ")
+        print("intrinsic_calib_path, extrinsic_calib_path, raw_data_path")
         exit()
-
-    _, intrinsic_calib_path, extrinsic_calib_path, raw_data_path, output_path, gen_dataset_only, dataset_name, timeslots = sys.argv
-
-    if not (gen_dataset_only == 'gen-dataset-only'):
-        process(intrinsic_calib_path, raw_data_path, output_path)
-
-    generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
