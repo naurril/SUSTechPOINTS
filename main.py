@@ -85,6 +85,7 @@ class Root(object):
 
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def cropscene(self):
       rawbody = cherrypy.request.body.readline().decode('UTF-8')
       data = json.loads(rawbody)
@@ -94,26 +95,26 @@ class Root(object):
       timestamp = rawdata.split("_")[0]
 
       print("generate scene")
-      print(
-        rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz", # date/scene
-        "calib",
-        #data["id"],
-        data["startTime"],
-        data["seconds"],
-        data["desc"]
-      )
+      log_file = "temp/crop-scene-"+timestamp+".log"
 
-      os.system(
-        "python ./tools/dataset_preprocess/crop_scene.py "+
-        rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz " + # date/scene
-        "calib " +
-        #data["id"] + " " +
-        data["startTime"] + " " +
-        data["seconds"] + " " +
-        "\""+ data["desc"] + "\""
-      )
+      cmd = "python ./tools/dataset_preprocess/crop_scene.py "+ \
+        rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz " + \
+        "calib " +\
+        "- " +\
+        data["startTime"] + " " +\
+        data["seconds"] + " " +\
+        "\""+ data["desc"] + "\"" +\
+        "> " + log_file + " 2>&1"
+      print(cmd)
 
-      return "ok"
+      code = os.system(cmd)
+
+      with open(log_file) as f:
+        log = list(map(lambda s: s.strip(), f.readlines()))
+
+      return {"code": code,
+              "log": log
+              }
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -204,9 +205,9 @@ class Root(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def objs_of_scene(self, scene):
-      return self.get_all_unique_objs(os.path.join("./data",scene))
+      return self.get_all_objs(os.path.join("./data",scene))
 
-    def get_all_unique_objs(self, path):
+    def get_all_objs(self, path):
       label_folder = os.path.join(path, "label")
       if not os.path.isdir(label_folder):
         return []
@@ -228,12 +229,18 @@ class Root(object):
       all_objs={}
       for x in boxes:
           for o in x:
-              all_objs[o["category"]+"-"+str(o["id"])]=o
+              k = o["category"]+"-"+str(o["id"])
 
-      objs = [x for x in all_objs.values()]
-      #print(objs)
-      #objs.sort()
-      return objs
+              if all_objs.get(k):
+                all_objs[k]['count']= all_objs[k]['count']+1
+              else:
+                all_objs[k]= {
+                  "category": o["category"],
+                  "id": o["id"],
+                  "count": 1
+                }
+
+      return [x for x in  all_objs.values()]
 
 if __name__ == '__main__':
     cherrypy.quickstart(Root(), '/', config="server.conf")

@@ -591,7 +591,20 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 );
             }
             break;
+        case "cm-show-stat":
+            {
+                let scene = this.data.world.frameInfo.scene;
+                objIdManager.load_obj_ids_of_scene(scene, (objs)=>{
+                    let info = {
+                        objects: objs.length,
+                        boxes: objs.reduce((a,b)=>a+b.count, 0),
+                        frames: this.data.world.frameInfo.sceneMeta.frames.length,
+                    };
 
+                    this.infoBox.show("Stat - " + scene, JSON.stringify(info, null,"\t"));
+                });
+            }
+            break;
         /// object
 
         case "cm-delete":
