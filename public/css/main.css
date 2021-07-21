@@ -104,12 +104,11 @@ canvas {
 }
 
 
-#object-category-selector, #object-track-id-editor, #scene-selector, #frame-selector, #object-selector, #camera-selector, #obj-ids-of-scene
+#selectors, #object-category-selector, #object-track-id-editor, #scene-selector, #frame-selector, #object-selector, #camera-selector, #obj-ids-of-scene
 {
 	background-color: inherit;
 	color: inherit;
-	border-width: 0;
-	
+	border-width: 0;	
 }
 
 #changed-mark{

@@ -785,6 +785,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.boxEditor.hide();
         this.hideGridLines();
         this.controlGui.hide();
+        this.editorUi.querySelector("#selectors").style.display='none';
 
         this.boxEditorManager.edit(this.data, 
             this.data.getMetaBySceneName(sceneName), 
@@ -814,6 +815,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.showGridLines();
                 this.render();
                 this.controlGui.show();
+                this.editorUi.querySelector("#selectors").style.display='inherit';
             }
             );
     };
