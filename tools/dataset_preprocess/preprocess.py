@@ -106,13 +106,14 @@ def process(intrinsic_calib_path, raw_data_path, output_path):
                                             os.path.join(output_path, 'intermediate', 'lidar'),
                                             0)
         else:
-            align_frame_time.link_one_folder(os.path.join(raw_data_path, 'hesai', 'pandar_points'),  #after 07.15, this topic path has hesai prefix.
+            align_frame_time.link_one_folder(os.path.join(raw_data_path, 'hesai', 'pandar_packets'),  #after 07.15, this topic path has hesai prefix.
                                             os.path.join(output_path, 'intermediate', 'lidar'),
                                             0)
 
     
     
-
+#path should be abs path.
+#
 if __name__ == "__main__":
 
     if len(sys.argv) == 8:
@@ -125,6 +126,10 @@ if __name__ == "__main__":
 
     elif len(sys.argv) == 4:
         _, intrinsic_calib_path, extrinsic_calib_path, raw_data_root_path = sys.argv
+
+        raw_data_root_path = os.path.abspath(raw_data_root_path)
+        extrinsic_calib_path = os.path.abspath(extrinsic_calib_path)
+        intrinsic_calib_path = os.path.abspath(intrinsic_calib_path)
 
         savecwd = os.getcwd()
         

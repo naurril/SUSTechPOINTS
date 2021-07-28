@@ -63,6 +63,19 @@ const annMath = {
         return c;
     },
 
+    normAngle: function (a){
+        if (a > Math.PI)
+        {
+            return a - Math.PI * 2;
+        }
+        else if (a < - Math.PI)
+        {
+            return a + Math.PI * 2;
+        }
+        
+        return a;
+    },
+
     eleMul: function(a,b) //element-wise multiplication
     {
         let c = [];
@@ -318,10 +331,26 @@ var ml = {
                 for (let inserti=start+1; inserti<end; inserti++){
                     let tempAnn = annMath.add(anns[start], annMath.mul(interpolate_step, inserti-start));
 
-                    if (autoAdj)
-                        tempAnn = await autoAdj(inserti, tempAnn);
+                    if (autoAdj) 
+                    {
+                        let adjustedAnn = await autoAdj(inserti, tempAnn);
+
+                        // 
+                        let adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
+
+                        if (Math.abs(adjustedYaw) > Math.PI/2)
+                        {
+                            console.log("adjust angle by Math.PI.");
+                            adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
+                        }
+
+                        tempAnn = adjustedAnn;
+
+                    }
                         
                     anns[inserti] = tempAnn;
+
+
                     if (onFinishOneBox)
                         onFinishOneBox(inserti);
                 }
@@ -352,7 +381,18 @@ var ml = {
 
                 if (autoAdj){
                     try {
-                        tempAnn = await autoAdj(i, tempAnn);
+                        let adjustedAnn = await autoAdj(i, tempAnn);
+
+                        let adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
+
+                        if (Math.abs(adjustedYaw) > Math.PI/2)
+                        {
+                            console.log("adjust angle by Math.PI.");
+                            adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
+                        }
+
+                        tempAnn = adjustedAnn;
+
                         filter.update(tempAnn);    
                     } catch (error) {
                         console.log(error);
@@ -391,7 +431,19 @@ var ml = {
             while (i >= 0 && !anns[i]){
                 let tempAnn = filter.predict();
                 if (autoAdj){
-                    tempAnn = await autoAdj(i, tempAnn);
+                    let adjustedAnn = await autoAdj(i, tempAnn);
+
+                    let adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
+
+                    if (Math.abs(adjustedYaw) > Math.PI/2)
+                    {
+                        console.log("adjust angle by Math.PI.");
+                        adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
+                    }
+
+                    tempAnn = adjustedAnn;
+
+
                     filter.update(tempAnn);
                 }
                 else{
