@@ -260,6 +260,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.fastToolBoxUi = fastToolBoxUi;
     this.batchSize = 20;
 
+    
     this.activeEditorList = function(){
         return this.editorList.slice(0, this.activeIndex);
     };
@@ -302,8 +303,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
         this.editingTarget.frame = frame;
 
-        this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
-        this.parentUi.querySelector("#object-category-selector").value=objType;
+        // this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
+        // this.parentUi.querySelector("#object-category-selector").value=objType;
         
 
         let centerIndex = sceneMeta.frames.findIndex(f=>f==frame);
@@ -314,7 +315,22 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         }
 
 
-        let startIndex = Math.max(0, centerIndex-10);
+        let startIndex = Math.max(0, centerIndex - this.batchSize/2);
+
+        if(startIndex > 0)
+        {
+            if (startIndex + this.batchSize > sceneMeta.frames.length)
+            {
+                startIndex -= startIndex + this.batchSize - sceneMeta.frames.length;
+
+                if (startIndex < 0)
+                {
+                    startIndex = 0;
+                }
+            }            
+        }
+
+        
 
         let frames = sceneMeta.frames.slice(startIndex, startIndex+this.batchSize);
         frames.forEach((frame, editorIndex)=>{
@@ -588,18 +604,30 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.globalHeader.updateModifiedStatus();
     }
 
-    this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
-        e.stopPropagation();});
+    // this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
+    //     e.stopPropagation();});
     
-    this.parentUi.querySelector("#object-track-id-editor").addEventListener("keyup", function(e){
-        e.stopPropagation();
-    });
+    // this.parentUi.querySelector("#object-track-id-editor").addEventListener("keyup", function(e){
+    //     e.stopPropagation();
+    // });
 
-    this.parentUi.querySelector("#object-track-id-editor").onchange = (ev)=>this.object_track_id_changed(ev);
-    this.parentUi.querySelector("#object-category-selector").onchange = (ev)=>this.object_category_changed(ev);
+    // this.parentUi.querySelector("#object-track-id-editor").onchange = (ev)=>this.object_track_id_changed(ev);
+    // this.parentUi.querySelector("#object-category-selector").onchange = (ev)=>this.object_category_changed(ev);
 
-    
+
     // this should follow addToolBox
+
+    this.parentUi.querySelector("#instance-number").value = this.batchSize;
+    this.parentUi.querySelector("#instance-number").onchange = (ev)=>{
+        this.batchSize = parseInt(ev.currentTarget.value);
+        this.edit(
+            this.editingTarget.data,
+            this.editingTarget.sceneMeta,
+            this.editingTarget.sceneMeta.frame,
+            this.editingTarget.objTrackId,
+            this.editingTarget.objType
+        );
+    }
 
     this.parentUi.querySelector("#trajectory").onclick = (e)=>{
         let tracks = this.editingTarget.data.worldList.map(w=>{
@@ -652,7 +680,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.edit(
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
-            this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex+15, maxFrameIndex)],
+            this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex + this.batchSize/2, maxFrameIndex)],
             this.editingTarget.objTrackId,
             this.editingTarget.objType
         );
@@ -662,7 +690,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.edit(
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
-            this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex-15, 0)],
+            this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex - this.batchSize/2, 0)],
             this.editingTarget.objTrackId,
             this.editingTarget.objType
         );

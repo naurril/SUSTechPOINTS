@@ -713,8 +713,20 @@
 				<canvas id="focuscanvas" width="320" height="240">cavas</canvas>
 		</div></template>
 		<template id="batch-editor-tools-template"><div id="batch-editor-tools-wrapper"><div id="batch-editor-tools">
-			<select title="category"  id="object-category-selector"></select>
-			<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input>
+			<!-- <select title="category"  id="object-category-selector"></select>
+			<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input> -->
+
+			<span>instance num.</span>
+			<select title="instance number" id="instance-number">
+				<option value = 10>10</option>
+				<option value = 20>20</option>
+				<option value = 30>30</option>
+				<option value = 40>40</option>
+			</select>
+			
+				
+			</datalist>
+
 			<button id="trajectory">Trajectory</button>
 			<button id="auto-annotate">Auto</button>
 			<button id="auto-annotate-translate-only">Auto (no rotation) </button>
@@ -725,6 +737,7 @@
 			<button id="prev">Previous</button>
 			<button id="next">Next</button>
 			<button id="exit">Exit</button>
+			
 		</div></div></template>
 		<datalist id="obj-ids-of-scene"></datalist>
 		<div id="output-window">

@@ -1333,10 +1333,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.selectBox(boxes[0])
             }
             else{
-                for (let b in boxes){
-                    this.remove_box(boxes[b],false)
-                }
-                this.render();
+                // this is dangerous
+                // for (let b in boxes){
+                //     this.remove_box(boxes[b],false)
+                // }
+                // this.render();
             }
 
             return;
@@ -2363,7 +2364,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
 
         this.editorUi.querySelector("#floating-things #object-category-selector").innerHTML = options;
-        this.editorUi.querySelector("#batch-editor-tools-wrapper #object-category-selector").innerHTML = options;
+        //this.editorUi.querySelector("#batch-editor-tools-wrapper #object-category-selector").innerHTML = options;
 
         // submenu of new
         var items = "";

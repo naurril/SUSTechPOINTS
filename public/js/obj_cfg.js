@@ -2,18 +2,38 @@
 var obj_type_map = {
     Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5]},
     Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
-    Bus:            {color: '#6b5b95',  size:[13, 3, 3.5]},
+    PoliceCar:    {color: '#86af49',  size:[4.5, 1.8, 1.5]},
+
     Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
+    Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
+    Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
+
+    Cone:           {color: '#ff0000',  size:[0.3, 0.3, 0.6]},
+    Triangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
+
     Rider:          {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
     Cyclist:        {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
     Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2]},
-    BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
     Motor:          {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
+    
+    Bus:            {color: '#6b5b95',  size:[13, 3, 3.5]},
     Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
+    ConcreteTruck:  {color: '#00ffff',  size:[10., 2.8, 3]},
     Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
     Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
+
+    ForkLift:       {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
+    Crane:          {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
+
     Misc:           {color: '#008888',  size:[4.5, 1.8, 1.5]},
     Unknown:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown1:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown2:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown3:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown4:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown5:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+
 }
 
 

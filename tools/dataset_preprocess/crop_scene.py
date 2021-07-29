@@ -31,7 +31,40 @@ def generate_unique_scene_id():
     
     return maxid+1
 
-def generate_dataset(src_data_folder,extrinsic_calib_path, scene_id, start_time, seconds, desc):
+# in dataset folder
+def generate_dataset_links(src_data_folder, start_time, seconds):
+    cwd = os.getcwd()
+
+    prepare_dirs('camera')
+    prepare_dirs('lidar')
+    prepare_dirs('label')
+    # prepare_dirs(os.path.join(dataset_path, 'calib'))
+    # prepare_dirs(os.path.join(dataset_path, 'calib/camera'))
+    
+    os.system("ln -s -f ../../calib ./")
+    
+    
+    os.chdir("camera")
+
+    for camera in camera_list:
+        
+        prepare_dirs(camera)
+        os.chdir(camera)
+
+        for second in range(int(start_time), int(start_time) + int(seconds)):
+            for slot in slots:
+                os.system("ln -s -f  ../../../../" + src_data_folder  + "/camera/" + camera + "/"+ str(second) + "." +  str(slot) + ".*  ./")
+        os.chdir("..")
+    
+    os.chdir("..") #scene-xxx
+    os.chdir("lidar")
+    for second in range(int(start_time), int(start_time) + int(seconds)):
+        for slot in slots:
+            os.system("ln -s -f ../../../" + src_data_folder + "/lidar/" + str(second) + "." +  str(slot) +".pcd ./")
+    
+
+
+def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
     
     savecwd = os.getcwd()
     os.chdir(dataset_root)
@@ -60,36 +93,26 @@ def generate_dataset(src_data_folder,extrinsic_calib_path, scene_id, start_time,
             '}\n'
         ])
 
-    prepare_dirs('camera')
-    prepare_dirs('lidar')
-    prepare_dirs('label')
-    # prepare_dirs(os.path.join(dataset_path, 'calib'))
-    # prepare_dirs(os.path.join(dataset_path, 'calib/camera'))
-    
-    os.system("ln -s -f ../../"+extrinsic_calib_path+" ./")
-    os.chdir(cwd)
-    
-    for camera in camera_list:
-        
-        prepare_dirs(os.path.join(dataset_path, "camera",  camera))
-        os.chdir(os.path.join(dataset_path, "camera", camera))
-
-        for second in range(int(start_time), int(start_time) + int(seconds)):
-            for slot in slots:
-                os.system("ln -s -f  ../../../../" + src_data_folder  + "/camera/" + camera + "/"+ str(second) + "." +  str(slot) + ".*  ./")
-        os.chdir(cwd)
-    
-    
-    os.chdir(os.path.join(dataset_path, "lidar"))
-
-    for second in range(int(start_time), int(start_time) + int(seconds)):
-        for slot in slots:
-            os.system("ln -s -f ../../../" + src_data_folder + "/lidar/" + str(second) + "." +  str(slot) +".pcd ./")
-    os.chdir(cwd)
+    generate_dataset_links(src_data_folder, start_time, seconds)
 
     os.chdir(savecwd)
 
+    # create context scene.
+    os.chdir(dataset_root)
+    context_scene_path = "suscape_scenes/" + scene_id +"_context"
+    prepare_dirs(context_scene_path)
+    os.chdir(context_scene_path)
+
+    context_src_folder = os.path.relpath("../../"+src_data_folder+"/../dataset_10hz")
+    
+    os.system("ln -s -f ../" + scene_id + "/label ./")
+    os.system("ln -s -f  " + context_src_folder  + "/camera ./")
+    os.system("ln -s -f  " + context_src_folder  + "/lidar ./")
+    os.system("ln -s -f  " + context_src_folder  + "/calib ./")
+
     print("done.")
+
+    os.chdir(savecwd)
     return id
 
 # if scene_id == ""
@@ -98,6 +121,6 @@ def generate_dataset(src_data_folder,extrinsic_calib_path, scene_id, start_time,
 if __name__ == "__main__":
     _, src_data_folder, extrinsic_calib_path, scene_id, start_time, seconds, comments = sys.argv
 
-    id = generate_dataset(src_data_folder, extrinsic_calib_path, scene_id, start_time, seconds, comments )
+    id = generate_dataset(src_data_folder, scene_id, start_time, seconds, comments )
     
 

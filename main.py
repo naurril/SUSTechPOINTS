@@ -99,7 +99,6 @@ class Root(object):
 
       cmd = "python ./tools/dataset_preprocess/crop_scene.py "+ \
         rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz " + \
-        "calib " +\
         "- " +\
         data["startTime"] + " " +\
         data["seconds"] + " " +\
@@ -112,6 +111,8 @@ class Root(object):
       with open(log_file) as f:
         log = list(map(lambda s: s.strip(), f.readlines()))
 
+      os.system("rm "+log_file)
+      
       return {"code": code,
               "log": log
               }
