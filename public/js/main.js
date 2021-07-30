@@ -86,5 +86,19 @@ function start(metaData){
 
   let mainEditor = createMainEditor();
 
+
+  let url_string = window.location.href
+  let url = new URL(url_string);
+  //language
+  let scene = url.searchParams.get("scene");
+  let frame = url.searchParams.get("frame");
+
+  if (scene && frame)
+  {
+    mainEditor.load_world(scene, frame);
+  }
+
+
+
 }
 

@@ -333,19 +333,24 @@ var ml = {
 
                     if (autoAdj) 
                     {
-                        let adjustedAnn = await autoAdj(inserti, tempAnn);
-
-                        // 
-                        let adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
-
-                        if (Math.abs(adjustedYaw) > Math.PI/2)
+                        try
                         {
-                            console.log("adjust angle by Math.PI.");
-                            adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
+                            let adjustedAnn = await autoAdj(inserti, tempAnn);
+                            let adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
+
+                            if (Math.abs(adjustedYaw) > Math.PI/2)
+                            {
+                                console.log("adjust angle by Math.PI.");
+                                adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
+                            }
+
+                            tempAnn = adjustedAnn;
                         }
-
-                        tempAnn = adjustedAnn;
-
+                        catch (e)
+                        {
+                            console.log(e);
+                        }
+                        // 
                     }
                         
                     anns[inserti] = tempAnn;

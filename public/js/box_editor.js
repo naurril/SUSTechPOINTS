@@ -522,6 +522,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
     this.reset = function(){
         this.activeEditorList().forEach(e=>e.resetTarget());
+        this.viewManager.mainView.clearView();
         this.activeIndex = 0;
     };
 
@@ -623,7 +624,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.edit(
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
-            this.editingTarget.sceneMeta.frame,
+            this.editingTarget.frame,
             this.editingTarget.objTrackId,
             this.editingTarget.objType
         );

@@ -240,7 +240,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             return self.selected_box;
         });
 
-        this.add_global_obj_type();
+        this.add_global_obj_type();        
     };
 
     this.hide = function(){
@@ -282,8 +282,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
-        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0xcccccc, linewidth: 1 } ) );    
-        
+        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x004444, linewidth: 1 } ) );    
+         
         box.scale.x=50;
         box.scale.y=50;
         box.scale.z=-3;
@@ -495,6 +495,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 'cm-next-frame':
             this.next_frame();
             break;
+
+        case 'cm-go-to-10hz':
+            this.load_world(this.data.world.frameInfo.scene+"_10hz", this.data.world.frameInfo.frame)
+            break;
+        
+        case 'cm-go-to-2hz':
+            this.load_world(this.data.world.frameInfo.scene.split("_")[0], this.data.world.frameInfo.frame)
+            break;
+            
         case 'cm-save':
             saveWorld(this.data.world, ()=>{
                 

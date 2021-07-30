@@ -115,7 +115,7 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
             }
         };
 
-        view.cleanView = function(){
+        view.clearView = function(){
             this.renderWithCamera(this.blind_camera);
         };
 

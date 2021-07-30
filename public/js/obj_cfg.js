@@ -2,7 +2,7 @@
 var obj_type_map = {
     Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5]},
     Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
-    PoliceCar:    {color: '#86af49',  size:[4.5, 1.8, 1.5]},
+    PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
 
     Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
     Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
@@ -17,7 +17,7 @@ var obj_type_map = {
     Motor:          {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
     BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
     
-    Bus:            {color: '#6b5b95',  size:[13, 3, 3.5]},
+    Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
     Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
     ConcreteTruck:  {color: '#00ffff',  size:[10., 2.8, 3]},
     Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
@@ -28,11 +28,11 @@ var obj_type_map = {
 
     Misc:           {color: '#008888',  size:[4.5, 1.8, 1.5]},
     Unknown:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
-    Unknown1:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
-    Unknown2:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
-    Unknown3:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
-    Unknown4:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
-    Unknown5:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown1:       {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown2:       {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown3:       {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown4:       {color: '#008888',  size:[4.5, 1.8, 1.5]},
+    Unknown5:       {color: '#008888',  size:[4.5, 1.8, 1.5]},
 
 }
 
