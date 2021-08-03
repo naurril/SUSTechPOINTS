@@ -25,8 +25,8 @@ def generate_unique_scene_id():
 
     if len(scenes) == 0:
         return 0
-
-    ids = map(lambda s: int(s.split("-")[1]), scenes)
+    # scenes-000018, scenes-000018_10hz
+    ids = map(lambda s: int((s.split("-")[1]).split("_")[0]), scenes)
     maxid = max(ids)    
     
     return maxid+1
@@ -99,7 +99,7 @@ def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
 
     # create context scene.
     os.chdir(dataset_root)
-    context_scene_path = "suscape_scenes/" + scene_id +"_context"
+    context_scene_path = "suscape_scenes/" + scene_id +"-10hz"
     prepare_dirs(context_scene_path)
     os.chdir(context_scene_path)
 
@@ -119,7 +119,7 @@ def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
 #  a new scene id will be generated automatically.
 
 if __name__ == "__main__":
-    _, src_data_folder, extrinsic_calib_path, scene_id, start_time, seconds, comments = sys.argv
+    _, src_data_folder, scene_id, start_time, seconds, comments = sys.argv
 
     id = generate_dataset(src_data_folder, scene_id, start_time, seconds, comments )
     

@@ -276,13 +276,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             var y2 = Math.sin(theta2);
 
             body.push(x1,y1,h,x2,y2,h);
+            body.push(0.6*x1,0.6*y1,h,0.6*x2,0.6*y2,h);
+            body.push(0.4*x1,0.4*y1,h,0.4*x2,0.4*y2,h);
         }
 
         this.data.dbg.alloc();
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
-        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x004444, linewidth: 1 } ) );    
+        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x444400, linewidth: 1 } ) );    
          
         box.scale.x=50;
         box.scale.y=50;
