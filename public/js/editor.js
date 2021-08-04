@@ -277,14 +277,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             body.push(x1,y1,h,x2,y2,h);
             body.push(0.6*x1,0.6*y1,h,0.6*x2,0.6*y2,h);
-            body.push(0.4*x1,0.4*y1,h,0.4*x2,0.4*y2,h);
+            //body.push(0.4*x1,0.4*y1,h,0.4*x2,0.4*y2,h);
         }
 
         this.data.dbg.alloc();
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
-        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x444400, linewidth: 1 } ) );    
+        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x888800, linewidth: 1 } ) );    
          
         box.scale.x=50;
         box.scale.y=50;
@@ -338,6 +338,16 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             self.header.updateModifiedStatus();
             //event.currentTarget.blur();
         };
+
+
+        this.editorUi.querySelector("#label-gen-id").onclick = function(event){
+            //self.autoAdjust.mark_bbox(self.selected_box);
+            //event.currentTarget.blur();
+            let id = objIdManager.generateNewUniqueId();
+            self.floatLabelManager.update_label_editor(self.selected_box.obj_type, id);
+
+            self.setObjectId(id);
+        }
 
         this.editorUi.querySelector("#label-copy").onclick = function(event){
             self.autoAdjust.mark_bbox(self.selected_box);
@@ -1164,6 +1174,20 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
     };
 
+    this.setObjectId = function(id)
+    {
+        this.selected_box.obj_track_id = id;
+        this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
+        //this.header.mark_changed_flag();
+        this.on_box_changed(this.selected_box);
+
+        //
+        objIdManager.addObject({
+            category: this.selected_box.obj_type,
+            id: this.selected_box.obj_track_id,
+        });
+    }
+
     this.object_track_id_changed= function(event){
         if (this.selected_box){
             var id = event.currentTarget.value;
@@ -1172,17 +1196,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 id = objIdManager.generateNewUniqueId();
                 this.floatLabelManager.update_label_editor(this.selected_box.obj_type, id);
             }
-
-            this.selected_box.obj_track_id = id;
-            this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
-            //this.header.mark_changed_flag();
-            this.on_box_changed(this.selected_box);
-
-            //
-            objIdManager.addObject({
-                category: this.selected_box.obj_type,
-                id: this.selected_box.obj_track_id,
-            });
+            
+            this.setObjectId(id);            
         }
     };
 

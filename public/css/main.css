@@ -258,7 +258,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 #category-id-editor {
-	display: none;
+	display: flex;
 	color: inherit;
 	background: inherit;
 	padding: inherit;
@@ -438,7 +438,7 @@ dynamic set obj-type css has higher priority than this one.
 
 #main-box-editor-wrapper .v-buttons-wrapper {
 	position: absolute;
-	bottom: 0%;
+	bottom: 10%;
 	right: 0%;
 	background-color: var(--widget-background-color);;
 	margin: 1px;
@@ -472,7 +472,7 @@ dynamic set obj-type css has higher priority than this one.
 #batch-box-editor-wrapper .v-buttons-wrapper {
 	display: none;
 	position: absolute;
-	bottom: 0%;
+	bottom: 10%;
 	right: 0%;
 	background-color:var(--widget-background-color);
 	margin: 0;
@@ -514,6 +514,8 @@ dynamic set obj-type css has higher priority than this one.
 	/*background-color: #00000000;*/
 	border-width: 1px;
 	position: relative;
+	/* resize:both; */
+	overflow: hidden;
 }
 
 #z-view-manipulator {

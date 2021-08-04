@@ -55,11 +55,16 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         var pos = box.getTruePosition();
         var rotation = box.rotation;
         var points_number = box.world.lidar.get_box_points_number(box);
+        let distance = Math.sqrt(pos.x*pos.x + pos.y*pos.y).toFixed(2);
 
-        this.boxUi.innerHTML = box.obj_type +"-"+box.obj_track_id+"| "+pos.x.toFixed(2) +" "+pos.y.toFixed(2) + " " + pos.z.toFixed(2) + " | " +
-                                                    scale.x.toFixed(2) +" "+scale.y.toFixed(2) + " " + scale.z.toFixed(2) + " | " +
-                                                    (rotation.x*180/Math.PI).toFixed(2)+" "+(rotation.y*180/Math.PI).toFixed(2)+" "+(rotation.z*180/Math.PI).toFixed(2)+" | " +
-                                                    points_number + " ";
+        this.boxUi.innerHTML = "<span>" + box.obj_type +"-"+box.obj_track_id + 
+                               "</span> | <span title='distance'>" + distance +
+                               "</span> | <span title='position'>"+pos.x.toFixed(2) +" "+pos.y.toFixed(2) + " " + pos.z.toFixed(2) + 
+                               "</span> | <span title='scale'>" +scale.x.toFixed(2) +" "+scale.y.toFixed(2) + " " + scale.z.toFixed(2) + 
+                               "</span> | <span title='rotation'>" +
+                                (rotation.x*180/Math.PI).toFixed(2)+" "+(rotation.y*180/Math.PI).toFixed(2)+" "+(rotation.z*180/Math.PI).toFixed(2)+
+                                "</span> | <span title = 'points'>" +
+                                points_number + "</span> ";
         if (box.follows){
             this.boxUi.innerHTML += "| F:"+box.follows.obj_track_id;
         }

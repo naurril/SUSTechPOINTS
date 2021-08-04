@@ -139,7 +139,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
                     
                     this.fastToolboxUi.style.display = "inline-block";
 
-                    this.editor_ui.querySelector("#category-id-editor").style.display = "inherit";//"none";
+                    //this.editor_ui.querySelector("#obj-editor").style.display = "inherit";//"none";
                     //this.editor_ui.querySelector("#obj-label").style.display = "none";
                     //this.editor_ui.querySelector("#obj-label").innerText = label.innerText;
                     

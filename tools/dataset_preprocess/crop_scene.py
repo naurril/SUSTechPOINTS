@@ -99,7 +99,7 @@ def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
 
     # create context scene.
     os.chdir(dataset_root)
-    context_scene_path = "suscape_scenes/" + scene_id +"-10hz"
+    context_scene_path = "suscape_scenes/" + scene_id +"_10hz"
     prepare_dirs(context_scene_path)
     os.chdir(context_scene_path)
 

@@ -28,6 +28,8 @@ function BoxOp(){
             this.auto_shrink_box(box);
             // now box has been centered.
 
+            let points_indices = box.world.lidar.get_points_of_box(box,1.0).index;
+            let extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
             // restore scale
             if (noscaling){
                 box.scale.x = org_scale.x;
@@ -35,12 +37,12 @@ function BoxOp(){
                 box.scale.z = org_scale.z;
             }
             //
-            return box;
+            return extreme;
         };
 
         //points is N*3 shape
 
-        let applyRotation = (ret)=>{
+        let applyRotation = (ret, extreme_after_grow)=>{
             
                 let angle = ret.angle;
                 if (!angle){
@@ -134,6 +136,9 @@ function BoxOp(){
                         z: 1, //orgPointInBoxCoord[2],
                     }
     
+                    if (extreme_after_grow)
+                        extreme = extreme_after_grow;
+
                     auto_adj_dimension.forEach((axis)=>{
                         if (relativePosition[axis]>0){
                             //stick to max
@@ -162,7 +167,7 @@ function BoxOp(){
             return box;
         };
 
-        grow(box);
+        let extreme_after_grow = grow(box);
 
         if (!dontrotate){
             let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
@@ -183,8 +188,10 @@ function BoxOp(){
                     box.rotation.x, // use original rotation
                     box.rotation.y, // use original rotation
                     box.rotation.z, // use original rotation
-                ]
-            });
+                    ]
+                },
+                extreme_after_grow);
+
             postProc(box);
             return box;
         }
