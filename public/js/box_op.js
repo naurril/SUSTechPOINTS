@@ -600,6 +600,4 @@ function BoxOp(){
     
 }
 
-var boxOp = new BoxOp();
-
 export {BoxOp}

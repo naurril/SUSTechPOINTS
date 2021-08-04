@@ -438,7 +438,7 @@ dynamic set obj-type css has higher priority than this one.
 
 #main-box-editor-wrapper .v-buttons-wrapper {
 	position: absolute;
-	bottom: 10%;
+	bottom: 0%;
 	right: 0%;
 	background-color: var(--widget-background-color);;
 	margin: 1px;
@@ -474,7 +474,7 @@ dynamic set obj-type css has higher priority than this one.
 #batch-box-editor-wrapper .v-buttons-wrapper {
 	display: none;
 	position: absolute;
-	bottom: 10%;
+	bottom: 0%;
 	right: 0%;
 	background-color:var(--widget-background-color);
 	margin: 0;
