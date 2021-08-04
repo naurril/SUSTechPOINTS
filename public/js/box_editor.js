@@ -243,6 +243,38 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     };
 
+
+    this.resize = function(width, height)
+    {
+        this.ui.style.width = width + "px";
+        this.ui.style.height = height + "px";
+    };
+
+    this.setResize = function(option){
+        this.ui.style.resize=option;
+
+        if (option == 'both')
+        {
+
+            this.resizeObserver = new ResizeObserver(elements=>{
+
+                let rect = elements[0].contentRect;
+                console.log("sub-views resized.", rect);
+        
+                if (rect.height == 0 || rect.width == 0)
+                {
+                    return;
+                }
+        
+        
+                if (this.boxEditorManager)  // there is no manager for box editor in main ui
+                    this.boxEditorManager.onSubViewsResize(rect.width, rect.height);
+        
+            });
+        
+            this.resizeObserver.observe(this.ui);
+        }
+    }
 }
 
 
@@ -283,6 +315,15 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         event.preventDefault();
     })
     
+    this.onSubViewsResize = function(width, height)
+    {
+        this.editorList.forEach(e=>{
+            e.resize(width, height);
+        });
+
+        this.viewManager.render();
+    };
+
     this.edit = function(data, sceneMeta, frame, objTrackId, objType, onExit){
         
         this.show();
@@ -356,6 +397,9 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.firingBoxEditor = boxEditor;
         this.contextMenu.show("boxEditor", event.clientX, event.clientY, this);
     };
+
+    
+
 
     this.handleContextMenuEvent = function(event)
     {
@@ -823,7 +867,16 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.allocateEditor = function(){
         if (this.activeIndex >= this.editorList.length){
             let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, func_on_box_remove, String(this.activeIndex));
+            
+            // resizable for the first editor
+
+            if (this.editorList.length == 0)
+            {
+                editor.setResize("both");
+            }
+            
             this.editorList.push(editor);
+
             return editor;
         }else{
             return this.editorList[this.activeIndex];

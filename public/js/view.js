@@ -33,6 +33,8 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         if (this.mainView)
             this.mainView.render();
         this.boxViewList.forEach(v=>v.render());
+
+        
     };
 
     this.setColorScheme = function(){
@@ -112,6 +114,10 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
             if (this.active){
                 this.switch_camera(false);
                 this.renderWithCamera(this.camera);
+            }
+            else
+            {
+                this.renderWithCamera(this.blind_camera);
             }
         };
 
