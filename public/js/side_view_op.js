@@ -452,11 +452,11 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 mouseLeftDown = false;
             };
     
-            div.oncontextmenu = (event)=>{
-                //console.log("context menu on prjective view.");
-                on_contextmenu(event);
-                return false;
-            };
+            // div.oncontextmenu = (event)=>{
+            //     //console.log("context menu on prjective view.");
+            //     on_contextmenu(event);
+            //     return false;
+            // };
     
             div.onmousedown = function(event){
                 if (event.which==1){
@@ -862,10 +862,10 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     }
 
     function default_context_menu(event){
-        console.log("context menu.", scope.boxEditor.index);
-        scope.boxEditor.onContextMenu(event);
-        event.stopPropagation();
-        event.preventDefault();
+        // console.log("context menu.", scope.boxEditor.index);
+        // scope.boxEditor.onContextMenu(event);
+        // event.stopPropagation();
+        // event.preventDefault();
     }
 
 

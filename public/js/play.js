@@ -41,9 +41,20 @@ function PlayControl(data){
         
         var scope=this;
 
-        //var start_frame_index = scene_meta.frames.findIndex(function(x){return x == data.world.frameInfo.frame;})
+        
 
-        play_frame(scene_meta, this.data.world.frameInfo.frame, on_load_world_finished);
+        let start_frame = data.world.frameInfo.frame;
+
+        let current_frame_index = scene_meta.frames.findIndex(function(x){return x == data.world.frameInfo.frame;})
+        if (current_frame_index == scene_meta.frames.length-1)
+        {
+            //this is the last frmae
+            // we go to first frame.
+            start_frame = scene_meta.frames[0];
+        }
+
+
+        play_frame(scene_meta, start_frame, on_load_world_finished);
 
 
         function play_frame(scene_meta, frame, on_load_world_finished){
@@ -68,7 +79,7 @@ function PlayControl(data){
                                     function(){                    
                                         play_frame(scene_meta, next_frame, on_load_world_finished);
                                     }, 
-                                    200);
+                                    10);
                             } 
                             else{
                                 scope.stop_play();
@@ -85,7 +96,7 @@ function PlayControl(data){
                         function(){                    
                             play_frame(scene_meta, frame, on_load_world_finished);
                         }, 
-                        100);
+                        10);
                 } 
                 
                 

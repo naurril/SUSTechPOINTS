@@ -71,7 +71,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         view.backgroundColor=　(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.0, 0.0, 0.0 ) : new THREE.Color( 1.0, 1.0, 1.0 );
         view.zoom_ratio = 1.0; //useless for mainview
             
-        let camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+        let camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 500 );
         camera.position.x = 0;
         camera.position.z = 50;
         camera.position.y = 0;
@@ -81,7 +81,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
 
 
         // make a blind camera to clean background when batch editing is enabled.
-        camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 800 );
+        camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 500 );
         camera.position.x = -1000;
         camera.position.z = 50;
         camera.position.y = 0;
@@ -429,7 +429,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
     scope.projViewProto = {
         render(){
             let vp = this.getViewPort();
-            console.log(vp);
+            
             this.renderer.setViewport( vp.left, vp.bottom, vp.width, vp.height );
             this.renderer.setScissor(  vp.left, vp.bottom, vp.width, vp.height );
             this.renderer.setClearColor(this.backgroundColor );

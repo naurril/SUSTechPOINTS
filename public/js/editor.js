@@ -516,7 +516,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 'cm-next-frame':
             this.next_frame();
             break;
-
+        case 'cm-last-frame':
+            this.last_frame();
+            break;
+        case 'cm-first-frame':
+            this.first_frame();
+            break;
         case 'cm-go-to-10hz':
             this.load_world(this.data.world.frameInfo.scene+"_10hz", this.data.world.frameInfo.frame)
             break;
@@ -823,7 +828,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             frame, 
             objectTrackId,
             objectType,
-            ()=>{  //on exit
+            (targetFrame)=>{  //on exit
                 
                 
                 this.viewManager.mainView.enable();
@@ -847,6 +852,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.render();
                 this.controlGui.show();
                 this.editorUi.querySelector("#selectors").style.display='inherit';
+
+                if (targetFrame)
+                {
+                    this.load_world(this.data.world.frameInfo.scene, targetFrame);
+                }
             }
             );
     };
@@ -2065,6 +2075,17 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         
 
+    };
+
+    this.last_frame = function()
+    {
+        let scene_meta = this.data.get_current_world_scene_meta();
+        this.load_world(scene_meta.scene, scene_meta.frames[scene_meta.frames.length-1]);
+    };
+    this.first_frame = function()
+    {
+        let scene_meta = this.data.get_current_world_scene_meta();
+        this.load_world(scene_meta.scene, scene_meta.frames[0]);
     };
 
     this.next_frame= function(){    

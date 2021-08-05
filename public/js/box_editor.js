@@ -52,13 +52,16 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.setIndex = function(index){
         this.index = index; // index as of in all editors.
-    }
+    };
 
-    this.onContextMenu = function(event){
+    
+
+    this.onContextMenu = (event)=>{
         if (this.boxEditorManager)  // there is no manager for box editor in main ui
             this.boxEditorManager.onContextMenu(event, this);
-    }
+    };
 
+    this.ui.oncontextmenu = this.onContextMenu;
 
     this.resetTarget = function(){
         if (this.target.world){
@@ -336,11 +339,11 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     // frame specifies the center frame to edit
     
     
-    this.parentUi.addEventListener("contextmenu", event=>{
-        this.contextMenu.show("boxEditorManager", event.clientX, event.clientY, this);
-        event.stopPropagation();
-        event.preventDefault();
-    })
+    // this.parentUi.addEventListener("contextmenu", event=>{
+    //     this.contextMenu.show("boxEditorManager", event.clientX, event.clientY, this);
+    //     event.stopPropagation();
+    //     event.preventDefault();
+    // })
     
     this.onSubViewsResize = function(width, height)
     {
@@ -428,6 +431,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     {
         this.firingBoxEditor = boxEditor;
         this.contextMenu.show("boxEditor", event.clientX, event.clientY, this);
+        event.stopPropagation();
+        event.preventDefault();
     };
 
     
@@ -595,7 +600,17 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         case 'cm-reload':
             this.reloadAnnotation([this.firingBoxEditor]);                
             break;
-        }
+        case 'cm-goto-this-frame':
+            {            
+                let targetFrame = this.firingBoxEditor.target.world.frameInfo.frame;
+                this.hide();
+
+                this.reset();
+                if (this.onExit)
+                    this.onExit(targetFrame);
+            }
+            break;
+        };
     };
 
     this.reset = function(){
