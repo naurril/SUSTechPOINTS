@@ -5,20 +5,21 @@ import { TransformControls } from './lib/TransformControls.js';
 import {matmul2, euler_angle_to_rotate_matrix} from "./util.js"
 
 
-function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc, on_box_changed, cfg){
+function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, globalRenderFunc, on_box_changed, cfg){
 
     this.mainViewContainer = mainViewContainer;
     this.globalRenderFunc  = globalRenderFunc;
-    this.webgl_scene = webgl_scene;
+    this.webglScene = webglScene;
+    this.webglMainScene = webglMainScene;
     this.renderer = renderer;
 
     
-    this.mainView = cfg.disableMainView?null:create_main_view(webgl_scene,  renderer, this.globalRenderFunc, this.mainViewContainer, on_box_changed);
+    this.mainView = cfg.disableMainView?null:create_main_view(webglMainScene,  renderer, this.globalRenderFunc, this.mainViewContainer, on_box_changed);
     
     this.boxViewList = [];
     
     this.addBoxView = function(subviewsUi){
-        let boxview = new BoxView(subviewsUi, this.mainViewContainer, this.webgl_scene, this.renderer, this);
+        let boxview = new BoxView(subviewsUi, this.mainViewContainer, this.webglScene, this.renderer, this);
         this.boxViewList.push(boxview);
         return boxview;
     }
@@ -31,10 +32,13 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
     this.render = function(){
         console.log("render verything");
         if (this.mainView)
-            this.mainView.render();
-        this.boxViewList.forEach(v=>v.render());
+           this.mainView.render();
 
-        
+        this.boxViewList.forEach(v=>{
+            if (v.ui.style.display != 'none')
+                v.render()
+        });
+      
     };
 
     this.setColorScheme = function(){
@@ -111,14 +115,15 @@ function ViewManager(mainViewContainer, webgl_scene, renderer, globalRenderFunc,
         //scene.add( cameraOrthoHelper );
 
         view.render=function(){
+            console.log("render mainview.");
             if (this.active){
                 this.switch_camera(false);
                 this.renderWithCamera(this.camera);
             }
-            else
-            {
-                this.renderWithCamera(this.blind_camera);
-            }
+            // else
+            // {
+            //     this.renderWithCamera(this.blind_camera);
+            // }
         };
 
         view.clearView = function(){
@@ -409,8 +414,13 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         this.views.forEach((v)=>v.updateCameraRange(box));
     };
 
+    this.hidden = function(){
+        return this.ui.style.display == 'none';
+    };
+
     this.render = function(){
-        this.views.forEach((v)=>v.render());
+        if (!this.hidden())
+            this.views.forEach((v)=>v.render());
     }
 
     var scope = this;
@@ -419,6 +429,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
     scope.projViewProto = {
         render(){
             let vp = this.getViewPort();
+            console.log(vp);
             this.renderer.setViewport( vp.left, vp.bottom, vp.width, vp.height );
             this.renderer.setScissor(  vp.left, vp.bottom, vp.width, vp.height );
             this.renderer.setClearColor(this.backgroundColor );

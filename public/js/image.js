@@ -194,9 +194,15 @@ function ImageContext(ui, cfg, on_img_click){
     this.attachWorld = function(world){
         this.world = world;
     };
+
     this.hide = function(){
         this.ui.style.display="none";
     };
+
+    this.hidden = function(){
+        this.ui.style.display=="none";
+    };
+
     this.show = function(){
         this.ui.style.display="";
     };

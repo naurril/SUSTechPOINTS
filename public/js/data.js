@@ -126,9 +126,10 @@ function Data(metaData, cfg){
     };
 
 
-    this.webgl_scene = null;
-    this.set_webgl_scene=function(s){
-            this.webgl_scene = s;
+    this.webglScene = null;
+    this.set_webglScene=function(scene, mainScene){
+            this.webglScene = scene;
+            this.webglMainScene = mainScene;
         };
 
     this.config = {
@@ -222,7 +223,7 @@ function Data(metaData, cfg){
     // };
 
     // this.activateMultiWorld=function(world, on_finished){
-    //     world.activate(this.webgl_scene, 
+    //     world.activate(this.webglScene, 
     //         null,  //don't destroy old world
     //         on_finished);
     //     this.worldList.push(world);
@@ -231,13 +232,13 @@ function Data(metaData, cfg){
     this.activate_world= function(world, on_finished, dontDestroyOldWorld){
 
         if (dontDestroyOldWorld){
-            world.activate(this.webgl_scene, null, on_finished);            
+            world.activate(this.webglScene, null, on_finished);            
         }
         else{
             var old_world = this.world;   // current world, should we get current world later?
             this.world = world;  // swich when everything is ready. otherwise data.world is half-baked, causing mysterious problems.
 
-            world.activate(this.webgl_scene, 
+            world.activate(this.webglMainScene, 
                 function(){
                     if (old_world)
                         old_world.unload();

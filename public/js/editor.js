@@ -82,19 +82,28 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         );
 
 
+        //
+        // that way, the operation speed may be better
+        // if we load all worlds, we can speed up batch-mode operations, but the singl-world operations slows down.
+        // if we use two seperate scenes. can we solve this problem?
+        //
         this.scene = new THREE.Scene();
+        this.mainScene = this.scene; //new THREE.Scene();
+        
+        this.data.set_webglScene(this.scene, this.mainScene);
 
         
-        this.data.set_webgl_scene(this.scene);
-        this.boxOp = new BoxOp(this.data);
 
         this.renderer = new THREE.WebGLRenderer( { antialias: true, preserveDrawingBuffer: true } );
         this.renderer.setPixelRatio( window.devicePixelRatio );
         
         this.container = editorUi.querySelector("#container");
-        this.container.appendChild( this.renderer.domElement );        
+        this.container.appendChild( this.renderer.domElement );   
+        
+        
 
-        this.viewManager = new ViewManager(this.container, this.scene, this.renderer, 
+        this.boxOp = new BoxOp(this.data);
+        this.viewManager = new ViewManager(this.container, this.scene, this.mainScene, this.renderer, 
             function(){self.render();}, 
             function(box){self.on_box_changed(box)},
             this.editorCfg);
@@ -173,7 +182,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.header,
             this.contextMenu,
             (b)=>this.on_box_changed(b),
-            (b)=>this.remove_box(b),   // on box remove
+            (b,r)=>this.remove_box(b,r),   // on box remove
             ()=>{
                 // this.on_load_world_finished(this.data.world);
                 // this.imageContext.hide();
@@ -743,7 +752,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.render= function(){
 
-        this.viewManager.render();
+        this.viewManager.mainView.render();
+        this.boxEditor.boxView.render();
 
         this.floatLabelManager.update_all_position();
         if (this.selected_box){
@@ -1596,7 +1606,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             
             this.save_box_info(object); // this is needed since when a frame is loaded, all box haven't saved anything.
                                         // we could move this to when a frame is loaded.
-
             this.boxEditor.attachBox(object);
             this.onSelectedBoxChanged(object);
 
@@ -1609,10 +1618,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             else{
                 //select me the second time
                 this.viewManager.mainView.transform_control.attach( object );
-            }
+            }            
         }
 
         this.render();
+
+        
     };
 
     this.onWindowResize= function() {
@@ -2227,7 +2238,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
         }
 
-        this.do_remove_box(box, render);
+        this.do_remove_box(box, false); // render later.
 
         this.header.updateModifiedStatus();
 
@@ -2282,7 +2293,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     //box edited
     this.on_box_changed = function(box){
 
-        this.imageContext.image_manager.update_box(box);
+        if (!this.imageContext.hidden())
+            this.imageContext.image_manager.update_box(box);
 
         this.header.update_box_info(box);
         //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
@@ -2346,7 +2358,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
             //this.boxEditor.attachBox(box);
+
             this.render();
+            //this.boxEditor.boxView.render();
+
             //this.updateSubviewRangeByWindowResize(box);
             
         } else {

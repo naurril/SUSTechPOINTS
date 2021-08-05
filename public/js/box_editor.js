@@ -185,6 +185,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             this.boxEditorManager.onBoxChanged(this);
 
         this.updateInfo();
+
+        //this.boxView.render();
     };
 
     this.onDelBox = function(){
@@ -206,7 +208,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             this.boxView.updateCameraPose(this.box);
 
             if (!dontRender) 
-                this.viewManager.render();
+                this.boxView.render();
         }
         
         // this is not needed somtime
@@ -248,13 +250,14 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.resize = function(width, height)
     {
-        if (height + "px" == this.ui.style.height &&  width + "px" == this.ui.style.width)
-        {
-            return;
-        }
+        // if (height + "px" == this.ui.style.height &&  width + "px" == this.ui.style.width)
+        // {
+        //     return;
+        // }
 
         this.ui.style.width = width + "px";
         this.ui.style.height = height + "px";
+        this.boxView.render();
     };
 
     this.setResize = function(option){
@@ -262,6 +265,11 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
         if (option == 'both')
         {
+
+            this.lastSize= {
+                width: 0,
+                height: 0,
+            };
 
             this.resizeObserver = new ResizeObserver(elements=>{
 
@@ -273,12 +281,22 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
                     return;
                 }
 
+                if (rect.height != this.lastSize.height || rect.width != this.lastSize.width)
+                {
+                    // viewManager will clear backgound
+                    // so this render is effectiveless.
+                    //this.boxView.render();
 
-        
-        
-                if (this.boxEditorManager)  // there is no manager for box editor in main ui
-                    this.boxEditorManager.onSubViewsResize(rect.width, rect.height);
-        
+                    if (this.boxEditorManager)  // there is no manager for box editor in main ui
+                        this.boxEditorManager.onSubViewsResize(rect.width, rect.height);
+                
+                    //save
+                    this.lastSize.width = rect.width;
+                    this.lastSize.height = rect.height;
+                }
+
+                
+
             });
         
             this.resizeObserver.observe(this.ui);
@@ -326,11 +344,12 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     
     this.onSubViewsResize = function(width, height)
     {
+        this.viewManager.mainView.clearView();
         this.editorList.forEach(e=>{
             e.resize(width, height);
         });
 
-        this.viewManager.render();
+        //this.viewManager.render();
     };
 
     this.edit = function(data, sceneMeta, frame, objTrackId, objType, onExit){
@@ -447,23 +466,25 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         case 'cm-delete':
             if (this.firingBoxEditor.box)
             {
-                func_on_box_remove(this.firingBoxEditor.box)
+                func_on_box_remove(this.firingBoxEditor.box, true)
             }
             break;
         case 'cm-delete-next':
             this.activeEditorList().slice(this.firingBoxEditor.index+1).forEach(be=>{
                 if (be.box)
                 {
-                    func_on_box_remove(be.box);
+                    func_on_box_remove(be.box, false);
                 }
+                this.viewManager.render();
             });
             break;
         case 'cm-delete-previous':
             this.activeEditorList().slice(0, this.firingBoxEditor.index).forEach(be=>{
                 if (be.box)
                 {
-                    func_on_box_remove(be.box);
+                    func_on_box_remove(be.box,false);
                 }
+                this.viewManager.render();
             });
             break;
         case 'cm-interpolate':

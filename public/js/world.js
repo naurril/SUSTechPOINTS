@@ -291,7 +291,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.go=function(){
 
         if (this.everythingDone){
-            console.error("re-activate world?");
+            //console.error("re-activate world?");
 
             //however we still call on_finished
             if (this.on_finished){
