@@ -10,7 +10,7 @@ function Data(metaData, cfg){
     // place world by a offset so they don't overlap
     this.dbg = new Debug();
     this.cfg = cfg;
-    this.worldGap=200.0;
+    this.worldGap=20000.0;
     this.worldList=[];
     this.MaxWorldNumber=60;
     this.createWorldIndex = 0; // this index shall not repeat, so it increases permanently

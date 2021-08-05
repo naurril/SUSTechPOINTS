@@ -234,7 +234,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.preloaded=function(){
         return this.lidar.preloaded && 
                this.annotation.preloaded && 
-               this.cameras.loaded() &&
+               //this.cameras.loaded() &&
                this.aux_lidars.preloaded() && 
                this.radars.preloaded();
     };

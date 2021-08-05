@@ -63,8 +63,10 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     this.resetTarget = function(){
         if (this.target.world){
             //unload if it's not the main world
-            if (this.target.world !== this.target.world.data.world)
-                this.target.world.unload();
+
+
+            // if (this.target.world !== this.target.world.data.world)
+            //     this.target.world.unload();
         }
 
         this.detach();
@@ -124,7 +126,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             this.focusImageContext.updateFocusedImageContext(box);
 
             this.updateInfo();
-
+            this.boxView.render();
         }
 
         
@@ -246,6 +248,11 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.resize = function(width, height)
     {
+        if (height + "px" == this.ui.style.height &&  width + "px" == this.ui.style.width)
+        {
+            return;
+        }
+
         this.ui.style.width = width + "px";
         this.ui.style.height = height + "px";
     };
@@ -265,6 +272,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
                 {
                     return;
                 }
+
+
         
         
                 if (this.boxEditorManager)  // there is no manager for box editor in main ui
@@ -374,6 +383,10 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         
 
         let frames = sceneMeta.frames.slice(startIndex, startIndex+this.batchSize);
+
+        
+        this.viewManager.mainView.clearView();
+
         frames.forEach((frame, editorIndex)=>{
             let world = data.getWorld(sceneName, frame);
             let editor = this.addEditor();
@@ -384,7 +397,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 ()=>{
                     editor.tryAttach();
                     //
-                    this.viewManager.render();
+                    //this.viewManager.render();
                 },
                 true);
         });
