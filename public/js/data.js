@@ -27,12 +27,61 @@ function Data(metaData, cfg){
 
     this._createWorld = function(sceneName, frame, on_preload_finished){
 
-        let world = new World(this, sceneName, frame, [this.worldGap*this.createWorldIndex, 0, 0], on_preload_finished);        
+        let [x,y,z] = this.allocateOffset();
+        console.log("create world",x,y,z);
+        let world = new World(this, sceneName, frame, [this.worldGap*x, this.worldGap*y, this.worldGap*z], on_preload_finished);        
+        world.offsetIndex = [x,y,z];
         this.createWorldIndex++;
         this.worldList.push(world);
         
         return world;
 
+    };
+
+
+    this.offsetList = [];
+    this.lastSeedOffset = [0,0,0];
+    this.allocateOffset = function()
+    {
+
+        if (this.offsetList.length == 0)
+        {
+            let [x,y,z] = this.lastSeedOffset;
+
+            if (x == y)
+            {  
+                x = x+1;
+                y = 0;
+            }
+            else
+            {
+                y = y+1;
+            }
+
+            this.lastSeedOffset = [x, y, 0];
+            
+            this.offsetList.push([x,y,0]);
+            
+            if (x != 0)  this.offsetList.push([-x,y,0]);
+            if (y != 0)  this.offsetList.push([x,-y,0]);
+            if (x * y != 0)  this.offsetList.push([-x,-y,0]);
+
+            if (x != y) {
+                this.offsetList.push([y,x,0]);
+            
+                if (y != 0)  this.offsetList.push([-y,x,0]);
+                if (x != 0)  this.offsetList.push([y,-x,0]);
+                if (x * y != 0)  this.offsetList.push([-y,-x,0]);
+            }
+        }
+
+        let ret =  this.offsetList.pop();        
+        return ret;
+    };
+
+    this.returnOffset = function(offset)
+    {
+        this.offsetList.push(offset);
     };
 
     this.deleteDistantWorlds = function(world){
@@ -51,7 +100,11 @@ function Data(metaData, cfg){
 
         let distantWorldList = this.worldList.filter(w=>disposable(w));
 
-        distantWorldList.forEach(w=>w.deleteAll());
+        distantWorldList.forEach(w=>{
+            this.returnOffset(w.offsetIndex);
+            w.deleteAll();
+        });
+
         
         this.worldList = this.worldList.filter(w=>!disposable(w));
 
