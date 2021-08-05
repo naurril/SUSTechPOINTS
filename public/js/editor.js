@@ -612,7 +612,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 {
                     info = {
                         ...info, 
-                        ...this.data.world.frameInfo.sceneMeta.desc
+                        ...this.data.world.frameInfo.sceneMeta.desc,
+                        "offset": this.data.world.coordinatesOffset,
                     };
                 }
 
