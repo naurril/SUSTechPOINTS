@@ -773,12 +773,12 @@ function Lidar(sceneMeta, world, frameInfo){
 
         var cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio);
         
-        
+        //todo: different definition.
         let groundLevel = 0.3;
 
         if (this.data.cfg.enableDynamicGroundLevel)
         {
-            groundLevel = Math.min(box.scale.z/3,  Math.max(0.3, box.scale.x/10, box.scale.y/10));
+            groundLevel = Math.min(box.scale.z/3,  Math.max(0.1, box.scale.x/10, box.scale.y/10));
             console.log('ground level', groundLevel, box.scale);
         }
         

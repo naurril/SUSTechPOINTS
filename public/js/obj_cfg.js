@@ -24,6 +24,7 @@ var obj_type_map = {
     Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
 
     ForkLift:       {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
+    Trimotorcycle:  {color: '#00aaff',  size:[2.6, 1.0, 1.6]},
     Crane:          {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
 
     Misc:           {color: '#008888',  size:[4.5, 1.8, 1.5]},
