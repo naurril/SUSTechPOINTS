@@ -1652,7 +1652,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             // }
         }
         
-        this.render();
+        this.viewManager.render();
     };
 
     this.change_transform_control_view= function(){
