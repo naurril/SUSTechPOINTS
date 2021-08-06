@@ -481,6 +481,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         );
     }
 
+    // return true to close contextmenu
+    // return false to keep contextmenu
     this.handleContextMenuEvent = function(event){
 
         switch(event.currentTarget.id)
@@ -489,21 +491,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             switch (event.type)
             {
             case 'click':
-                //add_bbox();
-                //header.mark_changed_flag();
-
-                // all submenus of `new' will forward click event to here
-                // since they are children of `new'
-                // so we should 
-                if (event.target.id != event.currentTarget.id)
-                {
-                    //submenu clicked. pass through to hide context menu
-                }
-                else
-                {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+                return false;
                 break;
             case 'mouseenter':
                 event.currentTarget.querySelector("#new-submenu").style.display="inherit";
@@ -518,11 +506,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             switch (event.type)
             {
             case 'click':
-
-                if (event.target.id == event.currentTarget.id)
-                {
-                    this.playControl.play((w)=>{this.on_load_world_finished(w)}, 2);
-                }
+                return false;
                 break;
             case 'mouseenter':
                 event.currentTarget.querySelector("#play-submenu").style.display="inherit";
@@ -537,11 +521,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             switch (event.type)
             {
             case 'click':
-                if (event.target.id == event.currentTarget.id)
-                {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+                return false;
                 break;
             case 'mouseenter':
                 event.currentTarget.querySelector("#goto-submenu").style.display="inherit";
@@ -801,6 +781,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         default:
             console.log('unhandled', event.currentTarget.id, event.type);
         }
+
+        return true; 
     };
 
     // this.animate= function() {

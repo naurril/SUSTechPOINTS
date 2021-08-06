@@ -617,6 +617,9 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             }
             break;
         };
+
+
+        return true;
     };
 
     this.reset = function(){

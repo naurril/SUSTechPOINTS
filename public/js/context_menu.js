@@ -19,7 +19,16 @@ class ContextMenu {
                 {
                     this.menus[m].children[i].onclick = (event) =>
                     {                       
-                        this.handler.handleContextMenuEvent(event);                        
+                        let ret = this.handler.handleContextMenuEvent(event);                        
+                        if (ret)
+                        {                            
+                            this.hide();
+                        }
+                        else
+                        {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
                     }                   
                 }
             }
@@ -109,6 +118,11 @@ class ContextMenu {
             //     var item = this.menus.world.querySelector("#new-submenu");
             //     item.style.display="none";
             // }
+    }
+
+    hide()
+    {
+        this.wrapperUi.style.display = "none";
     }
 
     show(name, posX, posY, handler)
