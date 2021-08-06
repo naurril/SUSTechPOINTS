@@ -285,11 +285,12 @@ function Lidar(sceneMeta, world, frameInfo){
     // color points according to object category
     this.color_points=function(){
         // color all points inside these boxes
-        var _self = this;
+        
 
         if (this.data.config.color_obj){
-            this.world.annotation.boxes.map(function(b){
-                _self.set_box_points_color(b);
+            this.world.annotation.boxes.map((b)=>{
+                if (!b.annotator)
+                    this.set_box_points_color(b);
             })
 
             this.update_points_color();

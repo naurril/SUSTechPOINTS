@@ -474,9 +474,9 @@ function MaFilter_tf(initX){   // moving average filter
     this.step = 0;
     
     this.v = tf.zeros([9]);  // velocity
-    this.decay = tf.tensor1d([0.5, 0.5, 0.5, 
-                              0.5, 0.5, 0.5,
-                              0.5, 0.5, 0.5])
+    this.decay = tf.tensor1d([0.7, 0.7, 0.7, 
+                              0.7, 0.7, 0.7,
+                              0.7, 0.7, 0.7])
 
     this.update = function(x){
         if (this.step == 0){

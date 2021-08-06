@@ -2274,7 +2274,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.do_remove_box = function(box, render=true){
-        this.restore_box_points_color(box, render);
+
+        if (!box.annotator)
+            this.restore_box_points_color(box, render);
 
         this.imageContext.image_manager.remove_box(box.obj_local_id);
 

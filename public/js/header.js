@@ -58,6 +58,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         let distance = Math.sqrt(pos.x*pos.x + pos.y*pos.y).toFixed(2);
 
         this.boxUi.innerHTML = "<span>" + box.obj_type +"-"+box.obj_track_id + 
+                               (box.annotator? ("</span> | <span title='annotator'>" + box.annotator) : "") +
                                "</span> | <span title='distance'>" + distance +
                                "</span> | <span title='position'>"+pos.x.toFixed(2) +" "+pos.y.toFixed(2) + " " + pos.z.toFixed(2) + 
                                "</span> | <span title='scale'>" +scale.x.toFixed(2) +" "+scale.y.toFixed(2) + " " + scale.z.toFixed(2) + 

@@ -428,8 +428,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     
             // move handle
             de = ui.querySelector("#move-handle");
-            de.setAttribute('x', Math.ceil((left+right)/2-20));
-            de.setAttribute('y', Math.ceil((top+bottom)/2-20));
+            de.setAttribute('x', Math.ceil((left+right)/2-10));
+            de.setAttribute('y', Math.ceil((top+bottom)/2-10));
         }
         
         

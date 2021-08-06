@@ -265,6 +265,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.setResize = function(option){
         this.ui.style.resize=option;
+        this.ui.style["z-index"] = "0";
 
         if (option == 'both')
         {
@@ -480,8 +481,9 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 {
                     func_on_box_remove(be.box, false);
                 }
-                this.viewManager.render();
             });
+
+            this.viewManager.render();
             break;
         case 'cm-delete-previous':
             this.activeEditorList().slice(0, this.firingBoxEditor.index).forEach(be=>{
@@ -588,9 +590,13 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 let e = this.firingBoxEditor;
                 
                 if (e.box){
-                    delete e.box.annotator;
-                    e.box.world.annotation.setModified();
-                    e.updateInfo();
+                    if (e.box.annotator)
+                    {
+                        delete e.box.annotator;
+                        func_on_box_changed(e.box);
+                        //e.box.world.annotation.setModified();
+                        e.updateInfo();
+                    }
                 }
 
                 this.globalHeader.updateModifiedStatus();;
@@ -826,7 +832,11 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.finalize = function(){
         this.activeEditorList().forEach(e=>{
             if (e.box){
-                delete e.box.annotator;
+
+                if (e.box.annotator){
+                    delete e.box.annotator;
+                    func_on_box_changed(e.box);
+                }
                 e.box.world.annotation.setModified();
                 e.updateInfo();
             }
