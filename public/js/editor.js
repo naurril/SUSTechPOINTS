@@ -495,19 +495,75 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 // all submenus of `new' will forward click event to here
                 // since they are children of `new'
                 // so we should 
-                event.preventDefault();
-                event.stopPropagation();
+                if (event.target.id != event.currentTarget.id)
+                {
+                    //submenu clicked. pass through to hide context menu
+                }
+                else
+                {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 break;
             case 'mouseenter':
-                menuUi.querySelector("#new-submenu").style.display="inherit";
+                event.currentTarget.querySelector("#new-submenu").style.display="inherit";
                 break;
             case 'mouseleave':
-                menuUi.querySelector("#new-submenu").style.display="none";
+                event.currentTarget.querySelector("#new-submenu").style.display="none";
                 break;
             };
     
             break;
+        case "cm-play":
+            switch (event.type)
+            {
+            case 'click':
 
+                if (event.target.id == event.currentTarget.id)
+                {
+                    this.playControl.play((w)=>{this.on_load_world_finished(w)}, 2);
+                }
+                break;
+            case 'mouseenter':
+                event.currentTarget.querySelector("#play-submenu").style.display="inherit";
+                break;
+            case 'mouseleave':
+                event.currentTarget.querySelector("#play-submenu").style.display="none";
+                break;
+            };
+
+            break;
+        case "cm-goto":
+            switch (event.type)
+            {
+            case 'click':
+                if (event.target.id == event.currentTarget.id)
+                {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                break;
+            case 'mouseenter':
+                event.currentTarget.querySelector("#goto-submenu").style.display="inherit";
+                break;
+            case 'mouseleave':
+                event.currentTarget.querySelector("#goto-submenu").style.display="none";
+                break;
+            };
+            break;
+
+        case "cm-play-2fps":
+            this.playControl.play((w)=>{this.on_load_world_finished(w)}, 2);
+            break;
+        case "cm-play-10fps":
+            this.playControl.play((w)=>{this.on_load_world_finished(w)}, 10);
+            break;
+        case "cm-play-20fps":
+            this.playControl.play((w)=>{this.on_load_world_finished(w)}, 20);
+            break;
+        case "cm-play-50fps":
+            this.playControl.play((w)=>{this.on_load_world_finished(w)}, 50);
+            break;
         case 'cm-paste':
             this.autoAdjust.smart_paste(this.selected_box,
                 (p,s,r,t,i)=>this.add_box(p,s,r,t,i),
@@ -585,12 +641,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             break;
     
-        case "cm-play":
-            this.playControl.play(false,
-                (w)=>{
-                    this.on_load_world_finished(w)
-                });
-            break;
+
         case "cm-stop":
             this.playControl.stop_play();
             break;
@@ -2448,7 +2499,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.editorUi.querySelector("#cm-new-"+o).onclick = (event)=>{
 
                 // hide context men
-                this.editorUi.querySelector("#context-menu-wrapper").style.display="none";
+                // let context menu object handle this.
+                // this.editorUi.querySelector("#context-menu-wrapper").style.display="none";
 
                 // process event
                 var obj_type = event.currentTarget.getAttribute("uservalue");

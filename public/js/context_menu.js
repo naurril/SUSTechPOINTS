@@ -10,34 +10,35 @@ class ContextMenu {
                 object: ui.querySelector("#object-context-menu"),
                 boxEditor: ui.querySelector("#box-editor-context-menu"),
                 boxEditorManager: ui.querySelector("#box-editor-manager-context-menu"),
+                playSubMenu: ui.querySelector("#play-submenu"),
+                gotoSubMenu: ui.querySelector("#goto-submenu"),
             };
 
             for (let m in this.menus){
                 for (let i = 0; i < this.menus[m].children.length; i++)
                 {
                     this.menus[m].children[i].onclick = (event) =>
-                    {
-                        this.handler.handleContextMenuEvent(event);
-                    }
+                    {                       
+                        this.handler.handleContextMenuEvent(event);                        
+                    }                   
                 }
             }
 
-            this.menus.world.querySelector("#cm-new").onmouseenter = (event)=>{
-                this.handler.handleContextMenuEvent(event);
-            }
+            let motherMenu = [
+                "#cm-goto", "#cm-new", "#cm-play", "#cm-save-all"
+            ];
 
-            this.menus.world.querySelector("#cm-new").onmouseleave = (event)=>{
-                this.handler.handleContextMenuEvent(event);
-            }
+            motherMenu.forEach(item=>{
+                this.menus.world.querySelector(item).onmouseenter = (event)=>{
+                    this.handler.handleContextMenuEvent(event);
+                }
 
-            this.menus.world.querySelector("#cm-save-all").onmouseenter = (event)=>{
-                this.handler.handleContextMenuEvent(event);
-            }
+                this.menus.world.querySelector(item).onmouseleave = (event)=>{
+                    this.handler.handleContextMenuEvent(event);
+                }
+            });
 
-            this.menus.world.querySelector("#cm-save-all").onmouseleave = (event)=>{
-                this.handler.handleContextMenuEvent(event);
-            }
-
+            
             this.wrapperUi.onclick = function(event){
                 event.currentTarget.style.display="none"; 
                 event.preventDefault();
@@ -66,37 +67,48 @@ class ContextMenu {
             };
             */
     
-            this.menus.world.querySelector("#cm-new").onclick = (event)=>{
-                //add_bbox();
-                //header.mark_changed_flag();
+            // this.menus.world.querySelector("#cm-new").onclick = (event)=>{
+            //     //add_bbox();
+            //     //header.mark_changed_flag();
     
-                // all submenus of `new' will forward click event to here
-                // since they are children of `new'
-                // so we should 
-                event.preventDefault();
-                event.stopPropagation();
-            };
+            //     // all submenus of `new' will forward click event to here
+            //     // since they are children of `new'
+            //     // so we should 
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            // };
     
-            this.menus.world.querySelector("#cm-new").onmouseenter = (event)=>{
-                var item = this.menus.world.querySelector("#new-submenu");
-                item.style.display="inherit";
-            };
+            // this.menus.world.querySelector("#cm-new").onmouseenter = (event)=>{
+            //     var item = this.menus.world.querySelector("#new-submenu");
+            //     item.style.display="inherit";
+            // };
     
-            this.menus.world.querySelector("#cm-new").onmouseleave = (event)=>{
-                this.menus.world.querySelector("#new-submenu").style.display="none";
-                //console.log("leave  new item");
-            };
+            // this.menus.world.querySelector("#cm-new").onmouseleave = (event)=>{
+            //     this.menus.world.querySelector("#new-submenu").style.display="none";
+            //     //console.log("leave  new item");
+            // };
+
+
+            // this.menus.world.querySelector("#cm-play").onmouseenter = (event)=>{
+            //     var item = this.menus.world.querySelector("#play-submenu");
+            //     item.style.display="inherit";
+            // };
+    
+            // this.menus.world.querySelector("#cm-play").onmouseleave = (event)=>{
+            //     this.menus.world.querySelector("#play-submenu").style.display="none";
+            //     //console.log("leave  new item");
+            // };
     
     
-            this.menus.world.querySelector("#new-submenu").onmouseenter=(event)=>{
-                var item = this.menus.world.querySelector("#new-submenu");
-                item.style.display="block";
-            }
+            // this.menus.world.querySelector("#new-submenu").onmouseenter=(event)=>{
+            //     var item = this.menus.world.querySelector("#new-submenu");
+            //     item.style.display="block";
+            // }
     
-            this.menus.world.querySelector("#new-submenu").onmouseleave=(event)=>{
-                var item = this.menus.world.querySelector("#new-submenu");
-                item.style.display="none";
-            }
+            // this.menus.world.querySelector("#new-submenu").onmouseleave=(event)=>{
+            //     var item = this.menus.world.querySelector("#new-submenu");
+            //     item.style.display="none";
+            // }
     }
 
     show(name, posX, posY, handler)

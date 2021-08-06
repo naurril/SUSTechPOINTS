@@ -11,7 +11,7 @@ function PlayControl(data){
         this.pause_play_flag=!this.pause_play_flag;
 
         if (!this.pause_play_flag && !this.stop_play_flag){
-            this.play(true, this.on_load_world_finished);
+            this.play(this.on_load_world_finished);
         }
     };
 
@@ -22,7 +22,7 @@ function PlayControl(data){
     };
 
     this.on_load_world_finished = null;
-    this.play=function(resume, on_load_world_finished){
+    this.play=function(on_load_world_finished, fps=2){
         this.on_load_world_finished = on_load_world_finished;
 
         if (!this.data.meta){
@@ -79,7 +79,7 @@ function PlayControl(data){
                                     function(){                    
                                         play_frame(scene_meta, next_frame, on_load_world_finished);
                                     }, 
-                                    10);
+                                    1000/fps);
                             } 
                             else{
                                 scope.stop_play();

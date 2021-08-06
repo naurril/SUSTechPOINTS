@@ -297,25 +297,16 @@ dynamic set obj-type css has higher priority than this one.
 	position:relative;
 }
 
-#new-submenu {
+#new-submenu, #saveall-submenu, #play-submenu, #goto-submenu {
 	display: none;
 	position: absolute;	
 	left:100%;
 	top: 0%;
 	padding-left: 3px;
-	min-width: 120px;
+	min-width: 150px;
 	background-color: var(--widget-background-color);
 }
 
-#saveall-submenu {
-	display: none;
-	position: absolute;	
-	left:100%;
-	top: 0%;
-	padding-left: 3px;
-	min-width: 120px;
-	background-color: var(--widget-background-color);
-}
 
 .menu-item {
 	cursor: pointer;
