@@ -678,6 +678,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
         
                 handle.onmousedown = function(event){
                     
+                    if (event.which!=1)
+                        return;
     
                     line.style.stroke="yellow";
                     handle.onmouseleave = null;

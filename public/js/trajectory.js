@@ -98,7 +98,7 @@ class Trajectory extends PopupDialog{
     object = {};
 
 
-    setObject(objType, objId, tracks)  //tracks is a list of [frameId, x, y, direction], in order
+    setObject(objType, objId, tracks, funcOnExit)  //tracks is a list of [frameId, x, y, direction], in order
     {
 
         this.object  = {
@@ -107,9 +107,12 @@ class Trajectory extends PopupDialog{
             tracks:tracks
         };
 
+        this.funcOnExit = funcOnExit;
         //console.log(objType, objId, tracks);
         this.calculateCoordinateTransform(this.object.tracks);
         this.redrawAll();
+
+        
         
     }
 
@@ -177,6 +180,13 @@ class Trajectory extends PopupDialog{
                 let g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
                 g.innerHTML = `<title>${label}</title>`;
                 g.setAttribute("class","one-track");
+
+                g.ondblclick = (e)=>{
+                    if (this.funcOnExit){
+                        this.hide();
+                        this.funcOnExit(label);
+                    }
+                };
 
                 if (highlight)
                 {

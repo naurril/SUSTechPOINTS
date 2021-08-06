@@ -461,6 +461,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.showTrajectory = function(){
         if (!this.selected_box.obj_track_id){
             console.error("no track id");
+            return;
         }
 
         let tracks = this.data.worldList.map(w=>{
@@ -473,7 +474,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.objectTrackView.setObject(
             this.selected_box.obj_type,
             this.selected_box.obj_track_id,
-            tracks
+            tracks,
+            (targetFrame)=>{  //onExit
+                this.load_world(this.data.world.frameInfo.scene, targetFrame);
+            }
         );
     }
 
@@ -2244,8 +2248,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.remove_box = function(box, render=true){
         if (box === this.selected_box){
-            this.unselectBox(null);
-            this.unselectBox(null); //twice to safely unselect.
+            this.unselectBox(null,true);
+            this.unselectBox(null,true); //twice to safely unselect.
             this.selected_box = null;
             //this.remove_selected_box();
         } 
