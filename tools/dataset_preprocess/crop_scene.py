@@ -53,7 +53,7 @@ def generate_dataset_links(src_data_folder, start_time, seconds):
 
         for second in range(int(start_time), int(start_time) + int(seconds)):
             for slot in slots:
-                os.system("ln -s -f  ../../../../" + src_data_folder  + "/camera/" + camera + "/"+ str(second) + "." +  str(slot) + ".*  ./")
+                os.system("ln -s -f  ../../../../" + src_data_folder  + "/camera/" + camera + "/"+ str(second) + "." +  str(slot) + ".jpg  ./")
         os.chdir("..")
     
     os.chdir("..") #scene-xxx
@@ -61,8 +61,93 @@ def generate_dataset_links(src_data_folder, start_time, seconds):
     for second in range(int(start_time), int(start_time) + int(seconds)):
         for slot in slots:
             os.system("ln -s -f ../../../" + src_data_folder + "/lidar/" + str(second) + "." +  str(slot) +".pcd ./")
+
+def read_scene_cfg(f):
+    cfg = {}
+    with open(f, 'r') as f:
+        lines = f.readlines()
+        
+        for l in lines:
+            l = l.strip()
+            words =  l.split(":")
+            if len(words) == 2:
+                key = words[0].split('"')[1]
+                value = words[1].split('"')[1]
+                cfg[key]=value
+    return cfg
     
 
+
+
+def  regen_scene(scene_path):
+        savecwd = os.getcwd()
+        os.chdir(scene_path)
+
+        os.system("rm -rf camera lidar")
+
+        if os.path.exists("./desc.json"):
+                cfg = read_scene_cfg("./desc.json")
+
+                #we are in scene folder!
+                src_data_folder = cfg["folder"]
+                start_time = cfg["starttime"]
+                seconds  =cfg["seconds"]
+
+
+                generate_dataset_links(src_data_folder, start_time, seconds)
+        else:
+            print("desc.json doesn't exist!")
+            print("execute this command in scene folder")
+
+        os.chdir(savecwd)
+        print("checking", scene_path)
+        check_scene(scene_path)
+        os.chdir(savecwd)
+
+def checkfile(f):
+    if not os.path.exists(f):
+        print(f, "doesn't exit")
+        return False
+    if not os.path.isfile(f):
+        print(f, "is not a file")
+        return False
+
+
+def checkdir(f):
+    if not os.path.exists(f):
+        print(f, "doesn't exit")
+        return False
+        
+    if not os.path.isdir(f):
+        print(f, "is not a directory")
+        return False
+
+
+def check_scene(scene_path):
+    checkfile(scene_path + "/desc.json")
+    cfg = read_scene_cfg(scene_path + "/desc.json")
+    #print(cfg)
+    src_data_folder = cfg["folder"]
+    start_time = cfg["starttime"]
+    seconds  =cfg["seconds"]
+
+
+    checkdir(scene_path + "/" + "lidar")
+    for second in range(int(start_time), int(start_time) + int(seconds)):
+        for slot in slots:
+            f = scene_path + "/" + "lidar/" + str(second) + "." +  str(slot) +".pcd"
+            checkfile(f)
+
+    checkdir(scene_path + "/" + "label")
+    checkdir(scene_path + "/" + "calib")
+    checkdir(scene_path + "/" + "camera")
+    for c in camera_list:
+        checkdir(scene_path + "/" + "camera/"+c)
+
+        for second in range(int(start_time), int(start_time) + int(seconds)):
+            for slot in slots:
+                f = scene_path + "/" + "camera/" + c + "/"+ str(second) + "." +  str(slot) + ".jpg"
+                checkfile(f)
 
 def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
     
@@ -78,9 +163,9 @@ def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
     print(start_time, seconds)
     print(desc)
 
-    dataset_path = "suscape_scenes/" + scene_id
-    prepare_dirs(dataset_path)
-    os.chdir(dataset_path)
+    scene_path = "suscape_scenes/" + scene_id
+    prepare_dirs(scene_path)
+    os.chdir(scene_path)
 
     
     with open("./desc.json", "w") as f:
@@ -95,7 +180,11 @@ def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
 
     generate_dataset_links(src_data_folder, start_time, seconds)
 
-    os.chdir(savecwd)
+    
+    # check scene.
+    os.chdir(dataset_root)
+    print("checking", scene_path)
+    check_scene(scene_path)
 
     # create context scene.
     os.chdir(dataset_root)
@@ -119,8 +208,54 @@ def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
 #  a new scene id will be generated automatically.
 
 if __name__ == "__main__":
-    _, src_data_folder, scene_id, start_time, seconds, comments = sys.argv
 
-    id = generate_dataset(src_data_folder, scene_id, start_time, seconds, comments )
-    
+    cmd = sys.argv[1]
+    if cmd == "generate":
+        if len(sys.argv) == 7:
+            _, cmd, src_data_folder, scene_id, start_time, seconds, comments = sys.argv
 
+            id = generate_dataset(src_data_folder, scene_id, start_time, seconds, comments )
+        else:
+            print("args: generate, src_data_folder, scene_id, start_time, seconds, comments")
+    elif cmd == "regen":
+        # try regenerate scene data
+        # precondition: the desc.json exists
+
+        scene_path = "./"
+        if len(sys.argv) == 3:
+            scene_path = sys.argv[2]
+        
+        regen_scene(scene_path)
+    elif cmd == "regenall":
+        root_path = "./"
+        if len(sys.argv) == 3:
+            root_path = sys.argv[2]
+        
+        scenes = os.listdir(root_path)
+        scenes.sort()
+        for s in scenes:
+            if len(s.split("_")) == 1:  # dont' regen ... _10hz
+                print("regenerating", s)
+                regen_scene(root_path + "/" + s)
+    elif cmd == "check":
+        scene_path = "./"
+        if len(sys.argv) == 3:
+            scene_path = sys.argv[2]
+        
+        print("checking", scene_path)
+        check_scene(scene_path)
+    elif cmd == "checkall":
+        root_path = "./"
+        if len(sys.argv) == 3:
+            root_path = sys.argv[2]
+        
+        scenes = os.listdir(root_path)
+        scenes.sort()
+        for s in scenes:
+            if len(s.split("_")) == 1:  # dont' check ... _10hz
+                print("checking", s)
+                check_scene(root_path + "/" + s)
+
+    else:
+        print("unknown commands: ", cmd)
+        print("accept commands: generate, regen, check")

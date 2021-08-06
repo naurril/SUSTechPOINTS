@@ -97,7 +97,7 @@ class Root(object):
       print("generate scene")
       log_file = "temp/crop-scene-"+timestamp+".log"
 
-      cmd = "python ./tools/dataset_preprocess/crop_scene.py "+ \
+      cmd = "python ./tools/dataset_preprocess/crop_scene.py generate "+ \
         rawdata[0:10]+"/"+timestamp + "_preprocessed/dataset_2hz " + \
         "- " +\
         data["startTime"] + " " +\
