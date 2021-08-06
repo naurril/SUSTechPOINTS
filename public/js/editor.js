@@ -2476,28 +2476,42 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.editorUi.querySelector("#new-submenu").innerHTML = items;
 
-        // install click actions
-        for (var o in obj_type_map){        
-            this.editorUi.querySelector("#cm-new-"+o).onclick = (event)=>{
+        this.contextMenu.installMenu("newSubMenu", this.editorUi.querySelector("#new-submenu"), (event)=>{
+            let obj_type = event.currentTarget.getAttribute("uservalue");
+            let box = self.add_box_on_mouse_pos(obj_type);
+            //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
+            //self.boxOp.grow_box(box, 0.2, {x:2, y:2, z:3});
+            //self.auto_shrink_box(box);
+            //self.on_box_changed(box);
 
-                // hide context men
-                // let context menu object handle this.
-                // this.editorUi.querySelector("#context-menu-wrapper").style.display="none";
+            self.boxOp.auto_rotate_xyz(box, null, null, function(b){
+                self.on_box_changed(b);
+            });
+            return true;
+        });
 
-                // process event
-                var obj_type = event.currentTarget.getAttribute("uservalue");
-                let box = self.add_box_on_mouse_pos(obj_type);
-                //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
-                //self.boxOp.grow_box(box, 0.2, {x:2, y:2, z:3});
-                //self.auto_shrink_box(box);
-                //self.on_box_changed(box);
+        // // install click actions
+        // for (var o in obj_type_map){        
+        //     this.editorUi.querySelector("#cm-new-"+o).onclick = (event)=>{
 
-                self.boxOp.auto_rotate_xyz(box, null, null, function(b){
-                    self.on_box_changed(b);
-                });
+        //         // hide context men
+        //         // let context menu object handle this.
+        //         // this.editorUi.querySelector("#context-menu-wrapper").style.display="none";
+
+        //         // process event
+        //         var obj_type = event.currentTarget.getAttribute("uservalue");
+        //         let box = self.add_box_on_mouse_pos(obj_type);
+        //         //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
+        //         //self.boxOp.grow_box(box, 0.2, {x:2, y:2, z:3});
+        //         //self.auto_shrink_box(box);
+        //         //self.on_box_changed(box);
+
+        //         self.boxOp.auto_rotate_xyz(box, null, null, function(b){
+        //             self.on_box_changed(b);
+        //         });
                 
-            }
-        }
+        //     }
+        // }
 
     };
 

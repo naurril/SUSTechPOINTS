@@ -13,7 +13,7 @@ class ContextMenu {
                 playSubMenu: ui.querySelector("#play-submenu"),
                 gotoSubMenu: ui.querySelector("#goto-submenu"),
             };
-
+            
             for (let m in this.menus){
                 for (let i = 0; i < this.menus[m].children.length; i++)
                 {
@@ -118,6 +118,27 @@ class ContextMenu {
             //     var item = this.menus.world.querySelector("#new-submenu");
             //     item.style.display="none";
             // }
+    }
+
+    installMenu(name, ui, funcHandler)
+    {
+        this.menus[name] = ui;
+
+        for (let i = 0; i < ui.children.length; i++){
+            ui.children[i].onclick = (event) =>
+            {                       
+                let ret = funcHandler(event);                        
+                if (ret)
+                {                            
+                    this.hide();
+                }
+                else
+                {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }               
+        }
     }
 
     hide()
