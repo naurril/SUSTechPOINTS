@@ -193,7 +193,7 @@ function Data(metaData, cfg){
 
         this.worldList.forEach(w=>{
             w.lidar.set_point_size(this.cfg.point_size);
-        })
+        });
     };
 
     this.scale_point_brightness = function(v){
@@ -229,18 +229,35 @@ function Data(metaData, cfg){
         
         this.cfg.color_obj = scheme;
 
-        if (this.cfg.color_obj != "no"){
-            this.world.lidar.color_points();
-        } else {
-            this.world.lidar.set_points_color({
-                x: this.cfg.point_brightness,
-                y: this.cfg.point_brightness,
-                z: this.cfg.point_brightness,
-            });            
-        }
+        // if (this.cfg.color_obj != "no"){
+        //     this.world.lidar.color_points();
+        // } else {
+        //     this.world.lidar.set_points_color({
+        //         x: this.cfg.point_brightness,
+        //         y: this.cfg.point_brightness,
+        //         z: this.cfg.point_brightness,
+        //     });            
+        // }
 
-        this.world.lidar.update_points_color();
-        this.world.annotation.color_boxes();
+        // this.world.lidar.update_points_color();
+        // this.world.annotation.color_boxes();
+
+
+        // toto: move to world
+        this.worldList.forEach(w=>{
+            if (this.cfg.color_obj != "no"){
+                w.lidar.color_points();
+            } else {
+                w.lidar.set_points_color({
+                    x: this.cfg.point_brightness,
+                    y: this.cfg.point_brightness,
+                    z: this.cfg.point_brightness,
+                });            
+            }
+    
+            w.lidar.update_points_color();
+            w.annotation.color_boxes();
+        })
     };
 
     this.active_camera_name = "";
