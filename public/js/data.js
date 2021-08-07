@@ -185,27 +185,19 @@ function Data(metaData, cfg){
             this.webglMainScene = mainScene;
         };
 
-    this.config = {
-        point_size: 1,
-        point_brightness: 0.6,
-        box_opacity: 1,
-        show_background: true,
-        color_obj: true,
-    };
-
     this.scale_point_size = function(v){
-        this.config.point_size *= v;
+        this.cfg.point_size *= v;
         if (this.world){
-            this.world.lidar.set_point_size(this.config.point_size);
+            this.world.lidar.set_point_size(this.cfg.point_size);
         }
 
         this.worldList.forEach(w=>{
-            w.lidar.set_point_size(this.config.point_size);
+            w.lidar.set_point_size(this.cfg.point_size);
         })
     };
 
     this.scale_point_brightness = function(v){
-        this.config.point_brightness *= v;
+        this.cfg.point_brightness *= v;
 
         if (this.world){
             this.world.lidar.recolor_all_points();
@@ -217,14 +209,14 @@ function Data(metaData, cfg){
     };
 
     this.toggle_box_opacity = function(){
-        this.config.box_opacity = 1- this.config.box_opacity;
-        this.world.annotation.set_box_opacity(this.config.box_opacity);
+        this.cfg.box_opacity = 1- this.cfg.box_opacity;
+        this.world.annotation.set_box_opacity(this.cfg.box_opacity);
     };
 
     this.toggle_background = function(){
-        this.config.show_background = !this.config.show_background;
+        this.cfg.show_background = !this.cfg.show_background;
 
-        if (this.config.show_background){
+        if (this.cfg.show_background){
             this.world.lidar.cancel_highlight();
         }
         else{
@@ -232,19 +224,23 @@ function Data(metaData, cfg){
         }
     };
 
-    this.toggle_color_obj = function(){
-        this.config.color_obj = !this.config.color_obj;
-        if (this.config.color_obj){
+    this.set_obj_color_scheme = function(scheme){
+
+        
+        this.cfg.color_obj = scheme;
+
+        if (this.cfg.color_obj != "no"){
             this.world.lidar.color_points();
         } else {
             this.world.lidar.set_points_color({
-                x: this.config.point_brightness,
-                y: this.config.point_brightness,
-                z: this.config.point_brightness,
+                x: this.cfg.point_brightness,
+                y: this.cfg.point_brightness,
+                z: this.cfg.point_brightness,
             });            
         }
 
         this.world.lidar.update_points_color();
+        this.world.annotation.color_boxes();
     };
 
     this.active_camera_name = "";

@@ -69,6 +69,13 @@ function start(metaData){
       };
 
       let dataCfg = {
+        
+        point_size: 1,
+        point_brightness: 0.6,
+        box_opacity: 1,
+        show_background: true,
+        color_obj: "category",
+
         //disableLabels: true,
         disablePreload: true,
         enablePointIntensity: false,

@@ -38,7 +38,7 @@ html,body {
 a {
 	/* color: #ff0; */
 	text-decoration: none;
-	pointer-events: auto;
+	/* pointer-events: auto; */
 }
 
 a:hover {
@@ -104,12 +104,16 @@ canvas {
 }
 
 
-#selectors, #object-category-selector, #object-track-id-editor, #scene-selector, #frame-selector, #object-selector, #camera-selector, #obj-ids-of-scene
+#selectors, #object-category-selector, 
+#object-track-id-editor, #scene-selector, 
+#frame-selector, #object-selector, 
+#camera-selector, #obj-ids-of-scene
 {
 	background-color: inherit;
 	color: inherit;
 	border-width: 0;	
 }
+
 
 #changed-mark{
 	padding: 2px;
@@ -125,13 +129,22 @@ canvas {
 	top: 100%;
 	display: none;
 	width: 400px;
-	background-color: black;
+	background-color: var(--background-color);
 }
 
 .modified-world-item {
 	padding: 0;
 	border: 0;
 	margin: 0;
+}
+
+#config-button {
+    display: flex;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20px;
+    height: 20px;
 }
 
 .header-button {
@@ -151,11 +164,7 @@ canvas {
 	text-align: left;
 	align-content: right;
 	
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
+	/* pointer-events: none; */
 	/*z-index: 1; /* TODO Solve this in HTML */
 }
 #maincanvas-svg {
@@ -232,12 +241,7 @@ dynamic set obj-type css has higher priority than this one.
 	padding: 0px;
 	box-sizing: border-box;
 	text-align: left;
-	align-content: left;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
+	align-content: left;	
 	z-index: 1; /* TODO Solve this in HTML */
 }
 
@@ -285,16 +289,13 @@ dynamic set obj-type css has higher priority than this one.
 	height: 100%;
 	width: 100%;
 	z-index: 10;
+
 }
 
-#context-menu, #object-context-menu, #box-editor-context-menu, #box-editor-manager-context-menu {
+#context-menu, #object-context-menu, #box-editor-context-menu, #box-editor-manager-context-menu, #config-menu {
 	position: absolute;
-	display: block;
-	
+	display: block;	
 	background-color: var(--widget-background-color);
-}
-#cm-new{
-	position:relative;
 }
 
 #new-submenu, #saveall-submenu, #play-submenu, #goto-submenu {
@@ -313,12 +314,29 @@ dynamic set obj-type css has higher priority than this one.
     right: 0;
 }
 
-.menu-item {
-	cursor: pointer;
+.menu-item, .menu-nonclickable-item{
 	padding-left: 10px;
 	padding-right: 10px;
 	position: relative;
+	width: 200px;
 }
+
+.cfg-button-group {
+	display: inline-flex;
+	position: absolute;
+	right: 10px;
+}
+
+.menu-button {
+	display: inline;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.menu-button:hover {
+	background-color: gray;	
+}
+
 .menu-item:hover {
 	background-color: gray;	
 }
@@ -335,8 +353,18 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .menu-seperator {
-	padding: 0.5px;
+	padding-top: 1px;
 	background-color:var(--widget-color);
+}
+
+
+#config-wrapper{
+	display: none;
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	height: 100%;
+	width: 100%;
 }
 
 .dg.ac {
@@ -353,6 +381,13 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	display:inline-flex;
 	/* background-color: #403b3b99; */
+}
+
+.non-selectable {
+	-webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none; /* Standard */
 }
 
 .label-obj-id-text, .label-obj-type-text {
@@ -403,17 +438,17 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .svg-menu-icon{
-	pointer-events: none; 
+	/* pointer-events: none;  */
 	display: block; 
 	width: 100%; 
 	height: 100%; 
 	fill:transparent;
-	stroke: white;
+	stroke: var(--font-color);
 	stroke-width: 1px;
 }
 
 .svg-button{
-	pointer-events: none; 
+	/* pointer-events: none;  */
 	display: block; 
 	width: 100%; 
 	height: 100%; 
@@ -423,7 +458,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .alarm-mark .svg-button{
-	pointer-events: none; 
+	/* pointer-events: none;  */
 	display: block; 
 	width: 100%; 
 	height: 100%; 
@@ -547,11 +582,6 @@ dynamic set obj-type css has higher priority than this one.
 	box-sizing: border-box;
 	text-align: left;
 	align-content: left;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
 	z-index: 1; /* TODO Solve this in HTML */
 }
 
@@ -873,3 +903,5 @@ td {
 #crop-scene-wrapper #content {
 	padding-left: 5px;
 }
+
+

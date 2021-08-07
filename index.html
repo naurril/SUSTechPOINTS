@@ -14,6 +14,7 @@
 	</head>
 
 	<body>
+		
 		<div id="main-editor"></div>
 		<!-- div id="batch-editor"-->
 		</div>
@@ -25,9 +26,63 @@
 					</svg>
 				</div>
 				
+				<div id="config-button" class="ui-button">
+					<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
+						<g>
+							<circle cx = 12 cy=7 r=1 />
+							<circle cx = 12 cy=12 r=1 />
+							<circle cx = 12 cy=17 r=1 />							
+						</g>
+					</svg>
+				</div>
+
+				<div id="config-wrapper">
+						<div id="config-menu" class="non-selectable">
+							<div class="menu-nonclickable-item" id="cfg-point-size">
+								<span>Point size</span>
+								<div class='cfg-button-group'>
+									<div id='cfg-increase-size' class='menu-button'>+</div>
+									<div id='cfg-decrease-size' class='menu-button'>-</div>
+								</div>
+							</div>
+							<div class="menu-nonclickable-item" id="cfg-point-brightness">
+								<span>Point brightness</span>
+								<div class='cfg-button-group'>
+									<div id='cfg-increase-brightness' class='menu-button'>+</div>
+									<div id='cfg-decrease-brightness' class='menu-button'>-</div>
+								</div>
+							</div>
+
+							<div class="menu-nonclickable-item" id="cfg-light-mode">
+								<span>Light mode</span>
+								<div class="cfg-button-group">
+									<input type="checkbox" id="cfg-light-mode-checkbox">
+								</div>
+							</div>
+							
+							<div class="menu-nonclickable-item" id="cfg-color-object">
+								<span>Color objects</span>
+								<div class="cfg-button-group">
+									<select id="cfg-color-object-scheme">
+										<option value="category">by category</option>
+										<option value="id">by ID</option>
+										<option value="no">don't color</option>
+									</select>
+
+								</div>
+							</div>
+
+							<div class="menu-item menu-seperator"></div>
+							<div class="menu-item" id="cfg-take-screenshot">
+								<span>Take screenshot</span>
+							</div>
+							
+						</div>					
+				</div>
+				
+
 				<div id="global-info">
 					<!-- text id="frame"></text-->
-
 					<div id="selectors">
 						<select id="scene-selector">
 							<option>--scene--</option>
@@ -43,6 +98,7 @@
 								<option>--camera--</option>
 						</select>
 					</div>
+
 					<div id="changed-mark" class="header-button">
 						<div id='save-button'>
 							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -54,14 +110,14 @@
 							<div id='changed-world-list'></div>
 						</div>
 					</div>
-					<span>|</span>
+					
 					<text id="box"></text>			
 					<text id="ref-obj"></text>
 				</div>
 				
 				<!-- div id="image"></div -->
 				<div id="floating-things">
-				<div id="floating-labels"></div>				
+				<div id="floating-labels" class="non-selectable"></div>				
 				<div id="obj-editor">
 					<div id="category-id-editor">
 						<select title="category"  id="object-category-selector"></select>
@@ -179,9 +235,10 @@
 				
 				<div id="main-box-editor-wrapper"></div>
 				<div id="batch-box-editor-wrapper"></div>
-				<div id="context-menu-wrapper">
+				<div id="context-menu-wrapper" class="non-selectable">
 					<div id="context-menu">
 						<div class="menu-item menu-seperator"></div>
+
 						<div class="menu-item" id="cm-new">
 							<div class="menu-item-icon"></div>
 							<div class="menu-item-text">New</div>							
@@ -504,9 +561,12 @@
 								<div class="menu-item-text">less object instance</div>
 							</div>
 
-						</div>
 					</div>
+					
 
+				</div>
+
+					
 
 				<!-- div id="projective-view-context-menu">
 					<div class="menu-item menu-seperator"></div>
@@ -518,11 +578,12 @@
 					<div class="menu-item menu-seperator"></div>				
 				</div -->
 				<div id="object-track-wrapper" tabindex="-1">
-					<div id="view">
+					<div id="view" class="non-selectable">
 						<div id="header">
 							<span id="title">
 								Trajectory								
 							</span>
+							
 							<div id="buttons">
 								<div id="btn-restore" class="ui-button"  title="restore">
 									<!-- <span class="ui-icon ui-icon-trash"></span> -->
@@ -785,7 +846,7 @@
 						</div>
 					</div>
 				</div>
-				<canvas id="focuscanvas" width="320" height="240">cavas</canvas>
+				<canvas id="focuscanvas" class="non-selectable" width="320" height="240">cavas</canvas>
 		</div></template>
 		<template id="batch-editor-tools-template"><div id="batch-editor-tools-wrapper"><div id="batch-editor-tools">
 			<!-- <select title="category"  id="object-category-selector"></select>

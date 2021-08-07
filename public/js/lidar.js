@@ -2,7 +2,7 @@
 import * as THREE from './lib/three.module.js';
 import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 import { PCDLoader } from './lib/PCDLoader.js';
-import { get_obj_cfg_by_type } from './obj_cfg.js';
+import { get_color_by_category, get_color_by_id, } from './obj_cfg.js';
 
 
 import {settings} from "./settings.js"
@@ -131,7 +131,7 @@ function Lidar(sceneMeta, world, frameInfo){
                     } else {
                         // set all points to same color
                         for (var i =0; i< position.length; ++i){                                
-                            color.push(_self.data.config.point_brightness);                                
+                            color.push(_self.data.cfg.point_brightness);                                
                         }
                     }
 
@@ -144,7 +144,7 @@ function Lidar(sceneMeta, world, frameInfo){
                 geometry.computeBoundingSphere();
                 // build material
 
-                var material = new THREE.PointsMaterial( { size: _self.data.config.point_size, vertexColors: THREE.VertexColors } );
+                var material = new THREE.PointsMaterial( { size: _self.data.cfg.point_size, vertexColors: THREE.VertexColors } );
 
                 /*
                 
@@ -230,11 +230,11 @@ function Lidar(sceneMeta, world, frameInfo){
             this.loaded = true;
 
 
-            if (!this.world.data.config.show_background){
+            if (!this.world.data.cfg.show_background){
                 this.hide_background();
             }
 
-            if (this.world.data.config.color_obj){
+            if (this.data.cfg.color_obj != "no"){
                 this.color_points();
             }
 
@@ -287,7 +287,7 @@ function Lidar(sceneMeta, world, frameInfo){
         // color all points inside these boxes
         
 
-        if (this.data.config.color_obj){
+        if (this.data.cfg.color_obj != "no"){
             this.world.annotation.boxes.map((b)=>{
                 if (!b.annotator)
                     this.set_box_points_color(b);
@@ -462,7 +462,7 @@ function Lidar(sceneMeta, world, frameInfo){
         
         geometry.computeBoundingSphere();               
 
-        var material = new THREE.PointsMaterial( { size: _self.data.config.point_size, vertexColors: THREE.VertexColors } );
+        var material = new THREE.PointsMaterial( { size: _self.data.cfg.point_size, vertexColors: THREE.VertexColors } );
 
         material.sizeAttenuation = false;
 
@@ -482,10 +482,10 @@ function Lidar(sceneMeta, world, frameInfo){
     this.cancel_highlight=function(box){
         if (this.points && this.points.points_backup){
             
-            this.world.annotation.set_box_opacity(this.data.config.box_opacity);
+            this.world.annotation.set_box_opacity(this.data.cfg.box_opacity);
 
             //copy colors, maybe changed.
-            if (this.data.config.color_obj){
+            if (this.data.cfg.color_obj != "no"){
                 var highlight_point_color = this.points.geometry.getAttribute("color");
                 var backup_point_color = this.points.points_backup.geometry.getAttribute("color");                    
                 
@@ -508,11 +508,11 @@ function Lidar(sceneMeta, world, frameInfo){
             if (box){
                 // in highlighted mode, the box my be moved outof the highlighted area, so 
                 // we need to color them again.
-                if (this.data.config.color_obj)
+                if (this.data.cfg.color_obj != "no")
                     this.set_box_points_color(box);
             }
 
-            if (this.data.config.color_obj)
+            if (this.data.cfg.color_obj != "no")
                 this.update_points_color();
                 
             this.webglScene.add(this.points);
@@ -529,7 +529,7 @@ function Lidar(sceneMeta, world, frameInfo){
         geometry.addAttribute( 'position', new THREE.Float32BufferAttribute(points, 3 ) );
         geometry.computeBoundingSphere();               
 
-        var material = new THREE.PointsMaterial( { size: this.data.config.point_size} );
+        var material = new THREE.PointsMaterial( { size: this.data.cfg.point_size} );
 
         material.sizeAttenuation = false;
 
@@ -593,7 +593,7 @@ function Lidar(sceneMeta, world, frameInfo){
         
         geometry.computeBoundingSphere();               
 
-        var material = new THREE.PointsMaterial( { size: _self.data.config.point_size, vertexColors: THREE.VertexColors } );
+        var material = new THREE.PointsMaterial( { size: _self.data.cfg.point_size, vertexColors: THREE.VertexColors } );
 
         material.sizeAttenuation = false;
 
@@ -1035,11 +1035,14 @@ function Lidar(sceneMeta, world, frameInfo){
         var color = this.points.geometry.getAttribute("color");
 
         if (!target_color){
-            var target_color_hex = parseInt("0x"+get_obj_cfg_by_type(box.obj_type).color.slice(1));
-            target_color = {
-                x: (target_color_hex/256/256)/255.0,
-                y: (target_color_hex/256 % 256)/255.0,
-                z: (target_color_hex % 256)/255.0,
+            if (this.data.cfg.color_obj == "category")
+            {
+                target_color = get_color_by_category(box.obj_type);
+            }
+            else // by id
+            {
+                let idx = parseInt(box.obj_track_id);
+                target_color = get_color_by_id(idx);
             }
         }
 
@@ -1065,9 +1068,9 @@ function Lidar(sceneMeta, world, frameInfo){
     // this is used when pointbrightness is updated.
     this.recolor_all_points = function(){
         this.set_points_color({
-            x: this.data.config.point_brightness,
-            y: this.data.config.point_brightness,
-            z: this.data.config.point_brightness,
+            x: this.data.cfg.point_brightness,
+            y: this.data.cfg.point_brightness,
+            z: this.data.cfg.point_brightness,
         });        
         this.color_points();  
         this.update_points_color();

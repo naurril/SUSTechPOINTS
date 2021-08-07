@@ -3,7 +3,7 @@
 import * as THREE from './lib/three.module.js';
 import { PCDLoader } from './lib/PCDLoader.js';
 import { matmul, euler_angle_to_rotate_matrix_3by3} from "./util.js"
-import { get_obj_cfg_by_type } from './obj_cfg.js';
+import { get_color_by_category, get_color_by_id, get_obj_cfg_by_type } from './obj_cfg.js';
 
 function Annotation(sceneMeta, world, frameInfo){
     this.world = world;
@@ -53,6 +53,10 @@ function Annotation(sceneMeta, world, frameInfo){
 
             this.boxes.forEach(b=>this.webglScene.add(b));
             this.loaded = true;
+
+            if (this.data.cfg.color_obj != "no"){
+                this.color_boxes();
+            }
 
             if (on_go_finished)
                 on_go_finished();
@@ -237,7 +241,7 @@ function Annotation(sceneMeta, world, frameInfo){
         */
 
         
-        var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.config.box_opacity, transparent: true } );
+        var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.cfg.box_opacity, transparent: true } );
         var box = new THREE.LineSegments( bbox, material );
         
         box.scale.x=1.8;
@@ -466,6 +470,8 @@ function Annotation(sceneMeta, world, frameInfo){
             // re-color again
             this.world.lidar.recolor_all_points(); 
 
+            this.color_boxes();
+
             // add to scene if current world is active.
             if (this.loaded){
                 // add new boxes
@@ -521,6 +527,29 @@ function Annotation(sceneMeta, world, frameInfo){
         this.box_local_id+=1;
         return ret;
     };
+
+
+    this.color_boxes = function()
+    {
+        this.boxes.forEach(box=>{
+
+            if (this.data.cfg.color_obj == "category" || this.data.cfg.color_obj == "no")
+            {
+                let color = get_color_by_category(box.obj_type);
+                box.material.color.r=color.x;
+                box.material.color.g=color.y;
+                box.material.color.b=color.z;
+            }
+            else
+            {
+
+                let color = get_color_by_id(box.obj_track_id);
+                box.material.color.r=color.x;
+                box.material.color.g=color.y;
+                box.material.color.b=color.z;
+            }
+        })
+    }
 }
 
 

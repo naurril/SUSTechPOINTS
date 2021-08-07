@@ -18,16 +18,14 @@ class ContextMenu {
                 for (let i = 0; i < this.menus[m].children.length; i++)
                 {
                     this.menus[m].children[i].onclick = (event) =>
-                    {                       
+                    {          
+                        //event.preventDefault();
+                        event.stopPropagation();
+
                         let ret = this.handler.handleContextMenuEvent(event);                        
                         if (ret)
                         {                            
                             this.hide();
-                        }
-                        else
-                        {
-                            event.preventDefault();
-                            event.stopPropagation();
                         }
                     }                   
                 }
@@ -58,84 +56,24 @@ class ContextMenu {
                 //event.currentTarget.style.display="none"; 
                 event.preventDefault();
                 event.stopPropagation();
-            };
-            
-            /*    
-            this.editorUi.querySelector("#context-menu").onclick = function(enabled){
-                // some items clicked
-                menuWrapper.style.display = "none";
-                event.preventDefault();
-                event.stopPropagation();
-            };
-    
-            this.editorUi.querySelector("#new-submenu").onclick = function(enabled){
-                // some items clicked
-                menuWrapper.style.display = "none";
-                event.preventDefault();
-                event.stopPropagation();
-            };
-            */
-    
-            // this.menus.world.querySelector("#cm-new").onclick = (event)=>{
-            //     //add_bbox();
-            //     //header.mark_changed_flag();
-    
-            //     // all submenus of `new' will forward click event to here
-            //     // since they are children of `new'
-            //     // so we should 
-            //     event.preventDefault();
-            //     event.stopPropagation();
-            // };
-    
-            // this.menus.world.querySelector("#cm-new").onmouseenter = (event)=>{
-            //     var item = this.menus.world.querySelector("#new-submenu");
-            //     item.style.display="inherit";
-            // };
-    
-            // this.menus.world.querySelector("#cm-new").onmouseleave = (event)=>{
-            //     this.menus.world.querySelector("#new-submenu").style.display="none";
-            //     //console.log("leave  new item");
-            // };
-
-
-            // this.menus.world.querySelector("#cm-play").onmouseenter = (event)=>{
-            //     var item = this.menus.world.querySelector("#play-submenu");
-            //     item.style.display="inherit";
-            // };
-    
-            // this.menus.world.querySelector("#cm-play").onmouseleave = (event)=>{
-            //     this.menus.world.querySelector("#play-submenu").style.display="none";
-            //     //console.log("leave  new item");
-            // };
-    
-    
-            // this.menus.world.querySelector("#new-submenu").onmouseenter=(event)=>{
-            //     var item = this.menus.world.querySelector("#new-submenu");
-            //     item.style.display="block";
-            // }
-    
-            // this.menus.world.querySelector("#new-submenu").onmouseleave=(event)=>{
-            //     var item = this.menus.world.querySelector("#new-submenu");
-            //     item.style.display="none";
-            // }
+            };           
     }
 
+    // install dynamic menu, like object new
     installMenu(name, ui, funcHandler)
     {
         this.menus[name] = ui;
 
         for (let i = 0; i < ui.children.length; i++){
             ui.children[i].onclick = (event) =>
-            {                       
+            {   
+                //event.preventDefault();
+                event.stopPropagation();
+                                    
                 let ret = funcHandler(event);                        
                 if (ret)
                 {                            
                     this.hide();
-                }
-                else
-                {
-                    event.preventDefault();
-                    event.stopPropagation();
                 }
             }               
         }
@@ -146,7 +84,7 @@ class ContextMenu {
         this.wrapperUi.style.display = "none";
     }
 
-    show(name, posX, posY, handler)
+    show(name, posX, posY, handler, funcSetPos)
     {
         this.handler = handler;
 
@@ -159,11 +97,21 @@ class ContextMenu {
         // show
         let menu = this.menus[name]
         menu.style.display = "inherit";
-        menu.style.left = posX+"px";
-        menu.style.top = posY+"px";
+
+        if (funcSetPos)
+        {
+            funcSetPos(menu);
+        }
+        else{
+            menu.style.left = posX+"px";
+            menu.style.top = posY+"px";
+        }
+
 
         this.wrapperUi.style.display = "block";
     }
+
+
 };
 
 export {ContextMenu};

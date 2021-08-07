@@ -21,6 +21,7 @@ import {Trajectory} from "./trajectory.js";
 import { ContextMenu } from './context_menu.js';
 import { InfoBox } from './info_box.js';
 import {CropScene} from './crop_scene.js';
+import { Config } from './config.js';
 
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
@@ -69,7 +70,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         this.playControl = new PlayControl(this.data);
 
-
+        this.config = new Config(editorUi.querySelector("#config-button"), editorUi.querySelector("#config-wrapper"), this);
 
         this.header = new Header(editorUi.querySelector("#global-info"), this.data, this.editorCfg,
             (e)=>{
@@ -119,8 +120,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.addRangeCircle();
     
         this.floatLabelManager = createFloatLabelManager(this.editorUi, this.container, this.viewManager.mainView,function(box){self.selectBox(box);});
-    
-        this.controlGui = this.init_gui();
+     
+        //this.controlGui = this.init_gui();
         
         this.axis = new THREE.AxesHelper(1);
 
@@ -171,6 +172,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         )
 
         this.contextMenu = new ContextMenu(this.editorUi.querySelector("#context-menu-wrapper"));        
+
+        
 
         this.boxEditorManager = new BoxEditorManager(
             this.editorUi.querySelector("#batch-box-editor-wrapper"),
@@ -858,7 +861,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.viewManager.mainView.disable();
         this.boxEditor.hide();
         this.hideGridLines();
-        this.controlGui.hide();
+        //this.controlGui.hide();
         this.editorUi.querySelector("#selectors").style.display='none';
 
         this.boxEditorManager.edit(this.data, 
@@ -888,7 +891,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 }
                 this.showGridLines();
                 this.render();
-                this.controlGui.show();
+                //this.controlGui.show();
                 this.editorUi.querySelector("#selectors").style.display='inherit';
 
                 if (targetFrame)
@@ -1548,7 +1551,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                     } else{
                         // unselected finally
                         //this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
-                        //this.selected_box.material.opacity = this.data.config.box_opacity;
+                        //this.selected_box.material.opacity = this.data.cfg.box_opacity;
                         this.boxOp.unhighlightBox(this.selected_box);
                         this.floatLabelManager.unselect_box(this.selected_box.obj_local_id, this.selected_box.obj_type);
                         this.floatLabelManager.update_position(this.selected_box, true);
@@ -1588,7 +1591,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 }
 
                 this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
-                this.selected_box.material.opacity = this.data.config.box_opacity;                
+                this.selected_box.material.opacity = this.data.cfg.box_opacity;                
                 this.floatLabelManager.unselect_box(this.selected_box.obj_local_id);
                 this.floatLabelManager.update_position(this.selected_box, true);
                 this.imageContext.image_manager.onBoxUnselected(this.selected_box.obj_local_id, this.selected_box.obj_type);
@@ -2391,8 +2394,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.restore_box_points_color= function(box,render=true){
-        if (this.data.config.color_obj){
-            box.world.lidar.set_box_points_color(box, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
+        if (this.data.cfg.color_obj != "no"){
+            box.world.lidar.set_box_points_color(box, {x: this.data.cfg.point_brightness, y: this.data.cfg.point_brightness, z: this.data.cfg.point_brightness});
             box.world.lidar.update_points_color();
             if (render)
                 this.render();
@@ -2400,9 +2403,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.updateBoxPointsColor= function(box){
-        if (this.data.config.color_obj){
+        if (this.data.cfg.color_obj != "no"){
             if (box.last_info){
-                box.world.lidar.set_box_points_color(box.last_info, {x: this.data.config.point_brightness, y: this.data.config.point_brightness, z: this.data.config.point_brightness});
+                box.world.lidar.set_box_points_color(box.last_info, {x: this.data.cfg.point_brightness, y: this.data.cfg.point_brightness, z: this.data.cfg.point_brightness});
             }
 
             box.world.lidar.set_box_points_color(box);

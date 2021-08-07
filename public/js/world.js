@@ -302,7 +302,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
         if (this.preloaded()){
 
-            //this.points.material.size = data.config.point_size;
+            //this.points.material.size = data.cfg.point_size;
             
             if (this.destroy_old_world){
                 this.destroy_old_world();
@@ -354,7 +354,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         }
 
     
-        var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.config.box_opacity, transparent: true } );
+        var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.cfg.box_opacity, transparent: true } );
         return new THREE.LineSegments( line, material );                
     };
 

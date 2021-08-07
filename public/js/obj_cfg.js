@@ -60,6 +60,35 @@ function guess_obj_type_by_dimension(scale){
     return max_name;
 }
 
+let global_color_idx = 0;
+function get_color_by_id(id){
+    let idx = parseInt(id);
+
+    if (!idx)
+    {
+        idx = global_color_idx;
+        global_color_idx += 1;
+    }
+
+    idx %= 33;
+    idx = idx*19 % 33;
+
+    return {
+        x: idx*8/256.0,
+        y: 1- idx*8/256.0,
+        z: (idx<16)?(idx*2*8/256.0):((32-idx)*2*8/256.0),
+    };
+}
+
+function get_color_by_category(category){
+    let target_color_hex = parseInt("0x"+get_obj_cfg_by_type(category).color.slice(1));
+    
+    return {
+        x: (target_color_hex/256/256)/255.0,
+        y: (target_color_hex/256 % 256)/255.0,
+        z: (target_color_hex % 256)/255.0,
+    };
+}
 
 function get_obj_cfg_by_type(name){
     if (obj_type_map[name]){
@@ -92,4 +121,4 @@ function get_next_obj_type_name(name){
     return name_array[idx];
 }
 
-export {obj_type_map, get_obj_cfg_by_type, get_next_obj_type_name, guess_obj_type_by_dimension}
+export {obj_type_map, get_obj_cfg_by_type,get_color_by_category, get_color_by_id, get_next_obj_type_name, guess_obj_type_by_dimension}
