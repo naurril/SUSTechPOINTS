@@ -458,8 +458,11 @@ function BoxOp(){
 
     this.unhighlightBox = function(box){
         if (box){
-            box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(box.obj_type).color.slice(1)));
-            box.material.opacity = box.world.data.cfg.box_opacity;
+            // box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(box.obj_type).color.slice(1)));
+
+            // box.material.opacity = box.world.data.cfg.box_opacity;
+
+            box.world.annotation.color_box(box);
         }
     }
 

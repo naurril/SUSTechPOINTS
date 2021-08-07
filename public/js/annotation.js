@@ -529,25 +529,29 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
 
+    this.color_box = function(box)
+    {
+        if (this.data.cfg.color_obj == "category" || this.data.cfg.color_obj == "no")
+        {
+            let color = get_color_by_category(box.obj_type);
+            box.material.color.r=color.x;
+            box.material.color.g=color.y;
+            box.material.color.b=color.z;
+        }
+        else
+        {
+
+            let color = get_color_by_id(box.obj_track_id);
+            box.material.color.r=color.x;
+            box.material.color.g=color.y;
+            box.material.color.b=color.z;
+        }
+    }
+
     this.color_boxes = function()
     {
         this.boxes.forEach(box=>{
-
-            if (this.data.cfg.color_obj == "category" || this.data.cfg.color_obj == "no")
-            {
-                let color = get_color_by_category(box.obj_type);
-                box.material.color.r=color.x;
-                box.material.color.g=color.y;
-                box.material.color.b=color.z;
-            }
-            else
-            {
-
-                let color = get_color_by_id(box.obj_track_id);
-                box.material.color.r=color.x;
-                box.material.color.g=color.y;
-                box.material.color.b=color.z;
-            }
+            this.color_box(box);            
         })
     }
 }
