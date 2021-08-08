@@ -319,8 +319,14 @@ dynamic set obj-type css has higher priority than this one.
 .menu-item, .menu-nonclickable-item{
 	padding-left: 10px;
 	padding-right: 10px;
-	position: relative;
-	width: 200px;
+	position: relative;	
+}
+
+#context-menu，#object-context-menu，#box-editor-context-menu, #box-editor-manager-context-menu{
+	width: 150px;
+}
+#config-menu{
+	width: 300px;
 }
 
 .cfg-widget-group {
