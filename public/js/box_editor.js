@@ -310,7 +310,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
 
 //parentUi  #batch-box-editor-wrapper
-function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView, cfg, boxOp, globalHeader, contextMenu, func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
+function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView, 
+                 cfg, boxOp, globalHeader, contextMenu, configMenu,
+                 func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
     this.viewManager = viewManager;
     this.objectTrackView = objectTrackView;
     this.boxOp = boxOp;
@@ -322,6 +324,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.parentUi = parentUi;
     this.fastToolBoxUi = fastToolBoxUi;
     this.batchSize = 20;
+    this.configMenu = configMenu;
 
     
     this.activeEditorList = function(){
@@ -354,6 +357,20 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         });
 
         //this.viewManager.render();
+    };
+
+    this.setBatchSize = function(batchSize)
+    {
+        this.batchSize = batchSize;
+        if (this.parentUi.style.display != "none")
+        {
+            this.edit(  this.editingTarget.data,
+                        this.editingTarget.sceneMeta,
+                        this.editingTarget.frame,
+                        this.editingTarget.objTrackId,
+                        this.editingTarget.objType
+                    );
+        }
     };
 
     this.edit = function(data, sceneMeta, frame, objTrackId, objType, onExit){
@@ -635,6 +652,14 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.parentUi.style.display = "";
     };
 
+    this.render =function()
+    {
+        if (this.parentUi.style.display != "none")
+        {
+            this.viewManager.render();
+        }
+    };
+
     this.onBoxChanged= function(editor){
 
         //let boxes = this.editorList.map(e=>e.box); //some may be null, that's ok
@@ -720,17 +745,17 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
     // this should follow addToolBox
 
-    this.parentUi.querySelector("#instance-number").value = this.batchSize;
-    this.parentUi.querySelector("#instance-number").onchange = (ev)=>{
-        this.batchSize = parseInt(ev.currentTarget.value);
-        this.edit(
-            this.editingTarget.data,
-            this.editingTarget.sceneMeta,
-            this.editingTarget.frame,
-            this.editingTarget.objTrackId,
-            this.editingTarget.objType
-        );
-    }
+    // this.parentUi.querySelector("#instance-number").value = this.batchSize;
+    // this.parentUi.querySelector("#instance-number").onchange = (ev)=>{
+    //     this.batchSize = parseInt(ev.currentTarget.value);
+    //     this.edit(
+    //         this.editingTarget.data,
+    //         this.editingTarget.sceneMeta,
+    //         this.editingTarget.frame,
+    //         this.editingTarget.objTrackId,
+    //         this.editingTarget.objType
+    //     );
+    // }
 
     this.parentUi.querySelector("#trajectory").onclick = (e)=>{
         let tracks = this.editingTarget.data.worldList.map(w=>{
@@ -806,6 +831,11 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.parentUi.querySelector("#finalize").onclick = ()=>{
         this.finalize();
     };
+
+    this.parentUi.querySelector("#config").onclick = (event)=>{
+        this.configMenu.show(event.currentTarget);
+    };
+
 
     this.parentUi.addEventListener( 'keydown', (event)=>{
         event.preventDefault();

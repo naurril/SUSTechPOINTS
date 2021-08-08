@@ -184,6 +184,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.boxOp,
             this.header,
             this.contextMenu,
+            this.config,
             (b)=>this.on_box_changed(b),
             (b,r)=>this.remove_box(b,r),   // on box remove
             ()=>{

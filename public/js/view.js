@@ -32,7 +32,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
     this.render = function(){
         console.log("render verything");
         if (this.mainView)
-           this.mainView.render();
+           this.mainView.renderAll();
 
         this.boxViewList.forEach(v=>{
             if (v.ui.style.display != 'none')
@@ -125,6 +125,18 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
             //     this.renderWithCamera(this.blind_camera);
             // }
         };
+
+        view.renderAll = function(){
+            console.log("render mainview.");
+            if (this.active){
+                this.switch_camera(false);
+                this.renderWithCamera(this.camera);
+            }
+            else
+            {
+                this.renderWithCamera(this.blind_camera);
+            }
+        }
 
         view.clearView = function(){
             this.renderWithCamera(this.blind_camera);

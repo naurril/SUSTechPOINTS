@@ -6,6 +6,7 @@
 	--widget-background-color: #333333;
 	--window-background-color: #222222;
 	--widget-color: gray;
+	--highlight-background-color: darkgray;
 }
 
 .theme-light {
@@ -14,6 +15,7 @@
 	--widget-background-color: #cccccc;
 	--window-background-color: #dddddd;
 	--widget-color: darkgray;
+	--highlight-background-color: gray;
 }
 
 html,body {
@@ -321,7 +323,7 @@ dynamic set obj-type css has higher priority than this one.
 	width: 200px;
 }
 
-.cfg-button-group {
+.cfg-widget-group {
 	display: inline-flex;
 	position: absolute;
 	right: 10px;
@@ -334,11 +336,11 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .menu-button:hover {
-	background-color: gray;	
+	background-color: var(--highlight-background-color);	
 }
 
 .menu-item:hover {
-	background-color: gray;	
+	background-color:  var(--highlight-background-color);	
 }
 
 .menu-item-icon {
@@ -434,7 +436,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 .ui-button:hover {
-	background-color: lightgray;	
+	background-color: var(--highlight-background-color);	
 }
 
 .svg-menu-icon{
@@ -453,7 +455,7 @@ dynamic set obj-type css has higher priority than this one.
 	width: 100%; 
 	height: 100%; 
 	fill:transparent;
-	stroke: gray;
+	stroke: var(--widget-color);
 	stroke-width: 1px;
 }
 
@@ -532,10 +534,11 @@ dynamic set obj-type css has higher priority than this one.
 	padding: 0;
     border: 0;
 	margin: 0;
+	height: auto;
 }
 
 #batch-box-editor-wrapper .ui-button:hover {
-	background-color: lightgray;	
+	background-color:  var(--highlight-background-color);;	
 }
 
 

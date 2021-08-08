@@ -13,12 +13,8 @@ class Config{
             this.wrapper.style.display = "none";
         }
 
-        this.button.onclick = (event)=>{
-            this.wrapper.style.display="inherit";
-
-            this.menu.style.right = "0px";
-            this.menu.style.top = event.currentTarget.offsetHeight + "px";
-            
+        this.button.onclick = (event)=>{            
+            this.show(event.currentTarget);            
         }
 
         this.clickableItems = [
@@ -30,11 +26,13 @@ class Config{
             "#cfg-point-brightness",
             "#cfg-light-mode",
             "#cfg-color-object",
+            "#cfg-menu-batch-mode-inst-number"
         ];
 
         this.chaneableItems = [
             "#cfg-light-mode-checkbox",
-            "#cfg-color-object-scheme"
+            "#cfg-color-object-scheme",
+            "#cfg-batch-mode-inst-number"
         ]
 
         this.clickableItems.forEach(item=>{
@@ -63,6 +61,12 @@ class Config{
     }
 
 
+    show(target){
+        this.wrapper.style.display="inherit";
+
+        this.menu.style.right = "0px";
+        this.menu.style.top = target.offsetHeight + "px";
+    }
 
     handleContextMenuEvent(event){
 
@@ -72,6 +76,7 @@ class Config{
         case "cfg-point-brightness":
         case "cfg-light-mode":
         case "cfg-color-object":
+        case "cfg-menu-batch-mode-inst-number":
             {
                 event.stopPropagation();
                 return false;
@@ -82,6 +87,7 @@ class Config{
                 let value = event.currentTarget.value;
                 this.editor.data.set_obj_color_scheme(value);
                 this.editor.render();
+                this.editor.boxEditorManager.render();
 
                 return false;
             }
@@ -98,17 +104,27 @@ class Config{
                 
                 this.editor.viewManager.setColorScheme();
                 this.editor.render();
+                this.editor.boxEditorManager.render();
 
                 return false;
             }
+        case "cfg-batch-mode-inst-number": //change
+        {
+            let batchSize = parseInt(event.currentTarget.value);
+            this.editor.boxEditorManager.setBatchSize(batchSize);
+            return false;
+            break;
+        }
         case "cfg-increase-size":
             this.editor.data.scale_point_size(1.2);
             this.editor.render();
+            this.editor.boxEditorManager.render();
             return false;
             
         case "cfg-decrease-size":
             this.editor.data.scale_point_size(0.8);
             this.editor.render();
+            this.editor.boxEditorManager.render();
             return false;
 
         
@@ -116,11 +132,13 @@ class Config{
         case "cfg-increase-brightness":
             this.editor.data.scale_point_brightness(1.2);
             this.editor.render();
+            this.editor.boxEditorManager.render();
             return false;
             
         case "cfg-decrease-brightness":
             this.editor.data.scale_point_brightness(0.8);
             this.editor.render();
+            this.editor.boxEditorManager.render();
             return false;
         case "cfg-take-screenshot":
             this.editor.downloadWebglScreenShot();

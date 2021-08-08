@@ -36,49 +36,7 @@
 					</svg>
 				</div>
 
-				<div id="config-wrapper">
-						<div id="config-menu" class="non-selectable">
-							<div class="menu-nonclickable-item" id="cfg-point-size">
-								<span>Point size</span>
-								<div class='cfg-button-group'>
-									<div id='cfg-increase-size' class='menu-button'>+</div>
-									<div id='cfg-decrease-size' class='menu-button'>-</div>
-								</div>
-							</div>
-							<div class="menu-nonclickable-item" id="cfg-point-brightness">
-								<span>Point brightness</span>
-								<div class='cfg-button-group'>
-									<div id='cfg-increase-brightness' class='menu-button'>+</div>
-									<div id='cfg-decrease-brightness' class='menu-button'>-</div>
-								</div>
-							</div>
-
-							<div class="menu-nonclickable-item" id="cfg-light-mode">
-								<span>Light mode</span>
-								<div class="cfg-button-group">
-									<input type="checkbox" id="cfg-light-mode-checkbox">
-								</div>
-							</div>
-							
-							<div class="menu-nonclickable-item" id="cfg-color-object">
-								<span>Color objects</span>
-								<div class="cfg-button-group">
-									<select id="cfg-color-object-scheme">
-										<option value="category">by category</option>
-										<option value="id">by ID</option>
-										<option value="no">don't color</option>
-									</select>
-
-								</div>
-							</div>
-
-							<div class="menu-item menu-seperator"></div>
-							<div class="menu-item" id="cfg-take-screenshot">
-								<span>Take screenshot</span>
-							</div>
-							
-						</div>					
-				</div>
+				
 				
 
 				<div id="global-info">
@@ -566,7 +524,62 @@
 
 				</div>
 
-					
+				<div id="config-wrapper">
+					<div id="config-menu" class="non-selectable">
+						<div class="menu-nonclickable-item" id="cfg-point-size">
+							<span>Point size</span>
+							<div class='cfg-widget-group'>
+								<div id='cfg-increase-size' class='menu-button'>+</div>
+								<div id='cfg-decrease-size' class='menu-button'>-</div>
+							</div>
+						</div>
+						<div class="menu-nonclickable-item" id="cfg-point-brightness">
+							<span>Point brightness</span>
+							<div class='cfg-widget-group'>
+								<div id='cfg-increase-brightness' class='menu-button'>+</div>
+								<div id='cfg-decrease-brightness' class='menu-button'>-</div>
+							</div>
+						</div>
+
+						<div class="menu-nonclickable-item" id="cfg-light-mode">
+							<span>Light mode</span>
+							<div class="cfg-widget-group">
+								<input type="checkbox" id="cfg-light-mode-checkbox">
+							</div>
+						</div>
+						
+						<div class="menu-nonclickable-item" id="cfg-color-object">
+							<span>Color objects</span>
+							<div class="cfg-widget-group">
+								<select id="cfg-color-object-scheme">
+									<option value="category">by category</option>
+									<option value="id">by ID</option>
+									<option value="no">don't color</option>
+								</select>
+
+							</div>
+						</div>
+
+						<div class="menu-nonclickable-item" id="cfg-menu-batch-mode-inst-number">
+							<span>Max box number</span>
+							<div class="cfg-widget-group">								
+								<select title="instance number" id="cfg-batch-mode-inst-number">
+									<option value = 10>10</option>
+									<option value = 20 selected>20</option>
+									<option value = 30>30</option>
+									<option value = 40>40</option>
+								</select>
+
+							</div>
+						</div>
+
+						<div class="menu-item menu-seperator"></div>
+						<div class="menu-item" id="cfg-take-screenshot">
+							<span>Take screenshot</span>
+						</div>
+						
+					</div>					
+			</div>	
 
 				<!-- div id="projective-view-context-menu">
 					<div class="menu-item menu-seperator"></div>
@@ -848,33 +861,36 @@
 				</div>
 				<canvas id="focuscanvas" class="non-selectable" width="320" height="240">cavas</canvas>
 		</div></template>
-		<template id="batch-editor-tools-template"><div id="batch-editor-tools-wrapper"><div id="batch-editor-tools">
-			<!-- <select title="category"  id="object-category-selector"></select>
-			<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input> -->
+		<template id="batch-editor-tools-template">
+			<div id="batch-editor-tools-wrapper" class="non-selectable">
+				<div id="batch-editor-tools">
+					<!-- <select title="category"  id="object-category-selector"></select>
+					<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input> -->
 
-			<span>instance num.</span>
-			<select title="instance number" id="instance-number">
-				<option value = 10>10</option>
-				<option value = 20>20</option>
-				<option value = 30>30</option>
-				<option value = 40>40</option>
-			</select>
-			
-				
-			</datalist>
+					
 
-			<button id="trajectory">Trajectory</button>
-			<button id="auto-annotate">Auto</button>
-			<button id="auto-annotate-translate-only">Auto (no rotation) </button>
-			<button id="interpolate">Interpolate</button>
-			<button id="reload">Reload</button>
-			<button id="finalize">Finalize</button>
-			<button id="save">Save</button>
-			<button id="prev">Previous</button>
-			<button id="next">Next</button>
-			<button id="exit">Exit</button>
-			
-		</div></div></template>
+					<div class="menu-button" id="trajectory">Trajectory</div>
+					<div class="menu-button" id="auto-annotate">Auto</div>
+					<div class="menu-button" id="auto-annotate-translate-only">Auto (no rotation) </div>
+					<div class="menu-button" id="interpolate">Interpolate</div>
+					<div class="menu-button" id="reload">Reload</div>
+					<div class="menu-button" id="finalize">Finalize</div>
+					<div class="menu-button" id="save">Save</div>
+					<div class="menu-button" id="prev">Previous</div>
+					<div class="menu-button" id="next">Next</div>
+					<div class="menu-button" id="exit">Exit</div>
+					<div class="ui-button" id="config">
+						<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
+							<g>
+								<circle cx = 12 cy=7 r=1 />
+								<circle cx = 12 cy=12 r=1 />
+								<circle cx = 12 cy=17 r=1 />							
+							</g>
+						</svg>
+					</div>
+				</div>
+			</div>
+		</template>
 		<datalist id="obj-ids-of-scene"></datalist>
 		<div id="output-window">
 			<div id="handle">
