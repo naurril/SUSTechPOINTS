@@ -106,7 +106,7 @@ class PopupDialog
             v.style.height = "100%";
             v.style["z-index"] = 5;
 
-            event.target.style.display = 'none';
+            event.currentTarget.style.display = 'none';
             this.ui.querySelector("#btn-restore").style.display = "inherit";
         }
 
@@ -116,7 +116,7 @@ class PopupDialog
             v.style.left = "20%";
             v.style.width = "60%";
             v.style.height = "60%";
-            event.target.style.display = 'none';
+            event.currentTarget.style.display = 'none';
             this.ui.querySelector("#btn-maximize").style.display = "inherit";
         }
 
