@@ -1041,7 +1041,7 @@ function Lidar(sceneMeta, world, frameInfo){
             }
             else // by id
             {
-                let idx = parseInt(box.obj_track_id);
+                let idx = (box.obj_track_id)?parseInt(box.obj_track_id): box.obj_local_id;
                 target_color = get_color_by_id(idx);
             }
         }

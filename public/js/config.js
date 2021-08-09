@@ -57,6 +57,7 @@ class Config{
             let value = event.currentTarget.value;
             this.editor.data.set_obj_color_scheme(value);
             this.editor.render();
+            this.editor.imageContext.render_2d_image();
             this.editor.boxEditorManager.render();
 
             return false;

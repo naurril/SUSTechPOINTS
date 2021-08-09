@@ -1,6 +1,6 @@
 
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
-import {get_obj_cfg_by_type} from "./obj_cfg.js"
+import { get_color_by_category, get_color_by_id, } from './obj_cfg.js';
 
 function FocusImageContext(ui){
 
@@ -118,12 +118,25 @@ function FocusImageContext(ui){
         var imgfinal = box_corners;
 
         if (!selected){
-            ctx.strokeStyle = get_obj_cfg_by_type(box.obj_type).color;
+                let target_color = null;
+                if (box.world.data.cfg.color_obj == "category")
+                {
+                    target_color = get_color_by_category(box.obj_type);
+                }
+                else // by id
+                {
+                    let idx = (box.obj_track_id)?parseInt(box.obj_track_id): box.obj_local_id;
+                    target_color = get_color_by_id(idx);
+                }
 
-            var c = get_obj_cfg_by_type(box.obj_type).color;
-            var r ="0x"+c.slice(1,3);
-            var g ="0x"+c.slice(3,5);
-            var b ="0x"+c.slice(5,7);
+
+
+                //ctx.strokeStyle = get_obj_cfg_by_type(box.obj_type).color;
+
+                //var c = get_obj_cfg_by_type(box.obj_type).color;
+                var r ="0x"+(target_color.x*256).toString(16);
+                var g ="0x"+(target_color.y*256).toString(16);;
+                var b ="0x"+(target_color.z*256).toString(16);;
 
             ctx.fillStyle="rgba("+parseInt(r)+","+parseInt(g)+","+parseInt(b)+",0.2)";
         }
@@ -642,9 +655,17 @@ function ImageContext(ui, cfg, on_img_click){
         if (selected){
             svg.setAttribute("class", box.obj_type+" box-svg-selected");
         } else{
-            svg.setAttribute("class", box.obj_type);
+            if (box.world.data.cfg.color_obj == "id")
+            {
+                svg.setAttribute("class", "color-"+box.obj_track_id%33);
+            }
+            else // by id
+            {
+                svg.setAttribute("class", box.obj_type);
+            }
         }
 
+                
         var front_panel =  document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
         svg.appendChild(front_panel);
         front_panel.setAttribute("points",
