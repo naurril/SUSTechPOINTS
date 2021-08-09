@@ -110,10 +110,11 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
                     element.style.left = Math.round(pos.x) + 'px';
 
 
-                    element.className = "float-label "+element.obj_type;
+                    element.className = element.orgClassName;
                     if (pos.out_view){
                         element.className += " label-out-view";                         
                     }
+                    
                 }
             }
         },
@@ -150,7 +151,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
         unselect_box: function(local_id){
             var label = this.editor_ui.querySelector("#obj-local-"+local_id);
             if (label){                
-                label.className = "float-label" + " " + label.obj_type;
+                label.className = label.orgClassName;
                 label.hidden = false;
                 label.selected = false;
                 this.fastToolboxUi.style.display = "none";
@@ -193,7 +194,7 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
                     label.style.top = Math.round(pos.y) + 'px';
                     label.style.left = Math.round(pos.x) + 'px';
 
-                    label.className = "float-label "+label.obj_type;
+                    label.className = label.orgClassName;
                     if (pos.out_view){
                         label.className += " label-out-view";                         
                     }
@@ -211,7 +212,21 @@ function createFloatLabelManager(editor_ui, container_div, view, func_on_label_c
         add_label: function(box){
             
             var label = document.createElement('div');
-            label.className = "float-label "+box.obj_type;
+            if (box.world.data.cfg.color_obj == "id")
+            {
+                
+                //svg.setAttribute("class", "color-"+box.obj_track_id%33);
+                label.className = "float-label color-"+ (box.obj_track_id % 33);
+            }
+            else // by id
+            {
+                label.className = "float-label "+box.obj_type;
+            }
+            
+
+            label.orgClassName = label.className;
+
+
             label.id = "obj-local-"+box.obj_local_id;
 
             var _self =this;

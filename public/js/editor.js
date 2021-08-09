@@ -297,7 +297,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
-        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x888800, linewidth: 1 } ) );    
+        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x444400, linewidth: 1 } ) );    
          
         box.scale.x=50;
         box.scale.y=50;
