@@ -28,32 +28,7 @@ class Config{
             this.editor.boxEditorManager.render();
             return false;
         },
-        
-        "#cfg-point-size": (event)=>{
-            event.stopPropagation();
-            return false;
-        },
-        
-        "#cfg-point-brightness": (event)=>{
-            event.stopPropagation();
-            return false;
-        },
-        
-        "#cfg-light-mode": (event)=>{
-            event.stopPropagation();
-            return false;
-        },
-        
-        "#cfg-color-object": (event)=>{
-            event.stopPropagation();
-            return false;
-        },
-        
-        "#cfg-menu-batch-mode-inst-number": (event)=>{
-            event.stopPropagation();
-            return false;
-        },
-        
+
         "#cfg-take-screenshot": (event)=>{
             this.editor.downloadWebglScreenShot();
             return true;
@@ -94,6 +69,15 @@ class Config{
         }
     };
 
+    ignoreItems = [
+        "#cfg-point-size",
+        "#cfg-point-brightness",
+        "#cfg-light-mode",
+        "#cfg-color-object",
+        "#cfg-menu-batch-mode-inst-number",
+       
+    ];
+
     constructor(button, wrapper, editor)
     {
         this.button = button;
@@ -132,6 +116,18 @@ class Config{
                 }
             }
         }
+
+        this.ignoreItems.forEach(item=>{
+            this.menu.querySelector(item).onclick = (event)=>{
+                {
+                    event.stopPropagation();                    
+                }
+            }
+        });
+
+        this.menu.onclick = (event)=>{
+            event.stopPropagation();                    
+        };
     }
 
 
