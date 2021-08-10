@@ -2,7 +2,7 @@ import * as THREE from './lib/three.module.js';
 import { GUI } from './lib/dat.gui.module.js';
 
 import {ViewManager} from "./view.js";
-import {createFloatLabelManager} from "./floatlabel.js";
+import {FloatLabelManager} from "./floatlabel.js";
 import {Mouse} from "./mouse.js";
 import {BoxEditor, BoxEditorManager} from "./box_editor.js";
 import {ImageContext} from "./image.js";
@@ -21,7 +21,7 @@ import {Trajectory} from "./trajectory.js";
 import { ContextMenu } from './context_menu.js';
 import { InfoBox } from './info_box.js';
 import {CropScene} from './crop_scene.js';
-import { Config } from './config.js';
+import { ConfigUi } from './config_ui.js';
 
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
@@ -70,7 +70,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         this.playControl = new PlayControl(this.data);
 
-        this.config = new Config(editorUi.querySelector("#config-button"), editorUi.querySelector("#config-wrapper"), this);
+        this.configUi = new ConfigUi(editorUi.querySelector("#config-button"), editorUi.querySelector("#config-wrapper"), this);
 
         this.header = new Header(editorUi.querySelector("#global-info"), this.data, this.editorCfg,
             (e)=>{
@@ -119,7 +119,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         if (!this.editorCfg.disableRangeCircle)
             this.addRangeCircle();
     
-        this.floatLabelManager = createFloatLabelManager(this.editorUi, this.container, this.viewManager.mainView,function(box){self.selectBox(box);});
+        this.floatLabelManager = new FloatLabelManager(this.editorUi, this.container, this.viewManager.mainView,function(box){self.selectBox(box);});
      
         //this.controlGui = this.init_gui();
         
@@ -184,7 +184,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.boxOp,
             this.header,
             this.contextMenu,
-            this.config,
+            this.configUi,
             (b)=>this.on_box_changed(b),
             (b,r)=>this.remove_box(b,r),   // on box remove
             ()=>{
@@ -297,7 +297,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var bbox = new THREE.BufferGeometry();
         bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
-        var box = new THREE.LineSegments( bbox, new THREE.LineBasicMaterial( { color: 0x444400, linewidth: 1 } ) );    
+        var box = new THREE.LineSegments( bbox, 
+            new THREE.LineBasicMaterial( { color: 0x888800, linewidth: 1, opacity: 0.5, transparent: true } ) );    
          
         box.scale.x=50;
         box.scale.y=50;

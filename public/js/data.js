@@ -187,9 +187,9 @@ function Data(metaData, cfg){
 
     this.scale_point_size = function(v){
         this.cfg.point_size *= v;
-        if (this.world){
-            this.world.lidar.set_point_size(this.cfg.point_size);
-        }
+        // if (this.world){
+        //     this.world.lidar.set_point_size(this.cfg.point_size);
+        // }
 
         this.worldList.forEach(w=>{
             w.lidar.set_point_size(this.cfg.point_size);
@@ -199,18 +199,21 @@ function Data(metaData, cfg){
     this.scale_point_brightness = function(v){
         this.cfg.point_brightness *= v;
 
-        if (this.world){
-            this.world.lidar.recolor_all_points();
-        }
+        // if (this.world){
+        //     this.world.lidar.recolor_all_points();
+        // }
 
         this.worldList.forEach(w=>{
             w.lidar.recolor_all_points();
         })
     };
 
-    this.toggle_box_opacity = function(){
-        this.cfg.box_opacity = 1- this.cfg.box_opacity;
-        this.world.annotation.set_box_opacity(this.cfg.box_opacity);
+    this.set_box_opacity = function(opacity){
+        this.cfg.box_opacity = opacity;
+
+        this.worldList.forEach(w=>{
+            w.annotation.set_box_opacity(this.cfg.box_opacity);
+        });
     };
 
     this.toggle_background = function(){
@@ -227,9 +230,9 @@ function Data(metaData, cfg){
     this.set_obj_color_scheme = function(scheme){
 
         
-        this.cfg.color_obj = scheme;
+        config.color_obj = scheme;
 
-        // if (this.cfg.color_obj != "no"){
+        // if (config.color_obj != "no"){
         //     this.world.lidar.color_points();
         // } else {
         //     this.world.lidar.set_points_color({
@@ -245,7 +248,7 @@ function Data(metaData, cfg){
 
         // toto: move to world
         this.worldList.forEach(w=>{
-            if (this.cfg.color_obj != "no"){
+            if (config.color_obj != "no"){
                 w.lidar.color_points();
             } else {
                 w.lidar.set_points_color({

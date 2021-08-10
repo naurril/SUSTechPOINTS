@@ -1,7 +1,15 @@
+import{Config} from "./config.js"
 import{Editor} from "./editor.js"
 import {Data} from './data.js'
 
-document.documentElement.className="theme-dark";
+
+let config = new Config();
+window.config = config;
+
+config.load();
+
+
+document.documentElement.className="theme-"+config.theme;
 
 
 document.body.addEventListener('keydown', event => {
@@ -53,36 +61,9 @@ function start(metaData){
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
 
-      let editorCfg={
-          //disableSceneSelector: true,
-          //disableFrameSelector: true,
-          //disableCameraSelector: true,
-          //disableFastToolbox: true,
-          //disableMainView: true,
-          //disableMainImageContext: true,
-          //disableGrid:true,
-          //disableRangeCircle:true,
-          //disableAxis:true,
-          //disableMainViewKeyDown:true
-          //projectRadarToImage:true,
-          //projectLidarToImage:true,     
-      };
+      let editorCfg = config;
 
-      let dataCfg = {
-        
-        point_size: 1,
-        point_brightness: 0.6,
-        box_opacity: 1,
-        show_background: true,
-        color_obj: "category",
-
-        //disableLabels: true,
-        disablePreload: true,
-        enablePointIntensity: false,
-        enableRadar:true,
-        enableAuxLidar: true,
-        enableDynamicGroundLevel: true,
-      }
+      let dataCfg = config;
       
       let data = new Data(metaData, dataCfg);
       let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "main-editor")
