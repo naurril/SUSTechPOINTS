@@ -34,9 +34,25 @@ class ConfigUi{
             return true;
         },
         
+        "#cfg-start-calib":(event)=>{
+            this.editor.calib.start_calibration();
+            return true;
+        },
+
+        "#cfg-show-calib":(event)=>{
+            this.editor.calib.save_calibration();
+            return true;
+        },
+
+        // "#cfg-reset-calib":(event)=>{
+        //     this.editor.calib.reset_calibration();
+        //     return true;
+        // }
+
+        
     };
 
-    chaneableItems = {
+    changeableItems = {
         "#cfg-theme-select":(event)=>{
             let theme = event.currentTarget.value;
 
@@ -45,7 +61,7 @@ class ConfigUi{
             
             document.documentElement.className = "theme-"+theme;
             
-            config.setItem("theme", theme);
+            pointsGlobalConfig.setItem("theme", theme);
             
             this.editor.viewManager.setColorScheme();
             this.editor.render();
@@ -88,6 +104,20 @@ class ConfigUi{
             let batchSize = parseInt(event.currentTarget.value);
             this.editor.boxEditorManager.setBatchSize(batchSize);
             return false;
+        },
+
+        "#cfg-data-aux-lidar-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+
+            pointsGlobalConfig.setItem("enableAuxLidar", checked);
+            return false;
+        },
+
+        "#cfg-data-radar-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+
+            pointsGlobalConfig.setItem("enableRadar", checked);
+            return false;
         }
     };
 
@@ -97,8 +127,15 @@ class ConfigUi{
         "#cfg-theme",
         "#cfg-color-object",
         "#cfg-menu-batch-mode-inst-number",
-        "#cfg-hide-box"
-       
+        "#cfg-hide-box",
+        "#cfg-calib-camera-LiDAR",
+        "#cfg-experimental",
+        "#cfg-data",
+    ];
+
+    subMenus = [
+        "#cfg-experimental",
+        "#cfg-data",
     ];
 
     constructor(button, wrapper, editor)
@@ -129,10 +166,10 @@ class ConfigUi{
             }
         }
 
-        for (let item in this.chaneableItems)
+        for (let item in this.changeableItems)
         {
             this.menu.querySelector(item).onchange = (event)=>{
-                let ret = this.chaneableItems[item](event);
+                let ret = this.changeableItems[item](event);
                 if (ret)
                 {
                     this.hide();
@@ -148,6 +185,16 @@ class ConfigUi{
             }
         });
 
+        this.subMenus.forEach(item=>{
+            this.menu.querySelector(item).onmouseenter = (event)=>{
+                event.currentTarget.querySelector(item +"-submenu").style.display="inherit";
+            }
+
+            this.menu.querySelector(item).onmouseleave = (event)=>{
+                event.currentTarget.querySelector(item +"-submenu").style.display="none";
+            }
+        });
+
         this.menu.onclick = (event)=>{
             event.stopPropagation();                    
         };
@@ -155,7 +202,9 @@ class ConfigUi{
 
 
         // init ui
-        this.menu.querySelector("#cfg-theme-select").value = config.theme;
+        this.menu.querySelector("#cfg-theme-select").value = pointsGlobalConfig.theme;
+        this.menu.querySelector("#cfg-data-aux-lidar-checkbox").checked = pointsGlobalConfig.enableAuxLidar;
+        this.menu.querySelector("#cfg-data-radar-checkbox").checked = pointsGlobalConfig.enableRadar;
     }
 
 

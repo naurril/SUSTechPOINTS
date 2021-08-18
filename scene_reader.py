@@ -37,12 +37,12 @@ def get_one_scene(s):
         scene["frames"].append(filename)
         scene["lidar_ext"] = fileext
 
-    point_transform_matrix=[]
+    # point_transform_matrix=[]
 
-    if os.path.isfile(os.path.join(scene_dir, "point_transform.txt")):
-        with open(os.path.join(scene_dir, "point_transform.txt"))  as f:
-            point_transform_matrix=f.read()
-            point_transform_matrix = point_transform_matrix.split(",")
+    # if os.path.isfile(os.path.join(scene_dir, "point_transform.txt")):
+    #     with open(os.path.join(scene_dir, "point_transform.txt"))  as f:
+    #         point_transform_matrix=f.read()
+    #         point_transform_matrix = point_transform_matrix.split(",")
 
     
     if os.path.exists(os.path.join(scene_dir, "desc.json")):
@@ -154,10 +154,10 @@ def get_one_scene(s):
 
 
 
-    if not os.path.isdir(os.path.join(scene_dir, "bbox.xyz")):
+    if  True: #not os.path.isdir(os.path.join(scene_dir, "bbox.xyz")):
         scene["boxtype"] = "psr"
-        if point_transform_matrix:
-            scene["point_transform_matrix"] = point_transform_matrix
+        # if point_transform_matrix:
+        #     scene["point_transform_matrix"] = point_transform_matrix
         if camera:
             scene["camera"] = camera
         if radar:
@@ -171,20 +171,20 @@ def get_one_scene(s):
         if calib_aux_lidar:
             calib["aux_lidar"] = calib_aux_lidar
             
-    else:
-        scene["boxtype"] = "xyz"
-        if point_transform_matrix:
-            scene["point_transform_matrix"] = point_transform_matrix
-        if camera:
-            scene["camera"] = camera
-        if radar:
-            scene["radar"] = radar
-        if calib_camera:
-            calib["camera"] = calib_camera
-        if calib_radar:
-            calib["radar"] = calib_radar
-        if calib_aux_lidar:
-            calib["aux_lidar"] = calib_aux_lidar
+    # else:
+    #     scene["boxtype"] = "xyz"
+    #     if point_transform_matrix:
+    #         scene["point_transform_matrix"] = point_transform_matrix
+    #     if camera:
+    #         scene["camera"] = camera
+    #     if radar:
+    #         scene["radar"] = radar
+    #     if calib_camera:
+    #         calib["camera"] = calib_camera
+    #     if calib_radar:
+    #         calib["radar"] = calib_radar
+    #     if calib_aux_lidar:
+    #         calib["aux_lidar"] = calib_aux_lidar
 
     scene["calib"] = calib
 

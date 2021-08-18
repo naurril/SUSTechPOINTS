@@ -3,13 +3,14 @@ import{Editor} from "./editor.js"
 import {Data} from './data.js'
 
 
-let config = new Config();
-window.config = config;
-
-config.load();
+let pointsGlobalConfig = new Config();
+window.pointsGlobalConfig = pointsGlobalConfig;
 
 
-document.documentElement.className="theme-"+config.theme;
+pointsGlobalConfig.load();
+
+
+document.documentElement.className="theme-"+pointsGlobalConfig.theme;
 
 
 document.body.addEventListener('keydown', event => {
@@ -61,9 +62,9 @@ function start(metaData){
       let main_ui = template.content.cloneNode(true);
       maindiv.appendChild(main_ui); // input parameter is changed after `append`
 
-      let editorCfg = config;
+      let editorCfg = pointsGlobalConfig;
 
-      let dataCfg = config;
+      let dataCfg = pointsGlobalConfig;
       
       let data = new Data(metaData, dataCfg);
       let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "main-editor")

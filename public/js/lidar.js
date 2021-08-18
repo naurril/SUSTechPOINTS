@@ -72,21 +72,21 @@ function Lidar(sceneMeta, world, frameInfo){
                 _self.points_parse_time = new Date().getTime();
                 console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
 
-                if (_self.frameInfo.transform_matrix){
+                // if (_self.frameInfo.transform_matrix){
 
-                    var arr = position;
-                    var num = position.length;
-                    var ni = 3;
+                //     var arr = position;
+                //     var num = position.length;
+                //     var ni = 3;
 
-                    for (var i=0; i<num/ni; i++){
-                        var np = _self.frameInfo.transform_point(_self.frameInfo.transform_matrix, arr[i*ni+0], arr[i*ni+1], arr[i*ni+2]);
-                        arr[i*ni+0]=np[0];
-                        arr[i*ni+1]=np[1];
-                        arr[i*ni+2]=np[2];
-                    }
+                //     for (var i=0; i<num/ni; i++){
+                //         var np = _self.frameInfo.transform_point(_self.frameInfo.transform_matrix, arr[i*ni+0], arr[i*ni+1], arr[i*ni+2]);
+                //         arr[i*ni+0]=np[0];
+                //         arr[i*ni+1]=np[1];
+                //         arr[i*ni+2]=np[2];
+                //     }
 
-                    //points.geometry.computeBoundingSphere();
-                }
+                //     //points.geometry.computeBoundingSphere();
+                // }
 
                 
                 // do some filtering work here
@@ -96,20 +96,46 @@ function Lidar(sceneMeta, world, frameInfo){
                 let normal = pcd.normal;
 
                 position = pcd.position;
+
+                //filter
+                let filtered_position = [];
+                let filtered_color = [];
+                let filtered_normal = [];
+
+                if (pointsGlobalConfig.enableFilterPoints)
+                {
+                    for(let i = 0; i <= position.length; i+=3)
+                    {
+                        if (position[i+2] <= pointsGlobalConfig.filterPointsZ)
+                        {
+                            filtered_position.push(position[i]);
+                            filtered_position.push(position[i+1]);
+                            filtered_position.push(position[i+2]);
+
+                        }
+                    }
+                }
+
+                position = filtered_position;
+
                 position = _self.transformPointsByOffset(position);
 
                 // build geometry
                 _self.world.data.dbg.alloc();
                 var geometry = new THREE.BufferGeometry();
-                if ( position.length > 0 ) geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
-                if ( normal.length > 0 ) geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
+                if ( position.length > 0 ) 
+                    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+
+                // normal and colore are note used in av scenes.
+                if ( normal.length > 0 ) 
+                    geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
+                
                 if ( color.length > 0 ) {
                     geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
                 }
                 else {
                     color = []
-
-                    
+    
                     if (_self.data.cfg.enablePointIntensity && pcd.intensity.length>0){
                         // map intensity to color
                         for (var i =0; i< pcd.intensity.length; ++i){

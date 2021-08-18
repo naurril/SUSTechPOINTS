@@ -2,7 +2,8 @@
 class Config{
 
     //dataCfg = {
-        //disableLabels: true,
+    
+    //disableLabels: true,
     disablePreload = true;
     enablePointIntensity = false;
     enableRadar = true;
@@ -16,7 +17,8 @@ class Config{
     color_obj = "category";
     theme = "dark";
 
-
+    enableFilterPoints = true;
+    filterPointsZ = 1.0;
     ///editorCfg
 
     //disableSceneSelector = true;
@@ -37,10 +39,20 @@ class Config{
         this.uiCfg = this.dataCfg;
     }
 
-    readItem(name, defaultValue){
-        let ret = window.localStorage.getItem("theme");
+    readItem(name, defaultValue, castFunc){
+        let ret = window.localStorage.getItem(name);
         
-        return ret? ret : defaultValue;
+        if (ret)
+        {
+            if (castFunc)
+                return castFunc(ret);
+            else
+                return ret;
+        }
+        else
+        {
+            return defaultValue;
+        }        
     }
 
     setItem(name, value)
@@ -49,9 +61,27 @@ class Config{
         window.localStorage.setItem(name, value);
     }
 
+    toBool(v)
+    {
+        return v==="true";
+    }
+
+    saveItems = [
+        ["theme", null],
+        ["enableRadar", this.toBool],
+        ["enableAuxLidar", this.toBool],
+        ["enableFilterPoints", this.toBool],
+        ["filterPointsZ", parseFloat],
+    ];
+
     load()
     {
-        this.theme = this.readItem("theme", this.theme);
+        this.saveItems.forEach(item=>{
+            let key = item[0];
+            let castFunc = item[1];
+
+            this[key] = this.readItem(key, this[key], castFunc);
+        })
     }
 };
 

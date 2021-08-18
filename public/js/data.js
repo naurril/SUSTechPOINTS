@@ -230,9 +230,9 @@ function Data(metaData, cfg){
     this.set_obj_color_scheme = function(scheme){
 
         
-        config.color_obj = scheme;
+        pointsGlobalConfig.color_obj = scheme;
 
-        // if (config.color_obj != "no"){
+        // if (pointsGlobalConfig.color_obj != "no"){
         //     this.world.lidar.color_points();
         // } else {
         //     this.world.lidar.set_points_color({
@@ -248,7 +248,7 @@ function Data(metaData, cfg){
 
         // toto: move to world
         this.worldList.forEach(w=>{
-            if (config.color_obj != "no"){
+            if (pointsGlobalConfig.color_obj != "no"){
                 w.lidar.color_points();
             } else {
                 w.lidar.set_points_color({

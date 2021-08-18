@@ -7,6 +7,7 @@ import rectify_image
 
 camera_list = ['front', 'front_left', 'front_right', 'rear', 'rear_left', 'rear_right']
 
+aux_lidar_list=['front','rear','left','right']
 camera_time_offset = {
     'front': -50, 
     'front_left': -33,
@@ -38,6 +39,10 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
     prepare_dirs(dataset_path)
     prepare_dirs(os.path.join(dataset_path, 'camera'))
     prepare_dirs(os.path.join(dataset_path, 'lidar'))
+    prepare_dirs(os.path.join(dataset_path, 'aux_lidar'))
+    prepare_dirs(os.path.join(dataset_path, 'radar'))
+    prepare_dirs(os.path.join(dataset_path, 'infrared_camera'))
+
     prepare_dirs(os.path.join(dataset_path, 'label'))
 
 
@@ -45,7 +50,7 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
     #prepare_dirs(os.path.join(dataset_path, 'calib/camera'))
 
     os.chdir(dataset_path)
-    os.system("ln -s -f " + os.path.relpath(extrinsic_calib_path) + " ./")
+    os.system("ln -s -f " + os.path.relpath(extrinsic_calib_path) + " ./calib")
 
 
     for camera in camera_list:
@@ -54,11 +59,29 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
 
         for slot in timeslots:
             os.system("ln -s -f  ../../../intermediate/camera/" + camera + "/aligned/*."+slot+".jpg  ./")
+    
+    for camera in camera_list:
+        prepare_dirs(os.path.join(dataset_path, "infrared_camera",  camera))
+        os.chdir(os.path.join(dataset_path, "infrared_camera", camera))
+
+        for slot in timeslots:
+            os.system("ln -s -f  ../../../intermediate/infrared_camera/" + camera + "/aligned/*."+slot+".jpg  ./")
         
     os.chdir(os.path.join(dataset_path, "lidar"))
 
     for slot in timeslots:
         os.system("ln -s -f ../../intermediate/lidar/*."+slot+".pcd ./")
+    
+    for al in aux_lidar_list:
+        
+        dir = os.path.join(dataset_path, "aux_lidar", al)
+        prepare_dirs(dir)
+        os.chdir(dir)
+
+        for slot in timeslots:
+            os.system("ln -s -f  ../../../intermediate/aux_lidar/" + al + "/*."+slot+".pcd  ./")
+
+
     
     
     
@@ -89,6 +112,13 @@ def align(raw_data_path, output_path):
             align_frame_time.link_one_folder(os.path.join(raw_data_path, 'hesai', 'pandar_packets'),  #after 07.15, this topic path has hesai prefix.
                                             os.path.join(output_path, 'intermediate', 'lidar'),
                                             0, 30, 0)
+
+        for al in aux_lidar_list:
+            align_frame_time.link_one_folder(os.path.join(raw_data_path, 'rsbp_'+al+'/rslidar_points'),
+                                     os.path.join(output_path, 'intermediate', 'aux_lidar',al),
+                                     0,
+                                     30, 100)
+
 
     
     

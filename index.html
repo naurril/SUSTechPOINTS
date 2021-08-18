@@ -584,10 +584,72 @@
 						</div>
 
 						<div class="menu-item menu-seperator"></div>
+
+						<div class="menu-item" id="cfg-data">
+							<span>Show data</span>
+							<div class="menu-item-arrow menu-item-icon">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
+									<path d="M12 8 L 18 12 L 12 16Z"></path>
+								</g></svg>
+							</div>
+
+							<div id="cfg-data-submenu">
+								<div class="menu-nonclickable-item" id="cfg-data-aux-lidar">
+									<div class="menu-item-text">Auxiliary LiDAR</div>
+									<div class="cfg-widget-group">
+										<input type="checkbox" id="cfg-data-aux-lidar-checkbox" class="cfg-widget">
+									</div>
+								</div>
+
+								<div class="menu-nonclickable-item" id="cfg-data-radar">
+									<div class="menu-item-text">Radar</div>
+									<div class="cfg-widget-group">
+										<input type="checkbox" id="cfg-data-radar-checkbox" class="cfg-widget">
+									</div>
+								</div>
+
+								<div class="menu-nonclickable-item" id="cfg-data-filter-points">
+									<div class="menu-item-text">Filter points</div>
+									<div class="cfg-widget-group">
+										<input type="checkbox" id="cfg-data-filter-points" class="cfg-widget">
+										<span> z-threshold</span>
+										<input id="cfg-data-filter-points-z" class="cfg-widget">
+									</div>
+								</div>
+
+							</div>
+						</div>
+
+
+						<div class="menu-item" id="cfg-experimental">
+							<span>Experimental</span>
+							<div class="menu-item-arrow menu-item-icon">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
+									<path d="M12 8 L 18 12 L 12 16Z"></path>
+								</g></svg>
+							</div>
+
+							<div id="cfg-experimental-submenu">
+								<div class="menu-nonclickable-item" id="cfg-calib-camera-LiDAR">
+									<div class="menu-item-text">Camera-LiDAR calibration</div>
+									<div class='cfg-widget-group'>
+										<div id='cfg-start-calib' class='menu-button'>start</div>
+										<div id='cfg-show-calib'  class='menu-button'>result</div>
+										<div id='cfg-stop-calib'  class='menu-button'>stop</div>
+										<!-- <div id='cfg-reset-calib' class='menu-button'>reset</div> -->
+									</div>
+								</div>								
+							</div>
+						</div>
+
+						<div class="menu-item menu-seperator"></div>
 						<div class="menu-item" id="cfg-take-screenshot">
 							<span>Take screenshot</span>
 						</div>
 						
+						<div class="menu-item" id="cfg-help">
+							<a href="https://github.com/naurril/SUSTechPOINTS/blob/dev-auto-annotate/README_cn.md" target="_blank">Help</a>
+						</div>
 					</div>					
 			</div>	
 

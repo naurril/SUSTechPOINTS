@@ -1484,6 +1484,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 }
 
                 let all_boxes = this.data.world.annotation.boxes.concat(this.data.world.radars.getAllBoxes());
+                all_boxes = all_boxes.concat(this.data.world.aux_lidars.getAllBoxes());
+                
                 if (this.calib.calib_box){
                     all_boxes.push(this.calib.calib_box);
                 }

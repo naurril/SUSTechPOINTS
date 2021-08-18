@@ -9,7 +9,7 @@ function Calib(data, editor){
     var euler_angle={x:0, y:0, y:0};
     var translate = {x:0, y:0, z:0};
     
-    function save_calibration(){
+    this.save_calibration = function(){
     
         
         var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
@@ -30,11 +30,14 @@ function Calib(data, editor){
     
         console.log(extrinsic, euler_angle, translate);
     
-        console.log("restoreed matrix", euler_angle_to_rotate_matrix(euler_angle, translate));
+        let matrix =  euler_angle_to_rotate_matrix(euler_angle, translate)
+        console.log("restoreed matrix",matrix);
     
+        
+        this.editor.infoBox.show("calib", JSON.stringify(matrix));
     }
     
-    function reset_calibration(){
+    this.reset_calibration = function(){
         // to be done
         this.editor.imageContext.render_2d_image();
     }
@@ -201,12 +204,12 @@ function Calib(data, editor){
         calibrateFolder.add( params, 'start calibration');
     
         params['save cal'] = function () {
-            save_calibration();
+            this.save_calibration();
         };
         calibrateFolder.add( params, 'save cal');
     
         params['reset cal'] = function () {
-           reset_calibration();
+           this.reset_calibration();
        };
            
        calibrateFolder.add(params, 'reset cal');

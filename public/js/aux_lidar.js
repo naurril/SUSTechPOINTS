@@ -2,6 +2,9 @@ import * as THREE from './lib/three.module.js';
 import { PCDLoader } from './lib/PCDLoader.js';
 import { matmul, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 
+
+//todo: clean arrows
+
 function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
     this.world = world;
     this.frameInfo = frameInfo;    
@@ -11,12 +14,17 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
 
     this.showPointsOnly = true;
     this.showCalibBox = false;
-    this.cssStyleSelector = this.sceneMeta.calib.aux_lidar[this.name].cssstyleselector;
+    //this.cssStyleSelector = this.sceneMeta.calib.aux_lidar[this.name].cssstyleselector;
     this.color = this.sceneMeta.calib.aux_lidar[this.name].color;
     
 
-    if (!this.color){
-        this.color = [1.0, 0.0, 0.0];
+    if (!this.color)    
+    {
+        this.color = [
+            this.world.data.cfg.point_brightness, 
+            this.world.data.cfg.point_brightness, 
+            this.world.data.cfg.point_brightness, 
+        ];
     }
 
     this.lidar_points = null;  // read from file, centered at 0
@@ -123,6 +131,25 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
         }
     };
 
+    this.filterPoints = function(position){
+        let filtered_position = [];
+
+        if (pointsGlobalConfig.enableFilterPoints)
+        {
+            for(let i = 0; i <= position.length; i+=3)
+            {
+                if (position[i+2] <= pointsGlobalConfig.filterPointsZ)
+                {
+                    filtered_position.push(position[i]);
+                    filtered_position.push(position[i+1]);
+                    filtered_position.push(position[i+2]);
+
+                }
+            }
+        }
+
+        return filtered_position;
+    };
 
     this.preload = function(on_preload_finished){
         var loader = new PCDLoader();
@@ -147,7 +174,10 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
                 };
 
                 //position = _self.transformPointsByOffset(position);
-                position = _self.move_points(_self.calib_box);                
+                position = _self.move_points(_self.calib_box);       
+                
+                
+
                 let elements = _self.buildGeometry(position);
                 
                 _self.elements = elements;
@@ -195,7 +225,7 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
                     y: this.sceneMeta.calib.aux_lidar[this.name].translation[1] + this.coordinatesOffset[1],
                     z: this.sceneMeta.calib.aux_lidar[this.name].translation[2] + this.coordinatesOffset[2],
                 }, 
-                {x:1,y:1, z:1}, 
+                {x:1, y:1, z:1}, 
                 {
                     x: this.sceneMeta.calib.aux_lidar[this.name].rotation[0],
                     y: this.sceneMeta.calib.aux_lidar[this.name].rotation[1],
@@ -240,7 +270,7 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
         // build material
         let pointSize = this.sceneMeta.calib.aux_lidar[this.name].point_size;
         if (!pointSize)
-            pointSize = 2;
+            pointSize = 1;
 
         let material = new THREE.PointsMaterial( { size: pointSize, vertexColors: THREE.VertexColors } );
         //material.size = 2;
@@ -270,7 +300,9 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
         let translated_points = rotated_points.map((p,i)=>{
             return p + translation[i % 3];
         });
-        return translated_points;
+
+        let filtered_position = this.filterPoints(translated_points);
+        return filtered_position;
     };
 
 

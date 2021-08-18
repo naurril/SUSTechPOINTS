@@ -236,8 +236,8 @@ PCDLoader.prototype = {
 				return true;
 			if (x == 0 && y== 0 && z==0)
 				return true;
-			if (z >=2)
-				return true;
+			// if (z >=2)
+			// 	return true;
 		}
 
 
