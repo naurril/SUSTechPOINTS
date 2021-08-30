@@ -14,22 +14,22 @@
      目标id选择(试验用，会启动batchedit模式,显示该物体的多个实例)
      相机选择 在不同相机间切换,选择3dbox时也会自动切换
      Box信息
-          *(表示已更改未保存) 类别-ID | x y z | 长宽高 | roll pitch yaw | 点数 |F:n(follow obj n)
+          *(表示已更改未保存) 类别-ID |距离| x y z | 长宽高 | roll pitch yaw | 点数 |F:n(follow obj n)
 
-### 菜单
+### 配置菜单(右上角)
 
 ![screenshot](./doc/view-menu.png)
 
-- point size +/- 增加/减小点的大小
-- point brightness +/- 增强/减弱点的亮度
-- toggle background
-- toggle box
-- toggle obj color
-- toggle id
-- toggle category
-- previous frame
-- next frame
+- point size 增加/减小点的大小
+- point brightness 增强/减弱点的亮度
+- hide box 隐藏3dbox
+- theme 暗/亮模式选择
+- color objects 目标着色方案：按id/类别，无色
+- batch mode max box number: 批编辑模式下显示的实例个数
+- data settings: 是否显示雷达数据
+- experimental：　实验，标定用
 - take screenshot 下载屏幕截图(仅3D场景)
+- Help
 
 ### 相机图片
 
@@ -48,15 +48,17 @@
 
 - New 在鼠标当前位置创建对应的box
 - Paste 在鼠标当前位置paste
-- Previous frame
-- Next frame
+- goto
 - play
 - pause/resume
 - stop
-- previous object
-- next object
+- 
 - save 保存
+- save all
 - reload 放弃当前修改刷新上一次保存的内容
+- reload all
+- frame info
+- stat
 
 右键点击box
 
@@ -74,7 +76,7 @@
 (该菜单部分功能处于试验状态，尚不完善．)
 
 
-## Operations
+## 操作
 
 
 ### 调整视角
@@ -98,7 +100,6 @@
 - region grow算法比较慢(需要优化), 对于超大的物体如bus尽量框选完整,可以加快速度
 - shift+矩形选择不会自动识别方向,为了让初始方向大致正确,建议将主视图旋转到物体的方向是沿屏幕向上或者向下,如果方向反了,按g键旋转180度.
 
-  
 
 ### box操作
 
@@ -159,21 +160,28 @@ box被选择后, 左边的３个子窗口都可以对box进行调整．鼠标移
 
 ## 批量编辑
 
+![batch edit ui](./doc/batch-edit.png)
+
 批量编辑界面可以同时对同一目标物体的多个实例(不同frame)进行编辑．　
 
 - 激活方式1, 右键点击某box, 选择inspect all instances
 - 激活方式2, 屏幕左上角窗口选择obj (试验用，不能自动切换到合适的frame)
 
-目前一次显示20帧进行编辑．　每个子窗口的操作方式与非批量模式相同．
-
-![batch edit ui](./doc/batch-edit.png)
+默认一次显示20帧进行编辑．　每个子窗口的操作方式与非批量模式相同．
+在配置界面可以选择一次选择的帧数．
+第一个实例的图片右下角可以调节每个编辑窗口的大小，可以根据需要调节．
 
 右上角的功能按钮如下：
 
-     Refresh　放弃本次编辑的内容，重新加载
-     Finalize　将所有自动标注的内容标记为已确认（等同于人工标注）．
+     Trajectory 显示轨迹
+
      Auto　自动标注
+     Auto(no rotation)
      Interpolate　仅插值，不进行旋转和位置的调整．
+
+     Reload  　放弃本次编辑的内容，重新加载
+     Finalize　将所有自动标注的内容标记为已确认（等同于人工标注）．
+     
      Save　保存
      Previous　前20帧(有10帧重叠)
      Next　后20帧(有10帧重叠)
@@ -182,9 +190,13 @@ box被选择后, 左边的３个子窗口都可以对box进行调整．鼠标移
 说明
 - 人工修改过的标注不会受到自动标注和插值的影响．finalize就是将所有的自动标注的box标记为等同人工调整过的．　标注完后需要finalize, save.
 - 每个小窗口的标题是帧号,如果有M字母表示是由machine自动标注的,否则表示为人工修改过或者确认过的.
-- 鼠标移动到某个小窗口, Ctrl+D可以删除box
-  
+- 鼠标移动到某个小窗口, Ctrl+D可以删除box　（或者右键操作）
 
+## 右键菜单
+![batch edit ui](./doc/batchedit-context-menu.png)
+
+
+  
 
 
 ## Object type configuration
