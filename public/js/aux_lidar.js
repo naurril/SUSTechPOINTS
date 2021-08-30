@@ -225,7 +225,7 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
                     y: this.sceneMeta.calib.aux_lidar[this.name].translation[1] + this.coordinatesOffset[1],
                     z: this.sceneMeta.calib.aux_lidar[this.name].translation[2] + this.coordinatesOffset[2],
                 }, 
-                {x:1, y:1, z:1}, 
+                {x:0.5, y:0.5, z:0.5}, 
                 {
                     x: this.sceneMeta.calib.aux_lidar[this.name].rotation[0],
                     y: this.sceneMeta.calib.aux_lidar[this.name].rotation[1],
@@ -239,7 +239,7 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
                 {x: this.coordinatesOffset[0],
                  y: this.coordinatesOffset[1],
                  z: this.coordinatesOffset[2]}, 
-                {x:1,y:1, z:1}, 
+                {x:0.5, y:0.5, z:0.5}, 
                 {x:0,y:0,z:0}, 
                 "lidar", 
                 this.name);

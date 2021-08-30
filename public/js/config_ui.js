@@ -49,6 +49,13 @@ class ConfigUi{
         //     return true;
         // }
 
+        "#cfg-crop-scene": (event)=>{
+            this.editor.cropScene.show(
+                this.editor.data.world.frameInfo
+            );
+
+            return true;
+        },
         
     };
 
