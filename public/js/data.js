@@ -248,17 +248,17 @@ function Data(metaData, cfg){
 
         // toto: move to world
         this.worldList.forEach(w=>{
-            if (pointsGlobalConfig.color_obj != "no"){
+            if (pointsGlobalConfig.color_obj == "no")
+            {
                 w.lidar.color_points();
-            } else {
-                w.lidar.set_points_color({
-                    x: this.cfg.point_brightness,
-                    y: this.cfg.point_brightness,
-                    z: this.cfg.point_brightness,
-                });            
             }
-    
+            else
+            {
+                w.lidar.color_objects();
+            }
+            
             w.lidar.update_points_color();
+
             w.annotation.color_boxes();
         })
     };

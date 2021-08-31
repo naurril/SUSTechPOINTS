@@ -60,6 +60,7 @@ class ConfigUi{
     };
 
     changeableItems = {
+        
         "#cfg-theme-select":(event)=>{
             let theme = event.currentTarget.value;
 
@@ -91,6 +92,17 @@ class ConfigUi{
             this.editor.boxEditorManager.render();
             
 
+            return false;
+        },
+
+        "#cfg-point-intensity-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+            pointsGlobalConfig.setItem("enablePointIntensity", checked);
+            this.editor.data.worldList.forEach(w=>{
+                w.lidar.color_points();                
+                w.lidar.update_points_color();
+            });
+            this.editor.render();
             return false;
         },
 
@@ -212,6 +224,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-theme-select").value = pointsGlobalConfig.theme;
         this.menu.querySelector("#cfg-data-aux-lidar-checkbox").checked = pointsGlobalConfig.enableAuxLidar;
         this.menu.querySelector("#cfg-data-radar-checkbox").checked = pointsGlobalConfig.enableRadar;
+        this.menu.querySelector("#cfg-point-intensity-checkbox").checked = pointsGlobalConfig.enablePointIntensity;
     }
 
 

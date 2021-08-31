@@ -36,7 +36,7 @@ class Config{
 
     constructor()
     {
-        this.uiCfg = this.dataCfg;
+        
     }
 
     readItem(name, defaultValue, castFunc){
@@ -72,6 +72,7 @@ class Config{
         ["enableAuxLidar", this.toBool],
         ["enableFilterPoints", this.toBool],
         ["filterPointsZ", parseFloat],
+        ["enablePointIntensity", this.toBool]
     ];
 
     load()

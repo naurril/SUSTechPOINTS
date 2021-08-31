@@ -65,7 +65,7 @@ function Lidar(sceneMeta, world, frameInfo){
         loader.load( this.frameInfo.get_pcd_path(), 
             //ok
             function ( pcd ) {
-                var position = pcd.position;
+                
                 
                 
 
@@ -90,52 +90,33 @@ function Lidar(sceneMeta, world, frameInfo){
 
                 
                 // do some filtering work here
-                //pcd = _self.remove_high_ponts(pcd, 2.0);
+                pcd = _self.remove_high_ponts(pcd, 2.0);
 
-                let color = pcd.color;
-                let normal = pcd.normal;
+                let position = _self.transformPointsByOffset(pcd.position);
 
-                position = pcd.position;
-
-                //filter
-                let filtered_position = [];
-                let filtered_color = [];
-                let filtered_normal = [];
-
-                if (pointsGlobalConfig.enableFilterPoints)
-                {
-                    for(let i = 0; i <= position.length; i+=3)
-                    {
-                        if (position[i+2] <= pointsGlobalConfig.filterPointsZ)
-                        {
-                            filtered_position.push(position[i]);
-                            filtered_position.push(position[i+1]);
-                            filtered_position.push(position[i+2]);
-
-                        }
-                    }
-                }
-
-                position = filtered_position;
-
-                position = _self.transformPointsByOffset(position);
-
+                
                 // build geometry
                 _self.world.data.dbg.alloc();
                 var geometry = new THREE.BufferGeometry();
                 if ( position.length > 0 ) 
                     geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
 
+                let normal = pcd.normal;
                 // normal and colore are note used in av scenes.
                 if ( normal.length > 0 ) 
                     geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
                 
-                if ( color.length > 0 ) {
-                    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
-                }
-                else {
+                let color = pcd.color;
+                if ( color.length == 0 ) {
                     color = []
-    
+
+                    // by default we set all points to same color
+                    for (let i =0; i< position.length; ++i){                                
+                        color.push(_self.data.cfg.point_brightness);                                
+                    }
+
+
+                    // if enabled intensity we color points by intensity.
                     if (_self.data.cfg.enablePointIntensity && pcd.intensity.length>0){
                         // map intensity to color
                         for (var i =0; i< pcd.intensity.length; ++i){
@@ -148,24 +129,17 @@ function Lidar(sceneMeta, world, frameInfo){
                             
                             //color.push( 2 * Math.abs(0.5-intensity));
                             
-                            color.push( intensity);
-                            color.push( intensity);
-                            color.push( 1 - intensity); 
-                            
-                            
-                        }
-                    } else {
-                        // set all points to same color
-                        for (var i =0; i< position.length; ++i){                                
-                            color.push(_self.data.cfg.point_brightness);                                
+                            color[i*3] =  intensity;
+                            color[i*3+1] = intensity;
+                            color[i*3+2] = 1 - intensity; 
                         }
                     }
 
-                    
-
-
-                    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+                    // save color, in case color needs to be restored.
+                    pcd.color = color;
                 }
+
+                geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
 
                 geometry.computeBoundingSphere();
                 // build material
@@ -196,6 +170,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
                 
                 _self.points = mesh;
+                _self.pcd = pcd;
                 //_self.points_backup = mesh;
 
                 _self.build_points_index();
@@ -260,8 +235,9 @@ function Lidar(sceneMeta, world, frameInfo){
                 this.hide_background();
             }
 
+            
             if (this.data.cfg.color_obj != "no"){
-                this.color_points();
+                this.color_objects();
             }
 
             if (on_go_finished)
@@ -308,19 +284,50 @@ function Lidar(sceneMeta, world, frameInfo){
 
     };
 
-    // color points according to object category
-    this.color_points=function(){
-        // color all points inside these boxes
-        
-
+    this.color_objects = function(){
         if (this.data.cfg.color_obj != "no"){
             this.world.annotation.boxes.map((b)=>{
                 if (!b.annotator)
                     this.set_box_points_color(b);
             })
-
-            this.update_points_color();
         }
+    };
+
+    // color points according to object category
+    this.color_points=function(){
+        // color all points inside these boxes
+        let color = this.points.geometry.getAttribute("color").array;
+
+        // step 1, color all points.
+        if (this.data.cfg.enablePointIntensity && this.pcd.intensity.length>0){
+            // by intensity
+            for (var i =0; i< this.pcd.intensity.length; ++i){
+                let intensity = this.pcd.intensity[i];
+                intensity *= 8;
+                
+                if (intensity > 1)
+                    intensity = 1.0;
+                
+                
+                //color.push( 2 * Math.abs(0.5-intensity));
+                
+                color[i*3] =  intensity;
+                color[i*3+1] = intensity;
+                color[i*3+2] = 1 - intensity; 
+            }
+        }
+        else
+        {
+            // mono color
+            for (let i =0; i< this.pcd.position.length; ++i){                                
+                color[i] = this.data.cfg.point_brightness;
+            }
+        }
+
+        // step 2 color objects
+        this.color_objects();
+        
+        //this.update_points_color();
     };
 
 
@@ -1056,6 +1063,36 @@ function Lidar(sceneMeta, world, frameInfo){
         return indices.length;
     };
 
+    this.reset_box_points_color = function(box){
+        let color = this.points.geometry.getAttribute("color").array;
+        let indices = this._get_points_index_of_box(this.points, box, 1.0);
+        if (this.data.cfg.enablePointIntensity)
+        {        
+            
+            indices.forEach(function(i){
+                let intensity = this.pcd.intensity[i];
+                intensity *= 8;
+                
+                if (intensity > 1)
+                    intensity = 1.0;
+
+                color[i*3] =  intensity;
+                color[i*3+1] = intensity;
+                color[i*3+2] = 1 - intensity; 
+            });
+                
+        }
+        else
+        {
+            indices.forEach(function(i){
+                color[i*3] =  this.data.cfg.point_brightness;
+                color[i*3+1] = this.data.cfg.point_brightness;
+                color[i*3+2] = this.data.cfg.point_brightness; 
+            });
+        }
+    };
+
+
     this.set_box_points_color=function(box, target_color){
         //var pos = this.points.geometry.getAttribute("position");
         var color = this.points.geometry.getAttribute("color");
@@ -1065,19 +1102,28 @@ function Lidar(sceneMeta, world, frameInfo){
             {
                 target_color = get_color_by_category(box.obj_type);
             }
-            else // by id
+            else if (this.data.cfg.color_obj == "id")// by id
             {
                 let idx = (box.obj_track_id)?parseInt(box.obj_track_id): box.obj_local_id;
                 target_color = get_color_by_id(idx);
             }
+            else // no color
+            {
+
+            }
         }
 
-        var indices = this._get_points_index_of_box(this.points, box, 1.0);
-        indices.forEach(function(i){
-            color.array[i*3] = target_color.x;
-            color.array[i*3+1] = target_color.y;
-            color.array[i*3+2] = target_color.z;
-        });
+        if (target_color)
+        {
+
+            var indices = this._get_points_index_of_box(this.points, box, 1.0);
+            indices.forEach(function(i){
+                    color.array[i*3] = target_color.x;
+                    color.array[i*3+1] = target_color.y;
+                    color.array[i*3+2] = target_color.z;
+            });
+        }
+        
     };
 
     this.set_spec_points_color=function(point_indices, target_color){

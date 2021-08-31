@@ -521,6 +521,18 @@
 
 				<div id="config-wrapper">
 					<div id="config-menu" class="non-selectable">
+
+						<div class="menu-item menu-seperator"></div>
+						
+						<div class="menu-nonclickable-item" id="cfg-theme">
+							<span>Theme</span>
+							<div class="cfg-widget-group">
+								<select type="checkbox" id="cfg-theme-select" class="cfg-widget">
+									<option value="dark" selected>dark</option>
+									<option value="light" selected>light</option>
+								</select>
+							</div>
+						</div>
 						<div class="menu-nonclickable-item" id="cfg-point-size">
 							<span>Point size</span>
 							<div class='cfg-widget-group'>
@@ -536,6 +548,8 @@
 							</div>
 						</div>
 
+						
+
 						<div class="menu-nonclickable-item" id="cfg-hide-box">
 							<span>Hide box</span>
 							<div class="cfg-widget-group">
@@ -543,16 +557,15 @@
 							</div>
 						</div>
 
-						<div class="menu-nonclickable-item" id="cfg-theme">
-							<span>Theme</span>
+						
+						
+						<div class="menu-nonclickable-item" id="cfg-point-intensity">
+							<span>Color point by intensity</span>
 							<div class="cfg-widget-group">
-								<select type="checkbox" id="cfg-theme-select" class="cfg-widget">
-									<option value="dark" selected>dark</option>
-									<option value="light" selected>light</option>
-								</select>
+								<input type="checkbox" id="cfg-point-intensity-checkbox" class="cfg-widget">
 							</div>
 						</div>
-						
+
 						<div class="menu-nonclickable-item" id="cfg-color-object">
 							<span>Color objects</span>
 							<div class="cfg-widget-group">
@@ -604,7 +617,7 @@
 								</div>
 
 								<div class="menu-nonclickable-item" id="cfg-data-filter-points">
-									<div class="menu-item-text">Filter points</div>
+									<div class="menu-item-text">Hide points</div>
 									<div class="cfg-widget-group">
 										<input type="checkbox" id="cfg-data-filter-points" class="cfg-widget">
 										<span> z-threshold</span>

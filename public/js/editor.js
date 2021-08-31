@@ -660,13 +660,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.infoBox.show("Frame info - " + this.data.world.frameInfo.scene, JSON.stringify(info,null,"\t"));
             }
             break;
-        case "cm-crop-scene":
-            {
-                this.cropScene.show(
-                    this.data.world.frameInfo
-                );
-            }
-            break;
+
         case "cm-show-stat":
             {
                 let scene = this.data.world.frameInfo.scene;
@@ -2397,13 +2391,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.render();
     };
 
+    // box removed, restore points color.
     this.restore_box_points_color= function(box,render=true){
         if (this.data.cfg.color_obj != "no"){
-            box.world.lidar.set_box_points_color(box, {x: this.data.cfg.point_brightness, y: this.data.cfg.point_brightness, z: this.data.cfg.point_brightness});
+            box.world.lidar.reset_box_points_color(box);
             box.world.lidar.update_points_color();
             if (render)
                 this.render();
         }
+        
     };
 
     this.updateBoxPointsColor= function(box){

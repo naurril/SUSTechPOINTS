@@ -62,6 +62,10 @@ public
                     +- 0001.jpg
                +- left
                     +- ...
+          +- aux_lidar
+               +- front
+                    +- 0000.pcd
+                    +- 0001.pcd
           +- radar
                +- front_points
                     +- 0000.pcd
