@@ -5,6 +5,8 @@ import { PCDLoader } from './lib/PCDLoader.js';
 import { matmul, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 import { get_color_by_category, get_color_by_id, get_obj_cfg_by_type } from './obj_cfg.js';
 
+import actionHistoryManager from './action-history-manager.js';
+
 function Annotation(sceneMeta, world, frameInfo){
     this.world = world;
     this.data = this.world.data;
@@ -296,6 +298,12 @@ function Annotation(sceneMeta, world, frameInfo){
         let mesh = this.createCuboid(pos, scale, rotation, obj_type, track_id)
 
         this.boxes.push(mesh);
+
+        actionHistoryManager.save({
+            type   : 'ADD_BOX',
+            payload: mesh
+        });
+
         this.sort_boxes();
         return mesh;
     };

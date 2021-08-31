@@ -1,6 +1,8 @@
 
 import {matmul2} from "./util.js"
 
+import actionHistoryManager from './action-history-manager.js';
+
 import {
 	Quaternion,
 	Vector3
@@ -953,6 +955,15 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
 
     function on_edge_changed(delta, direction){
         console.log(delta);
+
+        actionHistoryManager.save({
+            type   : 'CHANGE_SIZE_BOX',
+            payload: {
+                box     : scope.box,
+                position: { ...scope.box.position },
+                scale   : { ...scope.box.scale }
+            }
+        });
 
         scope.boxOp.translate_box(scope.box, 'x', delta.x/2 * direction.x);
         scope.boxOp.translate_box(scope.box, 'y', delta.y/2 * direction.y);

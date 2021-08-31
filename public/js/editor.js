@@ -23,6 +23,8 @@ import { InfoBox } from './info_box.js';
 import {CropScene} from './crop_scene.js';
 import { ConfigUi } from './config_ui.js';
 
+import actionHistoryManager from './action-history-manager.js';
+
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -2560,6 +2562,58 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.init(editorUi);
 
+    actionHistoryManager.setOptions({
+        onUndo: (action) => {
+            switch(action.type) {
+                case 'ADD_BOX': {
+                    this.remove_box(action.payload);
+                    break;
+                }
+                case 'CHANGE_SIZE_BOX': {
+                    if(!this.selected_box || this.selected_box.uuid !== action.payload.box.uuid) {
+                        this.floatLabelManager.select_box(action.payload.box.obj_local_id);
+                    }
+
+                    this.selected_box.position.x = action.payload.position.x;
+                    this.selected_box.position.y = action.payload.position.y;
+                    this.selected_box.position.z = action.payload.position.z;
+
+                    this.selected_box.scale.x = action.payload.scale.x;
+                    this.selected_box.scale.y = action.payload.scale.y;
+                    this.selected_box.scale.z = action.payload.scale.z;
+
+                    this.on_box_changed(this.selected_box);
+
+                    break;
+                }
+            }
+        },
+        onRedo: (action) => {
+            switch(action.type) {
+                case 'ADD_BOX': {
+                    this.add_box(action.payload);
+                    break;
+                }
+                case 'CHANGE_SIZE_BOX': {
+                    if(!this.selected_box || this.selected_box.uuid !== action.payload.box.uuid) {
+                        this.floatLabelManager.select_box(action.payload.box.obj_local_id);;
+                    }
+
+                    this.selected_box.position.x = action.payload.position.x;
+                    this.selected_box.position.y = action.payload.position.y;
+                    this.selected_box.position.z = action.payload.position.z;
+
+                    this.selected_box.scale.x = action.payload.scale.x;
+                    this.selected_box.scale.y = action.payload.scale.y;
+                    this.selected_box.scale.z = action.payload.scale.z;
+
+                    this.on_box_changed(this.selected_box);
+
+                    break;
+                }
+            }
+        }
+    });
 };
 
 export{Editor}

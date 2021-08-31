@@ -930,4 +930,52 @@ td {
 	padding-left: 5px;
 }
 
+.hotkeys {
+	display: grid;
+	grid-row-gap: 6px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	background-color: #dddddda0;
+	border: solid 1px #888;
+	padding: 3px;
+	z-index: 1000;
+}
+
+.hotkeys:hover {
+	opacity: 1;
+}
+
+.hotkeys__block {
+	display: none;
+	grid-auto-flow: column;
+	grid-column-gap: 4px;
+	color: #000;
+	justify-content: flex-start;
+}
+
+.hotkeys__hint {
+	font-size: smaller;
+}
+
+.hotkeys:hover .hotkeys__block {
+	display: grid;
+}
+
+.hotkeys:hover .hotkeys__hint {
+	display: none;
+}
+
+.hotkeys kbd {
+	display: block;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	padding: 0 8px;
+	margin: 0;
+	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
+	background-color: #f7f7f7;
+	color: #000;
+	text-align: center;
+}
+
 
