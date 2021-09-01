@@ -68,6 +68,7 @@ function start(metaData){
       
       let data = new Data(metaData, dataCfg);
       let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "main-editor")
+      window.editor = editor;
       editor.run();
       return editor;
   } 

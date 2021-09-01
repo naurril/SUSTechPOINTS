@@ -1069,7 +1069,7 @@ function Lidar(sceneMeta, world, frameInfo){
         if (this.data.cfg.enablePointIntensity)
         {        
             
-            indices.forEach(function(i){
+            indices.forEach((i)=>{
                 let intensity = this.pcd.intensity[i];
                 intensity *= 8;
                 
@@ -1084,7 +1084,7 @@ function Lidar(sceneMeta, world, frameInfo){
         }
         else
         {
-            indices.forEach(function(i){
+            indices.forEach((i)=>{
                 color[i*3] =  this.data.cfg.point_brightness;
                 color[i*3+1] = this.data.cfg.point_brightness;
                 color[i*3+2] = this.data.cfg.point_brightness; 
@@ -1161,9 +1161,9 @@ function Lidar(sceneMeta, world, frameInfo){
 
     this.update_points_color=function(){
         if (this.points){ //some time points may fail to load.
-            var color = this.points.geometry.getAttribute("color");
-            this.points.geometry.removeAttribute("color");
-            this.points.geometry.addAttribute("color", new THREE.Float32BufferAttribute(color.array, 3 ));
+            this.points.geometry.getAttribute("color").needsUpdate = true;
+            //this.points.geometry.removeAttribute("color");
+            //this.points.geometry.addAttribute("color", new THREE.Float32BufferAttribute(color.array, 3 ));
         }
     };
 
