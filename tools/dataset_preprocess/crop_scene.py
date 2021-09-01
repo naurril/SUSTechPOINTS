@@ -13,6 +13,7 @@ dataset_root = "/home/lie/nas"
 
 
 camera_list = ["front", "front_right", "front_left", "rear_left", "rear_right", "rear"]
+aux_lidar_list = ["front","left","right","rear"]
 slots = [0, 5]
 
 def prepare_dirs(path):
@@ -38,6 +39,10 @@ def generate_dataset_links(src_data_folder, start_time, seconds):
     prepare_dirs('camera')
     prepare_dirs('lidar')
     prepare_dirs('label')
+    prepare_dirs('aux_lidar')
+    prepare_dirs('radar')
+    prepare_dirs('infrared_camera')
+
     # prepare_dirs(os.path.join(dataset_path, 'calib'))
     # prepare_dirs(os.path.join(dataset_path, 'calib/camera'))
     
@@ -56,11 +61,38 @@ def generate_dataset_links(src_data_folder, start_time, seconds):
                 os.system("ln -s -f  ../../../../" + src_data_folder  + "/camera/" + camera + "/"+ str(second) + "." +  str(slot) + ".jpg  ./")
         os.chdir("..")
     
+    os.chdir("../infrared_camera")
+
+    for camera in camera_list:
+        
+        prepare_dirs(camera)
+        os.chdir(camera)
+
+        for second in range(int(start_time), int(start_time) + int(seconds)):
+            for slot in slots:
+                os.system("ln -s -f  ../../../../" + src_data_folder  + "/infrared_camera/" + camera + "/"+ str(second) + "." +  str(slot) + ".jpg  ./")
+        os.chdir("..")
+    
+
+
     os.chdir("..") #scene-xxx
     os.chdir("lidar")
     for second in range(int(start_time), int(start_time) + int(seconds)):
         for slot in slots:
             os.system("ln -s -f ../../../" + src_data_folder + "/lidar/" + str(second) + "." +  str(slot) +".pcd ./")
+    
+
+    os.chdir("../aux_lidar")
+
+    for auxlidar in aux_lidar_list:
+        
+        prepare_dirs(auxlidar)
+        os.chdir(auxlidar)
+
+        for second in range(int(start_time), int(start_time) + int(seconds)):
+            for slot in slots:
+                os.system("ln -s -f  ../../../../" + src_data_folder  + "/aux_lidar/" + auxlidar + "/"+ str(second) + "." +  str(slot) + ".pcd  ./")
+        os.chdir("..")
 
 def read_scene_cfg(f):
     cfg = {}
@@ -147,6 +179,24 @@ def check_scene(scene_path):
         for second in range(int(start_time), int(start_time) + int(seconds)):
             for slot in slots:
                 f = scene_path + "/" + "camera/" + c + "/"+ str(second) + "." +  str(slot) + ".jpg"
+                checkfile(f)
+    
+    checkdir(scene_path + "/" + "infrared_camera")
+    for c in camera_list:
+        checkdir(scene_path + "/" + "infrared_camera/"+c)
+
+        for second in range(int(start_time), int(start_time) + int(seconds)):
+            for slot in slots:
+                f = scene_path + "/" + "infrared_camera/" + c + "/"+ str(second) + "." +  str(slot) + ".jpg"
+                checkfile(f)
+    
+    checkdir(scene_path + "/" + "aux_lidar")
+    for c in aux_lidar_list:
+        checkdir(scene_path + "/" + "aux_lidar/"+c)
+
+        for second in range(int(start_time), int(start_time) + int(seconds)):
+            for slot in slots:
+                f = scene_path + "/" + "aux_lidar/" + c + "/"+ str(second) + "." +  str(slot) + ".pcd"
                 checkfile(f)
 
 def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
