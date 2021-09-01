@@ -6,8 +6,8 @@ class Config{
     //disableLabels: true,
     disablePreload = true;
     color_points = "mono";
-    enableRadar = true;
-    enableAuxLidar = true;
+    enableRadar = false;
+    enableAuxLidar = false;
     enableDynamicGroundLevel = true;
 
     point_size = 1;
