@@ -6,10 +6,11 @@ var obj_type_map = {
 
     Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
     Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
-    Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
+    //Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
 
     Cone:           {color: '#ff0000',  size:[0.3, 0.3, 0.6]},
     Triangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
+    PlatformCart:   {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
 
     Rider:          {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
     Cyclist:        {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
