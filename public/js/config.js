@@ -5,7 +5,7 @@ class Config{
     
     //disableLabels: true,
     disablePreload = true;
-    enablePointIntensity = false;
+    color_points = "mono";
     enableRadar = true;
     enableAuxLidar = true;
     enableDynamicGroundLevel = true;
@@ -72,7 +72,7 @@ class Config{
         ["enableAuxLidar", this.toBool],
         ["enableFilterPoints", this.toBool],
         ["filterPointsZ", parseFloat],
-        ["enablePointIntensity", this.toBool]
+        ["color_points", null],
     ];
 
     load()

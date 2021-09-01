@@ -117,7 +117,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
 
                     // if enabled intensity we color points by intensity.
-                    if (_self.data.cfg.enablePointIntensity && pcd.intensity.length>0){
+                    if (_self.data.cfg.color_points=="intensity" && pcd.intensity.length>0){
                         // map intensity to color
                         for (var i =0; i< pcd.intensity.length; ++i){
                             let intensity = pcd.intensity[i];
@@ -299,7 +299,7 @@ function Lidar(sceneMeta, world, frameInfo){
         let color = this.points.geometry.getAttribute("color").array;
 
         // step 1, color all points.
-        if (this.data.cfg.enablePointIntensity && this.pcd.intensity.length>0){
+        if (this.data.cfg.color_points=="intensity" && this.pcd.intensity.length>0){
             // by intensity
             for (var i =0; i< this.pcd.intensity.length; ++i){
                 let intensity = this.pcd.intensity[i];
@@ -1066,7 +1066,7 @@ function Lidar(sceneMeta, world, frameInfo){
     this.reset_box_points_color = function(box){
         let color = this.points.geometry.getAttribute("color").array;
         let indices = this._get_points_index_of_box(this.points, box, 1.0);
-        if (this.data.cfg.enablePointIntensity)
+        if (this.data.cfg.color_points=="intensity")
         {        
             
             indices.forEach((i)=>{
