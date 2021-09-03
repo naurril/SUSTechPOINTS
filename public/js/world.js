@@ -227,36 +227,38 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             let refPose = this.sceneMeta.ego_pose[this.sceneMeta.frames[0]];
             
 
-            let delta = {
-                position:{
-                    x: thisPose.x - refPose.x,
-                    y: thisPose.y - refPose.y,
-                    z: thisPose.z - refPose.z,
-                },
-
-                rotation:{
-                    x: thisPose.pitch - refPose.pitch,
-                    y: thisPose.roll - refPose.roll,
-                    z: thisPose.azimuth - refPose.azimuth,
-                }
+            let thisRot = {
+                x: thisPose.pitch * Math.PI/180.0,
+                y: thisPose.roll * Math.PI/180.0,                
+                z: -thisPose.azimuth * Math.PI/180.0
             };
 
-            console.log("pose", thisPose, refPose, delta);
+            let posDelta = {
+                x: thisPose.x - refPose.x,
+                y: thisPose.y - refPose.y,
+                z: thisPose.z - refPose.z,
+            };
+
+            //console.log("pose", thisPose, refPose, delta);
 
             //let theta = delta.rotation.z*Math.PI/180.0;
 
-            let trans_utm_ego = euler_angle_to_rotate_matrix_3by3({x: refPose.pitch*Math.PI/180.0, y: refPose.roll*Math.PI/180.0, z: refPose.azimuth*Math.PI/180.0});
+            // https://docs.novatel.com/OEM7/Content/SPAN_Operation/SPAN_Translations_Rotations.htm
+            //let trans_utm_ego = euler_angle_to_rotate_matrix_3by3({x: refPose.pitch*Math.PI/180.0, y: refPose.roll*Math.PI/180.0, z: refPose.azimuth*Math.PI/180.0}, "ZXY");
             
             // this should be a calib matrix
-            let trans_ego_lidar = euler_angle_to_rotate_matrix_3by3({x: 0, y: 0, z: Math.PI});
+            let trans_lidar_ego = euler_angle_to_rotate_matrix({x: 0, y: 0, z: Math.PI}, {x:0, y:0, z:0});
 
-            let offset_ego = matmul(trans_utm_ego, [delta.position.x, delta.position.y, delta.position.z], 3);
-            let offset_lidar =  matmul(trans_ego_lidar, offset_ego, 3);
+            let trans_ego_utm = euler_angle_to_rotate_matrix(thisRot, posDelta, "ZXY");
 
-            let trans_lidar = euler_angle_to_rotate_matrix({x: - delta.rotation.x*Math.PI/180.0,  y: -delta.rotation.y*Math.PI/180.0,  z: - delta.rotation.z*Math.PI/180.0},
-                    {x:offset_lidar[0], y:offset_lidar[1], z:offset_lidar[2]});
+            // let offset_ego = matmul(trans_utm_ego, [delta.position.x, delta.position.y, delta.position.z], 3);
+            // let offset_lidar =  matmul(trans_ego_lidar, offset_ego, 3);
 
-            return trans_lidar;
+            // let trans_lidar = euler_angle_to_rotate_matrix({x: - delta.rotation.x*Math.PI/180.0,  y: -delta.rotation.y*Math.PI/180.0,  z: - delta.rotation.z*Math.PI/180.0},
+            //         {x:offset_lidar[0], y:offset_lidar[1], z:offset_lidar[2]},
+            //         "ZXY");
+
+            return matmul2(trans_ego_utm, trans_lidar_ego, 4);
         }
         else
         {

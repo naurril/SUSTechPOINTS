@@ -270,7 +270,7 @@ function transpose(m, cl=NaN){
     return m;
 }
 
-function euler_angle_to_rotate_matrix(eu, tr){
+function euler_angle_to_rotate_matrix(eu, tr, order="ZYX"){
     var theta = [eu.x, eu.y, eu.z];
     // Calculate rotation about x axis
     var R_x = [
@@ -297,8 +297,17 @@ function euler_angle_to_rotate_matrix(eu, tr){
 
     // Combined rotation matrix
     //var R = matmul(matmul(R_z, R_y, 3), R_x,3);
-    var R = matmul2(R_x, matmul2(R_y, R_z, 3), 3);
+    //var R = matmul2(R_x, matmul2(R_y, R_z, 3), 3);
     
+    let matrices = {
+        Z: R_z,
+        Y: R_y,
+        X: R_x,
+    }
+
+    let R = matmul2(matrices[order[2]], matmul2(matrices[order[1]], matrices[order[0]], 3), 3);
+
+
     return [
         mat(R,3,0,0), mat(R,3,0,1), mat(R,3,0,2), tr.x,
         mat(R,3,1,0), mat(R,3,1,1), mat(R,3,1,2), tr.y,
@@ -308,7 +317,7 @@ function euler_angle_to_rotate_matrix(eu, tr){
 }
 
 
-function euler_angle_to_rotate_matrix_3by3(eu){
+function euler_angle_to_rotate_matrix_3by3(eu, order="ZYX"){
     var theta = [eu.x, eu.y, eu.z];
     // Calculate rotation about x axis
     var R_x = [
@@ -335,7 +344,14 @@ function euler_angle_to_rotate_matrix_3by3(eu){
 
     // Combined rotation matrix
     //var R = matmul(matmul(R_z, R_y, 3), R_x,3);
-    var R = matmul2(R_x, matmul2(R_y, R_z, 3), 3);
+
+    let matrices = {
+        Z: R_z,
+        Y: R_y,
+        X: R_x,
+    }
+
+    let R = matmul2(matrices[order[2]], matmul2(matrices[order[1]], matrices[order[0]], 3), 3);
     
     return [
         mat(R,3,0,0), mat(R,3,0,1), mat(R,3,0,2),

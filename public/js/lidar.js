@@ -332,6 +332,11 @@ function Lidar(sceneMeta, world, frameInfo){
     };
 
     this.transformPointsByEgoPose = function(points){
+
+        if (!this.world.transLidar)
+            return points;
+
+            
         let newPoints=[];
         for (let i=0; i<points.length; i+=3)
         {
