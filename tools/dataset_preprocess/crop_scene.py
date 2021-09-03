@@ -14,7 +14,7 @@ dataset_root = "/home/lie/nas"
 
 camera_list = ["front", "front_right", "front_left", "rear_left", "rear_right", "rear"]
 aux_lidar_list = ["front","left","right","rear"]
-slots = [0, 5]
+slots = ["000", "500"]
 
 def prepare_dirs(path):
     if not os.path.exists(path):
@@ -42,6 +42,7 @@ def generate_dataset_links(src_data_folder, start_time, seconds):
     prepare_dirs('aux_lidar')
     prepare_dirs('radar')
     prepare_dirs('infrared_camera')
+    prepare_dirs('ego_pose')
 
     # prepare_dirs(os.path.join(dataset_path, 'calib'))
     # prepare_dirs(os.path.join(dataset_path, 'calib/camera'))
@@ -82,6 +83,12 @@ def generate_dataset_links(src_data_folder, start_time, seconds):
             os.system("ln -s -f ../../../" + src_data_folder + "/lidar/" + str(second) + "." +  str(slot) +".pcd ./")
     
 
+    os.chdir("../ego_pose")
+    for second in range(int(start_time), int(start_time) + int(seconds)):
+        for slot in slots:
+            os.system("ln -s -f ../../../" + src_data_folder + "/ego_pose/" + str(second) + "." +  str(slot) +".json ./")
+    
+
     os.chdir("../aux_lidar")
 
     for auxlidar in aux_lidar_list:
@@ -115,7 +122,7 @@ def  regen_scene(scene_path):
         savecwd = os.getcwd()
         os.chdir(scene_path)
 
-        os.system("rm -rf camera lidar")
+        os.system("rm -rf camera  infrared_camera lidar aux_lidar radar ego_pose")
 
         if os.path.exists("./desc.json"):
                 cfg = read_scene_cfg("./desc.json")
@@ -154,6 +161,9 @@ def checkdir(f):
         print(f, "is not a directory")
         return False
 
+# def rename_label(scene_path):
+#     os.chdir(os.path.join(scene_path, "label"))
+#     os.system("rename -E s/.json/00.json/ *")
 
 def check_scene(scene_path):
     checkfile(scene_path + "/desc.json")
@@ -305,7 +315,17 @@ if __name__ == "__main__":
             if len(s.split("_")) == 1:  # dont' check ... _10hz
                 print("checking", s)
                 check_scene(root_path + "/" + s)
-
+    # elif cmd == "renamelabel":
+    #     root_path = "./"
+    #     if len(sys.argv) == 3:
+    #         root_path = sys.argv[2]
+        
+    #     scenes = os.listdir(root_path)
+    #     scenes.sort()
+    #     for s in scenes:
+    #         if len(s.split("_")) == 1:  # dont' check ... _10hz
+    #             print("checking", s)
+    #             rename_label(root_path + "/" + s)
     else:
         print("unknown commands: ", cmd)
         print("accept commands: generate, regen, check")

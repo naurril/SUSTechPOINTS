@@ -1,6 +1,10 @@
 
 import os
 import sys
+from pyproj import Proj #wgs84->utm transformation
+
+from progress.bar import Bar
+
 import align_frame_time
 import rectify_image
 
@@ -44,6 +48,7 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
     prepare_dirs(os.path.join(dataset_path, 'infrared_camera'))
 
     prepare_dirs(os.path.join(dataset_path, 'label'))
+    prepare_dirs(os.path.join(dataset_path, 'ego_pose'))
 
 
     #prepare_dirs(os.path.join(dataset_path, 'calib'))
@@ -72,6 +77,11 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
     for slot in timeslots:
         os.system("ln -s -f ../../intermediate/lidar/*."+slot+".pcd ./")
     
+    os.chdir(os.path.join(dataset_path, "ego_pose"))
+
+    for slot in timeslots:
+        os.system("ln -s -f ../../intermediate/ego_pose/aligned/*."+slot+".json ./")
+    
     for al in aux_lidar_list:
         
         dir = os.path.join(dataset_path, "aux_lidar", al)
@@ -82,8 +92,59 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
             os.system("ln -s -f  ../../../intermediate/aux_lidar/" + al + "/*."+slot+".pcd  ./")
 
 
+
     
-    
+def generate_pose(raw_data_path, output_path):
+    dst_folder = os.path.join(output_path, "intermediate", "ego_pose", "filtered")
+    if not os.path.exists(dst_folder):
+        os.makedirs(dst_folder)
+
+    src_folder = os.path.join(raw_data_path, "gps_imu", "insinfo")
+
+    files = os.listdir(src_folder)
+    files.sort()
+
+
+    wgs84_utm50_proj = Proj(proj='utm',zone=50,ellps='WGS84', preserve_units=False)
+
+    with Bar('filtering pose', max=len(files)) as bar:
+        for f in files:
+            bar.next()
+            with open(os.path.join(src_folder, f)) as fin:
+                line = fin.readlines()[0]
+                timestamp, content = line.split(' ')
+                header, payload = content.split(';')
+                #print(timestamp, header, payload)
+                ins_status, pos_type, lat, lng, height, _, north_vel, east_vel, up_vel, roll, pitch, azimuth, \
+                _,_,_,_,_,_,_,_,_,_,_ = payload.split(',')
+                #print(ins_status, pos_type, lat, lng, height, north_vel, east_vel, up_vel, roll, pitch, azimuth)
+
+                x,y = wgs84_utm50_proj(float(lng), float(lat))
+
+                with open(os.path.join(dst_folder, os.path.splitext(f)[0]+".json"), "w") as fout:
+                    fout.writelines([
+                        '{\n',
+                        '"ins_status":"' + ins_status +'\",\n',
+                        '"pos_type":"' + pos_type +'\",\n',
+                        '"lat":"' + lat +'\",\n',
+                        '"lng":"' + lng +'\",\n',
+                        '"height":"' + height +'\",\n',
+                        '"north_vel":"' + north_vel +'\",\n',
+                        '"east_vel":"' + east_vel +'\",\n',
+                        '"up_vel":"' + up_vel +'\",\n',
+                        '"roll":"' + roll +'\",\n',
+                        '"pitch":"' + pitch +'\",\n',
+                        '"azimuth":"' + azimuth +'\",\n',
+                        '"x":"' + str(x) +'\",\n',
+                        '"y":"' + str(y) +'\",\n',
+                        '"z":"' + height +'\"\n',
+                        '}\n'
+                    ])
+                
+
+
+
+            
     
 def rectify_cameras(intrinsic_calib_path, raw_data_path, output_path):
           
@@ -92,6 +153,15 @@ def rectify_cameras(intrinsic_calib_path, raw_data_path, output_path):
             rectify_one_infrared_camera(camera, intrinsic_calib_path, raw_data_path, output_path)
 
 def align(raw_data_path, output_path):
+        print(output_path)
+        # ego pose
+        align_frame_time.link_one_folder(os.path.join('../filtered'),
+                                     os.path.join(output_path, 'intermediate', 'ego_pose', "aligned"),
+                                     0,
+                                     20, 
+                                     9,
+                                     50) #period
+
 
         for camera in camera_list:            
             align_frame_time.link_one_folder(os.path.join('../rectified'),
@@ -118,6 +188,9 @@ def align(raw_data_path, output_path):
                                      os.path.join(output_path, 'intermediate', 'aux_lidar',al),
                                      0,
                                      30, 100)
+        
+        
+        
 
 
     
@@ -153,16 +226,19 @@ if __name__ == "__main__":
                 if func == "rectify" or func=="all":
                     rectify_cameras(intrinsic_calib_path, raw_data_path, output_path)
 
+                if func == "pose" or func=="all":
+                    generate_pose(raw_data_path, output_path)
+
                 if func == "align" or func=="all":
                     align(raw_data_path, output_path)
 
                 if func == "generate_dataset"  or func=="all":
                     dataset_name = "dataset_2hz"
-                    timeslots = "0,5"
+                    timeslots = "000,500"
                     generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
                     dataset_name = "dataset_10hz"
-                    timeslots = "0,1,2,3,4,5,6,7,8,9"
+                    timeslots = "000,100,200,300,400,500,600,700,800,900"
                     generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
 
