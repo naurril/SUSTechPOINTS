@@ -150,6 +150,13 @@ class Root(object):
     def load_annotation(self, scene, frame):
       return scene_reader.read_annotations(scene, frame)
 
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def load_ego_pose(self, scene, frame):
+      return scene_reader.read_ego_pose(scene, frame)
+
+
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def loadworldlist(self):

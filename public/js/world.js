@@ -5,7 +5,9 @@ import {RadarManager} from "./radar.js"
 import {AuxLidarManager} from "./aux_lidar.js"
 import {Lidar} from "./lidar.js"
 import {Annotation} from "./annotation.js"
+import {EgoPose} from "./ego_pose.js"
 import {log} from "./log.js"
+import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 } from './util.js';
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
     
@@ -209,10 +211,58 @@ function Images(sceneMeta, sceneName, frame){
 
 
 function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
-    this.coordinatesOffset = coordinatesOffset;
     this.data = data;
     this.sceneMeta = this.data.getMetaBySceneName(sceneName);
     this.frameInfo = new FrameInfo(this.data, this.sceneMeta, sceneName, frame);
+
+
+    this.coordinatesOffset = coordinatesOffset;
+    
+
+    // this si the matrix that lidar points should be transformed with.
+    this.transLidar = (()=>{
+
+        if (this.sceneMeta.ego_pose){
+            let thisPose = this.sceneMeta.ego_pose[frame];
+            let refPose = this.sceneMeta.ego_pose[this.sceneMeta.frames[0]];
+            
+
+            let delta = {
+                position:{
+                    x: thisPose.x - refPose.x,
+                    y: thisPose.y - refPose.y,
+                    z: thisPose.z - refPose.z,
+                },
+
+                rotation:{
+                    x: thisPose.pitch - refPose.pitch,
+                    y: thisPose.roll - refPose.roll,
+                    z: thisPose.azimuth - refPose.azimuth,
+                }
+            };
+
+            console.log("pose", thisPose, refPose, delta);
+
+            //let theta = delta.rotation.z*Math.PI/180.0;
+
+            let trans_utm_ego = euler_angle_to_rotate_matrix_3by3({x: refPose.pitch*Math.PI/180.0, y: refPose.roll*Math.PI/180.0, z: refPose.azimuth*Math.PI/180.0});
+            
+            // this should be a calib matrix
+            let trans_ego_lidar = euler_angle_to_rotate_matrix_3by3({x: 0, y: 0, z: Math.PI});
+
+            let offset_ego = matmul(trans_utm_ego, [delta.position.x, delta.position.y, delta.position.z], 3);
+            let offset_lidar =  matmul(trans_ego_lidar, offset_ego, 3);
+
+            let trans_lidar = euler_angle_to_rotate_matrix({x: - delta.rotation.x*Math.PI/180.0,  y: -delta.rotation.y*Math.PI/180.0,  z: - delta.rotation.z*Math.PI/180.0},
+                    {x:offset_lidar[0], y:offset_lidar[1], z:offset_lidar[2]});
+
+            return trans_lidar;
+        }
+        else
+        {
+            return null;
+        }
+    })();
 
     this.toString = function(){
         return this.frameInfo.scene + "," + this.frameInfo.frame;
@@ -224,11 +274,13 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.lidar = new Lidar(this.sceneMeta, this, this.frameInfo);
     this.annotation = new Annotation(this.sceneMeta, this, this.frameInfo);
     this.aux_lidars = new AuxLidarManager(this.sceneMeta, this, this.frameInfo);
+    this.egoPose = new EgoPose(this.sceneMeta, this, this.FrameInfo);
 
     // todo: state of world could be put in  a variable
     // but still need mulitple flags.
 
     this.points_loaded = false,
+
 
     
     this.preloaded=function(){
@@ -236,7 +288,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                this.annotation.preloaded && 
                //this.cameras.loaded() &&
                this.aux_lidars.preloaded() && 
-               this.radars.preloaded();
+               this.radars.preloaded()&&
+               this.egoPose.preloaded;
     };
 
     this.create_time = 0;
@@ -269,7 +322,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         this.radars.preload(_preload_cb);
         this.cameras.load(_preload_cb, this.data.active_camera_name);
         this.aux_lidars.preload(_preload_cb);
-        
+        this.egoPose.preload(_preload_cb);        
     };
 
     this.scene = null,

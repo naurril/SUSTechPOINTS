@@ -92,8 +92,9 @@ function Lidar(sceneMeta, world, frameInfo){
                 // do some filtering work here
                 pcd = _self.remove_high_ponts(pcd, 2.0);
 
-                let position = _self.transformPointsByOffset(pcd.position);
-
+                let position = _self.transformPointsByEgoPose(pcd.position);
+                position = _self.transformPointsByOffset(position);
+                
                 
                 // build geometry
                 _self.world.data.dbg.alloc();
@@ -330,6 +331,17 @@ function Lidar(sceneMeta, world, frameInfo){
         //this.update_points_color();
     };
 
+    this.transformPointsByEgoPose = function(points){
+        let newPoints=[];
+        for (let i=0; i<points.length; i+=3)
+        {
+            let p = matmul(this.world.transLidar, [points[i], points[i+1], points[i+2], 1], 4);
+            newPoints.push(p[0]);
+            newPoints.push(p[1]);
+            newPoints.push(p[2]);
+        }
+        return newPoints;
+    }
 
     this.transformPointsByOffset = function(points){
         let newPoints=[];

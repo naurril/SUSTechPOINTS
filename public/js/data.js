@@ -22,7 +22,10 @@ function Data(metaData, cfg){
         if (world) // found!
             return world;
 
-        return this._createWorld(sceneName, frame, on_preload_finished);
+                
+        world = this._createWorld(sceneName, frame, on_preload_finished);
+
+        return world;
     };
 
     this._createWorld = function(sceneName, frame, on_preload_finished){
@@ -39,10 +42,23 @@ function Data(metaData, cfg){
     };
 
 
-    this.offsetList = [];
+    this.offsetList = [[0,0,0]];
     this.lastSeedOffset = [0,0,0];
+    this.offsetsAliveCount  = 0;
     this.allocateOffset = function()
     {
+
+        // we need to make sure the first frame loaded in a scene 
+        // got to locate in [0,0,0]
+
+        if (this.offsetsAliveCount == 0)
+        {
+            //reset offsets.
+            this.offsetList = [[0,0,0]];
+            this.lastSeedOffset = [0,0,0];
+        }
+
+
 
         if (this.offsetList.length == 0)
         {
@@ -75,13 +91,16 @@ function Data(metaData, cfg){
             }
         }
 
-        let ret =  this.offsetList.pop();        
+        let ret =  this.offsetList.pop();
+        this.offsetsAliveCount++;
+
         return ret;
     };
 
     this.returnOffset = function(offset)
     {
         this.offsetList.push(offset);
+        this.offsetsAliveCount--;
     };
 
     this.deleteDistantWorlds = function(world){
@@ -113,21 +132,22 @@ function Data(metaData, cfg){
     this.deleteOtherWorldsExcept=function(keepScene){
         // release resources if scene changed
         this.worldList.forEach(w=>{
-            if (w.frameInfo.scene != keepScene)
+            if (w.frameInfo.scene != keepScene){
+                this.returnOffset(w.offsetIndex);
                 w.deleteAll();
+            }
         })
         this.worldList = this.worldList.filter(w=>w.frameInfo.scene==keepScene);
     };
     
     this.preloadScene = function(sceneName, currentWorld){
 
+        // clean other scenes.
         this.deleteOtherWorldsExcept(sceneName);
         this.deleteDistantWorlds(currentWorld);
 
-        
         if (this.cfg.disablePreload)
             return;
-
         
 
         //this.deleteOtherWorldsExcept(sceneName);

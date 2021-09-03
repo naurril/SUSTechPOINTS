@@ -569,6 +569,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
         case 'cm-go-to-10hz':
             this.load_world(this.data.world.frameInfo.scene+"_10hz", this.data.world.frameInfo.frame)
+
+            // {
+            //     let link = document.createElement("a");
+            //     //link.download=`${this.data.world.frameInfo.scene}-${this.data.world.frameInfo.frame}-webgl`;
+            //     link.href="http://localhost";
+            //     link.target="_blank";
+            //     link.click();
+            // }
             break;
         
         case 'cm-go-to-2hz':
