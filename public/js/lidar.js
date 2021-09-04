@@ -56,6 +56,8 @@ function Lidar(sceneMeta, world, frameInfo){
         return pcd;
     };
 
+    
+
     this.preload=function(on_preload_finished){
         this.on_preload_finished = on_preload_finished;
 
@@ -92,8 +94,9 @@ function Lidar(sceneMeta, world, frameInfo){
                 // do some filtering work here
                 pcd = _self.remove_high_ponts(pcd, 2.0);
 
-                let position = _self.transformPointsByEgoPose(pcd.position);
-                position = _self.transformPointsByOffset(position);
+                
+                //let position = _self.transformPointsByOffset(pcd.position);
+                let position = pcd.position;
                 
                 
                 // build geometry
@@ -168,7 +171,8 @@ function Lidar(sceneMeta, world, frameInfo){
                 mesh.name = "pcd";
 
                 //return mesh;
-
+                // add to parent.
+                _self.world.webglGroup.add(mesh);
                 
                 _self.points = mesh;
                 _self.pcd = pcd;
@@ -228,7 +232,8 @@ function Lidar(sceneMeta, world, frameInfo){
         this.webglScene = webglScene;
 
         if (this.preloaded){
-            this.webglScene.add(this.points);            
+            
+            //this.webglScene.add(this.points);            
             this.loaded = true;
 
 
@@ -336,7 +341,7 @@ function Lidar(sceneMeta, world, frameInfo){
         if (!this.world.transLidar)
             return points;
 
-            
+
         let newPoints=[];
         for (let i=0; i<points.length; i+=3)
         {

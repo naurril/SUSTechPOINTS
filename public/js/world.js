@@ -219,65 +219,6 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.coordinatesOffset = coordinatesOffset;
     
 
-    let transMatrices= (()=>{
-
-        if (this.sceneMeta.ego_pose && this.data.cfg.enableUtmCoordinates){
-            let thisPose = this.sceneMeta.ego_pose[frame];
-            let refPose = this.sceneMeta.ego_pose[this.sceneMeta.frames[0]];
-            
-
-            let thisRot = {
-                x: thisPose.pitch * Math.PI/180.0,
-                y: thisPose.roll * Math.PI/180.0,                
-                z: -thisPose.azimuth * Math.PI/180.0
-            };
-
-            let posDelta = {
-                x: thisPose.x - refPose.x,
-                y: thisPose.y - refPose.y,
-                z: thisPose.z - refPose.z,
-            };
-
-
-            
-            //console.log("pose", thisPose, refPose, delta);
-
-            //let theta = delta.rotation.z*Math.PI/180.0;
-
-            // https://docs.novatel.com/OEM7/Content/SPAN_Operation/SPAN_Translations_Rotations.htm
-            //let trans_utm_ego = euler_angle_to_rotate_matrix_3by3({x: refPose.pitch*Math.PI/180.0, y: refPose.roll*Math.PI/180.0, z: refPose.azimuth*Math.PI/180.0}, "ZXY");
-            
-            // this should be a calib matrix
-            let trans_lidar_ego = euler_angle_to_rotate_matrix({x: 0, y: 0, z: Math.PI}, {x:0, y:0, z:0.4});
-
-            let trans_ego_utm = euler_angle_to_rotate_matrix(thisRot, posDelta, "ZXY");
-
-            // let offset_ego = matmul(trans_utm_ego, [delta.position.x, delta.position.y, delta.position.z], 3);
-            // let offset_lidar =  matmul(trans_ego_lidar, offset_ego, 3);
-
-            // let trans_lidar = euler_angle_to_rotate_matrix({x: - delta.rotation.x*Math.PI/180.0,  y: -delta.rotation.y*Math.PI/180.0,  z: - delta.rotation.z*Math.PI/180.0},
-            //         {x:offset_lidar[0], y:offset_lidar[1], z:offset_lidar[2]},
-            //         "ZXY");
-
-            let R =  matmul2(trans_ego_utm, trans_lidar_ego, 4);
-            let inv = [
-                    mat(R,4,0,0), mat(R,4,1,0), mat(R,4,2,0), -mat(R,4,0,3),
-                    mat(R,4,0,1), mat(R,4,1,1), mat(R,4,2,1), -mat(R,4,1,3),
-                    mat(R,4,0,2), mat(R,4,1,2), mat(R,4,2,2), -mat(R,4,2,3),
-                    0,          0,          0,          1,
-                ];
-            return [R, inv];
-        }
-        else
-        {
-            return [null,null];
-        }
-    })();
-
-    // matrix that transforms lidar points into utm coordinates.
-    this.transLidar = transMatrices[0];
-    this.transLidarInv = transMatrices[1];
-
     this.toString = function(){
         return this.frameInfo.scene + "," + this.frameInfo.frame;
     }
@@ -325,9 +266,86 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         }
     };
 
+
+    this.getTransformMatrix = function()
+    {
+        if (this.sceneMeta.ego_pose && this.data.cfg.enableUtmCoordinates){
+                let thisPose = this.sceneMeta.ego_pose[this.frameInfo.frame];
+                let refPose = this.sceneMeta.ego_pose[this.sceneMeta.frames[0]];
+                
+    
+                let thisRot = {
+                    x: thisPose.pitch * Math.PI/180.0,
+                    y: thisPose.roll * Math.PI/180.0,                
+                    z: -thisPose.azimuth * Math.PI/180.0
+                };
+    
+                let posDelta = {
+                    x: thisPose.x - refPose.x,
+                    y: thisPose.y - refPose.y,
+                    z: thisPose.z - refPose.z,
+                };
+    
+    
+                
+                //console.log("pose", thisPose, refPose, delta);
+    
+                //let theta = delta.rotation.z*Math.PI/180.0;
+    
+                // https://docs.novatel.com/OEM7/Content/SPAN_Operation/SPAN_Translations_Rotations.htm
+                //let trans_utm_ego = euler_angle_to_rotate_matrix_3by3({x: refPose.pitch*Math.PI/180.0, y: refPose.roll*Math.PI/180.0, z: refPose.azimuth*Math.PI/180.0}, "ZXY");
+                
+                // this should be a calib matrix
+                //let trans_lidar_ego = euler_angle_to_rotate_matrix({x: 0, y: 0, z: Math.PI}, {x:0, y:0, z:0.4});
+    
+                let trans_lidar_ego = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0,0,Math.PI, "ZYX"))
+                                                         .setPosition(0, 0, 0.4);
+    
+    
+                //let trans_ego_utm = euler_angle_to_rotate_matrix(thisRot, posDelta, "ZXY");
+                let trans_ego_utm = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(thisRot.x, thisRot.y, thisRot.z, "ZXY"))
+                                                       .setPosition(this.coordinatesOffset[0] + posDelta.x, this.coordinatesOffset[1] + posDelta.y, this.coordinatesOffset[2] + posDelta.z);
+    
+                
+                // let offset_ego = matmul(trans_utm_ego, [delta.position.x, delta.position.y, delta.position.z], 3);
+                // let offset_lidar =  matmul(trans_ego_lidar, offset_ego, 3);
+    
+                // let trans_lidar = euler_angle_to_rotate_matrix({x: - delta.rotation.x*Math.PI/180.0,  y: -delta.rotation.y*Math.PI/180.0,  z: - delta.rotation.z*Math.PI/180.0},
+                //         {x:offset_lidar[0], y:offset_lidar[1], z:offset_lidar[2]},
+                //         "ZXY");
+    
+                // let R =  matmul2(trans_ego_utm, trans_lidar_ego, 4);
+                // let inv = [
+                //         mat(R,4,0,0), mat(R,4,1,0), mat(R,4,2,0), -mat(R,4,0,3),
+                //         mat(R,4,0,1), mat(R,4,1,1), mat(R,4,2,1), -mat(R,4,1,3),
+                //         mat(R,4,0,2), mat(R,4,1,2), mat(R,4,2,2), -mat(R,4,2,3),
+                //         0,          0,          0,          1,
+                //     ];
+    
+                let R = new THREE.Matrix4().multiplyMatrices(trans_ego_utm, trans_lidar_ego);
+                //let inv = new THREE.Matrix4().extractRotation(R).transpose().makeTranslation(-posDelta.x, -posDelta.y, -posDelta.z - 0.4)
+                //return [R, inv];
+                return R;
+            }
+            else
+            {
+                return null;
+            }
+    };
+
+
+
     this.preload=function(on_preload_finished){
         this.create_time = new Date().getTime();
         console.log(this.create_time, sceneName, frame, "start");
+
+        this.webglGroup = new THREE.Group();
+        
+        let transMatrix = this.getTransformMatrix();
+        if (transMatrix){
+            this.webglGroup.matrix.copy(transMatrix);
+            this.webglGroup.matrixAutoUpdate = false;
+        }
 
         let _preload_cb = ()=>this.on_subitem_preload_finished(on_preload_finished);
 
@@ -381,11 +399,12 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 return;
             }
 
+            this.scene.add(this.webglGroup);
             
-            this.lidar.go(this.scene);
-            this.annotation.go(this.scene);
-            this.radars.go(this.scene);            
-            this.aux_lidars.go(this.scene);
+            // this.lidar.go(this.scene);
+            // this.annotation.go(this.scene);
+            // this.radars.go(this.scene);            
+            // this.aux_lidars.go(this.scene);
 
 
             this.finish_time = new Date().getTime();
@@ -434,10 +453,12 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.unload = function(){
         if (this.everythingDone){
             //unload all from scene, but don't destroy elements
-            this.lidar.unload();
-            this.radars.unload();
-            this.aux_lidars.unload();
-            this.annotation.unload();
+            // this.lidar.unload();
+            // this.radars.unload();
+            // this.aux_lidars.unload();
+            // this.annotation.unload();
+
+            this.scene.remove(this.webglGroup);
             
             this.active = false;
             this.everythingDone = false;

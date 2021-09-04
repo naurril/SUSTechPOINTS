@@ -51,7 +51,10 @@ function Annotation(sceneMeta, world, frameInfo){
 
         if (this.preloaded){
 
-            this.boxes.forEach(b=>this.webglScene.add(b));
+            
+            //this.boxes.forEach(b=>this.webglScene.add(b));
+
+            
             this.loaded = true;
 
             if (this.data.cfg.color_obj != "no"){
@@ -371,11 +374,17 @@ function Annotation(sceneMeta, world, frameInfo){
 
     this.proc_annotation = function(boxes){
         
-        boxes = this.transformBoxesByEgoPose(boxes);
-        let ret = this.transformBoxesByOffset(boxes);
-        //var boxes = JSON.parse(this.responseText);
+        // boxes = this.transformBoxesByEgoPose(boxes);
+        // boxes = this.transformBoxesByOffset(boxes);
+
+        // //var boxes = JSON.parse(this.responseText);
         //console.log(ret);
-        this.boxes = this.createBoxes(ret);  //create in future world                        
+        this.boxes = this.createBoxes(boxes);  //create in future world
+        
+        this.webglGroup = new THREE.Group();
+        this.boxes.forEach(b=>this.webglGroup.add(b));
+
+        this.world.webglGroup.add(this.webglGroup);
 
         this.boxes_load_time = new Date().getTime();
         console.log(this.boxes_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded boxes ", this.boxes_load_time - this.create_time, "ms");
@@ -496,7 +505,7 @@ function Annotation(sceneMeta, world, frameInfo){
             b.psr.rotation,
             b.obj_type,
             b.obj_id);
-
+        
         if (b.annotator){
             mesh.annotator = b.annotator;
         }

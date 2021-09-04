@@ -89,6 +89,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         camera.lookAt( 0, 0, 0 );
         view.blind_camera = camera;
 
+        scene.add(camera);
 
         view.container = container;
         view.renderer = renderer;
@@ -178,7 +179,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         } );
         transform_control.visible = false;
         //transform_control.enabled = false;
-        scene.add( transform_control );
+        //scene.add( transform_control );
         view.transform_control_perspective = transform_control;
 
 
@@ -404,7 +405,17 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
     this.box = this.defaultBox;
     
     this.attachBox = function(box){
+        
         this.box = box;
+
+        this.views.forEach(v=>{
+            //this.box.world.webglGroup.add(v.camera);
+            //this.box.world.webglGroup.add(v.cameraHelper);
+
+            this.box.world.annotation.webglGroup.add(v.cameraContainer);
+            this.box.world.scene.add(v.cameraHelper); //seems camerahelp shold be added to top-most scene only.
+        });
+
         this.onBoxChanged();
     };
     this.detach = function(){
@@ -488,21 +499,16 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
 
         var cameraOrthoHelper = new THREE.CameraHelper( camera );
         cameraOrthoHelper.visible=false;
-        scene.add( cameraOrthoHelper );
-        view["cameraHelper"] = cameraOrthoHelper;
+        //scene.add( cameraOrthoHelper );
+        view.cameraHelper = cameraOrthoHelper;
 
-        camera.position.x = 0;
-        camera.position.z = 0;
-        camera.position.y = 0;
-        //camera.up.set( 0, 1, 0);
-        //camera.lookAt( 0, 0, -3 );
-
-        camera.rotation.x=0;
-        camera.rotation.y=0;
-        camera.rotation.z=-Math.PI/2;;
+        camera.position.set(0,0,0);
+        camera.up.set( 1, 0, 0);
+        camera.lookAt( 0, 0, -3 );
 
         view.camera = camera;
-
+        view.cameraContainer = new THREE.Group();
+        view.cameraContainer.add(camera);
         
 
         view.updateCameraPose=function(box){
@@ -510,14 +516,8 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
             var r = box.rotation;
             //console.log(r);
             //
-            this.camera.rotation.x= r.x;
-            this.camera.rotation.y= r.y;
-            this.camera.rotation.z= r.z-Math.PI/2;
-            this.camera.position.x= p.x;
-            this.camera.position.y= p.y;
-            this.camera.position.z= p.z;
-            this.camera.updateProjectionMatrix();
-            this.cameraHelper.update(); 
+            this.cameraContainer.position.set(p.x, p.y, p.z);
+            this.cameraContainer.rotation.set(r.x, r.y, r.z);
         };
 
         view.updateCameraRange=function(box){
@@ -531,7 +531,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
 
             exp_camera_height = box.scale.x*1.5*view.zoom_ratio;
             exp_camera_width = box.scale.y*1.5*view.zoom_ratio;
-            exp_camera_clip = box.scale.z+0.8;
+            exp_camera_clip = box.scale.z + 0.8;
 
             if (exp_camera_width/exp_camera_height > view_width/view_height){
                 //increase height
@@ -550,6 +550,9 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
             this.camera.near = exp_camera_clip/-2;
             this.camera.far = exp_camera_clip/2;
             
+            // this.camera.scale.x = box.scale.x;
+            // this.camera.scale.y = box.scale.y;
+            // this.camera.scale.z = box.scale.z;
             //camera.aspect = view_width / view_height;
             this.camera.updateProjectionMatrix();
             this.cameraHelper.update();
@@ -579,42 +582,67 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
 
         var cameraOrthoHelper = new THREE.CameraHelper( camera );
         cameraOrthoHelper.visible=false;
-        scene.add( cameraOrthoHelper );
+        //scene.add( cameraOrthoHelper );
         view["cameraHelper"] = cameraOrthoHelper;
+
+        view.cameraContainer = new THREE.Group();
+        
                 
-        camera.position.x = 0;
-        camera.position.z = 0;
-        camera.position.y = 0;
-        //camera.up.set( 0, 0, 1);
-        //camera.lookAt( 0, 3, 0 );
+        view.cameraContainer.position.x = 0;
+        view.cameraContainer.position.z = 0;
+        view.cameraContainer.position.y = 0;
+
+        view.cameraContainer.rotation.x=0; //Math.PI/2;
+        view.cameraContainer.rotation.y=0;
+        view.cameraContainer.rotation.z=0;
+
+        //view.cameraContainer.updateProjectionMatrix();
+
+        view.cameraContainer.add(camera);
+
+        camera.position.set( 0, 0, 0);
+        camera.up.set(0,0,1);
+        camera.lookAt( 0, 3, 0 );
 
         //camera.up.set( 0, 1, 0);
         //camera.lookAt( 0, 0, -3 );
 
-        camera.rotation.x=Math.PI/2;
-        camera.rotation.y=0;
-        camera.rotation.z=0;
 
+        // camera should not be changed again?
         view.camera = camera;
 
         view.updateCameraPose=function(box){
             var p = box.position;
             var r = box.rotation;
             
-            var trans_matrix = euler_angle_to_rotate_matrix(r, p);
-
-            this.camera.position.x= p.x;
-            this.camera.position.y= p.y;
-            this.camera.position.z= p.z;
+            view.cameraContainer.position.x = p.x;
+            view.cameraContainer.position.y = p.y;
+            view.cameraContainer.position.z = p.z;
+            
     
-            var up = matmul2(trans_matrix, [0, 0, 1, 0], 4);
-            this.camera.up.set( up[0], up[1], up[2]);
-            var at = matmul2(trans_matrix, [0, 1, 0, 1], 4);
-            this.camera.lookAt( at[0], at[1], at[2] );
+            view.cameraContainer.rotation.x=r.x;
+            view.cameraContainer.rotation.y=r.y;
+            view.cameraContainer.rotation.z=r.z;
+            //view.cameraContainer.updateProjectionMatrix();
+
+            // var trans_matrix = euler_angle_to_rotate_matrix(r, p);
+      
+
+            // this.camera.position.x= p.x;
+            // this.camera.position.y= p.y;
+            // this.camera.position.z= p.z;
+
+
+
+    
+            // var up = matmul2(trans_matrix, [0, 0, 1, 0], 4);
+            // this.camera.up.set( up[0], up[1], up[2]);
+            // var at = matmul2(trans_matrix, [0, 1, 0, 1], 4);
+            // this.camera.lookAt( at[0], at[1], at[2] );
             
             
-            this.camera.updateProjectionMatrix();
-            this.cameraHelper.update();
+            // this.camera.updateProjectionMatrix();
+            // this.cameraHelper.update();
         };
 
         view.updateCameraRange=function(box){
@@ -676,40 +704,42 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
 
         var cameraOrthoHelper = new THREE.CameraHelper( camera );
         cameraOrthoHelper.visible=false;
-        scene.add( cameraOrthoHelper );
+        //scene.add( cameraOrthoHelper );
         view["cameraHelper"] = cameraOrthoHelper;
                 
-        camera.position.x = 0;
-        camera.position.z = 0;
-        camera.position.y = 0;
-        camera.up.set( 0, 0, 1);
-        camera.lookAt( 3, 0, 0 );
-
-        camera.rotation.x=Math.PI/2;
-        camera.rotation.y=Math.PI/2;
-        camera.rotation.z=0;
+        camera.position.set(0,0,0);
+        camera.up.set(0,0,1);
+        camera.lookAt(3,0,0);
 
         view.camera = camera;
+        view.cameraContainer = new THREE.Group();
+        view.cameraContainer.position.set(0,0,0);
+        view.cameraContainer.rotation.set(0,0,0);
+
+        view.cameraContainer.add(camera);
 
         view.updateCameraPose=function(box){
 
             let p = box.position;
             let r = box.rotation;
 
-            let trans_matrix = euler_angle_to_rotate_matrix(r, p);
+            // let trans_matrix = euler_angle_to_rotate_matrix(r, p);
 
-            this.camera.position.x= p.x;
-            this.camera.position.y= p.y;
-            this.camera.position.z= p.z;
+            // this.camera.position.x= p.x;
+            // this.camera.position.y= p.y;
+            // this.camera.position.z= p.z;
     
-            var up3 = matmul2(trans_matrix, [0, 0, 1, 0], 4);
-            this.camera.up.set( up3[0], up3[1], up3[2]);
-            var at3 = matmul2(trans_matrix, [1, 0, 0, 1], 4);
-            this.camera.lookAt( at3[0], at3[1], at3[2] );
+            // var up3 = matmul2(trans_matrix, [0, 0, 1, 0], 4);
+            // this.camera.up.set( up3[0], up3[1], up3[2]);
+            // var at3 = matmul2(trans_matrix, [1, 0, 0, 1], 4);
+            // this.camera.lookAt( at3[0], at3[1], at3[2] );
             
     
-            this.camera.updateProjectionMatrix();
-            this.cameraHelper.update();   
+            // this.camera.updateProjectionMatrix();
+            // this.cameraHelper.update();   
+
+            this.cameraContainer.position.set(p.x, p.y, p.z);
+            this.cameraContainer.rotation.set(r.x, r.y, r.z);
         };
 
         view.updateCameraRange=function(box){
