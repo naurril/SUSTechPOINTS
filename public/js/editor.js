@@ -1437,9 +1437,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         // create new box
         var self=this;
         var center_pos = this.mouse.get_screen_location_in_world(x+w/2, y+h/2);
+        center_pos = this.data.world.globalPosToLocal(center_pos);
         
         var box = this.data.world.lidar.create_box_by_view_rect(x,y,w,h, this.viewManager.mainView.camera, center_pos);
-        this.scene.add(box);
+        //this.scene.add(box);
         
         this.imageContext.image_manager.add_box(box);
         
@@ -1674,6 +1675,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             else{
                 //select me the second time
+                //this.data.world.webglGroup.add(this.viewManager.mainView.transform_control);
                 this.viewManager.mainView.transform_control.attach( object );
             }            
         }
@@ -1733,7 +1735,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.add_box_on_mouse_pos= function(obj_type){
         // todo: move to this.data.world
-        var pos = this.mouse.get_mouse_location_in_world();
+        let globalP = this.mouse.get_mouse_location_in_world();
+
+        // trans pos to world local pos
+        let pos = this.data.world.globalPosToLocal(globalP);
 
         var rotation = {x:0, y:0, z:this.viewManager.mainView.camera.rotation.z+Math.PI/2};
 
@@ -1752,8 +1757,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.add_box= function(pos, scale, rotation, obj_type, obj_track_id){
         let box = this.data.world.annotation.add_box(pos, scale, rotation, obj_type, obj_track_id);
-
-        this.scene.add(box);
 
         this.floatLabelManager.add_label(box);
         
@@ -2329,9 +2332,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.floatLabelManager.remove_box(box);
                     
         //this.selected_box.dispose();
-        box.world.annotation.setModified();
+        
         box.world.annotation.unload_box(box);
         box.world.annotation.remove_box(box);
+
+        box.world.annotation.setModified();
     },
 
     this.clear= function(){

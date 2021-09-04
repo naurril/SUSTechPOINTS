@@ -1,10 +1,7 @@
 
 
 import {psr_to_xyz} from "./util.js"
-import {
-	Vector3
-} from "./lib/three.module.js";
-
+import * as THREE from './lib/three.module.js';
 
 class FloatLabelManager {
  
@@ -186,11 +183,27 @@ class FloatLabelManager {
         }
     }
 
+    translate_vertices_to_global(world, vertices) {
+        let ret = [];
+        for (let i = 0; i< vertices.length; i+=4)
+        {
+            let p = new THREE.Vector4().fromArray(vertices, i).applyMatrix4(world.webglGroup.matrix);
+            ret.push(p.x);
+            ret.push(p.y);
+            ret.push(p.z);
+            ret.push(p.w);
+        }
+
+        return ret;
+        
+    }
+
     update_position(box, refresh){
         var label = this.editor_ui.querySelector("#obj-local-"+box.obj_local_id);
         
         if (label){
-            label.vertices = psr_to_xyz(box.position, box.scale, box.rotation);  //vector 4
+            
+            label.vertices = this.translate_vertices_to_global(box.world, psr_to_xyz(box.position, box.scale, box.rotation));
 
             if (refresh){
                 var best_pos = this.compute_best_position(label.vertices);
@@ -261,7 +274,7 @@ class FloatLabelManager {
         label.update_text();
         this.update_color(label);
 
-        label.vertices = psr_to_xyz(box.position, box.scale, box.rotation);  //vector 4
+        label.vertices = this.translate_vertices_to_global(box.world, psr_to_xyz(box.position, box.scale, box.rotation));
 
         var best_pos = this.compute_best_position(label.vertices);
         best_pos = this.coord_to_pixel(best_pos);
@@ -303,7 +316,7 @@ class FloatLabelManager {
     compute_best_position(vertices){
         var _self = this;
         var camera_p = [0,1,2,3,4,5,6,7].map(function(i){
-            return new Vector3(vertices[i*4+0], vertices[i*4+1], vertices[i*4+2]);
+            return new THREE.Vector3(vertices[i*4+0], vertices[i*4+1], vertices[i*4+2]);
         });
         
         camera_p.forEach(function(x){

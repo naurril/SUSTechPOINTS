@@ -12,8 +12,7 @@ function Lidar(sceneMeta, world, frameInfo){
     this.data = world.data;
     this.frameInfo = frameInfo;    
     this.sceneMeta = sceneMeta;
-    this.coordinatesOffset = world.coordinatesOffset;
-    
+
     this.points = null;
     this.points_load_time = 0;
 
@@ -95,10 +94,8 @@ function Lidar(sceneMeta, world, frameInfo){
                 pcd = _self.remove_high_ponts(pcd, 2.0);
 
                 
-                //let position = _self.transformPointsByOffset(pcd.position);
                 let position = pcd.position;
-                
-                
+                                
                 // build geometry
                 _self.world.data.dbg.alloc();
                 var geometry = new THREE.BufferGeometry();
@@ -258,7 +255,7 @@ function Lidar(sceneMeta, world, frameInfo){
         this.cancel_highlight();
 
         if (this.points){
-            this.webglScene.remove(this.points);
+            // this.world.webglGroup.remove(this.points);
 
             // if (this.points.points_backup){
             //     let backup = this.points.points_backup;
@@ -353,30 +350,11 @@ function Lidar(sceneMeta, world, frameInfo){
         return newPoints;
     }
 
-    this.transformPointsByOffset = function(points){
-        let newPoints=[];
-        points.forEach((p,i)=>{
-            newPoints[i] = p + this.coordinatesOffset[i % 3];
-        });
-
-        return newPoints;
-    };
-    
+   
     this.get_all_pionts=function(){
         return this.points.geometry.getAttribute("position");
     };
     
-    this.get_all_points_unoffset = function(){
-        let points = this.get_all_pionts();
-        let newPoints = [];
-        points.array.forEach((p,i)=>{
-            newPoints.push(p - this.coordinatesOffset[i % 3]);
-        });
-
-        return newPoints;
-    }
-
-
     this.build_points_index=function(){
         var ps = this.points.geometry.getAttribute("position");
         var points_index = {};
@@ -527,11 +505,11 @@ function Lidar(sceneMeta, world, frameInfo){
         mesh.highlight_point_indices = highlight_point_indices;
 
         //swith geometry
-        this.webglScene.remove(this.points);
+        this.world.webglGroup.remove(this.points);
 
         this.points = mesh;       
         this.build_points_index();         
-        this.webglScene.add(mesh);
+        this.world.webglGroup.add(mesh);
     };
 
     this.cancel_highlight=function(box){
@@ -556,7 +534,7 @@ function Lidar(sceneMeta, world, frameInfo){
             var points_backup = this.points.points_backup;
             this.points.points_backup = null;
             
-            this.webglScene.remove(this.points);
+            this.world.webglGroup.remove(this.points);
             this.remove_all_points(); //this.points is null now
             this.points = points_backup;
             
@@ -570,7 +548,7 @@ function Lidar(sceneMeta, world, frameInfo){
             if (this.data.cfg.color_obj != "no")
                 this.update_points_color();
                 
-            this.webglScene.add(this.points);
+            this.world.webglGroup.add(this.points);
         }
     };
 
@@ -592,11 +570,11 @@ function Lidar(sceneMeta, world, frameInfo){
         mesh.name = "pcd";
 
         //swith geometry
-        this.webglScene.remove(this.points);
+        this.world.webglGroup.remove(this.points);
         this.remove_all_points();
 
         this.points = mesh;
-        this.webglScene.add(mesh);
+        this.world.webglGroup.add(mesh);
     };
 
     this.highlight_box_points=function(box){
@@ -656,7 +634,7 @@ function Lidar(sceneMeta, world, frameInfo){
         mesh.name = "pcd";
 
         //swith geometry
-        this.webglScene.remove(this.points);
+        this.world.webglGroup.remove(this.points);
 
         mesh.points_backup = this.points;
         mesh.highlight_point_indices = highlight_point_indices;
@@ -1350,6 +1328,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
         for (var i=0; i< pos_array.length/3; i++){
             p.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
+            p = p.applyMatrix4(this.world.webglGroup.matrix);
             p.project(camera);
             //p.x = p.x/p.z;
             //p.y = p.y/p.z;

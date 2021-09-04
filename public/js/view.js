@@ -243,6 +243,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         transform_control.visible = false;
         //transform_control.enabled = true;
         scene.add( transform_control );
+        
         view.transform_control_orth = transform_control;
 
 
@@ -412,7 +413,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
             //this.box.world.webglGroup.add(v.camera);
             //this.box.world.webglGroup.add(v.cameraHelper);
 
-            this.box.world.annotation.webglGroup.add(v.cameraContainer);
+            this.box.world.webglGroup.add(v.cameraContainer);
             this.box.world.scene.add(v.cameraHelper); //seems camerahelp shold be added to top-most scene only.
         });
 
@@ -508,6 +509,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
 
         view.camera = camera;
         view.cameraContainer = new THREE.Group();
+        view.cameraContainer.name = "topview-camera";
         view.cameraContainer.add(camera);
         
 
@@ -586,7 +588,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         view["cameraHelper"] = cameraOrthoHelper;
 
         view.cameraContainer = new THREE.Group();
-        
+        view.cameraContainer.name = "sideview-camera";
                 
         view.cameraContainer.position.x = 0;
         view.cameraContainer.position.z = 0;
@@ -713,6 +715,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
 
         view.camera = camera;
         view.cameraContainer = new THREE.Group();
+        view.cameraContainer.name = "backview-camera";
         view.cameraContainer.position.set(0,0,0);
         view.cameraContainer.rotation.set(0,0,0);
 

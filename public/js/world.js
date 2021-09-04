@@ -267,7 +267,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     };
 
 
-    this.getTransformMatrix = function()
+    this.calcTransformMatrix = function()
     {
         if (this.sceneMeta.ego_pose && this.data.cfg.enableUtmCoordinates){
                 let thisPose = this.sceneMeta.ego_pose[this.frameInfo.frame];
@@ -304,8 +304,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     
                 //let trans_ego_utm = euler_angle_to_rotate_matrix(thisRot, posDelta, "ZXY");
                 let trans_ego_utm = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(thisRot.x, thisRot.y, thisRot.z, "ZXY"))
-                                                       .setPosition(this.coordinatesOffset[0] + posDelta.x, this.coordinatesOffset[1] + posDelta.y, this.coordinatesOffset[2] + posDelta.z);
-    
+                                                       .setPosition(this.coordinatesOffset[0] + posDelta.x, this.coordinatesOffset[1] + posDelta.y, this.coordinatesOffset[2] + posDelta.z);    
                 
                 // let offset_ego = matmul(trans_utm_ego, [delta.position.x, delta.position.y, delta.position.z], 3);
                 // let offset_lidar =  matmul(trans_ego_lidar, offset_ego, 3);
@@ -323,29 +322,41 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 //     ];
     
                 let R = new THREE.Matrix4().multiplyMatrices(trans_ego_utm, trans_lidar_ego);
-                //let inv = new THREE.Matrix4().extractRotation(R).transpose().makeTranslation(-posDelta.x, -posDelta.y, -posDelta.z - 0.4)
-                //return [R, inv];
                 return R;
             }
             else
             {
-                return null;
+                let id = new THREE.Matrix4().identity().setPosition(this.coordinatesOffset[0], this.coordinatesOffset[1], this.coordinatesOffset[2]);
+                return id;
             }
     };
 
+    this.globalPosToLocal = function(pos)
+    {
+        let tp = new THREE.Vector4(pos.x, pos.y, pos.z, 1).applyMatrix4(this.transMatrixInv);
 
+        return tp;        
+    }
+
+    this.localPosToGlobal = function(pos)
+    {
+        let tp = new THREE.Vector4(pos.x, pos.y, pos.z, 1).applyMatrix4(this.webglGroup.matrix);
+
+        return tp;        
+    }
 
     this.preload=function(on_preload_finished){
         this.create_time = new Date().getTime();
         console.log(this.create_time, sceneName, frame, "start");
 
         this.webglGroup = new THREE.Group();
+        this.webglGroup.name = "world";
         
-        let transMatrix = this.getTransformMatrix();
-        if (transMatrix){
-            this.webglGroup.matrix.copy(transMatrix);
-            this.webglGroup.matrixAutoUpdate = false;
-        }
+        let transMatrix= this.calcTransformMatrix();
+        this.webglGroup.matrix.copy(transMatrix);
+        this.webglGroup.matrixAutoUpdate = false;
+        this.transMatrixInv = transMatrix.getInverse(transMatrix);
+
 
         let _preload_cb = ()=>this.on_subitem_preload_finished(on_preload_finished);
 
@@ -401,10 +412,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
             this.scene.add(this.webglGroup);
             
-            // this.lidar.go(this.scene);
-            // this.annotation.go(this.scene);
-            // this.radars.go(this.scene);            
-            // this.aux_lidars.go(this.scene);
+            this.lidar.go(this.scene);
+            this.annotation.go(this.scene);
+            this.radars.go(this.scene);            
+            this.aux_lidars.go(this.scene);
 
 
             this.finish_time = new Date().getTime();
@@ -453,10 +464,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.unload = function(){
         if (this.everythingDone){
             //unload all from scene, but don't destroy elements
-            // this.lidar.unload();
-            // this.radars.unload();
-            // this.aux_lidars.unload();
-            // this.annotation.unload();
+            this.lidar.unload();
+            this.radars.unload();
+            this.aux_lidars.unload();
+            this.annotation.unload();
 
             this.scene.remove(this.webglGroup);
             

@@ -534,9 +534,9 @@ function BoxOp(){
             tempBox.world = world;
             tempBox.getTruePosition = function(){
                 return {
-                    x: this.position.x-this.world.coordinatesOffset[0],
-                    y: this.position.y-this.world.coordinatesOffset[1],
-                    z: this.position.z-this.world.coordinatesOffset[2]
+                    x: this.position.x,//-this.world.coordinatesOffset[0],
+                    y: this.position.y,//-this.world.coordinatesOffset[1],
+                    z: this.position.z,//-this.world.coordinatesOffset[2]
                 };
             };
             

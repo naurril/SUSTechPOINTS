@@ -621,7 +621,7 @@ function ImageContext(ui, cfg, on_img_click){
 
             // project lidar points onto camera image   
             if (self.cfg.projectLidarToImage){
-                let pts = scope.world.lidar.get_all_points_unoffset();
+                let pts = scope.world.lidar.get_all_points();
                 let ptsOnImg = points3d_to_image2d(pts, calib, true, self.img_lidar_point_map, img.width, img.height);
 
                 // there may be none after projecting

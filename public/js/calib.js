@@ -89,9 +89,9 @@ function Calib(data, editor){
         {
             this.calib_box = this.data.world.annotation.createCuboid(
                 {
-                    x: translate.x + this.data.world.coordinatesOffset[0],
-                    y: translate.y + this.data.world.coordinatesOffset[1],
-                    z: translate.z + this.data.world.coordinatesOffset[2]
+                    x: translate.x,// + this.data.world.coordinatesOffset[0],
+                    y: translate.y,// + this.data.world.coordinatesOffset[1],
+                    z: translate.z, // + this.data.world.coordinatesOffset[2]
                 }, 
                 {x:1,y:1, z:1}, 
                 {
@@ -108,9 +108,9 @@ function Calib(data, editor){
         }
         else{
             console.log("calib box exists.");
-            this.calib_box.position.x = translate.x + this.data.world.coordinatesOffset[0];
-            this.calib_box.position.y = translate.y + this.data.world.coordinatesOffset[1];
-            this.calib_box.position.z = translate.z + this.data.world.coordinatesOffset[2];
+            this.calib_box.position.x = translate.x;// + this.data.world.coordinatesOffset[0];
+            this.calib_box.position.y = translate.y;// + this.data.world.coordinatesOffset[1];
+            this.calib_box.position.z = translate.z;// + this.data.world.coordinatesOffset[2];
 
             this.calib_box.rotation.x = euler_angle.x;
             this.calib_box.rotation.y = euler_angle.y;
@@ -125,9 +125,9 @@ function Calib(data, editor){
             console.log("calib box changed.");
 
             let real_pos = {
-                x: this.calib_box.position.x - this.data.world.coordinatesOffset[0],
-                y: this.calib_box.position.y - this.data.world.coordinatesOffset[1],
-                z: this.calib_box.position.z - this.data.world.coordinatesOffset[2],
+                x: this.calib_box.position.x,// - this.data.world.coordinatesOffset[0],
+                y: this.calib_box.position.y,// - this.data.world.coordinatesOffset[1],
+                z: this.calib_box.position.z,// - this.data.world.coordinatesOffset[2],
             };
 
             let extrinsic = euler_angle_to_rotate_matrix(this.calib_box.rotation, real_pos);

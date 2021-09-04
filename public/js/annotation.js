@@ -8,7 +8,7 @@ import { get_color_by_category, get_color_by_id, get_obj_cfg_by_type } from './o
 function Annotation(sceneMeta, world, frameInfo){
     this.world = world;
     this.data = this.world.data;
-    this.coordinatesOffset = this.world.coordinatesOffset;
+    //this.coordinatesOffset = this.world.coordinatesOffset;
     this.boxes_load_time = 0;
     this.frameInfo = frameInfo;
 
@@ -87,7 +87,7 @@ function Annotation(sceneMeta, world, frameInfo){
     this.unload = function(){
         if (this.boxes){
             this.boxes.forEach((b)=>{
-                this.webglScene.remove(b);
+                //this.webglGroup.remove(b);
 
                 if (b.boxEditor)
                     b.boxEditor.detach();
@@ -154,9 +154,9 @@ function Annotation(sceneMeta, world, frameInfo){
     this.vector_to_ann = function(v){
         return {
             position:{
-                x:v[0] + this.coordinatesOffset[0],
-                y:v[1] + this.coordinatesOffset[1],
-                z:v[2] + this.coordinatesOffset[2],
+                x:v[0],// + this.coordinatesOffset[0],
+                y:v[1],// + this.coordinatesOffset[1],
+                z:v[2],// + this.coordinatesOffset[2],
             },
 
            
@@ -178,7 +178,7 @@ function Annotation(sceneMeta, world, frameInfo){
     this.remove_all_boxes = function(){
         if (this.boxes){
             this.boxes.forEach((b)=>{
-                //this.webglScene.remove(b);
+                this.webglGroup.remove(b);
                 this.world.data.dbg.free();
                 b.geometry.dispose();
                 b.material.dispose();
@@ -282,9 +282,9 @@ function Annotation(sceneMeta, world, frameInfo){
         mesh.world = this.world;
         mesh.getTruePosition = function(){
             return {
-                x: this.position.x-this.world.coordinatesOffset[0],
-                y: this.position.y-this.world.coordinatesOffset[1],
-                z: this.position.z-this.world.coordinatesOffset[2]
+                x: this.position.x, //-this.world.coordinatesOffset[0],
+                y: this.position.y, //-this.world.coordinatesOffset[1],
+                z: this.position.z, //-this.world.coordinatesOffset[2]
             };
         };
 
@@ -300,17 +300,20 @@ function Annotation(sceneMeta, world, frameInfo){
 
         this.boxes.push(mesh);
         this.sort_boxes();
+
+        this.webglGroup.add(mesh);
+
         return mesh;
     };
 
     this.load_box = function(box){
         if (this.loaded)
-            this.webglScene.add(box);
+            this.webglGroup.add(box);
     };
 
     this.unload_box = function(box){
         if (this.loaded)
-            this.webglScene.remove(box);
+            this.webglGroup.remove(box);
     };
 
     this.remove_box=function(box){
@@ -382,6 +385,7 @@ function Annotation(sceneMeta, world, frameInfo){
         this.boxes = this.createBoxes(boxes);  //create in future world
         
         this.webglGroup = new THREE.Group();
+        this.webglGroup.name = "annotations";
         this.boxes.forEach(b=>this.webglGroup.add(b));
 
         this.world.webglGroup.add(this.webglGroup);
@@ -426,7 +430,7 @@ function Annotation(sceneMeta, world, frameInfo){
     
     this.reapplyAnnotation = function(boxes, done){
             // these boxes haven't attached a world
-            boxes = this.transformBoxesByOffset(boxes);
+            //boxes = this.transformBoxesByOffset(boxes);
 
             // mark all old boxes
             this.boxes.forEach(b=>{b.delete=true;});
@@ -465,7 +469,7 @@ function Annotation(sceneMeta, world, frameInfo){
                 }
 
                 if (this.loaded)
-                    this.webglScene.remove(b);
+                    this.webglGroup.remove(b);
                 this.remove_box(b);
             })
 
@@ -486,7 +490,7 @@ function Annotation(sceneMeta, world, frameInfo){
             if (this.loaded){
                 // add new boxes
                 pendingBoxList.forEach(b=>{
-                    this.webglScene.add(b);                    
+                    this.webglGroup.add(b);                    
                 })
             }
 
@@ -522,33 +526,7 @@ function Annotation(sceneMeta, world, frameInfo){
         });
     };
 
-    this.transformBoxesByOffset = function(boxes){
-        boxes.forEach((b)=>{
-            b.psr.position.x += this.coordinatesOffset[0];
-            b.psr.position.y += this.coordinatesOffset[1];
-            b.psr.position.z += this.coordinatesOffset[2];
-        })
-        return boxes;
-    };
-
-    this.transformBoxesByEgoPose = function(boxes){
-        if (this.world.transLidar)
-        {
-            boxes.forEach(b=>{
-                let p = matmul(this.world.transLidar, [b.psr.position.x, b.psr.position.y, b.psr.position.z, 1], 4);
-                b.psr.position.x = p[0];
-                b.psr.position.y = p[1];
-                b.psr.position.z = p[2];
-            })
-
-            return boxes;
-        }
-        else{
-            return boxes;
-        }
-    };
-
-
+    
     this.box_local_id = 0;
     this.get_new_box_local_id=function(){
         var ret = this.box_local_id;
