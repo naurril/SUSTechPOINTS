@@ -10,6 +10,8 @@ class Config{
     enableAuxLidar = false;
     enableDynamicGroundLevel = true;
 
+    enableUtmCoordinates = true;
+
     point_size = 1;
     point_brightness = 0.6;
     box_opacity = 1;

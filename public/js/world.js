@@ -7,7 +7,7 @@ import {Lidar} from "./lidar.js"
 import {Annotation} from "./annotation.js"
 import {EgoPose} from "./ego_pose.js"
 import {log} from "./log.js"
-import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 } from './util.js';
+import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 , mat} from './util.js';
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
     
@@ -219,10 +219,9 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.coordinatesOffset = coordinatesOffset;
     
 
-    // this si the matrix that lidar points should be transformed with.
-    this.transLidar = (()=>{
+    let transMatrices= (()=>{
 
-        if (this.sceneMeta.ego_pose){
+        if (this.sceneMeta.ego_pose && this.data.cfg.enableUtmCoordinates){
             let thisPose = this.sceneMeta.ego_pose[frame];
             let refPose = this.sceneMeta.ego_pose[this.sceneMeta.frames[0]];
             
@@ -239,6 +238,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 z: thisPose.z - refPose.z,
             };
 
+
+            
             //console.log("pose", thisPose, refPose, delta);
 
             //let theta = delta.rotation.z*Math.PI/180.0;
@@ -247,7 +248,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             //let trans_utm_ego = euler_angle_to_rotate_matrix_3by3({x: refPose.pitch*Math.PI/180.0, y: refPose.roll*Math.PI/180.0, z: refPose.azimuth*Math.PI/180.0}, "ZXY");
             
             // this should be a calib matrix
-            let trans_lidar_ego = euler_angle_to_rotate_matrix({x: 0, y: 0, z: Math.PI}, {x:0, y:0, z:0});
+            let trans_lidar_ego = euler_angle_to_rotate_matrix({x: 0, y: 0, z: Math.PI}, {x:0, y:0, z:0.4});
 
             let trans_ego_utm = euler_angle_to_rotate_matrix(thisRot, posDelta, "ZXY");
 
@@ -258,13 +259,24 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             //         {x:offset_lidar[0], y:offset_lidar[1], z:offset_lidar[2]},
             //         "ZXY");
 
-            return matmul2(trans_ego_utm, trans_lidar_ego, 4);
+            let R =  matmul2(trans_ego_utm, trans_lidar_ego, 4);
+            let inv = [
+                    mat(R,4,0,0), mat(R,4,1,0), mat(R,4,2,0), -mat(R,4,0,3),
+                    mat(R,4,0,1), mat(R,4,1,1), mat(R,4,2,1), -mat(R,4,1,3),
+                    mat(R,4,0,2), mat(R,4,1,2), mat(R,4,2,2), -mat(R,4,2,3),
+                    0,          0,          0,          1,
+                ];
+            return [R, inv];
         }
         else
         {
-            return null;
+            return [null,null];
         }
     })();
+
+    // matrix that transforms lidar points into utm coordinates.
+    this.transLidar = transMatrices[0];
+    this.transLidarInv = transMatrices[1];
 
     this.toString = function(){
         return this.frameInfo.scene + "," + this.frameInfo.frame;

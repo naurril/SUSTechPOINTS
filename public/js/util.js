@@ -484,4 +484,6 @@ export {dotproduct, vector_range, array_as_vector_range, array_as_vector_index_r
     matmul2, 
     euler_angle_to_rotate_matrix_3by3, euler_angle_to_rotate_matrix, rotation_matrix_to_euler_angle, 
     linalg_std,
-    transpose}
+    transpose,
+    mat,
+}

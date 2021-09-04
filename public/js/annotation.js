@@ -2,7 +2,7 @@
 
 import * as THREE from './lib/three.module.js';
 import { PCDLoader } from './lib/PCDLoader.js';
-import { matmul, euler_angle_to_rotate_matrix_3by3} from "./util.js"
+import { matmul, euler_angle_to_rotate_matrix_3by3, matmul2} from "./util.js"
 import { get_color_by_category, get_color_by_id, get_obj_cfg_by_type } from './obj_cfg.js';
 
 function Annotation(sceneMeta, world, frameInfo){
@@ -371,6 +371,7 @@ function Annotation(sceneMeta, world, frameInfo){
 
     this.proc_annotation = function(boxes){
         
+        boxes = this.transformBoxesByEgoPose(boxes);
         let ret = this.transformBoxesByOffset(boxes);
         //var boxes = JSON.parse(this.responseText);
         //console.log(ret);
@@ -520,6 +521,24 @@ function Annotation(sceneMeta, world, frameInfo){
         })
         return boxes;
     };
+
+    this.transformBoxesByEgoPose = function(boxes){
+        if (this.world.transLidar)
+        {
+            boxes.forEach(b=>{
+                let p = matmul(this.world.transLidar, [b.psr.position.x, b.psr.position.y, b.psr.position.z, 1], 4);
+                b.psr.position.x = p[0];
+                b.psr.position.y = p[1];
+                b.psr.position.z = p[2];
+            })
+
+            return boxes;
+        }
+        else{
+            return boxes;
+        }
+    };
+
 
     this.box_local_id = 0;
     this.get_new_box_local_id=function(){
