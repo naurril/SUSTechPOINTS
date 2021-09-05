@@ -1,6 +1,6 @@
 import * as THREE from './lib/three.module.js';
 import { OrbitControls } from './lib/OrbitControls.js';
-import { OrthographicTrackballControls } from './lib/OrthographicTrackballControls.js';
+//import { OrthographicTrackballControls } from './lib/OrthographicTrackballControls.js';
 import { TransformControls } from './lib/TransformControls.js';
 import {matmul2, euler_angle_to_rotate_matrix} from "./util.js"
 
@@ -77,25 +77,26 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         camera.position.y = 0;
         camera.up.set( 0, 0, 1);
         camera.lookAt( 0, 0, 0 );
+        camera.name = "main view camera";
         view.camera_perspective = camera;
-
+        view.camera = camera;
 
         // make a blind camera to clean background when batch editing is enabled.
         camera = new THREE.PerspectiveCamera( 65, container.clientWidth / container.clientHeight, 1, 500 );
         camera.position.x = -1000;
-        camera.position.z = 50;
-        camera.position.y = 0;
+        camera.position.z = -1000;
+        camera.position.y = -1000;
         camera.up.set( 0, 0, 1);
         camera.lookAt( 0, 0, 0 );
         view.blind_camera = camera;
-
-        scene.add(camera);
+       
 
         view.container = container;
         view.renderer = renderer;
         view.scene = scene;
 
         view.active = true;
+
         view.disable = function(){
             this.active = false;
             this.renderWithCamera(this.blind_camera);
@@ -118,7 +119,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         view.render=function(){
             console.log("render mainview.");
             if (this.active){
-                this.switch_camera(false);
+                //this.switch_camera(false);
                 this.renderWithCamera(this.camera);
             }
             // else
@@ -130,7 +131,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         view.renderAll = function(){
             console.log("render mainview.");
             if (this.active){
-                this.switch_camera(false);
+                //this.switch_camera(false);
                 this.renderWithCamera(this.camera);
             }
             else
@@ -163,12 +164,14 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
             this.renderer.render( this.scene, camera );
         };
 
+
         var orbit_perspective = new OrbitControls( view.camera_perspective, view.container );
         orbit_perspective.update();
         orbit_perspective.addEventListener( 'change', globalRenderFunc );
-        orbit_perspective.enabled = false;
+        //orbit_perspective.enabled = true;
         view.orbit_perspective = orbit_perspective;
 
+        
         var transform_control = new TransformControls(view.camera_perspective , view.container );
         transform_control.setSpace("local");
         transform_control.addEventListener( 'change', globalRenderFunc );
@@ -179,7 +182,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         } );
         transform_control.visible = false;
         //transform_control.enabled = false;
-        //scene.add( transform_control );
+        scene.add( transform_control );
         view.transform_control_perspective = transform_control;
 
 
@@ -198,8 +201,8 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
 
         //camera = new THREE.OrthographicCamera( container.clientWidth / - 2, container.clientWidth / 2, container.clientHeight / 2, container.clientHeight / - 2, -400, 400 );
         
-        camera = new THREE.OrthographicCamera(-asp*200, asp*200, 200, -200, -200, 200 );
-        camera.position.z = 50;
+        // camera = new THREE.OrthographicCamera(-asp*200, asp*200, 200, -200, -200, 200 );
+        // camera.position.z = 50;
         
 
         // var cameraOrthoHelper = new THREE.CameraHelper( camera );
@@ -207,7 +210,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         // scene.add( cameraOrthoHelper );
 
         
-        view.camera_orth = camera;
+        //view.camera_orth = camera;
 
         // var orbit_orth = new OrbitControls( view.camera_orth, view.container );
         // orbit_orth.update();
@@ -215,42 +218,42 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         // orbit_orth.enabled = false;
         // view.orbit_orth = orbit_orth;
 
-        var orbit_orth = new OrthographicTrackballControls( view.camera_orth, view.container );
-        orbit_orth.rotateSpeed = 1.0;
-        orbit_orth.zoomSpeed = 1.2;
-        orbit_orth.noZoom = false;
-        orbit_orth.noPan = false;
-        orbit_orth.noRotate = false;
-        orbit_orth.staticMoving = true;
+        // var orbit_orth = new OrthographicTrackballControls( view.camera_orth, view.container );
+        // orbit_orth.rotateSpeed = 1.0;
+        // orbit_orth.zoomSpeed = 1.2;
+        // orbit_orth.noZoom = false;
+        // orbit_orth.noPan = false;
+        // orbit_orth.noRotate = false;
+        // orbit_orth.staticMoving = true;
         
-        orbit_orth.dynamicDampingFactor = 0.3;
-        orbit_orth.keys = [ 65, 83, 68 ];
-        orbit_orth.addEventListener( 'change', globalRenderFunc );
-        orbit_orth.enabled=true;
-        view.orbit_orth = orbit_orth;
+        // orbit_orth.dynamicDampingFactor = 0.3;
+        // orbit_orth.keys = [ 65, 83, 68 ];
+        // orbit_orth.addEventListener( 'change', globalRenderFunc );
+        // orbit_orth.enabled=true;
+        // view.orbit_orth = orbit_orth;
         
-        transform_control = new TransformControls(view.camera_orth, view.container );
-        transform_control.setSpace("local");
-        transform_control.addEventListener( 'change', globalRenderFunc );
-        transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);} );
+        // transform_control = new TransformControls(view.camera_orth, view.container );
+        // transform_control.setSpace("local");
+        // transform_control.addEventListener( 'change', globalRenderFunc );
+        // transform_control.addEventListener( 'objectChange', function(e){on_box_changed(e.target.object);} );
         
         
-        transform_control.addEventListener( 'dragging-changed', function ( event ) {
-            view.orbit_orth.enabled = ! event.value;
-        } );
+        // transform_control.addEventListener( 'dragging-changed', function ( event ) {
+        //     view.orbit_orth.enabled = ! event.value;
+        // } );
 
 
-        transform_control.visible = false;
-        //transform_control.enabled = true;
-        scene.add( transform_control );
+        // transform_control.visible = false;
+        // //transform_control.enabled = true;
+        // //scene.add( transform_control );
         
-        view.transform_control_orth = transform_control;
+        // view.transform_control_orth = transform_control;
 
 
 
-        view.camera = view.camera_orth;
-        view.orbit = view.orbit_orth;
-        view.transform_control = view.transform_control_orth;
+        view.camera = view.camera_perspective;
+        view.orbit = view.orbit_perspective;
+        view.transform_control = view.transform_control_perspective;
 
 
         view.switch_camera = function(birdseye)        
@@ -311,18 +314,17 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         };
 
         view.onWindowResize = function(){
-
-            
+          
 
             var asp = container.clientWidth/container.clientHeight;
-            this.camera_orth.left = -asp*200;
-            this.camera_orth.right = asp*200;
-            this.camera_orth.top = 200;
-            this.camera_orth.bottom = -200
-            this.camera_orth.updateProjectionMatrix();
+            // this.camera_orth.left = -asp*200;
+            // this.camera_orth.right = asp*200;
+            // this.camera_orth.top = 200;
+            // this.camera_orth.bottom = -200
+            // this.camera_orth.updateProjectionMatrix();
 
-            this.orbit_orth.handleResize();
-            this.orbit_orth.update();
+            // this.orbit_orth.handleResize();
+            // this.orbit_orth.update();
             
             this.camera_perspective.aspect = container.clientWidth / container.clientHeight;
             this.camera_perspective.updateProjectionMatrix();
@@ -330,11 +332,11 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         };
 
         view.reset_birdseye = function(){
-            this.orbit_orth.reset(); // 
+            //this.orbit_orth.reset(); // 
         };
         view.rotate_birdseye = function(){
-            this.camera_orth.up.set( 1, 0, 0);
-            this.orbit_orth.update();
+            //this.camera_orth.up.set( 1, 0, 0);
+            //this.orbit_orth.update();
         }
         view.detach_control = function(){
             this.transform_control.detach();

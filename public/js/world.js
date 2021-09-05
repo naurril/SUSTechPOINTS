@@ -345,6 +345,13 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         return tp;        
     }
 
+    this.globalRotToLocal = function(rot)
+    {
+        //new THREE.Quaternion().makeRotationFromEuler(rot)
+        return rot;
+    }
+
+
     this.preload=function(on_preload_finished){
         this.create_time = new Date().getTime();
         console.log(this.create_time, sceneName, frame, "start");

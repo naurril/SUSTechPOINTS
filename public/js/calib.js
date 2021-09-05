@@ -190,54 +190,6 @@ function Calib(data, editor){
     }
     */
     
-    this.install_calib_menu = function(parent_gui)
-    {
-        var params = {};
-    
-        //calibrate
-        var calibrateFolder = parent_gui.addFolder( 'Calibrate LiDAR-camera' );
-        
-        params['start calibration'] = () =>{
-            this.start_calibration();
-        };
-
-        calibrateFolder.add( params, 'start calibration');
-    
-        params['save cal'] = function () {
-            this.save_calibration();
-        };
-        calibrateFolder.add( params, 'save cal');
-    
-        params['reset cal'] = function () {
-           this.reset_calibration();
-       };
-           
-       calibrateFolder.add(params, 'reset cal');
-
-       /*
-       [
-            {name: "x", v: 0.002},
-            {name: "x", v: -0.002},
-            {name: "y", v: 0.002},
-            {name: "y", v: -0.002},
-            {name: "z", v: 0.002},
-            {name: "z", v: -0.002},
-            
-            {name: "tx", v: 0.005},
-            {name: "tx", v: -0.005},
-            {name: "ty", v: 0.005},
-            {name: "ty", v: -0.005},
-            {name: "tz", v: 0.005},
-            {name: "tz", v: -0.005},
-        ].forEach(function(x){
-            var item_name= x.name+","+x.v;
-            params[item_name] = function () {
-               calibrate(x.name, x.v);
-            };
-            calibrateFolder.add(params, item_name);
-        });
-        */
-    }
 };
 
 
