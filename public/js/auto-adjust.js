@@ -268,7 +268,10 @@ function AutoAdjust(boxOp, mouse, header){
     this.smart_paste=function(selected_box, add_box, on_box_changed){
         var box = selected_box;
         if (!box){
-            box = this.paste_bbox(this.mouse.get_mouse_location_in_world(), add_box);
+            let sceneP =  this.mouse.get_mouse_location_in_world()
+            // trans pos to world local pos
+            //let pos = this.data.world.scenePosToLidar(sceneP);
+            box = this.paste_bbox(pos, add_box);
         }
         else if (this.marked_object){
             box.scale.x = this.marked_object.ann.psr.scale.x;

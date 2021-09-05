@@ -631,7 +631,7 @@ function Lidar(sceneMeta, world, frameInfo){
         material.sizeAttenuation = false;
 
         var mesh = new THREE.Points( geometry, material );                        
-        mesh.name = "pcd";
+        mesh.name = "highlighted_pcd";
 
         //swith geometry
         this.world.webglGroup.remove(this.points);
@@ -642,7 +642,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
         this.points = mesh;
         this.build_points_index();
-        this.webglScene.add(mesh);
+        this.world.webglGroup.add(mesh);
     };
 
     this.get_points_indices_of_box=function(box){
@@ -1326,6 +1326,7 @@ function Lidar(sceneMeta, world, frameInfo){
         var indices = [];
         var p = new THREE.Vector3();
 
+        //todo: improve performance
         for (var i=0; i< pos_array.length/3; i++){
             p.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
             p = p.applyMatrix4(this.world.webglGroup.matrix);
@@ -1351,17 +1352,30 @@ function Lidar(sceneMeta, world, frameInfo){
         };
         */
 
-        var trans = transpose(euler_angle_to_rotate_matrix({x:0,y:0,z:rotation_z}, {x:0, y:0, z:0}), 4);
+        let localRot = this.world.sceneRotToLidar(new THREE.Euler(0,0,rotation_z, "XYZ"));
+        
+        let transToBoxMatrix = new THREE.Matrix4().makeRotationFromEuler(localRot)
+                                                  .setPosition(center.x, center.y, center.z)
+                                                  .invert();
 
-        var relative_position = [];
+       // var trans = transpose(euler_angle_to_rotate_matrix({x:0,y:0,z:rotation_z}, {x:0, y:0, z:0}), 4);
+
+        let relative_position = [];
+        let v3 = new THREE.Vector3();
         indices.forEach(function(i){
         //for (var i  = 0; i < pos.count; i++){
-            var x = pos_array[i*3];
-            var y = pos_array[i*3+1];
-            var z = pos_array[i*3+2];
-            var p = [x-center.x, y-center.y, z-center.z, 1];
-            var tp = matmul(trans, p, 4);
-            relative_position.push([tp[0],tp[1],tp[2]]);
+            
+            // var x = pos_array[i*3];
+            // var y = pos_array[i*3+1];
+            // var z = pos_array[i*3+2];
+            // var p = [x-center.x, y-center.y, z-center.z, 1];
+            // var tp = matmul(trans, p, 4);
+
+            v3.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
+
+            let boxP = v3.applyMatrix4(transToBoxMatrix);
+
+            relative_position.push([boxP.x,boxP.y, boxP.z]);
         });
 
         var relative_extreme = vector_range(relative_position);
@@ -1384,7 +1398,7 @@ function Lidar(sceneMeta, world, frameInfo){
         scale.y += 0.02;
         scale.z += 0.02;
 
-        return this.world.annotation.add_box(center, scale, {x:0,y:0,z:rotation_z}, "Unknown", "");
+        return this.world.annotation.add_box(center, scale, localRot, "Unknown", "");
     };
 }
 

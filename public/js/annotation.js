@@ -135,45 +135,80 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
 
-    this.ann_to_vector = function(box){
-        let pos = box.getTruePosition();
-        return [
-            pos.x,
-            pos.y,
-            pos.z,
-            box.rotation.x,
-            box.rotation.y,
-            box.rotation.z,
 
-            box.scale.x,
-            box.scale.y,
-            box.scale.z,
+    // to real-world position (no offset)
+    this.ann_to_vector_global = function(box) {
+        let posG = this.world.lidarPosToScene(box.position);
+        let rotG = this.world.lidarRotToScene(box.rotation);
+
+        return [
+            posG.x - this.world.coordinatesOffset[0], posG.y-this.world.coordinatesOffset[1], posG.z-this.world.coordinatesOffset[2], 
+            rotG.x, rotG.y, rotG.z, 
+            box.scale.x, box.scale.y, box.scale.z, 
         ];
+
     };
 
-    this.vector_to_ann = function(v){
+    // this.ann_to_vector = function(box){
+    //     let pos = box.getTruePosition();
+    //     return [
+    //         pos.x,
+    //         pos.y,
+    //         pos.z,
+    //         box.rotation.x,
+    //         box.rotation.y,
+    //         box.rotation.z,
+
+    //         box.scale.x,
+    //         box.scale.y,
+    //         box.scale.z,
+    //     ];
+    // };
+
+
+    // real-world position to ann
+    this.vector_global_to_ann = function(v)
+    {
+        let posG = new THREE.Vector3(v[0]+this.world.coordinatesOffset[0],
+                                     v[1]+this.world.coordinatesOffset[1],
+                                     v[2]+this.world.coordinatesOffset[2]);
+        let rotG = new THREE.Euler(v[3],v[4],v[5]);
+
+        let rotL = this.world.sceneRotToLidar(rotG);
+        let posL = this.world.scenePosToLidar(posG);
+
         return {
-            position:{
-                x:v[0],// + this.coordinatesOffset[0],
-                y:v[1],// + this.coordinatesOffset[1],
-                z:v[2],// + this.coordinatesOffset[2],
-            },
+            position: {x: posL.x, y: posL.y, z: posL.z},
+            rotation: {x: rotL.x, y: rotL.y, z: rotL.z},
+            scale:    {x: v[6],   y: v[7],   z: v[8]}
+        };
+
+    };
+
+
+    // this.vector_to_ann = function(v){
+    //     return {
+    //         position:{
+    //             x:v[0],// + this.coordinatesOffset[0],
+    //             y:v[1],// + this.coordinatesOffset[1],
+    //             z:v[2],// + this.coordinatesOffset[2],
+    //         },
 
            
-            rotation:{
-                x:v[3],
-                y:v[4],
-                z:v[5],
-            },
+    //         rotation:{
+    //             x:v[3],
+    //             y:v[4],
+    //             z:v[5],
+    //         },
 
-            scale:{
-                x:v[6],
-                y:v[7],
-                z:v[8],
-            },
+    //         scale:{
+    //             x:v[6],
+    //             y:v[7],
+    //             z:v[8],
+    //         },
 
-        };
-    };
+    //     };
+    // };
 
     this.remove_all_boxes = function(){
         if (this.boxes){

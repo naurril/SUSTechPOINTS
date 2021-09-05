@@ -760,7 +760,13 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.parentUi.querySelector("#trajectory").onclick = (e)=>{
         let tracks = this.editingTarget.data.worldList.map(w=>{
             let box = w.annotation.findBoxByTrackId(this.editingTarget.objTrackId);
-            return [w.frameInfo.frame, box? w.annotation.boxToAnn(box):null, false]
+            let ann = null;
+            if (box){
+                ann = w.annotation.boxToAnn(box);
+                ann.psr.position = w.lidarPosToUtm(ann.psr.position);
+                ann.psr.rotation = w.lidarRotToUtm(ann.psr.rotation);
+            } 
+            return [w.frameInfo.frame, ann, false];
         });
 
         tracks.sort((a,b)=> (a[0] > b[0])? 1 : -1);

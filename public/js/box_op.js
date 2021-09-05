@@ -469,7 +469,7 @@ function BoxOp(){
     this.interpolateAsync = async function(worldList, boxList, applyIndList){
         
         // if annotator is not null, it's annotated by us algorithms
-        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector(b));
+        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector_global(b));
         console.log(anns);
         let ret = await ml.interpolate_annotation(anns);
         console.log(ret);
@@ -487,7 +487,7 @@ function BoxOp(){
             if (!boxList[i]){
                 // create new box
                 let world = worldList[i];
-                let ann = world.annotation.vector_to_ann(ret[i]);
+                let ann = world.annotation.vector_global_to_ann(ret[i]);
                 
                 let newBox  = world.annotation.add_box(ann.position, 
                               ann.scale, 
@@ -500,7 +500,7 @@ function BoxOp(){
 
             } else if (boxList[i].annotator) {
                 // modify box attributes
-                let b = boxList[i].world.annotation.vector_to_ann(anns[i]);
+                let b = boxList[i].world.annotation.vector_global_to_ann(anns[i]);
                 boxList[i].position.x = b.position.x;
                 boxList[i].position.y = b.position.y;
                 boxList[i].position.z = b.position.z;
@@ -523,14 +523,14 @@ function BoxOp(){
         
 
         // if annotator is not null, it's annotated by us algorithms
-        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector(b));
+        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector_global(b));
         console.log("anns to interpolate", anns);
 
         let autoAdjAsync = async (index, newAnn)=>{
             //let box = boxList[index];
             let world = worldList[index];
 
-            let tempBox = world.annotation.vector_to_ann(newAnn);
+            let tempBox = world.annotation.vector_global_to_ann(newAnn);
             tempBox.world = world;
             tempBox.getTruePosition = function(){
                 return {
@@ -541,7 +541,7 @@ function BoxOp(){
             };
             
             let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true, dontRotate);
-            return world.annotation.ann_to_vector(adjustedBox);
+            return world.annotation.ann_to_vector_global(adjustedBox);
         };
 
 
@@ -561,7 +561,7 @@ function BoxOp(){
             if (!boxList[i]){
                 // create new box
                 let world = worldList[i];
-                let ann = world.annotation.vector_to_ann(anns[i]);
+                let ann = world.annotation.vector_global_to_ann(anns[i]);
                 
                 let newBox  = world.annotation.add_box(ann.position, 
                               ann.scale, 
@@ -573,7 +573,7 @@ function BoxOp(){
 
             } else if (boxList[i].annotator) {
                 // modify box attributes
-                let b = boxList[i].world.annotation.vector_to_ann(anns[i]);
+                let b = boxList[i].world.annotation.vector_global_to_ann(anns[i]);
                 boxList[i].position.x = b.position.x;
                 boxList[i].position.y = b.position.y;
                 boxList[i].position.z = b.position.z;

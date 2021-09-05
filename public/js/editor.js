@@ -428,7 +428,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         box.in_highlight = false;
         //view_state.lock_obj_in_highlight = false; // when user unhighlight explicitly, set it to false
-        //this.data.world.lidar.cancel_highlight(box);
+        this.data.world.lidar.cancel_highlight(box);
         this.floatLabelManager.restore_all();
         
         this.viewManager.mainView.save_orbit_state(box.scale);
@@ -440,14 +440,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             return;
 
         if (box){
-            //this.data.world.lidar.highlight_box_points(box);
+            this.data.world.lidar.highlight_box_points(box);
             
             this.floatLabelManager.hide_all();
             this.viewManager.mainView.orbit.saveState();
 
             //this.viewManager.mainView.camera.position.set(this.selected_box.position.x+this.selected_box.scale.x*3, this.selected_box.position.y+this.selected_box.scale.y*3, this.selected_box.position.z+this.selected_box.scale.z*3);
 
-            let posG = this.data.world.localPosToGlobal(box.position);
+            let posG = this.data.world.lidarPosToScene(box.position);
             this.viewManager.mainView.orbit.target.x = posG.x;
             this.viewManager.mainView.orbit.target.y = posG.y;
             this.viewManager.mainView.orbit.target.z = posG.z;
@@ -469,8 +469,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         let tracks = this.data.worldList.map(w=>{
             let box = w.annotation.findBoxByTrackId(this.selected_box.obj_track_id);
-            return [w.frameInfo.frame, box? w.annotation.boxToAnn(box):null, w===this.data.world]
+            let ann = null;
+            if (box){
+                ann = w.annotation.boxToAnn(box);
+                ann.psr.position = w.lidarPosToUtm(ann.psr.position);
+                ann.psr.rotation = w.lidarRotToUtm(ann.psr.rotation);
+            } 
+            return [w.frameInfo.frame, ann, w===this.data.world]
         });
+
 
         tracks.sort((a,b)=> (a[0] > b[0])? 1 : -1);
 
@@ -548,10 +555,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.playControl.play((w)=>{this.on_load_world_finished(w)}, 50);
             break;
         case 'cm-paste':
-            this.autoAdjust.smart_paste(this.selected_box,
-                (p,s,r,t,i)=>this.add_box(p,s,r,t,i),
-                (b)=>this.on_box_changed(b)
-                );
+            {
+                let box = this.add_box_on_mouse_pos_by_ref();
+                this.boxOp.auto_rotate_xyz(box, null, null, 
+                    b=>this.on_box_changed(b),
+                    "noscaling");
+            }
             break;
         case 'cm-prev-frame':
             this.previous_frame();
@@ -1153,7 +1162,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         // create new box
         var self=this;
         var center_pos = this.mouse.get_screen_location_in_world(x+w/2, y+h/2);
-        center_pos = this.data.world.globalPosToLocal(center_pos);
+        center_pos = this.data.world.scenePosToLidar(center_pos);
         
         var box = this.data.world.lidar.create_box_by_view_rect(x,y,w,h, this.viewManager.mainView.camera, center_pos);
         //this.scene.add(box);
@@ -1449,15 +1458,27 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
     };
 
+    this.add_box_on_mouse_pos_by_ref = function(){
+
+        let globalP = this.mouse.get_mouse_location_in_world();
+        // trans pos to world local pos
+        let pos = this.data.world.scenePosToLidar(globalP);
+
+        let refbox = this.autoAdjust.marked_object.ann;
+        let box = this.add_box(pos, refbox.psr.scale, refbox.psr.rotation, refbox.obj_type, refbox.obj_id);
+        
+        return box;
+    };
+
     this.add_box_on_mouse_pos= function(obj_type){
         // todo: move to this.data.world
         let globalP = this.mouse.get_mouse_location_in_world();
 
         // trans pos to world local pos
-        let pos = this.data.world.globalPosToLocal(globalP);
+        let pos = this.data.world.scenePosToLidar(globalP);
 
-        var rotation = {x:0, y:0, z:this.viewManager.mainView.camera.rotation.z+Math.PI/2};
-        rotation = this.data.world.globalRotToLocal(rotation);
+        var rotation = new THREE.Euler(0, 0, this.viewManager.mainView.camera.rotation.z+Math.PI/2, "XYZ");
+        rotation = this.data.world.sceneRotToLidar(rotation);
 
         var obj_cfg = get_obj_cfg_by_type(obj_type);
         var scale = {   
