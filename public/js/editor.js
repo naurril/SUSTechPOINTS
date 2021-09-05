@@ -968,6 +968,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     {
         this.selected_box.obj_track_id = id;
         this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
+
+        this.view_state.lock_obj_track_id = id;
+
         //this.header.mark_changed_flag();
         this.on_box_changed(this.selected_box);
 
@@ -1376,6 +1379,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
 
             // highlight box
+            // shold change this id if the current selected box changed id.
             this.view_state.lock_obj_track_id = object.obj_track_id;
 
             this.floatLabelManager.select_box(this.selected_box.obj_local_id);
