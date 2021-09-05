@@ -428,7 +428,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         box.in_highlight = false;
         //view_state.lock_obj_in_highlight = false; // when user unhighlight explicitly, set it to false
-        this.data.world.lidar.cancel_highlight(box);
+        //this.data.world.lidar.cancel_highlight(box);
         this.floatLabelManager.restore_all();
         
         this.viewManager.mainView.save_orbit_state(box.scale);
@@ -440,20 +440,19 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             return;
 
         if (box){
-            this.data.world.lidar.highlight_box_points(box);
+            //this.data.world.lidar.highlight_box_points(box);
             
             this.floatLabelManager.hide_all();
             this.viewManager.mainView.orbit.saveState();
 
             //this.viewManager.mainView.camera.position.set(this.selected_box.position.x+this.selected_box.scale.x*3, this.selected_box.position.y+this.selected_box.scale.y*3, this.selected_box.position.z+this.selected_box.scale.z*3);
 
-            this.viewManager.mainView.orbit.target.x = box.position.x;
-            this.viewManager.mainView.orbit.target.y = box.position.y;
-            this.viewManager.mainView.orbit.target.z = box.position.z;
+            let posG = this.data.world.localPosToGlobal(box.position);
+            this.viewManager.mainView.orbit.target.x = posG.x;
+            this.viewManager.mainView.orbit.target.y = posG.y;
+            this.viewManager.mainView.orbit.target.z = posG.z;
 
             this.viewManager.mainView.restore_relative_orbit_state(box.scale);
-
-
             this.viewManager.mainView.orbit.update();
 
             this.render();
