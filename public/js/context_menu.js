@@ -95,6 +95,8 @@ class ContextMenu {
         }
 
         // show
+        this.wrapperUi.style.display = "block";
+
         let menu = this.menus[name]
         menu.style.display = "inherit";
 
@@ -103,12 +105,26 @@ class ContextMenu {
             funcSetPos(menu);
         }
         else{
-            menu.style.left = posX+"px";
-            menu.style.top = posY+"px";
+
+            if (this.wrapperUi.clientHeight < posY + menu.clientHeight){
+                menu.style.top = (this.wrapperUi.clientHeight - menu.clientHeight) + "px";
+            }
+            else{
+                menu.style.top = posY+"px";
+            }
+
+
+            if (this.wrapperUi.clientWidth < posX + menu.clientWidth){
+                menu.style.left = (this.wrapperUi.clientWidth - menu.clientWidth) + "px";
+            }
+            else{
+                menu.style.left = posX+"px";
+            }
+            
         }
 
 
-        this.wrapperUi.style.display = "block";
+        
     }
 
 
