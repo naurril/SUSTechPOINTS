@@ -135,11 +135,32 @@ function Data(metaData, cfg){
             if (w.frameInfo.scene != keepScene){
                 this.returnOffset(w.offsetIndex);
                 w.deleteAll();
+
+                this.removeRefEgoPoseOfScene(w.frameInfo.scene);
             }
         })
         this.worldList = this.worldList.filter(w=>w.frameInfo.scene==keepScene);
     };
     
+
+    this.refEgoPose={};
+    this.getRefEgoPose = function(sceneName, currentPose)
+    {
+        if (this.refEgoPose[sceneName]){
+            return this.refEgoPose[sceneName];
+        }
+        else{
+            this.refEgoPose[sceneName] = currentPose;
+            return currentPose;
+        }
+    }
+
+    this.removeRefEgoPoseOfScene = function(sceneName)
+    {
+        if (this.refEgoPose[sceneName])
+            delete this.refEgoPose[sceneName];
+    }
+
     this.preloadScene = function(sceneName, currentWorld){
 
         // clean other scenes.

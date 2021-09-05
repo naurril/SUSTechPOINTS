@@ -221,7 +221,7 @@ def read_ego_pose(scene, frame):
         p=json.load(f)
         return p
     else:
-      return {}
+      return None
 
 def save_annotations(scene, frame, anno):
     filename = os.path.join(root_dir, scene, "label", frame+".json")

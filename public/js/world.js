@@ -256,6 +256,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             
             log.println(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
 
+            this.calcTransformMatrix();
+            this.webglGroup.matrix.copy(this.trans_lidar_scene);
+            this.webglGroup.matrixAutoUpdate = false;
+            
             if (this.on_preload_finished){
                 this.on_preload_finished(this);                
             }
@@ -269,9 +273,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
     this.calcTransformMatrix = function()
     {
-        if (this.sceneMeta.ego_pose && this.data.cfg.enableUtmCoordinates){
-                let thisPose = this.sceneMeta.ego_pose[this.frameInfo.frame];
-                let refPose = this.sceneMeta.ego_pose[this.sceneMeta.frames[0]];
+        if (this.data.cfg.enableUtmCoordinates && this.egoPose.egoPose){
+
+                let thisPose = this.egoPose.egoPose;
+                let refPose = this.data.getRefEgoPose(this.frameInfo.scene, thisPose);
                 
     
                 let thisRot = {
@@ -431,12 +436,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         this.webglGroup = new THREE.Group();
         this.webglGroup.name = "world";
         
-        this.calcTransformMatrix();
-        this.webglGroup.matrix.copy(this.trans_lidar_scene);
-        this.webglGroup.matrixAutoUpdate = false;
         
-
-
         let _preload_cb = ()=>this.on_subitem_preload_finished(on_preload_finished);
 
         this.lidar.preload(_preload_cb);
