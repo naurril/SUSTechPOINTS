@@ -219,7 +219,6 @@ function Data(metaData, cfg){
         })
     };
 
-
     this.webglScene = null;
     this.set_webglScene=function(scene, mainScene){
             this.webglScene = scene;

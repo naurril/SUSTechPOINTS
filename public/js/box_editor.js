@@ -39,10 +39,11 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     this.focusImageContext = new FocusImageContext(this.ui.querySelector("#focuscanvas"));
     
     this.target = {};
-    this.setTarget = function(world, objTrackId){
+    this.setTarget = function(world, objTrackId, objType){
         this.target = {
             world: world,
             objTrackId: objTrackId,
+            objType: objType,
         }
 
         this.tryAttach();
@@ -430,7 +431,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         frames.forEach((frame, editorIndex)=>{
             let world = data.getWorld(sceneName, frame);
             let editor = this.addEditor();
-            editor.setTarget(world, objTrackId);
+            editor.setTarget(world, objTrackId, objType);
             editor.setIndex(editorIndex);
             
             data.activate_world(world, 

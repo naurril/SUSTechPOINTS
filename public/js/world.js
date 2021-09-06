@@ -257,8 +257,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             log.println(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
 
             this.calcTransformMatrix();
-            this.webglGroup.matrix.copy(this.trans_lidar_scene);
-            this.webglGroup.matrixAutoUpdate = false;
+
             
             if (this.on_preload_finished){
                 this.on_preload_finished(this);                
@@ -273,7 +272,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
     this.calcTransformMatrix = function()
     {
-        if (this.data.cfg.enableUtmCoordinates && this.egoPose.egoPose){
+        if (this.data.cfg.coordinateSystem == "utm" && this.egoPose.egoPose){
 
                 let thisPose = this.egoPose.egoPose;
                 let refPose = this.data.getRefEgoPose(this.frameInfo.scene, thisPose);
@@ -345,10 +344,11 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 
                 this.trans_utm_lidar = new THREE.Matrix4().copy(this.trans_lidar_utm).invert();
                 this.trans_scene_lidar = new THREE.Matrix4().copy(this.trans_lidar_scene).invert();
-
-
-                return id;
             }
+
+            
+            this.webglGroup.matrix.copy(this.trans_lidar_scene);
+            this.webglGroup.matrixAutoUpdate = false;
     };
 
     // global scene 

@@ -126,6 +126,16 @@ class ConfigUi{
             return false;
         },
 
+        "#cfg-coordinate-system-select": (event)=>{
+            let coord = event.currentTarget.value;
+            pointsGlobalConfig.setItem("coordinateSystem", coord);
+
+            this.editor.data.worldList.forEach(w=>{
+                w.calcTransformMatrix();
+            });
+            this.editor.render();
+        },
+
         "#cfg-data-aux-lidar-checkbox": (event)=>{
             let checked = event.currentTarget.checked;
 
@@ -226,6 +236,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-data-aux-lidar-checkbox").checked = pointsGlobalConfig.enableAuxLidar;
         this.menu.querySelector("#cfg-data-radar-checkbox").checked = pointsGlobalConfig.enableRadar;
         this.menu.querySelector("#cfg-color-points-select").value = pointsGlobalConfig.color_points;
+        this.menu.querySelector("#cfg-coordinate-system-select").value = pointsGlobalConfig.coordinateSystem;
     }
 
 

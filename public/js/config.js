@@ -10,7 +10,7 @@ class Config{
     enableAuxLidar = false;
     enableDynamicGroundLevel = true;
 
-    enableUtmCoordinates = true;
+    coordinateSystem = 'utm';
 
     point_size = 1;
     point_brightness = 0.6;
@@ -75,6 +75,7 @@ class Config{
         ["enableFilterPoints", this.toBool],
         ["filterPointsZ", parseFloat],
         ["color_points", null],
+        ["coordinateSystem", null]
     ];
 
     load()
