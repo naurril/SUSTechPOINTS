@@ -32,13 +32,14 @@ class EgoPose
                 _self.egoPose = egoPose;
             }
         
+            console.log(_self.world.frameInfo.frame, "egopose", "loaded");
             _self.preloaded = true;
 
-            if (this.on_preload_finished){
-                this.on_preload_finished();
+            if (_self.on_preload_finished){
+                _self.on_preload_finished();
             }                
-            if (this.go_cmd_received){
-                this.go(this.webglScene, this.on_go_finished);
+            if (_self.go_cmd_received){
+                _self.go(this.webglScene, this.on_go_finished);
             }
 
             // end of state change: it can be after some time (async)

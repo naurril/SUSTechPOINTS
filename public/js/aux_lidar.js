@@ -152,6 +152,9 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
     };
 
     this.preload = function(on_preload_finished){
+
+        this.on_preload_finished = on_preload_finished;
+        
         var loader = new PCDLoader();
 
         var _self = this;

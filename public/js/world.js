@@ -272,7 +272,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
     this.calcTransformMatrix = function()
     {
-        if (this.data.cfg.coordinateSystem == "utm" && this.egoPose.egoPose){
+        if (this.egoPose.egoPose){
 
                 let thisPose = this.egoPose.egoPose;
                 let refPose = this.data.getRefEgoPose(this.frameInfo.scene, thisPose);
@@ -327,7 +327,11 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 //     ];
     
                 this.trans_lidar_utm = new THREE.Matrix4().multiplyMatrices(trans_ego_utm, trans_lidar_ego);
-                this.trans_lidar_scene = new THREE.Matrix4().multiplyMatrices(trans_utm_scene, this.trans_lidar_utm);
+
+                if (this.data.cfg.coordinateSystem == "utm")
+                    this.trans_lidar_scene = new THREE.Matrix4().multiplyMatrices(trans_utm_scene, this.trans_lidar_utm);
+                else
+                    this.trans_lidar_scene = trans_utm_scene;  //only offset.
 
                 this.trans_utm_lidar = new THREE.Matrix4().copy(this.trans_lidar_utm).invert();
                 this.trans_scene_lidar = new THREE.Matrix4().copy(this.trans_lidar_scene).invert();
@@ -347,6 +351,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
             }
 
 
+            
             this.webglGroup.matrix.copy(this.trans_lidar_scene);
             this.webglGroup.matrixAutoUpdate = false;
     };
@@ -385,7 +390,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         }
 
         let rotG = new THREE.Quaternion().setFromEuler(rotEuler);
-        let GlobalToLocalRot = new THREE.Quaternion().setFromRotationMatrix(this.trans_lidar_scene).invert();
+        let GlobalToLocalRot = new THREE.Quaternion().setFromRotationMatrix(this.trans_scene_lidar);
 
         let retQ = rotG.multiply(GlobalToLocalRot);
 

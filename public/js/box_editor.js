@@ -325,6 +325,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.globalHeader = globalHeader;
     this.contextMenu = contextMenu;
     this.parentUi = parentUi;
+    this.boxEditorGroupUi = parentUi.querySelector("#batch-box-editor-group");
+    this.boxEditorHeaderUi = parentUi.querySelector("#batch-box-editor-header");
     this.fastToolBoxUi = fastToolBoxUi;
     this.batchSize = 20;
     this.configMenu = configMenu;
@@ -682,12 +684,20 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this._addToolBox = function(){
         let template = document.getElementById("batch-editor-tools-template");
         let tool = template.content.cloneNode(true);
-        this.parentUi.appendChild(tool);
+        this.boxEditorHeaderUi.appendChild(tool);
+        return this.boxEditorHeaderUi.lastElementChild;
+    };
+
+    this.toolbox = this._addToolBox();
+
+    this._addBoxSelector = function(){
+        let template = document.getElementById("batch-editor-box-selector-template");
+        let ui = template.content.cloneNode(true);
+        this.parentUi.appendChild(ui);
         return this.parentUi.lastElementChild;
     };
 
-
-    this.toolbox = this._addToolBox();
+    this.selector = this._addBoxSelector();
 
     this.reloadAnnotation = function(editorList){
         //this.editorList.forEach(e=>e.refreshAnnotation());
@@ -744,13 +754,23 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.adjustRotationByMovingDirection = function()
     {
         let currentBox = this.firingBoxEditor.box;
-        let nextIndex = this.firingBoxEditor.index+1;
-        let nextBox = this.editorList[nextIndex].box;
+        let idx = this.firingBoxEditor.index;
+        let nextBox = this.editorList[idx+1]?this.editorList[idx+1].box:null;
+        let prevBox = this.editorList[idx-1]?this.editorList[idx-1].box:null;
+
+        if (!nextBox && !prevBox)
+            return;
 
         let currentP = currentBox.world.lidarPosToUtm(currentBox.position);
-        let nextP =    nextBox.world.lidarPosToUtm(nextBox.position);
+        let nextP =    nextBox?nextBox.world.lidarPosToUtm(nextBox.position) : null;
+        let prevP =    prevBox?prevBox.world.lidarPosToUtm(prevBox.position) : null;
 
-        let azimuth = Math.atan2(nextP.y-currentP.y, nextP.x-currentP.x);
+        
+        let azimuth_n = nextP? Math.atan2(nextP.y-currentP.y, nextP.x-currentP.x): 0;
+        let azimuth_p = prevP? Math.atan2(currentP.y-prevP.y, currentP.x-prevP.x): 0;
+
+        
+        let azimuth = (azimuth_n + azimuth_p)/((prevP?1:0) + (nextP?1:0));
 
         let estimatedRot = currentBox.world.utmRotToLidar(new THREE.Euler(0,0,azimuth, "XYZ"));
         
@@ -991,7 +1011,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
     this.allocateEditor = function(){
         if (this.activeIndex >= this.editorList.length){
-            let editor = new BoxEditor(this.parentUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, func_on_box_remove, String(this.activeIndex));
+            let editor = new BoxEditor(this.boxEditorGroupUi, this, this.viewManager, cfg, this.boxOp, func_on_box_changed, func_on_box_remove, String(this.activeIndex));
             
             // resizable for the first editor
 

@@ -100,12 +100,12 @@ function Lidar(sceneMeta, world, frameInfo){
                 _self.world.data.dbg.alloc();
                 var geometry = new THREE.BufferGeometry();
                 if ( position.length > 0 ) 
-                    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
 
                 let normal = pcd.normal;
                 // normal and colore are note used in av scenes.
                 if ( normal.length > 0 ) 
-                    geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
+                    geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
                 
                 let color = pcd.color;
                 if ( color.length == 0 ) {
@@ -140,7 +140,7 @@ function Lidar(sceneMeta, world, frameInfo){
                     pcd.color = color;
                 }
 
-                geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+                geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
 
                 geometry.computeBoundingSphere();
                 // build material
@@ -488,8 +488,8 @@ function Lidar(sceneMeta, world, frameInfo){
         var geometry = new THREE.BufferGeometry();
         
         if (hl_point.length > 0 ) {
-            geometry.addAttribute( 'position', new THREE.Float32BufferAttribute(hl_point, 3 ) );
-            geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(hl_color, 3 ) );
+            geometry.setAttribute( 'position', new THREE.Float32BufferAttribute(hl_point, 3 ) );
+            geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(hl_color, 3 ) );
         }
         
         
@@ -559,7 +559,7 @@ function Lidar(sceneMeta, world, frameInfo){
         var geometry = new THREE.BufferGeometry();
         
         
-        geometry.addAttribute( 'position', new THREE.Float32BufferAttribute(points, 3 ) );
+        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute(points, 3 ) );
         geometry.computeBoundingSphere();               
 
         var material = new THREE.PointsMaterial( { size: this.data.cfg.point_size} );
@@ -619,8 +619,8 @@ function Lidar(sceneMeta, world, frameInfo){
         var geometry = new THREE.BufferGeometry();
         
         if (hl_point.length > 0 ) {
-            geometry.addAttribute( 'position', new THREE.Float32BufferAttribute(hl_point, 3 ) );
-            geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(hl_color, 3 ) );
+            geometry.setAttribute( 'position', new THREE.Float32BufferAttribute(hl_point, 3 ) );
+            geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(hl_color, 3 ) );
         }
         
         
@@ -1163,7 +1163,7 @@ function Lidar(sceneMeta, world, frameInfo){
         if (this.points){ //some time points may fail to load.
             this.points.geometry.getAttribute("color").needsUpdate = true;
             //this.points.geometry.removeAttribute("color");
-            //this.points.geometry.addAttribute("color", new THREE.Float32BufferAttribute(color.array, 3 ));
+            //this.points.geometry.setAttribute("color", new THREE.Float32BufferAttribute(color.array, 3 ));
         }
     };
 
