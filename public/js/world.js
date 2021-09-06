@@ -346,7 +346,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 this.trans_scene_lidar = new THREE.Matrix4().copy(this.trans_lidar_scene).invert();
             }
 
-            
+
             this.webglGroup.matrix.copy(this.trans_lidar_scene);
             this.webglGroup.matrixAutoUpdate = false;
     };
@@ -422,6 +422,23 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         let localToGlobalRot = new THREE.Quaternion().setFromRotationMatrix(this.trans_lidar_utm)
 
         let retQ = rotL.multiply(localToGlobalRot);
+
+        let retEuler = new THREE.Euler().setFromQuaternion(retQ, rotEuler.order);
+
+        return retEuler;
+    }
+
+    this.utmRotToLidar = function(rotEuler)
+    {
+        if (!rotEuler.isEuler)
+        {
+            rotEuler = new THREE.Euler(rotEuler.x, rotEuler.y, rotEuler.z, "XYZ");
+        }
+
+        let rot = new THREE.Quaternion().setFromEuler(rotEuler);
+        let trans = new THREE.Quaternion().setFromRotationMatrix(this.trans_utm_lidar);
+
+        let retQ = rot.multiply(trans);
 
         let retEuler = new THREE.Euler().setFromQuaternion(retQ, rotEuler.order);
 

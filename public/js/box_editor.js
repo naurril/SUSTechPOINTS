@@ -1,3 +1,5 @@
+import * as THREE from './lib/three.module.js';
+
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import {FocusImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
@@ -593,13 +595,19 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             break;
         case 'cm-auto-annotate-wo-rotation-previous':
             {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+                let applyIndList = this.activeEditorList().map(e=>false);
 
                 for (let i = 0; i < this.firingBoxEditor.index; i++){
                     applyIndList[i]= true;
                 }
 
                 this.autoAnnotate(applyIndList, "dontrotate");
+            }
+            break;
+        
+        case 'cm-adjust-rotation-by-moving-direction':
+            {
+               this.adjustRotationByMovingDirection();
             }
             break;
             
@@ -732,6 +740,24 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
         this.globalHeader.updateModifiedStatus();
     }
+
+    this.adjustRotationByMovingDirection = function()
+    {
+        let currentBox = this.firingBoxEditor.box;
+        let nextIndex = this.firingBoxEditor.index+1;
+        let nextBox = this.editorList[nextIndex].box;
+
+        let currentP = currentBox.world.lidarPosToUtm(currentBox.position);
+        let nextP =    nextBox.world.lidarPosToUtm(nextBox.position);
+
+        let azimuth = Math.atan2(nextP.y-currentP.y, nextP.x-currentP.x);
+
+        let estimatedRot = currentBox.world.utmRotToLidar(new THREE.Euler(0,0,azimuth, "XYZ"));
+        
+        currentBox.rotation.z = estimatedRot.z;
+        func_on_box_changed(currentBox);
+    }
+
 
     // this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
     //     e.stopPropagation();});
