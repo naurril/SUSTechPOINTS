@@ -152,16 +152,16 @@ def get_one_scene(s):
     scene["aux_lidar_ext"] = aux_lidar_ext
 
 
-    # ego_pose
-    ego_pose= {}
-    ego_pose_path = os.path.join(scene_dir, "ego_pose")
-    if os.path.exists(ego_pose_path):
-        poses = os.listdir(ego_pose_path)
-        for p in poses:
-            p_file = os.path.join(ego_pose_path, p)
-            with open(p_file)  as f:
-                    pose = json.load(f)
-                    ego_pose[os.path.splitext(p)[0]] = pose
+    # # ego_pose
+    # ego_pose= {}
+    # ego_pose_path = os.path.join(scene_dir, "ego_pose")
+    # if os.path.exists(ego_pose_path):
+    #     poses = os.listdir(ego_pose_path)
+    #     for p in poses:
+    #         p_file = os.path.join(ego_pose_path, p)
+    #         with open(p_file)  as f:
+    #                 pose = json.load(f)
+    #                 ego_pose[os.path.splitext(p)[0]] = pose
 
 
     if  True: #not os.path.isdir(os.path.join(scene_dir, "bbox.xyz")):
@@ -180,8 +180,8 @@ def get_one_scene(s):
             calib["radar"] = calib_radar
         if calib_aux_lidar:
             calib["aux_lidar"] = calib_aux_lidar
-        if ego_pose:
-            scene["ego_pose"] = ego_pose
+        # if ego_pose:
+        #     scene["ego_pose"] = ego_pose
             
     # else:
     #     scene["boxtype"] = "xyz"
