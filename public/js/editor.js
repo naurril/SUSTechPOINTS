@@ -264,9 +264,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.moveRangeCircle = function(world){
         if (this.rangeCircle){
-            this.rangeCircle.position.x = world.coordinatesOffset[0];
-            this.rangeCircle.position.y = world.coordinatesOffset[1];
-            this.rangeCircle.position.z = world.coordinatesOffset[2];
+            world.webglGroup.add(this.rangeCircle);
         }
     };
 
@@ -1968,9 +1966,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.data.preloadScene(world.frameInfo.scene, world);
     };
     this.moveAxisHelper = function(world) {
-        this.axis.position.x = world.coordinatesOffset[0];
-        this.axis.position.y = world.coordinatesOffset[1];
-        this.axis.position.z = world.coordinatesOffset[2];
+        world.webglGroup.add(this.axis);
     };
 
     this.mainViewOffset = [0,0,0];
