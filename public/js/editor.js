@@ -690,6 +690,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
         /// object
 
+        case "cm-reset-view":
+            {
+                let pos = this.data.world.lidarPosToScene({x:0, y:0, z:50});
+                this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z);
+                this.viewManager.mainView.orbit.target.set(pos.x, pos.y, 0);
+                this.viewManager.mainView.orbit.update();
+                this.render();
+            }
+            break;
         case "cm-delete":
             this.remove_selected_box();
             this.header.updateModifiedStatus();
