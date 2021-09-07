@@ -251,12 +251,13 @@ function BoxOp(){
         let nextP =    nextBox?nextBox.world.lidarPosToUtm(nextBox.position) : null;
         let prevP =    prevBox?prevBox.world.lidarPosToUtm(prevBox.position) : null;
 
-        
-        let azimuth_n = nextP? Math.atan2(nextP.y-currentP.y, nextP.x-currentP.x): 0;
-        let azimuth_p = prevP? Math.atan2(currentP.y-prevP.y, currentP.x-prevP.x): 0;
+        if (!prevP)
+            prevP = currentP;
 
+        if (!nextP)
+            nextP = currentP;
         
-        let azimuth = (azimuth_n + azimuth_p)/((prevP?1:0) + (nextP?1:0));
+        let azimuth = Math.atan2(nextP.y-prevP.y, nextP.x-prevP.x)
 
         let estimatedRot = box.world.utmRotToLidar(new THREE.Euler(0,0,azimuth, "XYZ"));
         
