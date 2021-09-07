@@ -1,3 +1,5 @@
+import {logger} from "./log.js";
+
 class ConfigUi{
 
     clickableItems = {
@@ -31,6 +33,11 @@ class ConfigUi{
 
         "#cfg-take-screenshot": (event)=>{
             this.editor.downloadWebglScreenShot();
+            return true;
+        },
+
+        "#cfg-show-log": (event)=>{
+            logger.show();
             return true;
         },
         

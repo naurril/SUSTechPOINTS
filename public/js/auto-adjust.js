@@ -1,7 +1,7 @@
 
 import {saveWorld, saveWorldList} from "./save.js"
 import {transpose, matmul2, euler_angle_to_rotate_matrix_3by3 } from "./util.js";
-import { log } from "./log.js";
+import { logger } from "./log.js";
 
 // todo: this module needs a proper name
 
@@ -20,7 +20,7 @@ function AutoAdjust(boxOp, mouse, header){
                 ann: box.world.annotation.boxToAnn(box),
             }
     
-            log.println(`selected reference objcet ${this.marked_object}`);
+            logger.log(`selected reference objcet ${this.marked_object}`);
     
             this.header.set_ref_obj(this.marked_object);
         }
@@ -111,7 +111,7 @@ function AutoAdjust(boxOp, mouse, header){
                         relative_rotation: relativeRot,
                     };
 
-                    log.println(`modified box in ${w}`);
+                    logger.log(`modified box in ${w}`);
                 } else{
                     let newBox  = w.annotation.add_box(newObjPos, 
                         box.scale, 
@@ -130,7 +130,7 @@ function AutoAdjust(boxOp, mouse, header){
                     };
 
                     w.annotation.load_box(newBox);
-                    log.println(`inserted box in ${w}`);
+                    logger.log(`inserted box in ${w}`);
                 }
 
                 console.log("added box in ", w.frameInfo.frame);

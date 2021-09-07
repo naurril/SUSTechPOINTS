@@ -1,7 +1,7 @@
 
 
 
-import {log} from "./log.js"
+import {logger} from "./log.js"
 
 
 
@@ -81,7 +81,7 @@ function saveWorldList(worldList, done){
                 w.annotation.resetModified();
             })
 
-            log.println(`saved: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
+            logger.log(`saved: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
 
             if(done){
                 done();
@@ -99,7 +99,7 @@ function saveWorldList(worldList, done){
 
 function saveWorld(world, done){
     if (world.data.cfg.disableLabels){
-        log.println("labels not loaded, save action is prohibitted.")
+        logger.log("labels not loaded, save action is prohibitted.")
         return;
     }
 
@@ -114,7 +114,7 @@ function saveWorld(world, done){
         if (this.readyState != 4) return;
     
         if (this.status == 200) {
-            log.println(`saved: ${world}`);
+            logger.log(`saved: ${world}`);
             world.annotation.resetModified();
 
             //reload obj-ids of the scene

@@ -754,25 +754,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.adjustRotationByMovingDirection = function()
     {
         let currentBox = this.firingBoxEditor.box;
-        let idx = this.firingBoxEditor.index;
-        let nextBox = this.editorList[idx+1]?this.editorList[idx+1].box:null;
-        let prevBox = this.editorList[idx-1]?this.editorList[idx-1].box:null;
-
-        if (!nextBox && !prevBox)
-            return;
-
-        let currentP = currentBox.world.lidarPosToUtm(currentBox.position);
-        let nextP =    nextBox?nextBox.world.lidarPosToUtm(nextBox.position) : null;
-        let prevP =    prevBox?prevBox.world.lidarPosToUtm(prevBox.position) : null;
-
-        
-        let azimuth_n = nextP? Math.atan2(nextP.y-currentP.y, nextP.x-currentP.x): 0;
-        let azimuth_p = prevP? Math.atan2(currentP.y-prevP.y, currentP.x-prevP.x): 0;
-
-        
-        let azimuth = (azimuth_n + azimuth_p)/((prevP?1:0) + (nextP?1:0));
-
-        let estimatedRot = currentBox.world.utmRotToLidar(new THREE.Euler(0,0,azimuth, "XYZ"));
+        let estimatedRot = boxOp.estimate_rotation_by_moving_direciton(currentBox);
         
         currentBox.rotation.z = estimatedRot.z;
         func_on_box_changed(currentBox);

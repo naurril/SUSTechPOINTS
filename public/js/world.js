@@ -6,7 +6,7 @@ import {AuxLidarManager} from "./aux_lidar.js"
 import {Lidar} from "./lidar.js"
 import {Annotation} from "./annotation.js"
 import {EgoPose} from "./ego_pose.js"
-import {log} from "./log.js"
+import {logger} from "./log.js"
 import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 , mat} from './util.js';
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
@@ -254,7 +254,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.on_subitem_preload_finished = function(on_preload_finished){
         if (this.preloaded()){
             
-            log.println(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
+            logger.log(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
 
             this.calcTransformMatrix();
 
@@ -582,7 +582,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.deleteAll = function(){
         var _self= this;
 
-        log.println(`delete world ${this.frameInfo.scene},${this.frameInfo.frame}`);
+        logger.log(`delete world ${this.frameInfo.scene},${this.frameInfo.frame}`);
 
         if (this.everythingDone){
             this.unload();

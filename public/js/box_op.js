@@ -1,6 +1,7 @@
 import * as THREE from './lib/three.module.js';
 import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
+import {logger} from "./log.js"
 import {
 	Quaternion,
 	Vector3
@@ -14,7 +15,8 @@ function BoxOp(){
     console.log("BoxOp called");
     this.grow_box_distance_threshold = 0.3;
 
-    this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling, dontrotate){
+
+    this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling, rotate_method){
 
         // auto grow
         // save scale
@@ -169,7 +171,7 @@ function BoxOp(){
 
         let extreme_after_grow = grow(box);
 
-        if (!dontrotate){
+        if (!rotate_method){
             let points = box.world.lidar.get_points_relative_coordinates_of_box_wo_rotation(box, 1);
             //let points = box.world.get_points_relative_coordinates_of_box(box, 1.0);
 
@@ -182,7 +184,24 @@ function BoxOp(){
              .then(postProc);
 
             return retBox;
-        }else{
+        } 
+        if (rotate_method == "moving-direction")
+        {
+            let estimatedRot = this.estimate_rotation_by_moving_direciton(box);
+
+            applyRotation({
+                angle:[
+                    box.rotation.x, // use original rotation
+                    box.rotation.y, // use original rotation
+                    estimatedRot? estimatedRot.z : box.rotation.z, // use original rotation
+                    ]
+                },
+                extreme_after_grow);
+
+            postProc(box);
+            return box;
+        }
+        else{
             applyRotation({
                 angle:[
                     box.rotation.x, // use original rotation
@@ -209,6 +228,39 @@ function BoxOp(){
 
         }) 
 
+    };
+
+
+    this.estimate_rotation_by_moving_direciton = function(box) 
+    {
+        let prevWorld = box.world.data.findWorld(box.world.frameInfo.scene, 
+            box.world.frameInfo.frame_index-1);
+
+        let nextWorld = box.world.data.findWorld(box.world.frameInfo.scene, 
+            box.world.frameInfo.frame_index+1);
+
+        let prevBox = prevWorld?prevWorld.annotation.findBoxByTrackId(box.obj_track_id): null;
+        let nextBox = nextWorld?nextWorld.annotation.findBoxByTrackId(box.obj_track_id): null;
+
+        if (!nextBox && !prevBox){
+            logger.logcolor("red", "Cannot estimate direction: neither previous nor next frame/box loaded/annotated.")
+            return null;
+        }
+
+        let currentP = box.world.lidarPosToUtm(box.position);
+        let nextP =    nextBox?nextBox.world.lidarPosToUtm(nextBox.position) : null;
+        let prevP =    prevBox?prevBox.world.lidarPosToUtm(prevBox.position) : null;
+
+        
+        let azimuth_n = nextP? Math.atan2(nextP.y-currentP.y, nextP.x-currentP.x): 0;
+        let azimuth_p = prevP? Math.atan2(currentP.y-prevP.y, currentP.x-prevP.x): 0;
+
+        
+        let azimuth = (azimuth_n + azimuth_p)/((prevP?1:0) + (nextP?1:0));
+
+        let estimatedRot = box.world.utmRotToLidar(new THREE.Euler(0,0,azimuth, "XYZ"));
+        
+        return estimatedRot;        
     };
 
     this.grow_box= function(box, min_distance, init_scale_ratio){

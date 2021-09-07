@@ -55,6 +55,14 @@ class PopupDialog
                 this.headerUi.style.cursor = "move";
                 this.mouseDown = true;
                 this.mouseDownPos = {x: event.clientX, y:event.clientY};
+
+                this.savedUiSize = {
+                    width: this.ui.style.width,
+                    height: this.ui.style.height,
+                };
+
+                this.ui.style.width = "100%";
+                this.ui.style.height = "100%";
             }
         });
 
@@ -63,7 +71,11 @@ class PopupDialog
                 this.headerUi.style.cursor = "";
                 event.stopPropagation();
                 event.preventDefault();
-                this.mouseDown = false;            
+                this.mouseDown = false;          
+                
+                this.ui.style.width = this.savedUiSize.width;
+                this.ui.style.height = this.savedUiSize.height;
+
             }
         });
 
@@ -98,26 +110,35 @@ class PopupDialog
             this.hide();
         }
 
-        this.ui.querySelector("#btn-maximize").onclick = (event)=>{
-            let v = this.viewUi;
-            v.style.top = "0%";
-            v.style.left = "0%";
-            v.style.width = "100%";
-            v.style.height = "100%";
-            v.style["z-index"] = 5;
+        this.maximizeButton = this.ui.querySelector("#btn-maximize")
 
-            event.currentTarget.style.display = 'none';
-            this.ui.querySelector("#btn-restore").style.display = "inherit";
+        if (this.maximizeButton)
+        {
+            this.maximizeButton.onclick = (event)=>{
+                let v = this.viewUi;
+                v.style.top = "0%";
+                v.style.left = "0%";
+                v.style.width = "100%";
+                v.style.height = "100%";
+                v.style["z-index"] = 5;
+
+                event.currentTarget.style.display = 'none';
+                this.ui.querySelector("#btn-restore").style.display = "inherit";
+            };
         }
 
-        this.ui.querySelector("#btn-restore").onclick = (event)=>{
-            let v = this.viewUi;
-            v.style.top = "20%";
-            v.style.left = "20%";
-            v.style.width = "60%";
-            v.style.height = "60%";
-            event.currentTarget.style.display = 'none';
-            this.ui.querySelector("#btn-maximize").style.display = "inherit";
+        this.restoreButton = this.ui.querySelector("#btn-restore");
+        
+        if (this.restoreButton) {
+            this.restoreButton.onclick = (event)=>{
+                let v = this.viewUi;
+                v.style.top = "20%";
+                v.style.left = "20%";
+                v.style.width = "60%";
+                v.style.height = "60%";
+                event.currentTarget.style.display = 'none';
+                this.ui.querySelector("#btn-maximize").style.display = "inherit";
+            };
         }
 
     }

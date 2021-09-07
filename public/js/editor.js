@@ -13,7 +13,7 @@ import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js";
 import {PlayControl} from "./play.js";
 import {saveWorld, reloadWorldList, saveWorldList} from "./save.js";
-import {log} from "./log.js";
+import {logger, create_logger} from "./log.js";
 import {autoAnnotate} from "./auto_annotate.js";
 import {Calib} from "./calib.js";
 import {Trajectory} from "./trajectory.js";
@@ -25,13 +25,16 @@ import { ConfigUi } from './config_ui.js';
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
+    // create logger before anything else.
+    create_logger(editorUi.querySelector("#log-wrapper"));
+
+    
     this.editorCfg = editorCfg;
     this.sideview_enabled = true;
     this.editorUi = editorUi;
     this.wrapperUi = wrapperUi;
     this.container = null;
     this.name = name;
-
 
     this.data = data;
     this.scene = null;
@@ -66,7 +69,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     
         let self = this;
         this.editorUi = editorUi;
+    
         
+
+
         this.playControl = new PlayControl(this.data);
 
         this.configUi = new ConfigUi(editorUi.querySelector("#config-button"), editorUi.querySelector("#config-wrapper"), this);
@@ -943,6 +949,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         link.click();
     };
 
+    this.showLog = function() {
+
+    };
 
     this.annotateByAlg1 = function(){
         autoAnnotate(this.data.world, ()=>this.on_load_world_finished(this.data.world));
@@ -2005,7 +2014,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.data.dbg.dump();
 
-        log.println(`load ${sceneName}, ${frame}`);
+        logger.log(`load ${sceneName}, ${frame}`);
 
         var self=this;
         //stop if current world is not ready!

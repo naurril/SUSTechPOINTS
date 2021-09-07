@@ -81,6 +81,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             auto_rotate_wo_scaling: ui.querySelector("#v-auto-rotate-wo-scaling"),
             auto_rotate: ui.querySelector("#v-auto-rotate"),
             reset_rotate: ui.querySelector("#v-reset-rotate"),
+            moving_direciton: ui.querySelector("#v-moving-direction"),
         };
         
         
@@ -527,10 +528,21 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
             }
     
-            buttons.reset_rotate.onclick = function(event){
-                //console.log("auto rotate button clicked.");
-                on_reset_rotate();
-                //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
+
+            if (buttons.reset_rotate){
+                buttons.reset_rotate.onclick = function(event){
+                    //console.log("auto rotate button clicked.");
+                    on_reset_rotate();
+                    //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
+                }
+            }
+
+            if (buttons.moving_direciton){
+                buttons.moving_direciton.onclick = function(event){
+                    //console.log("auto rotate button clicked.");
+                    on_auto_rotate("noscaling", "moving-direction");
+                    //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
+                }
             }
     
             function highlight(){
@@ -1083,11 +1095,24 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             scope.on_box_changed, noscaling, "dontrotate");
     }
 
-    function on_z_auto_rotate(noscaling){
+    function on_z_auto_rotate(noscaling, rotate_method){
 
-        scope.boxOp.auto_rotate_xyz(scope.box, null, 
-            noscaling?null:{x:false, y:false, z:true}, 
-            scope.on_box_changed, noscaling);
+        if (rotate_method == "moving-direction")
+        {
+            let estimatedRot = scope.boxOp.estimate_rotation_by_moving_direciton(scope.box);
+
+            if (estimatedRot)
+            {
+                scope.box.rotation.z = estimatedRot.z;
+                scope.on_box_changed(scope.box);
+            }        
+        }
+        else{
+            scope.boxOp.auto_rotate_xyz(scope.box, null, 
+                noscaling?null:{x:false, y:false, z:true}, 
+                scope.on_box_changed, noscaling);
+        }
+        
     }
 
     function on_z_reset_rotate(){

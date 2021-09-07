@@ -2,7 +2,7 @@
 
 import {World} from "./world.js";
 import {Debug} from "./debug.js";
-import {log} from "./log.js"
+import {logger} from "./log.js"
 
 function Data(metaData, cfg){
 
@@ -41,6 +41,15 @@ function Data(metaData, cfg){
 
     };
 
+    this.findWorld = function(sceneName, frameIndex){
+        let world = this.worldList.find((w)=>{
+            return w.frameInfo.scene == sceneName && w.frameInfo.frame_index == frameIndex;
+        })
+        if (world) // found!
+            return world;
+        else
+            return null;
+    };
 
     this.offsetList = [[0,0,0]];
     this.lastSeedOffset = [0,0,0];
@@ -196,7 +205,7 @@ function Data(metaData, cfg){
 
         let pendingFrames = meta.frames.slice(startIndex, endIndex).filter(_need_create);
 
-        log.println(`preload ${meta.scene} ${pendingFrames}`);
+        logger.log(`preload ${meta.scene} ${pendingFrames}`);
         // if (numLoaded > 0){
         //     meta.frames.slice(endIndex, Math.min(endIndex+5, meta.frames.length)).forEach(_do_create);
         //     meta.frames.slice(Math.max(0, startIndex-5), startIndex).forEach(_do_create);
