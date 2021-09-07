@@ -17,6 +17,7 @@ var obj_type_map = {
     Cyclist:        {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
     Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2]},
     Motor:          {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
     BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
     
     Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},

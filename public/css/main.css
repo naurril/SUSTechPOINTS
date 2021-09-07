@@ -134,6 +134,7 @@ canvas {
 	display: none;
 	width: 400px;
 	background-color: var(--background-color);
+	line-height: 1.5;
 }
 
 .modified-world-item {
@@ -293,7 +294,7 @@ dynamic set obj-type css has higher priority than this one.
 	height: 100%;
 	width: 100%;
 	z-index: 10;
-
+	line-height: 1.5;
 }
 
 #context-menu, #object-context-menu, #box-editor-context-menu, #box-editor-manager-context-menu, #config-menu {
