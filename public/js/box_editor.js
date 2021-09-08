@@ -1082,9 +1082,22 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 }
                 else
                 {
-                    this.getSelectedEditors().forEach(e=>e.setSelected(false));
+                    let selectedEditors = this.getSelectedEditors();
+                    
+                    
                     if (ed){
-                        ed.setSelected(true);
+                        if (ed.selected &&  selectedEditors.length == 1)
+                        {
+                            ed.setSelected(false);
+                        }
+                        else
+                        {
+                            selectedEditors.forEach(e=>e.setSelected(false));                            
+                            ed.setSelected(true);
+                        }
+                    }
+                    else{
+                        selectedEditors.forEach(e=>e.setSelected(false));
                     }
                 }
             }
