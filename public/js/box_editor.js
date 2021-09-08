@@ -297,6 +297,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
                     // so this render is effectiveless.
                     //this.boxView.render();
 
+                    // save 
+                    pointsGlobalConfig.setItem("batchModeSubviewSize", {width: rect.width, height: rect.height});
+
                     if (this.boxEditorManager)  // there is no manager for box editor in main ui
                         this.boxEditorManager.onSubViewsResize(rect.width, rect.height);
                 
@@ -331,7 +334,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.boxEditorGroupUi = parentUi.querySelector("#batch-box-editor-group");
     this.boxEditorHeaderUi = parentUi.querySelector("#batch-box-editor-header");
     this.fastToolBoxUi = fastToolBoxUi;
-    this.batchSize = 20;
+    this.batchSize = cfg.batchModeInstNumber;
     this.configMenu = configMenu;
 
     
@@ -440,6 +443,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId, objType);
             editor.setIndex(editorIndex);
+            editor.resize(pointsGlobalConfig.batchModeSubviewSize.width, pointsGlobalConfig.batchModeSubviewSize.height);
             
             data.activate_world(world, 
                 ()=>{

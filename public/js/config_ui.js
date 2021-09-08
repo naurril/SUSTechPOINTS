@@ -129,6 +129,9 @@ class ConfigUi{
 
         "#cfg-batch-mode-inst-number":(event)=>{
             let batchSize = parseInt(event.currentTarget.value);
+
+            pointsGlobalConfig.setItem("batchModeInstNumber", batchSize);
+
             this.editor.boxEditorManager.setBatchSize(batchSize);
             return false;
         },
@@ -244,6 +247,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-data-radar-checkbox").checked = pointsGlobalConfig.enableRadar;
         this.menu.querySelector("#cfg-color-points-select").value = pointsGlobalConfig.color_points;
         this.menu.querySelector("#cfg-coordinate-system-select").value = pointsGlobalConfig.coordinateSystem;
+        this.menu.querySelector("#cfg-batch-mode-inst-number").value = pointsGlobalConfig.batchModeInstNumber;
     }
 
 

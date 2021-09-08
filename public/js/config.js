@@ -21,6 +21,9 @@ class Config{
 
     enableFilterPoints = true;
     filterPointsZ = 1.0;
+
+    batchModeInstNumber = 20;
+    batchModeSubviewSize = {width: 130, height: 450};
     ///editorCfg
 
     //disableSceneSelector = true;
@@ -60,7 +63,7 @@ class Config{
     setItem(name, value)
     {
         this[name] = value;
-        window.localStorage.setItem(name, value);
+        window.localStorage.setItem(name, JSON.stringify(value));
     }
 
     toBool(v)
@@ -75,7 +78,9 @@ class Config{
         ["enableFilterPoints", this.toBool],
         ["filterPointsZ", parseFloat],
         ["color_points", null],
-        ["coordinateSystem", null]
+        ["coordinateSystem", null],
+        ["batchModeInstNumber", parseInt],
+        ["batchModeSubviewSize", JSON.parse],
     ];
 
     load()

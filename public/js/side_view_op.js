@@ -440,12 +440,16 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     
             div.onkeydown = on_key_down;
             div.onmouseenter = function(event){
-                div.focus();
 
-                ui.querySelector("#v-buttons").style.display="inherit";
+                if (scope.boxEditor.box)
+                {
+                    div.focus();
 
-                if (on_focus)
-                    on_focus();
+                    ui.querySelector("#v-buttons").style.display="inherit";
+
+                    if (on_focus)
+                        on_focus();
+                }
             };
             div.onmouseleave = function(event){
                 ui.querySelector("#v-buttons").style.display="none";
@@ -504,24 +508,36 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 install_direction_handler("line-direction");
             }
 
+            let ignore_left_mouse_down = (event)=>{
+                if (event.which == 1){
+                    event.stopPropagation();
+                }
+            };
+
             if (buttons.auto_rotate_wo_scaling){
+                buttons.auto_rotate_wo_scaling.onmousedown = ignore_left_mouse_down;
                 buttons.auto_rotate_wo_scaling.onclick = function(event){
                     on_auto_rotate("noscaling")
                 };
             }
 
             if (buttons.auto_move_wo_scaling && on_auto_move){
+                buttons.auto_move_wo_scaling.onmousedown = ignore_left_mouse_down;
                 buttons.auto_move_wo_scaling.onclick = function(event){
                     on_auto_move("noscaling");
                 };
             }
 
             if (buttons.auto_move && on_auto_move){
+
+                buttons.auto_move.onmousedown = ignore_left_mouse_down;
                 buttons.auto_move.onclick = function(event){
                     on_auto_move();
                 };
             }
         
+            buttons.auto_rotate.onmousedown = ignore_left_mouse_down;
+                
             buttons.auto_rotate.onclick = function(event){
                 //console.log("auto rotate button clicked.");
                 on_auto_rotate();
@@ -529,7 +545,11 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             }
     
 
+
             if (buttons.reset_rotate){
+
+                buttons.reset_rotate.onmousedown = ignore_left_mouse_down;
+
                 buttons.reset_rotate.onclick = function(event){
                     //console.log("auto rotate button clicked.");
                     on_reset_rotate();
@@ -538,6 +558,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             }
 
             if (buttons.moving_direciton){
+                buttons.moving_direciton.onmousedown = ignore_left_mouse_down;
                 buttons.moving_direciton.onclick = function(event){
                     //console.log("auto rotate button clicked.");
                     on_auto_rotate("noscaling", "moving-direction");
@@ -546,7 +567,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             }
     
             function highlight(){
-                highlight_lines(lines);
+                if (scope.boxEditor.box)
+                    highlight_lines(lines);
             }
 
             function hide(){
@@ -1388,12 +1410,12 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     };
 
     this.hideAllHandlers = function(){
-        //this.ui.querySelectorAll(".subview-svg").forEach(ui=>ui.style.display="none");
+        this.ui.querySelectorAll(".subview-svg").forEach(ui=>ui.style.display="none");
         //this.ui.querySelectorAll(".v-buttons-wrapper").forEach(ui=>ui.style.display="none");
     };
 
     this.showAllHandlers = function(){
-        //this.ui.querySelectorAll(".subview-svg").forEach(ui=>ui.style.display="");
+        this.ui.querySelectorAll(".subview-svg").forEach(ui=>ui.style.display="");
         //this.ui.querySelectorAll(".v-buttons-wrapper").forEach(ui=>ui.style.display="");
     };
 

@@ -565,6 +565,13 @@ function BoxOp(){
                 let world = worldList[i];
                 let ann = world.annotation.vector_global_to_ann(ret[i]);
                 
+                // don't roate x/y
+                if (pointsGlobalConfig.autoRotateZOnly)
+                {
+                    ann.rotation.x = 0;
+                    ann.rotation.y = 0;
+                }
+                
                 let newBox  = world.annotation.add_box(ann.position, 
                               ann.scale, 
                               ann.rotation, 
@@ -577,6 +584,13 @@ function BoxOp(){
             } else if (boxList[i].annotator) {
                 // modify box attributes
                 let b = boxList[i].world.annotation.vector_global_to_ann(anns[i]);
+
+                if (pointsGlobalConfig.autoRotateZOnly)
+                {
+                    b.rotation.x = 0;
+                    b.rotation.y = 0;
+                }
+                
                 boxList[i].position.x = b.position.x;
                 boxList[i].position.y = b.position.y;
                 boxList[i].position.z = b.position.z;

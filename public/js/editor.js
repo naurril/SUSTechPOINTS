@@ -298,7 +298,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.data.dbg.alloc();
         var bbox = new THREE.BufferGeometry();
-        bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
+        bbox.setAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
         var box = new THREE.LineSegments( bbox, 
             new THREE.LineBasicMaterial( { color: 0x888800, linewidth: 1, opacity: 0.5, transparent: true } ) );    
