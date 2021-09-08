@@ -18,6 +18,14 @@ function BoxOp(){
 
     this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling, rotate_method){
 
+        let orgBox = box;
+        box = {
+                position: {x: box.position.x, y: box.position.y, z: box.position.z},
+                rotation: {x: box.rotation.x, y: box.rotation.y, z: box.rotation.z},
+                scale:    {x: box.scale.x,    y: box.scale.y,    z: box.scale.z},
+                world: box.world,   
+            };
+
         // auto grow
         // save scale
         let grow = (box)=>{
@@ -125,7 +133,7 @@ function BoxOp(){
     
                     // compute the relative position of the origin point,that is, the lidar's position
                     // note the origin point is offseted, we need to restore first.
-                    let boxpos = box.getTruePosition();
+                    let boxpos = box.position;
                     let orgPoint = [  
                         - boxpos.x,
                         - boxpos.y,
@@ -160,13 +168,28 @@ function BoxOp(){
         };
 
         let postProc = (box)=>{
+
+            // copy back
+            orgBox.position.x = box.position.x;
+            orgBox.position.y = box.position.y;
+            orgBox.position.z = box.position.z;
+
+            orgBox.rotation.x = box.rotation.x;
+            orgBox.rotation.y = box.rotation.y;
+            orgBox.rotation.z = box.rotation.z;
+
+            orgBox.scale.x = box.scale.x;
+            orgBox.scale.y = box.scale.y;
+            orgBox.scale.z = box.scale.z;
+
+
             if (on_box_changed)
-                on_box_changed(box);
+                on_box_changed(orgBox);
                 
             if (callback){
                 callback();
             }
-            return box;
+            return orgBox;
         };
 
         let extreme_after_grow = grow(box);
@@ -574,7 +597,6 @@ function BoxOp(){
     this.interpolateAndAutoAdjustAsync = async function(worldList, boxList, onFinishOneBoxCB, applyIndList, dontRotate){
         
         
-
         // if annotator is not null, it's annotated by us algorithms
         let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector_global(b));
         console.log("anns to interpolate", anns);
@@ -585,18 +607,10 @@ function BoxOp(){
 
             let tempBox = world.annotation.vector_global_to_ann(newAnn);
             tempBox.world = world;
-            tempBox.getTruePosition = function(){
-                return {
-                    x: this.position.x,//-this.world.coordinatesOffset[0],
-                    y: this.position.y,//-this.world.coordinatesOffset[1],
-                    z: this.position.z,//-this.world.coordinatesOffset[2]
-                };
-            };
             
             let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true, dontRotate);
             return world.annotation.ann_to_vector_global(adjustedBox);
         };
-
 
 
         let refObj = boxList.find(b=>!!b);

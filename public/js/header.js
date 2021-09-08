@@ -52,7 +52,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     
     this.update_box_info = function(box){
         var scale = box.scale;
-        var pos = box.getTruePosition();
+        var pos = box.position;
         var rotation = box.rotation;
         var points_number = box.world.lidar.get_box_points_number(box);
         let distance = Math.sqrt(pos.x*pos.x + pos.y*pos.y).toFixed(2);

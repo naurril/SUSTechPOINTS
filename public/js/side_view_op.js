@@ -1414,7 +1414,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
 
     this.update_view_handle = function(){
         if (this.box){
-            let boxPos = this.box.getTruePosition();
+            let boxPos = this.box.position;
 
             z_view_handle.update_view_handle(this.views[0].getViewPort(), {x: this.box.scale.y, y:this.box.scale.x}, {x: boxPos.x, y: boxPos.y}, this.box.rotation.z);
             y_view_handle.update_view_handle(this.views[1].getViewPort(), {x: this.box.scale.x, y:this.box.scale.z});

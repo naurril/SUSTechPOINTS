@@ -13,7 +13,7 @@ function FocusImageContext(ui){
 
         let bestImage = choose_best_camera_for_point(
             scene_meta,
-            box.getTruePosition());
+            box.position);
 
         if (!bestImage){
             return;           
@@ -828,7 +828,7 @@ function ImageContext(ui, cfg, on_img_click){
 
 function box_to_2d_points(box, calib){
     var scale = box.scale;
-    var pos = box.getTruePosition();
+    var pos = box.position;
     var rotation = box.rotation;
 
     var box3d = psr_to_xyz(pos, scale, rotation);

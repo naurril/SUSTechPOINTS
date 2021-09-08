@@ -101,7 +101,11 @@ function Annotation(sceneMeta, world, frameInfo){
     this.boxToAnn = function(box){
         let ann = {
             psr: {
-                position:box.getTruePosition(),
+                position:{
+                    x: box.position.x,
+                    y: box.position.y,
+                    z: box.position.z,
+                },
                 scale:{
                     x: box.scale.x,
                     y: box.scale.y,
@@ -148,23 +152,6 @@ function Annotation(sceneMeta, world, frameInfo){
         ];
 
     };
-
-    // this.ann_to_vector = function(box){
-    //     let pos = box.getTruePosition();
-    //     return [
-    //         pos.x,
-    //         pos.y,
-    //         pos.z,
-    //         box.rotation.x,
-    //         box.rotation.y,
-    //         box.rotation.z,
-
-    //         box.scale.x,
-    //         box.scale.y,
-    //         box.scale.z,
-    //     ];
-    // };
-
 
     // real-world position to ann
     this.vector_global_to_ann = function(v)
@@ -315,13 +302,6 @@ function Annotation(sceneMeta, world, frameInfo){
         mesh.obj_local_id =  this.get_new_box_local_id();
 
         mesh.world = this.world;
-        mesh.getTruePosition = function(){
-            return {
-                x: this.position.x, //-this.world.coordinatesOffset[0],
-                y: this.position.y, //-this.world.coordinatesOffset[1],
-                z: this.position.z, //-this.world.coordinatesOffset[2]
-            };
-        };
 
         return mesh;
     };

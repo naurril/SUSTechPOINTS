@@ -28,7 +28,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     // create logger before anything else.
     create_logger(editorUi.querySelector("#log-wrapper"));
 
-    
+
     this.editorCfg = editorCfg;
     this.sideview_enabled = true;
     this.editorUi = editorUi;
@@ -1381,7 +1381,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             if (!this.editorCfg.disableMainImageContext){
                 var best_image = this.imageContext.choose_best_camera_for_point(
                     this.selected_box.world.frameInfo.sceneMeta,
-                    this.selected_box.getTruePosition());
+                    this.selected_box.position);
 
                 if (best_image){
                     
