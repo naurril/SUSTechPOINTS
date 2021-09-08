@@ -535,7 +535,11 @@ dynamic set obj-type css has higher priority than this one.
     width: 130px;
     height: 450px;
 	resize: none;
-	overflow: hidden;
+	overflow: hidden;  /* resize need this attr*/
+}
+
+#batch-box-editor-wrapper .selected {
+	background-color: #ffffff20;
 }
 
 #batch-box-editor-wrapper .v-buttons-wrapper {

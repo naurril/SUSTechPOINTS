@@ -459,22 +459,22 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             //     return false;
             // };
     
-            div.onmousedown = function(event){
-                if (event.which==1){
-                    mouseLeftDown = true;
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return false;
-                }
-            };
+            // div.onmousedown = function(event){
+            //     if (event.which==1){
+            //         mouseLeftDown = true;
+            //         event.preventDefault();
+            //         event.stopPropagation();
+            //         return false;
+            //     }
+            // };
     
-            div.onmouseup = function(event){
-                if (event.which==1){
-                    mouseLeftDown = false;
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            };
+            // div.onmouseup = function(event){
+            //     if (event.which==1){
+            //         mouseLeftDown = false;
+            //         event.preventDefault();
+            //         event.stopPropagation();
+            //     }
+            // };
     
             div.onwheel = function(event){                    
                 event.stopPropagation();
@@ -585,6 +585,10 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 handle.onmousedown = function(event){
                     if (event.which!=1)
                         return;
+
+                    //
+                    event.stopPropagation();
+                    event.preventDefault();
 
                     highlight();
                     disable_handle_except(handle);

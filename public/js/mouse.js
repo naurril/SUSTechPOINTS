@@ -120,7 +120,7 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
         //     console.log(mouse);   
 
         if (in_select_mode){
-            if (event.client != select_start_pos.x || event.clientY != select_end_pos.y){
+            if (event.clientX != select_start_pos.x || event.clientY != select_end_pos.y){
                 //draw select box
                 var sbox = this.parentUi.querySelector("#select-box");
                 

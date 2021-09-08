@@ -57,14 +57,17 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         this.index = index; // index as of in all editors.
     };
 
-    
+    this.setSelected = function(selected){
+        this.ui.className = selected?"selected":"";
+        this.selected = selected;
+    }; 
 
-    this.onContextMenu = (event)=>{
-        if (this.boxEditorManager)  // there is no manager for box editor in main ui
-            this.boxEditorManager.onContextMenu(event, this);
-    };
+    // this.onContextMenu = (event)=>{
+    //     if (this.boxEditorManager)  // there is no manager for box editor in main ui
+    //         this.boxEditorManager.onContextMenu(event, this);
+    // };
 
-    this.ui.oncontextmenu = this.onContextMenu;
+    // this.ui.oncontextmenu = this.onContextMenu;
 
     this.resetTarget = function(){
         if (this.target.world){
@@ -324,7 +327,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.cfg = cfg;
     this.globalHeader = globalHeader;
     this.contextMenu = contextMenu;
-    this.parentUi = parentUi;
+    this.parentUi = parentUi;   //#batch-box-editor-wrapper
     this.boxEditorGroupUi = parentUi.querySelector("#batch-box-editor-group");
     this.boxEditorHeaderUi = parentUi.querySelector("#batch-box-editor-header");
     this.fastToolBoxUi = fastToolBoxUi;
@@ -453,12 +456,27 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.onContextMenu = function(event, boxEditor)
     {
         this.firingBoxEditor = boxEditor;
+
+        if (boxEditor.selected)
+        {
+            // ok
+        }
+        else
+        {
+            this.getSelectedEditors().forEach(e=>e.setSelected(false));
+            boxEditor.setSelected(true);
+        }
+
         this.contextMenu.show("boxEditor", event.clientX, event.clientY, this);
         event.stopPropagation();
         event.preventDefault();
     };
 
-    
+    this.parentUi.oncontextmenu = (event)=>{
+        let ed = this.getEditorByMousePosition(event.clientX, event.clientY);
+
+        this.onContextMenu(event, ed);
+    };
 
 
     this.handleContextMenuEvent = function(event)
@@ -491,149 +509,72 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             break;
 
         /////////////////////// obj instance //
-        case 'cm-delete':
-            if (this.firingBoxEditor.box)
-            {
-                func_on_box_remove(this.firingBoxEditor.box, true)
-            }
+
+        case 'cm-select-all':
+            this.activeEditorList().forEach(e=>e.setSelected(true));
             break;
-        case 'cm-delete-next':
-            this.activeEditorList().slice(this.firingBoxEditor.index+1).forEach(be=>{
-                if (be.box)
-                {
-                    func_on_box_remove(be.box, false);
-                }
+        case 'cm-select-all-previous':
+            this.activeEditorList().forEach(e=> e.setSelected(e.index <= this.firingBoxEditor.index));
+            break;
+        case 'cm-select-all-next':
+            this.activeEditorList().forEach(e=> e.setSelected(e.index >= this.firingBoxEditor.index));
+            break
+            
+        case 'cm-delete':
+            this.getSelectedEditors().forEach(e=>{
+                if (e.box)  
+                    func_on_box_remove(e.box, true)
             });
 
-            this.viewManager.render();
-            break;
-        case 'cm-delete-previous':
-            this.activeEditorList().slice(0, this.firingBoxEditor.index).forEach(be=>{
-                if (be.box)
-                {
-                    func_on_box_remove(be.box,false);
-                }
-                this.viewManager.render();
-            });
             break;
         case 'cm-interpolate':
             {
                 let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-                applyIndList[this.firingBoxEditor.index]= true;
+                this.getSelectedEditors().forEach(e=>applyIndList[e.index] = true);
                 this.interpolate(applyIndList);
-            }
-            break;
-        case 'cm-interpolate-next':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-
-                for (let i = this.firingBoxEditor.index+1; i < applyIndList.length; i++){
-                    applyIndList[i]= true;
-                }
-
-                this.interpolate(applyIndList);
-            }
-            break;
-        case 'cm-interpolate-previous':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-
-                for (let i = 0; i < this.firingBoxEditor.index; i++){
-                    applyIndList[i]= true;
-                }
-
-                this.interpolate(applyIndList);
-            }
-            break;
-
-        case 'cm-auto-annotate':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-                applyIndList[this.firingBoxEditor.index]= true;
-                this.autoAnnotate(applyIndList);
-            }
-            break;
-        case 'cm-auto-annotate-next':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-
-                for (let i = this.firingBoxEditor.index+1; i < applyIndList.length; i++){
-                    applyIndList[i]= true;
-                }
-
-                this.autoAnnotate(applyIndList);
-            }
-            break;
-        case 'cm-auto-annotate-previous':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-
-                for (let i = 0; i < this.firingBoxEditor.index; i++){
-                    applyIndList[i]= true;
-                }
-
-                this.autoAnnotate(applyIndList);
-            }
-            break;
-
-        case 'cm-auto-annotate-wo-rotation':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-                applyIndList[this.firingBoxEditor.index]= true;
-                this.autoAnnotate(applyIndList, "dontrotate");
-            }
-            break;
-
-        case 'cm-auto-annotate-wo-rotation-next':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-
-                for (let i = this.firingBoxEditor.index+1; i < applyIndList.length; i++){
-                    applyIndList[i]= true;
-                }
-
-                this.autoAnnotate(applyIndList, "dontrotate");
-            }
-            break;
-        case 'cm-auto-annotate-wo-rotation-previous':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false);
-
-                for (let i = 0; i < this.firingBoxEditor.index; i++){
-                    applyIndList[i]= true;
-                }
-
-                this.autoAnnotate(applyIndList, "dontrotate");
             }
             break;
         
-        case 'cm-adjust-rotation-by-moving-direction':
+        case 'cm-auto-annotate':
             {
-               this.adjustRotationByMovingDirection();
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+                this.getSelectedEditors().forEach(e=>applyIndList[e.index] = true);
+                this.autoAnnotate(applyIndList);
             }
             break;
+        
+        case 'cm-auto-annotate-wo-rotation':
+            {
+                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+                this.getSelectedEditors().forEach(e=>applyIndList[e.index] = true);
+                this.autoAnnotate(applyIndList, "dontrotate");
+            }
+            break;
+
             
         case 'cm-finalize':
             {
-                let e = this.firingBoxEditor;
+                this.getSelectedEditors().forEach(e=>{
                 
-                if (e.box){
-                    if (e.box.annotator)
-                    {
-                        delete e.box.annotator;
-                        func_on_box_changed(e.box);
-                        //e.box.world.annotation.setModified();
-                        e.updateInfo();
+                    if (e.box){
+                        if (e.box.annotator)
+                        {
+                            delete e.box.annotator;
+                            func_on_box_changed(e.box);
+                            //e.box.world.annotation.setModified();
+                            e.updateInfo();
+                        }
                     }
-                }
+                });
 
                 this.globalHeader.updateModifiedStatus();;
             }
             break;
             
         case 'cm-reload':
-            this.reloadAnnotation([this.firingBoxEditor]);                
+            this.reloadAnnotation(this.getSelectedEditors());                
             break;
+
         case 'cm-goto-this-frame':
             {            
                 let targetFrame = this.firingBoxEditor.target.world.frameInfo.frame;
@@ -803,7 +744,11 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         this.objectTrackView.setObject(
             this.editingTarget.objType,
             this.editingTarget.objTrackId,
-            tracks
+            tracks,
+            (targetFrame)=>{  //onExit
+                this.getSelectedEditors(e=>e.setSelected(false));
+                this.activeEditorList().find(e=>e.target.world.frameInfo.frame == targetFrame).setSelected(true);
+            }
         );
     };
 
@@ -1010,6 +955,91 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         }
     };
 
+
+    this.getEditorByMousePosition = function(x,y){
+
+        return this.editorList.find(e=>{
+            let rect = e.ui.getBoundingClientRect();
+
+            return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
+        })
+    };
+    
+
+    this.parentUi.onmousedown= (event)=>{
+
+        if (event.which!=1)
+            return;
+
+        let select_start_pos={
+            x: event.clientX,
+            y: event.clientY,
+        } 
+
+        console.log("box editor manager, on mouse down.", select_start_pos);
+
+        let select_end_pos={
+            x: event.clientX,
+            y: event.clientY,
+        } 
+
+        let leftMouseDown = true;
+        
+        // a1<a2, b1<b2
+        function lineIntersect(a1, a2, b1, b2)
+        {
+            if (a1 > a2) [a1,a2]=[a2,a1];
+            if (b1 > b2) [b1,b2]=[b2,b1];
+
+            return (a1 > b1 && a1 < b2) || (a2 > b1 && a2 < b2) || (b1 > a1 && b1 < a2) || (b2 > a1 && b2 < a2) 
+        }
+
+        // a,b: left, right, right, bottom
+        function intersect(domRect, mouseA, mouseB){
+            return (lineIntersect(select_end_pos.x, select_start_pos.x, domRect.left, domRect.right) &&
+                    lineIntersect(select_end_pos.y, select_start_pos.y, domRect.top, domRect.bottom))
+        }
+
+
+        let ed = this.getEditorByMousePosition(event.clientX, event.clientY);
+        if (event.shiftKey)
+        {
+            
+        }
+        else if (event.ctrlKey)
+        {
+            ed.setSelected(!ed.selected);
+        }
+        else
+        {
+            this.getSelectedEditors().forEach(e=>e.setSelected(false));
+        }
+
+        
+
+        this.parentUi.onmousemove = (event)=>{
+            select_end_pos.x = event.clientX;
+            select_end_pos.y = event.clientY;
+
+            this.editorList.forEach(e=>{
+                let rect = e.ui.getBoundingClientRect();
+                e.setSelected(intersect(rect, select_start_pos, select_end_pos));
+            })
+        }
+
+        this.parentUi.onmouseup = (event) =>{
+            if (event.which!=1)
+                return;
+
+            leftMouseDown = false;
+            this.parentUi.onmousemove = null;
+            this.parentUi.onmouseup = null;
+        }
+    }
+
+    this.getSelectedEditors = function(){
+        return this.editorList.filter(e=>e.selected);
+    }
 
 
 }
