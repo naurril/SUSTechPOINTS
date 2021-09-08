@@ -57,9 +57,25 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         this.index = index; // index as of in all editors.
     };
 
-    this.setSelected = function(selected){
-        this.ui.className = selected?"selected":"";
-        this.selected = selected;
+    this.setSelected = function(selected, eventId){
+        if (selected)
+        {
+            this.ui.className = "selected";
+            this.selected = true;
+            this.selectEventId = eventId;
+        }
+        else
+        {
+            if (!eventId || (this.selectEventId == eventId))
+            {
+                // cancel only you selected.
+                this.ui.className = "";
+                this.selected = false;
+                this.selectEventId = null;
+            }
+        }
+
+
     }; 
 
     // this.onContextMenu = (event)=>{
@@ -975,6 +991,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         if (event.which!=1)
             return;
 
+        let eventId = Date.now();
+
         let select_start_pos={
             x: event.clientX,
             y: event.clientY,
@@ -1004,22 +1022,7 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                     lineIntersect(select_end_pos.y, select_start_pos.y, domRect.top, domRect.bottom))
         }
 
-
-        let ed = this.getEditorByMousePosition(event.clientX, event.clientY);
-        if (event.shiftKey)
-        {
-            
-        }
-        else if (event.ctrlKey)
-        {
-            ed.setSelected(!ed.selected);
-        }
-        else
-        {
-            this.getSelectedEditors().forEach(e=>e.setSelected(false));
-        }
-
-        
+              
 
         this.parentUi.onmousemove = (event)=>{
             select_end_pos.x = event.clientX;
@@ -1027,7 +1030,10 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
             this.editorList.forEach(e=>{
                 let rect = e.ui.getBoundingClientRect();
-                e.setSelected(intersect(rect, select_start_pos, select_end_pos));
+                let intersected = intersect(rect, select_start_pos, select_end_pos);
+                
+                e.setSelected(intersected, event.ctrlKey?eventId:null);
+                
             })
         }
 
@@ -1038,6 +1044,50 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             leftMouseDown = false;
             this.parentUi.onmousemove = null;
             this.parentUi.onmouseup = null;
+
+
+            if (event.clientX == select_start_pos.x && event.clientY == select_start_pos.y)
+            { // click
+
+                let ed = this.getEditorByMousePosition(event.clientX, event.clientY);
+
+
+                if (event.shiftKey)
+                {
+                    let selectedEditors = this.getSelectedEditors();
+                    if (selectedEditors.length == 0)
+                    {
+                        
+                    }
+                    else if (ed.index < selectedEditors[0].index)
+                    {
+                        this.activeEditorList().forEach(e=>{
+                            if (e.index >= ed.index && e.index < selectedEditors[0].index){
+                                e.setSelected(true);
+                            }
+                        });
+                    }
+                    else if (ed.index > selectedEditors[selectedEditors.length-1].index)
+                    {
+                        this.activeEditorList().forEach(e=>{
+                            if (e.index <= ed.index && e.index > selectedEditors[selectedEditors.length-1].index){
+                                e.setSelected(true);
+                            }
+                        });                        
+                    }
+                }
+                else if (event.ctrlKey)
+                {
+                    ed.setSelected(!ed.selected);
+                }
+                else
+                {
+                    this.getSelectedEditors().forEach(e=>e.setSelected(false));
+                    if (ed){
+                        ed.setSelected(true);
+                    }
+                }
+            }
         }
     }
 
