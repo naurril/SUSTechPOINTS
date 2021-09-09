@@ -306,8 +306,8 @@ dynamic set obj-type css has higher priority than this one.
 #new-submenu, #saveall-submenu, #play-submenu, #goto-submenu, #cm-fit-submenu {
 	display: none;
 	position: absolute;	
-	left:100%;
-	top: 0%;
+	/* left:100%;
+	top: 0%; */
 	padding-left: 3px;
 	min-width: 150px;
 	background-color: var(--widget-background-color);

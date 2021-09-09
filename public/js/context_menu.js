@@ -47,7 +47,31 @@ class ContextMenu {
                 }
 
                 menu.onmouseenter = (event)=>{
-                    event.currentTarget.querySelector(motherMenu[item]).style.display="inherit";
+                    let menu = event.currentTarget.querySelector(motherMenu[item]);
+                    menu.style.display="inherit";
+
+                    let motherMenuRect = event.currentTarget.getBoundingClientRect();
+                    let posX = motherMenuRect.right;
+                    let posY = motherMenuRect.bottom;
+
+                    if (this.wrapperUi.clientHeight < posY + menu.clientHeight){
+                        menu.style.bottom = "0%";
+                        menu.style.top = "";
+                    }
+                    else{
+                        menu.style.top = "0%";
+                        menu.style.bottom = "";
+                    }
+        
+        
+                    if (this.wrapperUi.clientWidth < posX + menu.clientWidth){
+                        menu.style.right = "100%";
+                        menu.style.left = "";
+                    }
+                    else{
+                        menu.style.left = "100%";
+                        menu.style.right = "";
+                    }
                 }
 
                 menu.onmouseleave = (event)=>{
