@@ -1,5 +1,6 @@
 
 
+import { logger } from "./log.js";
 import {matmul, euler_angle_to_rotate_matrix_3by3, transpose, matmul2} from "./util.js"
 const annMath = {
 
@@ -444,7 +445,10 @@ var ml = {
             while (i >= 0 && !anns[i]){
                 let tempAnn = filter.predict();
                 if (autoAdj){
-                    let adjustedAnn = await autoAdj(i, tempAnn);
+                    let adjustedAnn = await autoAdj(i, tempAnn).catch(e=>{
+                        logger.log(e);
+                        return tempAnn;
+                    });
 
                     let adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
 

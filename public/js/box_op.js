@@ -265,6 +265,24 @@ function BoxOp(){
         let prevBox = prevWorld?prevWorld.annotation.findBoxByTrackId(box.obj_track_id): null;
         let nextBox = nextWorld?nextWorld.annotation.findBoxByTrackId(box.obj_track_id): null;
 
+        if (prevBox && nextBox)
+        {
+            if ((prevBox.annotator && nextBox.annotator) || (!prevBox.annotator && !nextBox.annotator))
+            {
+                // all annotated by machine or man, it's ok
+            }
+            else
+            {
+                // only one is manually annotated, use this one.
+                if (prevBox.annotator)
+                    prevBox = null;
+
+                if (nextBox.annotator)
+                    nextBox = null;
+            }
+        }
+
+
         if (!nextBox && !prevBox){
             logger.logcolor("red", "Cannot estimate direction: neither previous nor next frame/box loaded/annotated.")
             return null;
@@ -622,6 +640,11 @@ function BoxOp(){
             let tempBox = world.annotation.vector_global_to_ann(newAnn);
             tempBox.world = world;
             
+            // autoadj is timecomsuming
+            // jump this step
+            if (!applyIndList[index]){
+                return newAnn;
+            }
             let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true, dontRotate);
             return world.annotation.ann_to_vector_global(adjustedBox);
         };

@@ -12,6 +12,7 @@ class ContextMenu {
                 boxEditorManager: ui.querySelector("#box-editor-manager-context-menu"),
                 playSubMenu: ui.querySelector("#play-submenu"),
                 gotoSubMenu: ui.querySelector("#goto-submenu"),
+                fitSubMenu: ui.querySelector("#cm-fit-submenu"),
             };
             
             for (let m in this.menus){
@@ -31,19 +32,28 @@ class ContextMenu {
                 }
             }
 
-            let motherMenu = [
-                "#cm-goto", "#cm-new", "#cm-play", "#cm-save-all"
-            ];
+            let motherMenu = {
+                "#cm-goto": "#goto-submenu",
+                "#cm-new": "#new-submenu",
+                "#cm-play": "#play-submenu",                
+                "#cm-fit": "#cm-fit-submenu",
+            };
 
-            motherMenu.forEach(item=>{
-                this.menus.world.querySelector(item).onmouseenter = (event)=>{
-                    this.handler.handleContextMenuEvent(event);
+            for (let item in motherMenu)
+            {
+                let menu = ui.querySelector(item);
+                menu.onclick = (event)=>{
+                    return false;
                 }
 
-                this.menus.world.querySelector(item).onmouseleave = (event)=>{
-                    this.handler.handleContextMenuEvent(event);
+                menu.onmouseenter = (event)=>{
+                    event.currentTarget.querySelector(motherMenu[item]).style.display="inherit";
                 }
-            });
+
+                menu.onmouseleave = (event)=>{
+                    event.currentTarget.querySelector(motherMenu[item]).style.display="none";
+                }
+            }
 
             
             this.wrapperUi.onclick = function(event){

@@ -447,6 +447,28 @@
 							<div class="menu-item-text">Auto  annotate (no rotation)</div>
 						</div>
 
+
+						<div class="menu-item" id="cm-fit">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">Fit</div>
+							<div class="menu-item-arrow menu-item-icon">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
+									<path d="M12 8 L 18 12 L 12 16Z"></path>
+								</g></svg>
+							</div>
+							<div id="cm-fit-submenu">
+								<div class="menu-item" id="cm-fit-size">
+									<div class="menu-item-text">Size</div></div>
+								<div class="menu-item" id="cm-fit-position">
+									<div class="menu-item-text">Position</div></div>
+								<div class="menu-item" id="cm-fit-rotation">
+									<div class="menu-item-text">Rotation</div></div>
+								<div class="menu-item" id="cm-fit-moving-direction">
+									<div class="menu-item-text">Moving direction</div></div>
+								
+							</div>
+						</div>
+
 						<div class="menu-item menu-seperator"></div>
 						
 
@@ -1015,14 +1037,7 @@
 				</div>
 			</div>
 		</template>
-		<template id="batch-editor-box-selector-template">
-			<div id="batch-editor-box-selector">
-			</div>
-		</template>
 		<datalist id="obj-ids-of-scene"></datalist>
-
-
-
 
 		<script src="/static/js/lib/ml/tf.min.js"></script>
 		<script type="module"  src="/static/js/main.js"></script>		

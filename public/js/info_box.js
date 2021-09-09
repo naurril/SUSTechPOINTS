@@ -39,7 +39,8 @@ class InfoBox extends PopupDialog{
         }
     }
 
-    show(title, content, btnList, onexit)
+
+    show(title, content, btnList, onexit, pointerPosition)
     {
         this.showButtons(btnList);
 
@@ -47,6 +48,7 @@ class InfoBox extends PopupDialog{
         this.contentUi.innerHTML = content;
 
         super.show(onexit);
+        
     }
 
 }

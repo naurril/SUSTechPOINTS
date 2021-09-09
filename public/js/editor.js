@@ -501,50 +501,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         switch(event.currentTarget.id)
         {
-        case 'cm-new':
-            switch (event.type)
-            {
-            case 'click':
-                return false;
-                break;
-            case 'mouseenter':
-                event.currentTarget.querySelector("#new-submenu").style.display="inherit";
-                break;
-            case 'mouseleave':
-                event.currentTarget.querySelector("#new-submenu").style.display="none";
-                break;
-            };
-    
-            break;
-        case "cm-play":
-            switch (event.type)
-            {
-            case 'click':
-                return false;
-                break;
-            case 'mouseenter':
-                event.currentTarget.querySelector("#play-submenu").style.display="inherit";
-                break;
-            case 'mouseleave':
-                event.currentTarget.querySelector("#play-submenu").style.display="none";
-                break;
-            };
-
-            break;
-        case "cm-goto":
-            switch (event.type)
-            {
-            case 'click':
-                return false;
-                break;
-            case 'mouseenter':
-                event.currentTarget.querySelector("#goto-submenu").style.display="inherit";
-                break;
-            case 'mouseleave':
-                event.currentTarget.querySelector("#goto-submenu").style.display="none";
-                break;
-            };
-            break;
 
         case "cm-play-2fps":
             this.playControl.play((w)=>{this.on_load_world_finished(w)}, 2);
@@ -608,22 +564,22 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                     this.header.updateModifiedStatus();
                 });
                 break;
-            case 'mouseenter':
-                {
-                   let menus = event.currentTarget.querySelector("#saveall-submenu");
-                   menus.innerHTML = 
-                         this.data.worldList.filter(w=>w.annotation.modified).
-                                             map(w=>w.frameInfo).
-                                             reduce((a,f)=>a + '<div class="menu-item"><div class="menu-item-text">'+ f.frame + '</div></div>', '');
-                   menus.style.display = "inherit";
-                }
-                break;
-            case 'mouseleave':
-                {
-                    let menus = event.currentTarget.querySelector("#saveall-submenu");            
-                    menus.style.display = "none";
-                }
-                break;
+            // case 'mouseenter':
+            //     {
+            //        let menus = event.currentTarget.querySelector("#saveall-submenu");
+            //        menus.innerHTML = 
+            //              this.data.worldList.filter(w=>w.annotation.modified).
+            //                                  map(w=>w.frameInfo).
+            //                                  reduce((a,f)=>a + '<div class="menu-item"><div class="menu-item-text">'+ f.frame + '</div></div>', '');
+            //        menus.style.display = "inherit";
+            //     }
+            //     break;
+            // case 'mouseleave':
+            //     {
+            //         let menus = event.currentTarget.querySelector("#saveall-submenu");            
+            //         menus.style.display = "none";
+            //     }
+            //     break;
             }
             break;
         case "cm-reload":

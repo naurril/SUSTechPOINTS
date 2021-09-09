@@ -352,7 +352,6 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.fastToolBoxUi = fastToolBoxUi;
     this.batchSize = cfg.batchModeInstNumber;
     this.configMenu = configMenu;
-
     
     this.activeEditorList = function(){
         return this.editorList.slice(0, this.activeIndex);
@@ -560,7 +559,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                                         func_on_box_remove(e.box, true)
                                 });   
                             }
-                        }
+                        },
+                        {x: event.clientX, y: event.clientY}
                     );
                 }
                 else{
@@ -595,7 +595,38 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             }
             break;
 
-            
+        case 'cm-fit-moving-direction':
+            this.getSelectedEditors().forEach(e=>{
+                let currentBox = e.box;
+                let estimatedRot = boxOp.estimate_rotation_by_moving_direciton(currentBox);
+                
+                currentBox.rotation.z = estimatedRot.z;
+                func_on_box_changed(currentBox);  
+            });
+            break;
+        case 'cm-fit-size':
+            this.getSelectedEditors().forEach(e=>{
+                boxOp.auto_rotate_xyz(e.box, null, 
+                    null,//{x:false, y:false, z:true}, 
+                    func_on_box_changed, null, "dontrotate");
+            });
+            break;
+        case 'cm-fit-position':
+            this.getSelectedEditors().forEach(e=>{
+                
+                boxOp.auto_rotate_xyz(e.box, null, 
+                    null,//{x:false, y:false, z:true}, 
+                    func_on_box_changed, "noscaling", "dontrotate");
+            });
+            break;
+        case 'cm-fit-rotation':
+            this.getSelectedEditors().forEach(e=>{
+                
+                boxOp.auto_rotate_xyz(e.box, null, 
+                    null, 
+                    func_on_box_changed, "noscaling");
+            });
+            break;
         case 'cm-finalize':
             {
                 this.getSelectedEditors().forEach(e=>{
@@ -674,15 +705,6 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     };
 
     this.toolbox = this._addToolBox();
-
-    this._addBoxSelector = function(){
-        let template = document.getElementById("batch-editor-box-selector-template");
-        let ui = template.content.cloneNode(true);
-        this.parentUi.appendChild(ui);
-        return this.parentUi.lastElementChild;
-    };
-
-    this.selector = this._addBoxSelector();
 
     this.reloadAnnotation = function(editorList){
         //this.editorList.forEach(e=>e.refreshAnnotation());
@@ -881,6 +903,12 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
                 this.editingTarget.data.scale_point_size(0.8);
                 this.viewManager.render();
                 break;
+            case 'Escape':
+                this.hide();
+                this.reset();
+                if (this.onExit)
+                    this.onExit();
+
             default:
                 break;
         }
@@ -1131,7 +1159,6 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.getSelectedEditors = function(){
         return this.editorList.filter(e=>e.selected);
     }
-
 
 }
 export {BoxEditorManager, BoxEditor};
