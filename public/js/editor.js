@@ -517,9 +517,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 'cm-paste':
             {
                 let box = this.add_box_on_mouse_pos_by_ref();
-                this.boxOp.auto_rotate_xyz(box, null, null, 
-                    b=>this.on_box_changed(b),
-                    "noscaling");
+
+                if (!event.shiftKey)
+                {
+                    logger.log('paste without auto-adjusting');
+                    this.boxOp.auto_rotate_xyz(box, null, null, 
+                        b=>this.on_box_changed(b),
+                        "noscaling");
+                }
             }
             break;
         case 'cm-prev-frame':
