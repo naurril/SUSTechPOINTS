@@ -48,7 +48,25 @@ class InfoBox extends PopupDialog{
         this.contentUi.innerHTML = content;
 
         super.show(onexit);
+
+        let parentRect = this.ui.getBoundingClientRect();
+        let viewRect = this.viewUi.getBoundingClientRect();
+
+        let left = pointerPosition.x - viewRect.width/2;
+        if (left < parentRect.left) left = parentRect.left;
+        if (left + viewRect.width > parentRect.right)
+            left -= left + viewRect.width - parentRect.right;
+
+        let top = pointerPosition.y - viewRect.height/2;
+        if (top < parentRect.top)
+            top = parentRect.top;
         
+        if (top + viewRect.height > parentRect.bottom)
+            top -= top + viewRect.height - parentRect.bottom;
+
+        this.viewUi.style.top = top + "px";
+        this.viewUi.style.left = left + "px";
+
     }
 
 }

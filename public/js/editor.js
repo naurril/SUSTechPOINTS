@@ -556,37 +556,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
             
         case 'cm-save':
-            saveWorld(this.data.world, ()=>{
-                
+            saveWorldList(this.data.worldList, ()=>{
                 this.header.updateModifiedStatus();
             });
             break;
-        case 'cm-save-all':
-            switch (event.type)
-            {
-            case 'click':
-                saveWorldList(this.data.worldList, ()=>{
-                    this.header.updateModifiedStatus();
-                });
-                break;
-            // case 'mouseenter':
-            //     {
-            //        let menus = event.currentTarget.querySelector("#saveall-submenu");
-            //        menus.innerHTML = 
-            //              this.data.worldList.filter(w=>w.annotation.modified).
-            //                                  map(w=>w.frameInfo).
-            //                                  reduce((a,f)=>a + '<div class="menu-item"><div class="menu-item-text">'+ f.frame + '</div></div>', '');
-            //        menus.style.display = "inherit";
-            //     }
-            //     break;
-            // case 'mouseleave':
-            //     {
-            //         let menus = event.currentTarget.querySelector("#saveall-submenu");            
-            //         menus.style.display = "none";
-            //     }
-            //     break;
-            }
-            break;
+       
         case "cm-reload":
             {
                 reloadWorldList([this.data.world], ()=>{
@@ -596,6 +570,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 
             }
             break;
+
         case "cm-reload-all":
             {
                 reloadWorldList(this.data.worldList, ()=>{
@@ -987,6 +962,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         // select new object
 
         if (!this.data.world){
+            return;
+        }
+
+
+        if (event.shiftKey || event.ctrlKey)
+        {
+            // if ctrl or shift hold, don't select any object.
+            this.contextMenu.show("world",event.layerX, event.layerY, this);
             return;
         }
 
