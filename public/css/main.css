@@ -736,6 +736,7 @@ td {
 
 .popup-window-wrapper #header {
 	background-color: var(--widget-background-color);
+	min-width: 400px; /*minwidth of dialog*/
 }
 
 .popup-window-wrapper #title {
@@ -810,10 +811,21 @@ td {
 
 
 /* info */
+#info-wrapper #view {
+	height: fit-content;
+	width: fit-content;
+	resize: none;
+}
+
 #info-content {
 	padding-left: 5px;
-	height: 100%;
+	height: fit-content;
     overflow-wrap: break-word;
+}
+
+#info-wrapper #view #info-bottom-buttons{
+	float: right;
+    padding: 5px;
 }
 
 

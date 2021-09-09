@@ -541,11 +541,35 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             break
             
         case 'cm-delete':
-            this.getSelectedEditors().forEach(e=>{
-                if (e.box)  
-                    func_on_box_remove(e.box, true)
-            });
+            {
 
+                let selectedEditors = this.getSelectedEditors();
+
+                if (selectedEditors.length >= 2)
+                {
+                    window.editor.infoBox.show(
+                        "Confirm",
+                        `Delete <span class="red">${selectedEditors.length}</span> selected boxes?`,
+                        ["yes", "no"],
+                        (btn)=>{
+                            if (btn == "yes")
+                            {
+
+                                selectedEditors.forEach(e=>{
+                                    if (e.box)  
+                                        func_on_box_remove(e.box, true)
+                                });   
+                            }
+                        }
+                    );
+                }
+                else{
+                    selectedEditors.forEach(e=>{
+                        if (e.box)  
+                            func_on_box_remove(e.box, true)
+                    });
+                }         
+            }   
             break;
         case 'cm-interpolate':
             {

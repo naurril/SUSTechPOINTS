@@ -14,16 +14,39 @@ class InfoBox extends PopupDialog{
         
         this.contentUi = this.ui.querySelector("#info-content");
         
+        this.buttons = {
+            "yes": this.ui.querySelector("#btn-yes"),
+            "no":  this.ui.querySelector("#btn-no")
+        };
+
+        for (let btn in this.buttons)
+        {
+            this.buttons[btn].onclick = ()=>{
+                this.hide(btn);
+            }
+        }
     }
 
+    showButtons(btns){
+        for (let btn in this.buttons)
+        {
+            this.buttons[btn].style.display = 'none';
+        }
 
-    show(title, content)
+        for (let btn in btns)
+        {
+            this.buttons[btns[btn]].style.display = '';
+        }
+    }
+
+    show(title, content, btnList, onexit)
     {
-        
-        this.titleUi.innerText = title;
-        this.contentUi.innerText = content;
+        this.showButtons(btnList);
 
-        super.show();
+        this.titleUi.innerText = title;
+        this.contentUi.innerHTML = content;
+
+        super.show(onexit);
     }
 
 }

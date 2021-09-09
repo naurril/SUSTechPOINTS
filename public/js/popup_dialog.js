@@ -145,14 +145,20 @@ class PopupDialog
 
 
 
-    hide()
+    hide(msg)
     {
         this.ui.style.display = 'none';
+
+        if (this.onExit)
+        {
+            this.onExit(msg);
+        }
     }
     
-    show()
+    show(onexit)
     {
         this.ui.style.display = 'inherit';
+        this.onExit = onexit;
         //this.ui.focus();
     }
 }
