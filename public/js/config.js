@@ -65,7 +65,9 @@ class Config{
     setItem(name, value)
     {
         this[name] = value;
-        window.localStorage.setItem(name, JSON.stringify(value));
+        if (typeof value == 'object')
+            value = JSON.stringify(value);
+        window.localStorage.setItem(name, value);
     }
 
     toBool(v)
