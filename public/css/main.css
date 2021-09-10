@@ -7,6 +7,7 @@
 	--window-background-color: #222222;
 	--widget-color: gray;
 	--highlight-background-color: darkgray;
+	--highlight-color: red;
 }
 
 .theme-light {
@@ -16,6 +17,7 @@
 	--window-background-color: #dddddd;
 	--widget-color: darkgray;
 	--highlight-background-color: gray;
+	--highlight-color: blue;
 }
 
 html,body {
@@ -540,6 +542,7 @@ dynamic set obj-type css has higher priority than this one.
 
 #batch-box-editor-wrapper .selected {
 	background-color: #ffffff20;
+	color:var(--highlight-color);
 }
 
 #batch-box-editor-wrapper .v-buttons-wrapper {

@@ -597,6 +597,9 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
 
         case 'cm-fit-moving-direction':
             this.getSelectedEditors().forEach(e=>{
+                if (!e.box) 
+                    return;
+
                 let currentBox = e.box;
                 let estimatedRot = boxOp.estimate_rotation_by_moving_direciton(currentBox);
                 
@@ -606,6 +609,9 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             break;
         case 'cm-fit-size':
             this.getSelectedEditors().forEach(e=>{
+                if (!e.box) 
+                    return;
+
                 boxOp.auto_rotate_xyz(e.box, null, 
                     null,//{x:false, y:false, z:true}, 
                     func_on_box_changed, null, "dontrotate");
@@ -613,7 +619,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             break;
         case 'cm-fit-position':
             this.getSelectedEditors().forEach(e=>{
-                
+                if (!e.box) 
+                    return;
                 boxOp.auto_rotate_xyz(e.box, null, 
                     null,//{x:false, y:false, z:true}, 
                     func_on_box_changed, "noscaling", "dontrotate");
@@ -621,7 +628,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
             break;
         case 'cm-fit-rotation':
             this.getSelectedEditors().forEach(e=>{
-                
+                if (!e.box) 
+                    return;
                 boxOp.auto_rotate_xyz(e.box, null, 
                     null, 
                     func_on_box_changed, "noscaling");
