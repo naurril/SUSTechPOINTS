@@ -248,7 +248,6 @@ function BoxOp(){
 
             this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
             box.scale[axis] = extreme.max[axis]-extreme.min[axis];        
-
         }) 
 
     };

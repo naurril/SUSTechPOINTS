@@ -607,12 +607,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 {
                     info = {
                         ...info, 
-                        ...this.data.world.frameInfo.sceneMeta.desc,
-                        "offset": this.data.world.coordinatesOffset,
+                        ...this.data.world.frameInfo.sceneMeta.desc,                        
                     };
                 }
 
-                this.infoBox.show("Frame info - " + this.data.world.frameInfo.scene, JSON.stringify(info,null,"\t"));
+                this.infoBox.show("Frame info - " + this.data.world.frameInfo.scene, JSON.stringify(info,null,"<br>"));
             }
             break;
 
@@ -626,7 +625,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                         frames: this.data.world.frameInfo.sceneMeta.frames.length,
                     };
 
-                    this.infoBox.show("Stat - " + scene, JSON.stringify(info, null,"\t"));
+                    this.infoBox.show("Stat - " + scene, JSON.stringify(info, null,"<br>"));
                 });
             }
             break;
@@ -1133,7 +1132,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.imageContext.image_manager.add_box(box);
         
         if (!shift){
-            this.boxOp.auto_shrink_box(box);
+            try{
+                this.boxOp.auto_shrink_box(box);
+            }
+            catch(e)
+            {
+                logger.log(e);                
+            }
         }
         
         // guess obj type here

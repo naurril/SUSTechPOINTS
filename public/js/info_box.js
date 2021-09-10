@@ -39,16 +39,11 @@ class InfoBox extends PopupDialog{
         }
     }
 
-
-    show(title, content, btnList, onexit, pointerPosition)
+    makeVisible(pointerPosition)
     {
-        this.showButtons(btnList);
-
-        this.titleUi.innerText = title;
-        this.contentUi.innerHTML = content;
-
-        super.show(onexit);
-
+        if (!pointerPosition)
+            return;
+        
         let parentRect = this.ui.getBoundingClientRect();
         let viewRect = this.viewUi.getBoundingClientRect();
 
@@ -66,6 +61,19 @@ class InfoBox extends PopupDialog{
 
         this.viewUi.style.top = top + "px";
         this.viewUi.style.left = left + "px";
+    }
+
+
+    show(title, content, btnList, onexit, pointerPosition)
+    {
+        this.showButtons(btnList);
+
+        this.titleUi.innerText = title;
+        this.contentUi.innerHTML = content;
+
+        super.show(onexit);
+
+        this.makeVisible(pointerPosition);
 
     }
 
