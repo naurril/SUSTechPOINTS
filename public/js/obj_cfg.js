@@ -14,8 +14,8 @@ var obj_type_map = {
     Triangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
     PlatformCart:   {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
     ConstructionCart: {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
+    RoadBarrel:     {color: '#ff0000',  size:[0.5, 0.5, 0.6]},
 
-    
     Rider:          {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
     Cyclist:        {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
     Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2]},
