@@ -57,10 +57,10 @@ function PlayControl(data){
         play_frame(scene_meta, start_frame, on_load_world_finished);
 
 
-        function play_frame(scene_meta, frame, on_load_world_finished){
+        async function play_frame(scene_meta, frame, on_load_world_finished){
             if (!scope.stop_play_flag && !scope.pause_play_flag)
             {
-                var world = scope.data.getWorld(scene_meta.scene, frame)
+                var world = await scope.data.getWorld(scene_meta.scene, frame)
 
                 if (world.preloaded())  //found, data ready
                 {

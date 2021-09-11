@@ -1,9 +1,7 @@
 
 
 import * as THREE from './lib/three.module.js';
-import { PCDLoader } from './lib/PCDLoader.js';
-import { matmul, euler_angle_to_rotate_matrix_3by3, matmul2} from "./util.js"
-import { get_color_by_category, get_color_by_id, get_obj_cfg_by_type } from './obj_cfg.js';
+import {globalObjectCategory} from './obj_cfg.js';
 
 function Annotation(sceneMeta, world, frameInfo){
     this.world = world;
@@ -119,6 +117,7 @@ function Annotation(sceneMeta, world, frameInfo){
             },
             obj_type: box.obj_type,
             obj_id: String(box.obj_track_id),
+            obj_attr: box.obj_attr,
             //vertices: vertices,
         };
         return ann;
@@ -239,9 +238,9 @@ function Annotation(sceneMeta, world, frameInfo){
             -h,-h,h, -h,-h,-h,
 
             //direction
-            0,   0,  h+0.1,  h, 0, h+0.1,
-            h/2, -h, h+0.1,  h, 0, h+0.1,
-            h/2,  h, h+0.1,  h, 0, h+0.1,
+            h,   0,  h,  1.5*h, 0, h,
+            //h/2, -h, h+0.1,  h, 0, h+0.1,
+            //h/2,  h, h+0.1,  h, 0, h+0.1,
 
             //side direction
             // h, h/2, h,  h, h, 0,
@@ -282,8 +281,8 @@ function Annotation(sceneMeta, world, frameInfo){
         return box;
     };
 
-    this.createCuboid = function(pos, scale, rotation, obj_type, track_id){
-        let mesh = this.new_bbox_cube(parseInt("0x"+get_obj_cfg_by_type(obj_type).color.slice(1)));
+    this.createCuboid = function(pos, scale, rotation, obj_type, track_id, obj_attr){
+        let mesh = this.new_bbox_cube(parseInt("0x"+globalObjectCategory.get_obj_cfg_by_type(obj_type).color.slice(1)));
         mesh.position.x = pos.x;
         mesh.position.y = pos.y;
         mesh.position.z = pos.z;
@@ -298,7 +297,7 @@ function Annotation(sceneMeta, world, frameInfo){
 
         mesh.obj_track_id = track_id;  //tracking id
         mesh.obj_type = obj_type;
-
+        mesh.obj_attr = obj_attr;
         mesh.obj_local_id =  this.get_new_box_local_id();
 
         mesh.world = this.world;
@@ -309,9 +308,9 @@ function Annotation(sceneMeta, world, frameInfo){
      pos:  offset position, after transformed
     */
 
-    this.add_box=function(pos, scale, rotation, obj_type, track_id){
+    this.add_box=function(pos, scale, rotation, obj_type, track_id, obj_attr){
 
-        let mesh = this.createCuboid(pos, scale, rotation, obj_type, track_id)
+        let mesh = this.createCuboid(pos, scale, rotation, obj_type, track_id, obj_attr)
 
         this.boxes.push(mesh);
         this.sort_boxes();
@@ -523,7 +522,8 @@ function Annotation(sceneMeta, world, frameInfo){
             b.psr.scale, 
             b.psr.rotation,
             b.obj_type,
-            b.obj_id);
+            b.obj_id,
+            b.obj_attr);
         
         if (b.annotator){
             mesh.annotator = b.annotator;
@@ -554,7 +554,7 @@ function Annotation(sceneMeta, world, frameInfo){
     {
         if (this.data.cfg.color_obj == "category" || this.data.cfg.color_obj == "no")
         {
-            let color = get_color_by_category(box.obj_type);
+            let color = globalObjectCategory.get_color_by_category(box.obj_type);
             box.material.color.r=color.x;
             box.material.color.g=color.y;
             box.material.color.b=color.z;
@@ -562,7 +562,7 @@ function Annotation(sceneMeta, world, frameInfo){
         else
         {
 
-            let color = get_color_by_id(box.obj_track_id);
+            let color = globalObjectCategory.get_color_by_id(box.obj_track_id);
             box.material.color.r=color.x;
             box.material.color.g=color.y;
             box.material.color.b=color.z;

@@ -2,7 +2,7 @@
 import * as THREE from './lib/three.module.js';
 import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 import { PCDLoader } from './lib/PCDLoader.js';
-import { get_color_by_category, get_color_by_id, } from './obj_cfg.js';
+import {globalObjectCategory} from './obj_cfg.js';
 
 
 import {settings} from "./settings.js"
@@ -1100,12 +1100,12 @@ function Lidar(sceneMeta, world, frameInfo){
         if (!target_color){
             if (this.data.cfg.color_obj == "category")
             {
-                target_color = get_color_by_category(box.obj_type);
+                target_color = globalObjectCategory.get_color_by_category(box.obj_type);
             }
             else if (this.data.cfg.color_obj == "id")// by id
             {
                 let idx = (box.obj_track_id)?parseInt(box.obj_track_id): box.obj_local_id;
-                target_color = get_color_by_id(idx);
+                target_color = globalObjectCategory.get_color_by_id(idx);
             }
             else // no color
             {

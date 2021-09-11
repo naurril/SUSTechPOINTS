@@ -1,5 +1,4 @@
 import * as THREE from './lib/three.module.js';
-import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
 import {logger} from "./log.js"
 import {

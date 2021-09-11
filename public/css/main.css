@@ -110,21 +110,28 @@ canvas {
 }
 
 
-#selectors, #object-category-selector, 
-#object-track-id-editor, #scene-selector, 
+#selectors {
+	background-color: inherit;
+	color: inherit;
+	border-width: 0;
+	display: inline-flex;
+}
+
+#object-category-selector, 
+#object-track-id-editor, #object-attribute-editor, #scene-selector, 
 #frame-selector, #object-selector, 
 #camera-selector, #obj-ids-of-scene
 {
 	background-color: inherit;
 	color: inherit;
 	border-width: 0;	
+	display: inline-block;
 }
 
-
-#changed-mark{
-	padding: 2px;
-	position: relative;
+#object-category-attribute, #obj-ids-of-scene{
+	display: none;
 }
+
 
 .alarm-mark:hover {
 	background-color: lightgray;	
@@ -157,6 +164,7 @@ canvas {
 .header-button {
 	height: 20px;
 	width: 20px;
+	padding: 2px;
 }
 
 

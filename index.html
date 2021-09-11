@@ -45,6 +45,11 @@
 						<select id="scene-selector">
 							<option>--scene--</option>
 						</select>
+						<div id='btn-reload-scene-list' class="ui-button" title="reload scene list">
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+								<path d="M 12 20 A 8 8 0 1 1 20 12  M 21 9 L 20 12 L 18 10" />
+							</g></svg>
+						</div>
 						<select id="frame-selector">
 								<option>--frame--</option>
 						</select>
@@ -79,7 +84,10 @@
 				<div id="obj-editor">
 					<div id="category-id-editor">
 						<select title="category"  id="object-category-selector"></select>
-						<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input>						
+						<input title="attribute" list="object-attribute" id="object-attribute-editor" type="text" size="10">
+						<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5"></input>
+						<datalist id="obj-ids-of-scene"></datalist>						
+						<datalist id="object-attribute"></datalist>
 						<div id="label-gen-id" class="ui-button" title="genearte ID">
 							<!-- <span class="ui-icon ui-icon-copy"></span> -->
 							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -87,6 +95,8 @@
 								<rect x="6" y="6" width="12" height="12"/>								
 							</g></svg>
 						</div>
+
+
 					</div>
 					<div id="obj-editor-tools">
 						<div id="label-copy" class="ui-button" title="copy (C-c)">
@@ -121,7 +131,7 @@
 							</g></svg>
 						</div>
 
-						<div id="label-trajectory" class="ui-button"  title="trojectory">
+						<div id="label-trajectory" class="ui-button"  title="trajectory">
 							<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
 							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
 								<path d="M 4 4 C 20 4, 4 20, 20 20" />
@@ -361,7 +371,7 @@
 						</div>
 						<div class="menu-item" id="cm-modify-obj-type">
 							<div class="menu-item-icon"></div>
-							<div class="menu-item-text">Sync object type</div>
+							<div class="menu-item-text">Sync object type & attr</div>
 						</div>
 						<div class="menu-item" id="cm-modify-obj-size">
 							<div class="menu-item-icon"></div>
@@ -1037,7 +1047,7 @@
 				</div>
 			</div>
 		</template>
-		<datalist id="obj-ids-of-scene"></datalist>
+
 
 		<script src="/static/js/lib/ml/tf.min.js"></script>
 		<script type="module"  src="/static/js/main.js"></script>		

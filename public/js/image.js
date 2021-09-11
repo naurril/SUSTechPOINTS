@@ -1,6 +1,6 @@
 
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
-import { get_color_by_category, get_color_by_id, } from './obj_cfg.js';
+import {globalObjectCategory, } from './obj_cfg.js';
 
 function FocusImageContext(ui){
 
@@ -121,12 +121,12 @@ function FocusImageContext(ui){
                 let target_color = null;
                 if (box.world.data.cfg.color_obj == "category")
                 {
-                    target_color = get_color_by_category(box.obj_type);
+                    target_color = globalObjectCategory.get_color_by_category(box.obj_type);
                 }
                 else // by id
                 {
                     let idx = (box.obj_track_id)?parseInt(box.obj_track_id): box.obj_local_id;
-                    target_color = get_color_by_id(idx);
+                    target_color = globalObjectCategory.get_color_by_id(idx);
                 }
 
 

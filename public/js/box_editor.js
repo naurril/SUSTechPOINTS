@@ -335,7 +335,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
 
 //parentUi  #batch-box-editor-wrapper
-function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView, 
+function BoxEditorManager(parentUi, viewManager, objectTrackView, 
                  cfg, boxOp, globalHeader, contextMenu, configMenu,
                  func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
     this.viewManager = viewManager;
@@ -349,7 +349,6 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.parentUi = parentUi;   //#batch-box-editor-wrapper
     this.boxEditorGroupUi = parentUi.querySelector("#batch-box-editor-group");
     this.boxEditorHeaderUi = parentUi.querySelector("#batch-box-editor-header");
-    this.fastToolBoxUi = fastToolBoxUi;
     this.batchSize = cfg.batchModeInstNumber;
     this.configMenu = configMenu;
     
@@ -453,8 +452,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         
         this.viewManager.mainView.clearView();
 
-        frames.forEach((frame, editorIndex)=>{
-            let world = data.getWorld(sceneName, frame);
+        frames.forEach(async (frame, editorIndex)=>{
+            let world = await data.getWorld(sceneName, frame);
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId, objType);
             editor.setIndex(editorIndex);
