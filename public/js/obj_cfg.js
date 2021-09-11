@@ -11,16 +11,20 @@ var obj_type_map = {
 
     Cone:           {color: '#ff0000',  size:[0.3, 0.3, 0.6]},
     FireHydrant:    {color: '#ff0000',  size:[0.4, 0.4, 0.6]},
-    Triangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
+    ReflectiveTriangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
     PlatformCart:   {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
     ConstructionCart: {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
     RoadBarrel:     {color: '#ff0000',  size:[0.5, 0.5, 0.6]},
+    TrafficBarrier: {color: '#ff0000',  size:[1.5, 0.3, 1.2]},
 
-    Rider:          {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
-    Cyclist:        {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
+    ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+    MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+    BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
+
     Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2]},
-    Motor:          {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    Motorcycle:     {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
     Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    
     BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
     
     Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},

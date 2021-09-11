@@ -9,24 +9,108 @@
 [操作说明](./README_cn.md)
 
 
+# 什么是3D目标检测/追踪
+
+3D目标检测就是给定3D场景(激光点云,或者图像), 把所有感兴趣的物体识别出来, 用3D立方体将物体框起来, 并给出物体的类别. 如果还有追踪任务, 则需要给每个目标物体分配唯一ID.
+
+对应的数据集可以参考
+[KITTI数据集](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d), 
+[百度Apollo数据集](http://apolloscape.auto/tracking.html)
+
+## 如何制作
+
+通常我们需要专用的数据采集车, 采集各种场景的数据. 数据包括激光雷达点云, 相机图片等. 然后从中挑选有代表性的片段进行标注. 
 
 
 # 标注要求
 
-
-本文描述3D目标检测和追踪数据集(点云／图像)的标注．
+下文描述3D目标检测和追踪数据集(点云／图像)的标注．
 
 ## 标注范围
 
 ### 距离
 原则上只要是可辨认出目标物体的都应该标注．
-50m范围内的车，30m范围的人必须标．如果被完全遮挡则不用标．
+50m范围内的车，30m范围的人必须标．如果被完全遮挡则不用标． 标注工具里面显示了30m和50m范围线,可以作为参考. 选中单个box的时候, 也会在页面顶部显示距离.
 
 
 ### 类别
 所有可移动的物体都要标注，如果有新的类别，请联系我
 
-## 3D　Box要求
+目前支持的类别如下:
+
+    Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5]},
+    Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+    PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
+
+    Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
+    RoadConstructionWorker: {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
+    Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
+    //Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
+
+    Cone:           {color: '#ff0000',  size:[0.3, 0.3, 0.6]},
+    FireHydrant:    {color: '#ff0000',  size:[0.4, 0.4, 0.6]},
+    ReflectiveTriangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
+    PlatformCart:   {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
+    ConstructionCart: {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
+    RoadBarrel:     {color: '#ff0000',  size:[0.5, 0.5, 0.6]},
+    TrafficBarrier: {color: '#ff0000',  size:[1.5, 0.3, 1.2]},
+
+    ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+    MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
+    BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
+
+    Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2]},
+    Motorcycle:     {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    
+    BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
+    
+    Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
+    Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
+    ConcreteTruck:  {color: '#00ffff',  size:[10., 2.8, 3]},
+    Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
+    Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
+
+    ForkLift:       {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
+    Trimotorcycle:  {color: '#00aaff',  size:[2.6, 1.0, 1.6]},
+    Crane:          {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
+
+
+  Crane
+
+  ![crane](./doc/crane.jpeg)
+
+  road barrel
+
+  ![road barrel](./doc/road-barrel.jpg)
+
+  scooter
+
+  ![scooter](./doc/scooter.jpg)
+
+  Traffic Barrier
+  ![traffic barrier](./doc/TrafficBarrier.jpeg)
+
+  Trimotorcycle
+
+  ![Trimotocycle](./doc/Trimotorcycle.jpeg)
+
+  Fork Lift
+
+  ![Forklift](./doc/forklift.jpg)
+
+  Construction Cart
+  ![Construction Cart](./doc/construction-cart.jpeg)
+
+  ConcreteTruck
+  ![Construction Cart](./doc/concrete-truck.jpeg)
+
+  platform cart
+  ![platform cart](./doc/platform-cart.jpg)
+
+  reflective triangle
+  ![triangle](./doc/Triangle.jpeg)
+## 3D Box要求
 
 3d box的大小，方向，类别都需要准确标注．对于旋转方向，需要将３个轴都旋转到正确的方向．
 
