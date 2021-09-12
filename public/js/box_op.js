@@ -177,10 +177,10 @@ function BoxOp(){
                 return false;
             }
 
-            if (Math.abs(box.rotation.z - orgBox.rotation.z) > Math.PI/4)
-            {
-                return false;
-            }
+            // if (Math.abs(box.rotation.z - orgBox.rotation.z) > Math.PI/4)
+            // {
+            //     return false;
+            // }
 
             if (box.scale.x > orgBox.scale.x*3 ||
                 box.scale.y > orgBox.scale.y*3 ||
