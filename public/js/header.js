@@ -1,4 +1,5 @@
 
+import { CubeRefractionMapping } from "./lib/three.module.js";
 import {saveWorldList} from "./save.js"
 
 var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelected, onCameraChanged){
@@ -33,13 +34,35 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     }
 
     // update scene selector ui
-    var scene_selector_str = data.meta.map(function(c){
-        return "<option value="+c.scene +">"+(c.desc?(c.scene+" "+c.desc.scene):c.scene) + "</option>";
-    }).reduce(function(x,y){return x+y;}, "<option>--scene--</option>");
+    
 
-    this.ui.querySelector("#scene-selector").innerHTML = scene_selector_str;
+    
 
+    this.updateSceneList = function(sceneDescList){
+        let scene_selector_str = "<option>--scene--</option>";
+        for (let scene in sceneDescList)
+        {
+            if (data.sceneDescList[scene])
+                scene_selector_str += "<option value="+scene +">"+scene + " - " +data.sceneDescList[scene].scene + "</option>";
+            else
+                scene_selector_str += "<option value="+scene +">"+scene+ "</option>";
+        }
 
+        this.ui.querySelector("#scene-selector").innerHTML = scene_selector_str;
+    }
+    
+    this.updateSceneList(this.data.sceneDescList);
+
+    this.ui.querySelector("#btn-reload-scene-list").onclick = (event)=>{
+        let curentValue = this.sceneSelectorUi.value;
+        
+        this.data.readSceneList().then((sceneDescList=>{
+            this.updateSceneList(sceneDescList);
+            this.sceneSelectorUi.value = curentValue;
+        }))
+    }
+
+    
 
     this.sceneSelectorUi.onchange = (e)=>{this.onSceneChanged(e);};
     this.objectSelectorUi.onchange = (e)=>{this.onObjectSelected(e);};

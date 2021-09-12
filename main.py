@@ -210,6 +210,17 @@ class Root(object):
     def datameta(self):
       return scene_reader.get_all_scenes()
     
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def scenemeta(self, scene):
+      return scene_reader.get_one_scene(scene)
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def get_all_scene_desc(self):
+      return scene_reader.get_all_scene_desc()
+
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def objs_of_scene(self, scene):

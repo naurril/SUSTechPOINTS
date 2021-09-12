@@ -19,62 +19,30 @@ document.body.addEventListener('keydown', event => {
     }
 });
 
+async function createMainEditor(){
 
-// meatdata
-(function(){
-  let self=this;
-  let xhr = new XMLHttpRequest();
-  // we defined the xhr
+  let template = document.querySelector('#editor-template');
+  let maindiv  = document.querySelector("#main-editor");
+  let main_ui = template.content.cloneNode(true);
+  maindiv.appendChild(main_ui); // input parameter is changed after `append`
+
+  let editorCfg = pointsGlobalConfig;
+
+  let dataCfg = pointsGlobalConfig;
   
-  xhr.onreadystatechange = function () {
-      if (this.readyState != 4) 
-          return;
-  
-      if (this.status == 200) {
-          let ret = JSON.parse(this.responseText);
-          let metaData = ret;                               
+  let data = new Data(dataCfg);
+  await data.init();
 
-          metaData.getScene = function(sceneName){
-            var scene_meta = this.find(function(x){
-                return x.scene == sceneName;
-            });
-        
-            return scene_meta;
-          };
+  let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "main-editor")
+  window.editor = editor;
+  editor.run();
+  return editor;
+} 
 
-          start(metaData);
-      }
+async function start(){
 
-  };
-  
-  xhr.open('GET', "/datameta", true);
-  xhr.send();
-})();
-
-
-function start(metaData){
-
-  var template = document.querySelector('#editor-template');
-
-  // main editor
-  function createMainEditor(){
-      let maindiv  = document.querySelector("#main-editor");
-      let main_ui = template.content.cloneNode(true);
-      maindiv.appendChild(main_ui); // input parameter is changed after `append`
-
-      let editorCfg = pointsGlobalConfig;
-
-      let dataCfg = pointsGlobalConfig;
-      
-      let data = new Data(metaData, dataCfg);
-      let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "main-editor")
-      window.editor = editor;
-      editor.run();
-      return editor;
-  } 
-
-
-  let mainEditor = createMainEditor();
+ 
+  let mainEditor = await createMainEditor();
 
 
   let url_string = window.location.href
@@ -87,8 +55,10 @@ function start(metaData){
   {
     mainEditor.load_world(scene, frame);
   }
-
-
-
 }
+
+
+
+
+start();
 

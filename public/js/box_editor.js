@@ -335,7 +335,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
 
 //parentUi  #batch-box-editor-wrapper
-function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView, 
+function BoxEditorManager(parentUi, viewManager, objectTrackView, 
                  cfg, boxOp, globalHeader, contextMenu, configMenu,
                  func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
     this.viewManager = viewManager;
@@ -349,7 +349,6 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
     this.parentUi = parentUi;   //#batch-box-editor-wrapper
     this.boxEditorGroupUi = parentUi.querySelector("#batch-box-editor-group");
     this.boxEditorHeaderUi = parentUi.querySelector("#batch-box-editor-header");
-    this.fastToolBoxUi = fastToolBoxUi;
     this.batchSize = cfg.batchModeInstNumber;
     this.configMenu = configMenu;
     
@@ -385,8 +384,53 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         //this.viewManager.render();
     };
 
+    this.calculateBestSubviewSize=function(batchSize)
+    {
+        let parentRect = this.parentUi.getBoundingClientRect();
+        let headerRect = this.boxEditorHeaderUi.getBoundingClientRect();
+        let editorsGroupRect = this.boxEditorGroupUi.getBoundingClientRect();
+
+        let availableHeight = parentRect.height - headerRect.height;
+        let availableWidth = parentRect.width;
+
+        let defaultBoxWidth=130;
+        let defaultBoxHeight=450;
+
+        let rows = 1;
+        let w = availableWidth/Math.ceil(batchSize/rows);
+        let h = availableHeight/rows;
+        let cost = Math.abs((w/h) - (defaultBoxWidth/defaultBoxHeight));
+        let minCost = cost;
+        let bestRows = rows;
+        while(true)
+        {
+            rows +=1;
+
+            let w = Math.floor(availableWidth/Math.ceil(batchSize/rows));
+            let h = Math.floor(availableHeight/rows);
+            let cost = Math.abs((w/h) - (defaultBoxWidth/defaultBoxHeight));
+            
+            if (cost < minCost)
+            {
+                minCost = cost;                
+                bestRows = rows;
+            }
+            else{
+                break;
+            }
+        }        
+    
+        //bestRows
+        pointsGlobalConfig.batchModeSubviewSize = {
+            width: Math.floor(availableWidth/Math.ceil(batchSize/bestRows)),
+            height: Math.floor(availableHeight/bestRows),
+        }
+    }
+
     this.setBatchSize = function(batchSize)
     {
+        this.calculateBestSubviewSize(batchSize);
+
         this.batchSize = batchSize;
         if (this.parentUi.style.display != "none")
         {
@@ -453,8 +497,8 @@ function BoxEditorManager(parentUi, fastToolBoxUi, viewManager, objectTrackView,
         
         this.viewManager.mainView.clearView();
 
-        frames.forEach((frame, editorIndex)=>{
-            let world = data.getWorld(sceneName, frame);
+        frames.forEach(async (frame, editorIndex)=>{
+            let world = await data.getWorld(sceneName, frame);
             let editor = this.addEditor();
             editor.setTarget(world, objTrackId, objType);
             editor.setIndex(editorIndex);

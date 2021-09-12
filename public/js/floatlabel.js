@@ -2,6 +2,105 @@
 
 import {psr_to_xyz} from "./util.js"
 import * as THREE from './lib/three.module.js';
+import { globalObjectCategory } from "./obj_cfg.js";
+class FastToolBox{
+    constructor(ui, eventHandler)
+    {
+        this.ui = ui;
+        this.eventHandler = eventHandler;
+
+        this.installEventHandler();
+    }
+
+    hide()
+    {
+        this.ui.style.display = "none";
+    }
+
+    show()
+    {
+        this.ui.style.display = "inline-block";
+    }
+
+
+    setValue(obj_type, obj_track_id, obj_attr){
+        this.ui.querySelector("#object-category-selector").value = obj_type;
+
+        this.setAttrOptions(obj_type);
+
+        this.ui.querySelector("#object-track-id-editor").value = obj_track_id;
+
+        if (obj_attr)
+            this.ui.querySelector("#object-attribute-editor").value = obj_attr;
+        else
+            this.ui.querySelector("#object-attribute-editor").value = "";
+        
+    }
+
+    setPos(pos)
+    {
+        if (pos)
+        {
+            this.ui.style.top = pos.top;
+            this.ui.style.left = pos.left;
+        }
+    }
+
+    setAttrOptions(obj_type)
+    {
+        let options = globalObjectCategory.objAttrsOptions[obj_type];
+        if (options)
+            this.ui.querySelector("#object-attribute").innerHTML = options;
+        else
+            this.ui.querySelector("#object-attribute").innerHTML = "";
+    }
+
+    installEventHandler(){
+
+        let btns = [
+            "#label-del",
+            "#label-gen-id",
+            "#label-copy",
+            "#label-paste",
+            "#label-batchedit",
+            "#label-trajectory",
+            "#label-edit",
+            "#label-reset",
+            "#label-highlight",
+            "#label-rotate",
+        ];
+
+        btns.forEach(btn=>{
+            this.ui.querySelector(btn).onclick = (event)=>{
+                this.eventHandler(event);
+            };
+        });  
+
+        this.ui.querySelector("#object-category-selector").onchange =  event=>{
+            
+            //this.ui.querySelector("#object-attribute-editor").value="";
+            this.setAttrOptions(event.currentTarget.value);
+            this.eventHandler(event);
+        };
+
+
+        this.ui.querySelector("#object-track-id-editor").onchange =    event=>this.eventHandler(event);
+        this.ui.querySelector("#object-track-id-editor").addEventListener("keydown", e=>e.stopPropagation());
+        this.ui.querySelector("#object-track-id-editor").addEventListener("keyup", event=>{
+            event.stopPropagation();
+            this.eventHandler(event);
+        });
+        
+        this.ui.querySelector("#object-attribute-editor").onchange =    event=>this.eventHandler(event);
+        this.ui.querySelector("#object-attribute-editor").addEventListener("keydown", e=>e.stopPropagation());
+        this.ui.querySelector("#object-attribute-editor").addEventListener("keyup", event=>{
+            event.stopPropagation();
+            this.eventHandler(event);
+        });
+    }
+}
+
+
 
 class FloatLabelManager {
  
@@ -16,7 +115,8 @@ class FloatLabelManager {
         this.container = container_div;
         this.labelsUi = editor_ui.querySelector("#floating-labels");
         this.floatingUi = editor_ui.querySelector("#floating-things");
-        this.fastToolboxUi = editor_ui.querySelector("#obj-editor");
+        
+        
     
         this.style = document.createElement('style');
         this.temp_style = document.createElement('style');
@@ -34,6 +134,8 @@ class FloatLabelManager {
         this.floatingUi.style.display="";
     }
 
+
+    
 
     toggle_id(){
         
@@ -119,12 +221,14 @@ class FloatLabelManager {
         }
     }
 
-    update_obj_editor_position(local_id){
-        var label = this.editor_ui.querySelector("#obj-local-"+local_id);
-        
-        if (label){
-            this.fastToolboxUi.style.top = label.style.top;
-            this.fastToolboxUi.style.left = label.style.left;
+    getLabelPos(local_id)
+    {
+        let label = this.editor_ui.querySelector("#obj-local-"+local_id);
+        if (label)
+        {
+            return {top: label.style.top,
+                   left: label.style.left
+                };
         }
     }
 
@@ -138,8 +242,6 @@ class FloatLabelManager {
                 label.hidden = true;
                 label.selected = true;                
                 
-                this.fastToolboxUi.style.display = "inline-block";
-
                 //this.editor_ui.querySelector("#obj-editor").style.display = "inherit";//"none";
                 //this.editor_ui.querySelector("#obj-label").style.display = "none";
                 //this.editor_ui.querySelector("#obj-label").innerText = label.innerText;
@@ -154,19 +256,23 @@ class FloatLabelManager {
             label.className = label.orgClassName;
             label.hidden = false;
             label.selected = false;
-            this.fastToolboxUi.style.display = "none";
         }
     }
 
-    update_label_editor(obj_type, obj_track_id){
-        this.editor_ui.querySelector("#object-category-selector").value = obj_type;
-        this.editor_ui.querySelector("#object-track-id-editor").value = obj_track_id;
-    }
     
     set_object_type(local_id, obj_type){
         var label = this.editor_ui.querySelector("#obj-local-"+local_id);
         if (label){
             label.obj_type = obj_type;
+            label.update_text();
+            this.update_color(label);
+        }
+    }
+
+    set_object_attr(local_id, obj_attr){
+        var label = this.editor_ui.querySelector("#obj-local-"+local_id);
+        if (label){
+            label.obj_attr = obj_attr;
             label.update_text();
             this.update_color(label);
         }
@@ -257,9 +363,16 @@ class FloatLabelManager {
         var _self =this;
 
         label.update_text = function(){
-            var label_text = '<div class="label-obj-type-text">';                
+            let label_text = '<div class="label-obj-type-text">';                
             label_text += this.obj_type;
             label_text += '</div>';
+
+            if (this.obj_attr)
+            {
+                label_text += '<div class="label-obj-attr-text">,';                
+                label_text += this.obj_attr;
+                label_text += '</div>';
+            }
 
             label_text += '<div class="label-obj-id-text">';                
             label_text += this.obj_track_id;                
@@ -271,6 +384,7 @@ class FloatLabelManager {
         label.obj_type = box.obj_type;
         label.obj_local_id = box.obj_local_id;
         label.obj_track_id = box.obj_track_id;
+        label.obj_attr = box.obj_attr;
         label.update_text();
         this.update_color(label);
 
@@ -346,4 +460,4 @@ class FloatLabelManager {
 }
 
 
-export {FloatLabelManager};
+export {FloatLabelManager, FastToolBox};

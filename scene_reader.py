@@ -10,12 +10,27 @@ def get_all_scenes():
     print(all_scenes)
     return list(map(get_one_scene, all_scenes))
 
+def get_all_scene_desc():
+    names = get_scene_names()
+    descs = {}
+    for n in names:
+        descs[n] = get_scene_desc(n)
+    return descs
+
 def get_scene_names():
       scenes = os.listdir(root_dir)
       scenes = filter(lambda s: not os.path.exists(os.path.join(root_dir, s, "disable")), scenes)
       scenes = list(scenes)
       scenes.sort()
       return scenes
+
+def get_scene_desc(s):
+    scene_dir = os.path.join(root_dir, s)
+    if os.path.exists(os.path.join(scene_dir, "desc.json")):
+        with open(os.path.join(scene_dir, "desc.json")) as f:
+            desc = json.load(f)
+            return desc
+    return None
 
 def get_one_scene(s):
     scene = {

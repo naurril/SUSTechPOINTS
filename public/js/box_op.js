@@ -1,5 +1,4 @@
 import * as THREE from './lib/three.module.js';
-import {get_obj_cfg_by_type} from "./obj_cfg.js"
 
 import {logger} from "./log.js"
 import {
@@ -167,21 +166,50 @@ function BoxOp(){
                 return box;
         };
 
+        let justifyAutoAdjResult = (orgBox, box)=>
+        {
+            let distance = Math.sqrt((box.position.x-orgBox.position.x)*(box.position.x-orgBox.position.x) + 
+                                     (box.position.y-orgBox.position.y)*(box.position.y-orgBox.position.y) + 
+                                     (box.position.z-orgBox.position.z)*(box.position.z-orgBox.position.z));
+
+            if (distance > Math.max(box.scale.x, box.scale.y, box.scale.z))
+            {
+                return false;
+            }
+
+            // if (Math.abs(box.rotation.z - orgBox.rotation.z) > Math.PI/4)
+            // {
+            //     return false;
+            // }
+
+            if (box.scale.x > orgBox.scale.x*3 ||
+                box.scale.y > orgBox.scale.y*3 ||
+                box.scale.z > orgBox.scale.z*3)
+            {
+                return false;                    
+            }
+
+            return true;
+        }
+
+
         let postProc = (box)=>{
 
-            // copy back
-            orgBox.position.x = box.position.x;
-            orgBox.position.y = box.position.y;
-            orgBox.position.z = box.position.z;
+            if (justifyAutoAdjResult(orgBox, box))
+            {
+                // copy back
+                orgBox.position.x = box.position.x;
+                orgBox.position.y = box.position.y;
+                orgBox.position.z = box.position.z;
 
-            orgBox.rotation.x = box.rotation.x;
-            orgBox.rotation.y = box.rotation.y;
-            orgBox.rotation.z = box.rotation.z;
+                orgBox.rotation.x = box.rotation.x;
+                orgBox.rotation.y = box.rotation.y;
+                orgBox.rotation.z = box.rotation.z;
 
-            orgBox.scale.x = box.scale.x;
-            orgBox.scale.y = box.scale.y;
-            orgBox.scale.z = box.scale.z;
-
+                orgBox.scale.x = box.scale.x;
+                orgBox.scale.y = box.scale.y;
+                orgBox.scale.z = box.scale.z;
+            }
 
             if (on_box_changed)
                 on_box_changed(orgBox);
