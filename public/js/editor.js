@@ -1434,6 +1434,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         let pos = this.data.world.scenePosToLidar(globalP);
 
         let refbox = this.autoAdjust.marked_object.ann;
+        pos.z = refbox.psr.position.z;
         let box = this.add_box(pos, refbox.psr.scale, refbox.psr.rotation, refbox.obj_type, refbox.obj_id);
         
         return box;

@@ -253,7 +253,7 @@ function Annotation(sceneMeta, world, frameInfo){
         this.world.data.dbg.alloc();
 
         var bbox = new THREE.BufferGeometry();
-        bbox.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
+        bbox.setAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
         if (!color){
             color = 0x00ff00;

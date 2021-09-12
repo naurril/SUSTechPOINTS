@@ -39,8 +39,11 @@ class FastToolBox{
 
     setPos(pos)
     {
-        this.ui.style.top = pos.top;
-        this.ui.style.left = pos.left;
+        if (pos)
+        {
+            this.ui.style.top = pos.top;
+            this.ui.style.left = pos.left;
+        }
     }
 
     setAttrOptions(obj_type)
