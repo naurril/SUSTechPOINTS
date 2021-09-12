@@ -5,7 +5,7 @@ class ObjectCategory
 
 
     obj_type_map = {
-        Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5]},
+        Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5], attr:["door open"]},
         Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
         PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
 
