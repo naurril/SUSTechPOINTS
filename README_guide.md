@@ -114,6 +114,9 @@ rider的属性： 伞，载客数量
 
   reflective triangle
   ![triangle](./doc/Triangle.jpeg)
+
+  excavator
+  ![excavator](./doc/excavator.png)
 ## 3D Box要求
 
 3d box的大小，方向，类别都需要准确标注．对于旋转方向，需要将３个轴都旋转到正确的方向．
