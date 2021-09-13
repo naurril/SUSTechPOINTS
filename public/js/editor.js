@@ -560,11 +560,32 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-reload-all":
             {
-                reloadWorldList(this.data.worldList, ()=>{
-                    this.on_load_world_finished(this.data.world);
-                    this.header.updateModifiedStatus();
-                });
-                
+                let modifiedFrames = this.data.worldList.filter(w=>w.annotation.modified);
+
+                if (modifiedFrames.length > 0)
+                {
+                    this.infoBox.show(
+                        "Confirm",
+                        `Reload to discard changes of ${modifiedFrames.length} frames, continue?`,
+                        ["yes","no"],
+                        (choice)=>{
+                            if (choice=="yes")
+                            {
+                                reloadWorldList(this.data.worldList, ()=>{
+                                    this.on_load_world_finished(this.data.world);
+                                    this.header.updateModifiedStatus();
+                                });
+                            }
+                        }
+                    );                
+                }
+                else
+                {
+                    reloadWorldList(this.data.worldList, ()=>{
+                        this.on_load_world_finished(this.data.world);
+                        this.header.updateModifiedStatus();
+                    });
+                }
             }
             break;
     

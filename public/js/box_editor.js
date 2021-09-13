@@ -243,17 +243,6 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         this.updateInfo();
     };
 
-
-    this.refreshAnnotation = function(){
-        if (this.target){
-            this.target.world.annotation.reloadAnnotation(()=>{
-                this.tryAttach();
-                this.update(); // update calls render
-                //this.viewManager.render();
-            });
-        }
-    };
-
     this.updateInfo = function(){
         let info = ""
         if (this.target.world)
@@ -699,7 +688,11 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             break;
             
         case 'cm-reload':
-            this.reloadAnnotation(this.getSelectedEditors());                
+            
+            {
+                let selectedEditors = this.getSelectedEditors();
+                this.reloadAnnotation(selectedEditors);  
+            }
             break;
 
         case 'cm-goto-this-frame':
@@ -759,12 +752,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     this.toolbox = this._addToolBox();
 
     this.reloadAnnotation = function(editorList){
-        //this.editorList.forEach(e=>e.refreshAnnotation());
         
-        if (!editorList)
-            editorList = this.activeEditorList()
-        let worldList = editorList.map(e=>e.target.world);
-
         let done = (anns)=>{
             // update editor
             editorList.forEach(e=>{
@@ -782,7 +770,31 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.globalHeader.updateModifiedStatus();
         };
 
-        reloadWorldList(worldList, done);
+
+        let worldList = editorList.map(e=>e.target.world);
+
+        let modifiedFrames  =worldList.filter(w=>w && w.annotation.modified);
+
+        if (modifiedFrames.length > 0)
+        {
+            window.editor.infoBox.show(
+                "Confirm",
+                `Reload do discard changes of ${modifiedFrames.length} frames, continue?`,
+                ["yes","no"],
+                (choice)=>{
+                    if (choice=="yes")
+                    {
+                        reloadWorldList(worldList, done);
+                    }
+                }
+            );
+        }
+        else{
+            reloadWorldList(worldList, done);
+        }
+
+
+        
     }
 
     this.interpolate = async function(applyIndList){
@@ -871,7 +883,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     };
 
     this.parentUi.querySelector("#reload").onclick = (e)=>{
-        this.reloadAnnotation();
+
+        let selectedEditors = this.activeEditorList();
+        this.reloadAnnotation(selectedEditors);  
     };
 
     this.parentUi.querySelector("#interpolate").onclick = async ()=>{
@@ -1022,18 +1036,6 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     e.box.changed = false;
                 e.updateInfo();
             });
-
-            // if (this.activeEditorList().length > 1){ // are we in batch editing mode?
-            //     //transfer
-            //     let doneTransfer = ()=>{
-            //         this.reloadAnnotation();
-            //     };
-
-            //     this.boxOp.interpolate_selected_object(this.editingTarget.scene, 
-            //         this.editingTarget.objTrackId, 
-            //         "", 
-            //         doneTransfer);
-            // }
 
             this.globalHeader.updateModifiedStatus();
             
