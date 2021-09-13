@@ -116,7 +116,22 @@ def read_scene_cfg(f):
     return cfg
     
 
+def regen_context(scene_path):
+        savecwd = os.getcwd()
+        os.chdir(scene_path)
 
+        if os.path.exists("./desc.json"):
+                cfg = read_scene_cfg("./desc.json")
+
+                #we are in scene folder!
+                src_data_folder = cfg["folder"]
+
+                generate_context_scene(src_data_folder, scene_path)
+        else:
+            print("desc.json doesn't exist!")
+            print("execute this command in scene folder")
+
+        os.chdir(savecwd)
 
 def  regen_scene(scene_path):
         savecwd = os.getcwd()
@@ -209,6 +224,36 @@ def check_scene(scene_path):
                 f = scene_path + "/" + "aux_lidar/" + c + "/"+ str(second) + "." +  str(slot) + ".pcd"
                 checkfile(f)
 
+def generate_context_scene(src_data_folder, scene_id):
+    # create context 10hz scene.
+    os.chdir(dataset_root)
+    context_scene_path = "suscape_scenes/" + scene_id +"_10hz"
+    prepare_dirs(context_scene_path)
+    os.chdir(context_scene_path)
+
+    context_src_folder = os.path.relpath("../../"+src_data_folder+"/../dataset_10hz")
+    
+    os.system("ln -s -f ../" + scene_id + "/label ./")
+    os.system("ln -s -f  " + context_src_folder  + "/camera ./")
+    os.system("ln -s -f  " + context_src_folder  + "/lidar ./")
+    os.system("ln -s -f  " + context_src_folder  + "/calib ./")
+    os.system("ln -s -f  " + context_src_folder  + "/ego_pose ./")
+
+
+    # create context 2hz scene.
+    os.chdir(dataset_root)
+    context_scene_path = "suscape_scenes/" + scene_id +"_full_2hz"
+    prepare_dirs(context_scene_path)
+    os.chdir(context_scene_path)
+
+    context_src_folder = os.path.relpath("../../"+src_data_folder+"/../dataset_2hz")
+    
+    os.system("ln -s -f ../" + scene_id + "/label ./")
+    os.system("ln -s -f  " + context_src_folder  + "/camera ./")
+    os.system("ln -s -f  " + context_src_folder  + "/lidar ./")
+    os.system("ln -s -f  " + context_src_folder  + "/calib ./")
+    os.system("ln -s -f  " + context_src_folder  + "/ego_pose ./")
+
 def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
     
     savecwd = os.getcwd()
@@ -240,24 +285,12 @@ def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
 
     generate_dataset_links(src_data_folder, start_time, seconds)
 
-    
     # check scene.
     os.chdir(dataset_root)
     print("checking", scene_path)
     check_scene(scene_path)
-
-    # create context scene.
-    os.chdir(dataset_root)
-    context_scene_path = "suscape_scenes/" + scene_id +"_10hz"
-    prepare_dirs(context_scene_path)
-    os.chdir(context_scene_path)
-
-    context_src_folder = os.path.relpath("../../"+src_data_folder+"/../dataset_10hz")
     
-    os.system("ln -s -f ../" + scene_id + "/label ./")
-    os.system("ln -s -f  " + context_src_folder  + "/camera ./")
-    os.system("ln -s -f  " + context_src_folder  + "/lidar ./")
-    os.system("ln -s -f  " + context_src_folder  + "/calib ./")
+    generate_context_scene(src_data_folder, scene_id)
 
     print("done.")
 
@@ -286,6 +319,25 @@ if __name__ == "__main__":
             scene_path = sys.argv[2]
         
         regen_scene(scene_path)
+    elif cmd == "regencontext":
+        scene_path = "./"
+        if len(sys.argv) == 3:
+            scene_path = sys.argv[2]
+        
+        regen_context(scene_path)
+
+    elif cmd == "regencontextall":
+        root_path = "./"
+        if len(sys.argv) == 3:
+            root_path = sys.argv[2]
+        
+        scenes = os.listdir(root_path)
+        scenes.sort()
+        for s in scenes:
+            if len(s.split("_")) == 1:  # dont' regen ... _10hz
+                print("regenerating context", s)
+                regen_context(root_path + "/" + s)
+
     elif cmd == "regenall":
         root_path = "./"
         if len(sys.argv) == 3:
