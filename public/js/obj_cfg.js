@@ -36,6 +36,8 @@ class ObjectCategory
         Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
         ConcreteTruck:  {color: '#00ffff',  size:[10., 2.8, 3]},
         Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
+        Excavator:      {color: '#00ffff',  size:[6., 3, 3]},
+
         Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
 
         ForkLift:       {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
