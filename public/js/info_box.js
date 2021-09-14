@@ -42,25 +42,35 @@ class InfoBox extends PopupDialog{
     makeVisible(pointerPosition)
     {
         if (!pointerPosition)
-            return;
-        
-        let parentRect = this.ui.getBoundingClientRect();
-        let viewRect = this.viewUi.getBoundingClientRect();
+        {
+            
+            //default pos
+            let parentRect = this.ui.getBoundingClientRect();
+            let viewRect = this.viewUi.getBoundingClientRect();
 
-        let left = pointerPosition.x - viewRect.width/2;
-        if (left < parentRect.left) left = parentRect.left;
-        if (left + viewRect.width > parentRect.right)
-            left -= left + viewRect.width - parentRect.right;
+            this.viewUi.style.top = (parentRect.top+parentRect.height/3) + "px";
+            this.viewUi.style.left = (parentRect.left+parentRect.width/2-viewRect.width/2) + "px";
+        }
+        else
+        {
+            let parentRect = this.ui.getBoundingClientRect();
+            let viewRect = this.viewUi.getBoundingClientRect();
 
-        let top = pointerPosition.y - viewRect.height/2;
-        if (top < parentRect.top)
-            top = parentRect.top;
-        
-        if (top + viewRect.height > parentRect.bottom)
-            top -= top + viewRect.height - parentRect.bottom;
+            let left = pointerPosition.x - viewRect.width/2;
+            if (left < parentRect.left) left = parentRect.left;
+            if (left + viewRect.width > parentRect.right)
+                left -= left + viewRect.width - parentRect.right;
 
-        this.viewUi.style.top = top + "px";
-        this.viewUi.style.left = left + "px";
+            let top = pointerPosition.y - viewRect.height/2;
+            if (top < parentRect.top)
+                top = parentRect.top;
+            
+            if (top + viewRect.height > parentRect.bottom)
+                top -= top + viewRect.height - parentRect.bottom;
+
+            this.viewUi.style.top = top + "px";
+            this.viewUi.style.left = left + "px";
+        }
     }
 
 

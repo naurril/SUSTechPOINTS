@@ -791,7 +791,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         {
             window.editor.infoBox.show(
                 "Confirm",
-                `Discard changes to ${modifiedFrames.length} frames, continue?`,
+                `Discard changes to ${modifiedFrames.length} frames, continue to reload?`,
                 ["yes","no"],
                 (choice)=>{
                     if (choice=="yes")
