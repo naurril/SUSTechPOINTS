@@ -566,7 +566,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 {
                     this.infoBox.show(
                         "Confirm",
-                        `Reload to discard changes of ${modifiedFrames.length} frames, continue?`,
+                        `Discard changes to ${modifiedFrames.length} frames, continue?`,
                         ["yes","no"],
                         (choice)=>{
                             if (choice=="yes")

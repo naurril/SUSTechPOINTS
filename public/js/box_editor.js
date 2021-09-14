@@ -607,7 +607,19 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         case 'cm-interpolate':
             {
                 let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-                this.getSelectedEditors().forEach(e=>applyIndList[e.index] = true);
+                let selectedEditors = this.getSelectedEditors();
+
+                // if interpolate only one box, remove it if exist.
+                // no matter who is the annotator.
+                if (selectedEditors.length == 1)
+                {
+                    if (selectedEditors[0].box)
+                    {
+                        func_on_box_remove(selectedEditors[0].box, true);
+                    }
+                }
+
+                selectedEditors.forEach(e=>applyIndList[e.index] = true);
                 this.interpolate(applyIndList);
             }
             break;
@@ -779,7 +791,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         {
             window.editor.infoBox.show(
                 "Confirm",
-                `Reload do discard changes of ${modifiedFrames.length} frames, continue?`,
+                `Discard changes to ${modifiedFrames.length} frames, continue?`,
                 ["yes","no"],
                 (choice)=>{
                     if (choice=="yes")
