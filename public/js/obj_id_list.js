@@ -36,7 +36,9 @@ class ObjectIdManager
             return "<option value="+c.id+">"+c.category+"</option>";
         }).reduce(function(x,y){return x+y;}, 
                         //"<option value='auto'></option><option value='new'></option>");
-                        "<option value='new'>suggest a new id</option>");
+                        //"<option value='new'>suggest a new id</option>"
+                        ""
+                        );
 
         document.getElementById("obj-ids-of-scene").innerHTML = objIdsOptions;
     }

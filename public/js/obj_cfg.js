@@ -8,6 +8,8 @@ class ObjectCategory
         Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5], attr:["door open"]},
         Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
         PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
+        TourCar:        {color: '#86af49',  size:[4.4, 1.5, 2.2]},
+
 
         Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7], attr:["baby cart", "trash can", "umbrella", "sitting", "bending over", "largage"]},
         RoadWorker: {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
