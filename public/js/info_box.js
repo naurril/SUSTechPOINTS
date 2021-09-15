@@ -16,7 +16,10 @@ class InfoBox extends PopupDialog{
         
         this.buttons = {
             "yes": this.ui.querySelector("#btn-yes"),
-            "no":  this.ui.querySelector("#btn-no")
+            "no":  this.ui.querySelector("#btn-no"),
+            "maximize":  this.ui.querySelector("#btn-maximize"),
+            "restore":  this.ui.querySelector("#btn-restore"),
+            "exit":  this.ui.querySelector("#btn-exit"),
         };
 
         for (let btn in this.buttons)

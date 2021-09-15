@@ -356,10 +356,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
            break;
 
         case "label-batchedit":
-            if (!this.selected_box.obj_track_id){
-                console.error("no track id");
-            }
-
             this.editBatch(
                 this.data.world.frameInfo.scene,
                 this.data.world.frameInfo.frame,
@@ -654,11 +650,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
 
         case "cm-edit-multiple-instances":
-
-            if (!this.selected_box.obj_track_id){
-                console.error("no track id");
-            }
-
             this.editBatch(
                 this.data.world.frameInfo.scene,
                 this.data.world.frameInfo.frame,
@@ -825,6 +816,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.editBatch = function(sceneName, frame, objectTrackId, objectType){
+
+
+        if (!objectTrackId)
+        {
+            this.infoBox.show("Error", "Please assign object track ID.");
+            return;
+        }
+
         // hide something
         this.imageContext.hide();
         this.floatLabelManager.hide();

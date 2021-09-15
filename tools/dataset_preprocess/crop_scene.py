@@ -238,7 +238,7 @@ def generate_context_scene(src_data_folder, scene_id):
     os.system("ln -s -f  " + context_src_folder  + "/lidar ./")
     os.system("ln -s -f  " + context_src_folder  + "/calib ./")
     os.system("ln -s -f  " + context_src_folder  + "/ego_pose ./")
-
+    os.system("touch disable")
 
     # create context 2hz scene.
     os.chdir(dataset_root)
@@ -253,6 +253,7 @@ def generate_context_scene(src_data_folder, scene_id):
     os.system("ln -s -f  " + context_src_folder  + "/lidar ./")
     os.system("ln -s -f  " + context_src_folder  + "/calib ./")
     os.system("ln -s -f  " + context_src_folder  + "/ego_pose ./")
+    os.system("touch disable")
 
 def generate_dataset(src_data_folder, scene_id, start_time, seconds, desc):
     
