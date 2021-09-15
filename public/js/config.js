@@ -4,7 +4,7 @@ class Config{
     //dataCfg = {
     
     //disableLabels: true,
-    disablePreload = true;
+    disablePreload = false;
     color_points = "mono";
     enableRadar = false;
     enableAuxLidar = false;

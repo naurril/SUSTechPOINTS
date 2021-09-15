@@ -657,7 +657,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.selected_box.obj_type
             );
             break;
-
+        case "cm-auto-ann-background":
+            {
+                this.autoAnnInBackground();
+               
+            }
+            break;
         case "cm-show-trajectory":
 
             this.showTrajectory();
@@ -687,8 +692,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.data.worldList.forEach(w=>{
                     let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
                     if (box && box !== this.selected_box){
-                        w.unload_box(box);
-                        w.remove_box(box);
+                        w.annotation.unload_box(box);
+                        w.annotation.remove_box(box);
                         //saveList.push(w);
                         w.annotation.setModified();
                     }                
@@ -814,6 +819,47 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.load_world(sceneName, frame);        
         event.currentTarget.blur();
     };
+
+    this.autoAnnInBackground = function()
+    {
+        if (!this.selected_box.obj_track_id)
+        {
+            this.infoBox.show("Error", "Please assign object track ID.");
+            return;
+        }
+        
+        
+        
+        let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
+        worldList = worldList.sort((a,b)=>a.frameInfo.frame_index - b.frameInfo.frame_index);
+
+        let meta = this.data.get_current_world_scene_meta();
+
+        
+        if (worldList.length < meta.frames.length && worldList.length <= 60)
+        {
+            this.data.preloadScene(this.data.world.frameInfo.scene, 
+                this.data.world);
+
+            this.infoBox.show("Error", 
+                `This scene contains ${meta.frames.length} frames, with ${worldList.length} loaded.<br>Please try after all frames or at least 60 frames are loaded.`);
+            return;
+        }
+
+
+        let boxList = worldList.map(w=>w.annotation.findBoxByTrackId(this.selected_box.obj_track_id));
+
+        let onFinishOneBox = (i)=>{
+            this.viewManager.render();
+        }
+        let applyIndList = boxList.map(b=>true);
+        let dontRotate = false;
+
+        this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList, dontRotate).then(ret=>{
+            this.header.updateModifiedStatus();
+        });
+    };
+
 
     this.editBatch = function(sceneName, frame, objectTrackId, objectType){
 

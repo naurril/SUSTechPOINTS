@@ -416,7 +416,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
             //this.box.world.webglGroup.add(v.cameraHelper);
 
             this.box.world.webglGroup.add(v.cameraContainer);
-            this.box.world.scene.add(v.cameraHelper); //seems camerahelp shold be added to top-most scene only.
+            this.box.world.webglGroup.add(v.cameraHelper); //seems camerahelp shold be added to top-most scene only.
         });
 
         this.onBoxChanged();
