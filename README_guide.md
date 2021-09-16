@@ -44,97 +44,42 @@ rider的属性： 伞，载客1个，载客2个..
 
 目前支持的类别如下:
 
-    Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5]},
-    Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
-    PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
+|Name|中文|可选属性|参考图片|
+|----|----|------|------|
+|Car|轿车|门开着||
+|Van|面包车|||
+|PoliceCar|警车|||
+|Pedestrian|行人|伞,行李||
+|RoadWorker|工人||![roadworker](./doc/road-worker.png)|
+|Child|小孩|||
+|Cone|雪糕筒|||
+|FireHydrant|消防栓|||
+|ReflectiveTriangle|安全三角||![triangle](./doc/Triangle.jpeg)|
+|PlatformCart|平板车||![platform cart](./doc/platform-cart.jpg)|
+|ConstructionCart|建筑小车||![Construction Cart](./doc/construction-cart.jpeg)|
+|RoadBarrel|安全桶||![road barrel](./doc/road-barrel.jpg)|
+|TrafficBarrier|交通护栏||![traffic barrier](./doc/TrafficBarrier.jpeg)|
+|ScooterRider|骑电动车的人|伞,1个乘客,2个乘客||
+|MotorcyleRider|骑摩托的人|伞,1个乘客,2个乘客||
+|BicycleRider|骑自行车的|伞,1个乘客,2个乘客||
+|Bicycle|自行车|倒在地上|
+|Motorcycle|||
+|Scooter|电动车||![scooter](./doc/scooter.jpg)|
+|BicycleGroup|路边的电动车/自行车堆||
+|Bus|||
+|Truck|卡车||
+|ConcreteTruck|水泥车||![Construction Cart](./doc/concrete-truck.jpeg)|
+|Tram|电车||
+|Animal|动物||
+|ForkLift|叉车||![Forklift](./doc/forklift.jpg)|
+|Trimotorcycle|三轮车||![Trimotocycle](./doc/Trimotorcycle.jpeg)|
+|Crane|吊车||![crane](./doc/crane.jpeg)|
+|Eexcavator|挖掘机||![excavator](./doc/excavator.png)|
+|Roadroller|压路机||![road roller](./doc/RoadRoller.jpeg)|
+|Bulldozer|推土机||![bull dozer](./doc/Bulldozer.jpeg)|
 
-    Pedestrian:     行人,
-    RoadWorker:     工人
-    Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
-    //Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
-
-    Cone:           雪糕筒
-    FireHydrant:    消防栓
-    ReflectiveTriangle:       安全三角
-    PlatformCart:   平板车
-    ConstructionCart: 建筑小车
-    RoadBarrel:     安全桶
-    TrafficBarrier: 交通护栏
-
-    ScooterRider:   骑电动车的人
-    MotorcyleRider: 骑摩托的人
-    BicycleRider:   骑自行车的人
-
-    Bicycle:        
-    Motorcycle:     
-    Scooter:        电动车
     
-    BicycleGroup:   路边的电动车/自行车堆
-    
-    Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
-    Truck:          卡车
-    ConcreteTruck:  水泥车
-    Tram:           电车
-    Animal:         动物
-
-    ForkLift:       叉车
-    Trimotorcycle:  三轮车
-    Crane:          吊车
-    Eexcavator:     挖掘机
-    Road roller:    压路机
-    Bulldozer:      推土机
-
-  Crane
-
-  ![crane](./doc/crane.jpeg)
-
-  road barrel
-
-  ![road barrel](./doc/road-barrel.jpg)
-
-  scooter
-
-  ![scooter](./doc/scooter.jpg)
-
-  Traffic Barrier
-
-  ![traffic barrier](./doc/TrafficBarrier.jpeg)
-
-  Trimotorcycle
-
-  ![Trimotocycle](./doc/Trimotorcycle.jpeg)
-
-  Fork Lift
-
-  ![Forklift](./doc/forklift.jpg)
-
-  Construction Cart
-
-  ![Construction Cart](./doc/construction-cart.jpeg)
-
-  ConcreteTruck
-
-  ![Construction Cart](./doc/concrete-truck.jpeg)
-
-  platform cart
-
-  ![platform cart](./doc/platform-cart.jpg)
-
-  reflective triangle
-
-  ![triangle](./doc/Triangle.jpeg)
-
-  excavator
-
-  ![excavator](./doc/excavator.png)
-
-  road roller
-
-  ![road roller](./doc/RoadRoller.jpeg) 
-
-  bulldozer
   
-  ![bull dozer](./doc/Bulldozer.jpeg)
 ## 3D Box要求
 
 3d box的大小，方向，类别都需要准确标注．对于旋转方向，需要将３个轴都旋转到正确的方向．
