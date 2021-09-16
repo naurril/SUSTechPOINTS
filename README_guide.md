@@ -48,39 +48,41 @@ rider的属性： 伞，载客1个，载客2个..
     Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
     PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
 
-    Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
-    RoadConstructionWorker: {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
+    Pedestrian:     行人,
+    RoadWorker:     工人
     Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
     //Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
 
-    Cone:           {color: '#ff0000',  size:[0.3, 0.3, 0.6]},
-    FireHydrant:    {color: '#ff0000',  size:[0.4, 0.4, 0.6]},
-    ReflectiveTriangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
-    PlatformCart:   {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
-    ConstructionCart: {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
-    RoadBarrel:     {color: '#ff0000',  size:[0.5, 0.5, 0.6]},
-    TrafficBarrier: {color: '#ff0000',  size:[1.5, 0.3, 1.2]},
+    Cone:           雪糕筒
+    FireHydrant:    消防栓
+    ReflectiveTriangle:       安全三角
+    PlatformCart:   平板车
+    ConstructionCart: 建筑小车
+    RoadBarrel:     安全桶
+    TrafficBarrier: 交通护栏
 
-    ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
-    MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6]},
-    BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.6]},
+    ScooterRider:   骑电动车的人
+    MotorcyleRider: 骑摩托的人
+    BicycleRider:   骑自行车的人
 
-    Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2]},
-    Motorcycle:     {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
-    Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+    Bicycle:        
+    Motorcycle:     
+    Scooter:        电动车
     
-    BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
+    BicycleGroup:   路边的电动车/自行车堆
     
     Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
-    Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
-    ConcreteTruck:  {color: '#00ffff',  size:[10., 2.8, 3]},
-    Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
-    Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
+    Truck:          卡车
+    ConcreteTruck:  水泥车
+    Tram:           电车
+    Animal:         动物
 
-    ForkLift:       {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
-    Trimotorcycle:  {color: '#00aaff',  size:[2.6, 1.0, 1.6]},
-    Crane:          {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
-
+    ForkLift:       叉车
+    Trimotorcycle:  三轮车
+    Crane:          吊车
+    Eexcavator:     挖掘机
+    Road roller:    压路机
+    Bulldozer:      推土机
 
   Crane
 
@@ -95,6 +97,7 @@ rider的属性： 伞，载客1个，载客2个..
   ![scooter](./doc/scooter.jpg)
 
   Traffic Barrier
+
   ![traffic barrier](./doc/TrafficBarrier.jpeg)
 
   Trimotorcycle
@@ -106,19 +109,32 @@ rider的属性： 伞，载客1个，载客2个..
   ![Forklift](./doc/forklift.jpg)
 
   Construction Cart
+
   ![Construction Cart](./doc/construction-cart.jpeg)
 
   ConcreteTruck
+
   ![Construction Cart](./doc/concrete-truck.jpeg)
 
   platform cart
+
   ![platform cart](./doc/platform-cart.jpg)
 
   reflective triangle
+
   ![triangle](./doc/Triangle.jpeg)
 
   excavator
+
   ![excavator](./doc/excavator.png)
+
+  road roller
+
+  ![road roller](./doc/RoadRoller.jpeg) 
+
+  bulldozer
+  
+  ![bull dozer](./doc/Bulldozer.jpeg)
 ## 3D Box要求
 
 3d box的大小，方向，类别都需要准确标注．对于旋转方向，需要将３个轴都旋转到正确的方向．
