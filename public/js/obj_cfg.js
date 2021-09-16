@@ -6,36 +6,37 @@ class ObjectCategory
 
     obj_type_map = {
         Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5], attr:["door open"]},
+        Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7], attr:["baby cart", "trash can", "umbrella", "sitting", "squating", "bending over", "largage"]},
         Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+        Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
+        Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
+        Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+        ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
+        Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2], attr:["laying down"]},
+        BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
+        Motorcycle:     {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+        MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
+
+        
         PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
         TourCar:        {color: '#86af49',  size:[4.4, 1.5, 2.2]},
 
-
-        Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7], attr:["baby cart", "trash can", "umbrella", "sitting", "bending over", "largage"]},
-        RoadWorker: {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
+        RoadWorker:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
         Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
         //Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
 
         Cone:           {color: '#ff0000',  size:[0.3, 0.3, 0.6]},
         FireHydrant:    {color: '#ff0000',  size:[0.4, 0.4, 0.6]},
-        ReflectiveTriangle:       {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
+        SaftyTriangle:  {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
         PlatformCart:   {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
         ConstructionCart: {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
         RoadBarrel:     {color: '#ff0000',  size:[0.5, 0.5, 0.6]},
         TrafficBarrier: {color: '#ff0000',  size:[1.5, 0.3, 1.2]},
 
-        ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
-        MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
-        BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
-
-        Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2], attr:["laying down"]},
-        Motorcycle:     {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
-        Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
         
         BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
         
-        Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
-        Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
+
         ConcreteTruck:  {color: '#00ffff',  size:[10., 2.8, 3]},
         Tram:           {color: '#00ffff',  size:[10., 2.8, 3]},
         Excavator:      {color: '#00ffff',  size:[6., 3, 3]},

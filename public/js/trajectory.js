@@ -141,12 +141,12 @@ class Trajectory extends PopupDialog{
     {
         tracks = tracks.filter(x=>x[1]);
         let xs = tracks.map(x=> x[1].psr.position.x);
-        let max_x = Math.max(...xs, 0);
-        let min_x = Math.min(...xs, 0);
+        let max_x = Math.max(...xs);//, 0);
+        let min_x = Math.min(...xs);//, 0);
         
         let ys = tracks.map(x=> x[1].psr.position.y);
-        let max_y = Math.max(...ys, 0);
-        let min_y = Math.min(...ys, 0);
+        let max_y = Math.max(...ys);//, 0);
+        let min_y = Math.min(...ys);//, 0);
 
         let scale = Math.max(max_x - min_x, max_y - min_y);
         
@@ -253,7 +253,7 @@ class Trajectory extends PopupDialog{
               .forEach(x=>this.drawOneTrace(...x));
         
         //ego car
-        this.draw_ego_car(...this.transform(0,0,0,"",false).slice(0,2));
+        //this.draw_ego_car(...this.transform(0,0,0,"",false).slice(0,2));
     }
 
 
