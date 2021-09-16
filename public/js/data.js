@@ -221,6 +221,11 @@ class Data
             delete this.refEgoPose[sceneName];
     }
 
+    forcePreloadScene(sceneName){
+        let meta = this.getMetaBySceneName(sceneName);
+        this._doPreload(sceneName, 0, meta.frames.length);
+    }
+
     preloadScene(sceneName, currentWorld){
 
         // clean other scenes.
@@ -238,7 +243,14 @@ class Data
         let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/3);
         let endIndex = Math.min(meta.frames.length, 1 + currentWorldIndex + this.MaxWorldNumber/3);
 
+        this._doPreload(sceneName, startIndex, endIndex);       
         
+        console.log(`${numLoaded} frames created`);
+    };
+
+    _doPreload(sceneName, startIndex, endIndex)
+    {
+        let meta = this.getMetaBySceneName(sceneName);
 
         let numLoaded = 0;
         let _need_create = (frame)=>{
@@ -263,9 +275,8 @@ class Data
         // }
 
         pendingFrames.forEach(_do_create);
-        
-        console.log(`${numLoaded} frames created`);
-    };
+    }
+
 
     reloadAllAnnotation=function(done){
         this.worldList.forEach(w=>w.reloadAnnotation(done));

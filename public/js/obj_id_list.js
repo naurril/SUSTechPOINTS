@@ -21,6 +21,11 @@ class ObjectIdManager
         }
     }
 
+    forceUpdate(done)
+    {
+        this.load_obj_ids_of_scene(this.scene, done);
+    }
+
     // should just tell  editor
     // don't change html elements directly.
     setObjdIdListOptions()

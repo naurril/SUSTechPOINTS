@@ -581,6 +581,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                         this.on_load_world_finished(this.data.world);
                         this.header.updateModifiedStatus();
                     });
+
+                    objIdManager.forceUpdate();
                 }
             }
             break;
@@ -838,8 +840,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         if (worldList.length < meta.frames.length && worldList.length <= 60)
         {
-            this.data.preloadScene(this.data.world.frameInfo.scene, 
-                this.data.world);
+            this.data.forcePreloadScene(this.data.world.frameInfo.scene);
 
             this.infoBox.show("Error", 
                 `This scene contains ${meta.frames.length} frames, with ${worldList.length} loaded.<br>Please try after all frames or at least 60 frames are loaded.`);
@@ -881,6 +882,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.hideGridLines();
         //this.controlGui.hide();
         this.editorUi.querySelector("#selectors").style.display='none';
+        //this.editorUi.querySelector("#object-selector").style.display='none';
 
         this.boxEditorManager.edit(this.data, 
             this.data.getMetaBySceneName(sceneName), 
