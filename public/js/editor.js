@@ -136,16 +136,21 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
 
         if (!this.editorCfg.disableMainViewKeyDown){
-            this.container.onmouseenter = (event)=>{
-                this.container.focus();
-            };
+            // this.container.onmouseenter = (event)=>{
+            //     this.container.focus();
+            // };
 
-            this.container.onmouseleave = (event)=>{
-                this.container.blur();                
-            };
+            // this.container.onmouseleave = (event)=>{
+            //     this.container.blur();                
+            // };
 
             //this.container.addEventListener( 'keydown', function(e){self.keydown(e);} );
-            this.editorUi.addEventListener( 'keydown', function(e){self.keydown(e);} );
+            //this.editorUi.addEventListener( 'keydown', e=>this.keydown(e); );
+
+            this.keydownHandler = (event)=>this.keydown(event);
+            this.keydownDisabled = false;
+            //document.removeEventListener('keydown', this.keydownHandler);
+            document.addEventListener( 'keydown', this.keydownHandler);
         }
 
         this.objectTrackView = new Trajectory(
@@ -165,7 +170,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
 
         this.boxEditorManager = new BoxEditorManager(
-            this.editorUi.querySelector("#batch-box-editor-wrapper"),
+            document.querySelector("#batch-box-editor"),
             this.viewManager,
             this.objectTrackView,
             this.editorCfg,
@@ -356,12 +361,19 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
            break;
 
         case "label-batchedit":
-            this.editBatch(
-                this.data.world.frameInfo.scene,
-                this.data.world.frameInfo.frame,
-                this.selected_box.obj_track_id,
-                this.selected_box.obj_type
-            );
+            if (!this.selected_box.obj_track_id)
+            {
+                this.infoBox.show("Error", "Please assign object track ID.");                
+            }
+            else
+            {
+                this.editBatch(
+                    this.data.world.frameInfo.scene,
+                    this.data.world.frameInfo.frame,
+                    this.selected_box.obj_track_id,
+                    this.selected_box.obj_type
+                );
+            }
             break;
 
 
@@ -652,12 +664,19 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
 
         case "cm-edit-multiple-instances":
-            this.editBatch(
-                this.data.world.frameInfo.scene,
-                this.data.world.frameInfo.frame,
-                this.selected_box.obj_track_id,
-                this.selected_box.obj_type
-            );
+            if (!this.selected_box.obj_track_id)
+            {
+                this.infoBox.show("Error", "Please assign object track ID.");                
+            }
+            else
+            {
+                this.editBatch(
+                    this.data.world.frameInfo.scene,
+                    this.data.world.frameInfo.frame,
+                    this.selected_box.obj_track_id,
+                    this.selected_box.obj_type
+                );
+            }
             break;
         case "cm-auto-ann-background":
             {
@@ -863,14 +882,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
     this.editBatch = function(sceneName, frame, objectTrackId, objectType){
-
-
-        if (!objectTrackId)
-        {
-            this.infoBox.show("Error", "Please assign object track ID.");
-            return;
-        }
-
+        this.keydownDisabled = true;
         // hide something
         this.imageContext.hide();
         this.floatLabelManager.hide();
@@ -891,7 +903,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             objectType,
             (targetFrame)=>{  //on exit
                 
-                
+                this.keydownDisabled = false;
                 this.viewManager.mainView.enable();
 
                 this.imageContext.show();
@@ -923,7 +935,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     this.object_changed = function(event){
-        var sceneName = this.editorUi.querySelector("#scene-selector").value;
+        var sceneName = this.data.world.frameInfo.scene; //this.editorUi.querySelector("#scene-selector").value;
+
         let objectTrackId = event.currentTarget.value;
 
         this.editBatch(sceneName, null, objectTrackId);
@@ -1447,7 +1460,18 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
     };
 
+    this.adjustContainerSize = function()
+    {
+        let editorRect = this.editorUi.getBoundingClientRect();
+        let headerRect = this.editorUi.querySelector("#header").getBoundingClientRect();
+
+        this.container.style.height = editorRect.height - headerRect.height + "px";
+    }
+
+
     this.onWindowResize= function() {
+
+        this.adjustContainerSize();
 
         // use clientwidth and clientheight to resize container
         // but use scrollwidth/height to place other things.
@@ -1662,6 +1686,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     
 
     this.keydown= function( ev ) {
+
+        if (this.keydownDisabled)
+            return;
+
         this.operation_state.key_pressed = true;
 
         switch ( ev.key) {
@@ -1681,8 +1709,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.select_next_object();
                 break;
             case '3':
+            case 'PageUp':
                 this.previous_frame();
                 break;
+            case 'PageDown':
             case '4':
                 this.next_frame();
                 break;
@@ -1764,10 +1794,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             */
         case 's':
                 if (ev.ctrlKey){
-                    saveWorld(this.data.world, ()=>{
+                    saveWorldList(this.data.worldList, ()=>{
                         this.header.updateModifiedStatus();
                     });
-                }
+                                    }
                 break;
             /*
             case 's':
@@ -1978,6 +2008,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.on_load_world_finished= function(world){
 
+        document.title = "SUSTech POINTS-" + world.frameInfo.scene;
         // switch view positoin
         this.moveAxisHelper(world);
         this.moveRangeCircle(world);

@@ -175,8 +175,12 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             this.hide();
     };
 
+    
+    
+
     this.hide = function(){
         this.ui.style.display="none";
+
 
         // this is a hack, if we don't have manager, this is the main editor
         // hide parent ui
@@ -190,6 +194,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         if (!this.boxEditorManager){
             this.parentUi.style.display="";
         }
+
+        
+
     }
 
     this.onBoxChanged=function(){
@@ -323,7 +330,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 }
 
 
-//parentUi  #batch-box-editor-wrapper
+//parentUi  #batch-box-editor
 function BoxEditorManager(parentUi, viewManager, objectTrackView, 
                  cfg, boxOp, globalHeader, contextMenu, configMenu,
                  func_on_box_changed, func_on_box_remove, func_on_annotation_reloaded){
@@ -335,11 +342,11 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     this.cfg = cfg;
     this.globalHeader = globalHeader;
     this.contextMenu = contextMenu;
-    this.parentUi = parentUi;   //#batch-box-editor-wrapper
+    this.parentUi = parentUi;   //#batch-box-editor
     this.boxEditorGroupUi = parentUi.querySelector("#batch-box-editor-group");
     this.boxEditorHeaderUi = parentUi.querySelector("#batch-box-editor-header");
     this.batchSize = cfg.batchModeInstNumber;
-    this.configMenu = configMenu;
+    //this.configMenu = configMenu;
     
     this.activeEditorList = function(){
         return this.editorList.slice(0, this.activeIndex);
@@ -382,6 +389,13 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         let availableHeight = parentRect.height - headerRect.height;
         let availableWidth = parentRect.width;
 
+        if (availableHeight ==0 || availableWidth ==0)
+        {
+            this.batchSizeUpdated=true;
+            return;
+        }
+
+
         let defaultBoxWidth=130;
         let defaultBoxHeight=450;
 
@@ -423,6 +437,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         this.batchSize = batchSize;
         if (this.parentUi.style.display != "none")
         {
+            
+
             this.edit(  this.editingTarget.data,
                         this.editingTarget.sceneMeta,
                         this.editingTarget.frame,
@@ -436,6 +452,13 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         
         this.show();
         this.reset();
+
+        if (this.batchSizeUpdated)
+        {
+            this.batchSizeUpdated=false;
+            this.calculateBestSubviewSize(this.batchSize);
+        }
+
 
         if (onExit){
             // next/prev call will not update onExit
@@ -729,11 +752,53 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         this.activeIndex = 0;
     };
 
+
+    this.keydownHandler = (event)=>{
+
+        switch(event.key){
+            case 's':
+                if (event.ctrlKey){
+                    this._save();
+                    console.log("saved for batch editor");
+                }
+                break;
+            case '+':
+            case '=':
+                this.editingTarget.data.scale_point_size(1.2);
+                this.viewManager.render();
+                break;
+            case '-':
+                this.editingTarget.data.scale_point_size(0.8);
+                this.viewManager.render();
+                break;
+            case 'Escape':
+                this.hide();
+                this.reset();
+                if (this.onExit)
+                    this.onExit();
+                break;                
+            case 'PageUp':
+            case 'PageDown':
+                break;
+            default:
+                break;
+        }
+    };
+
+
+    let keydownHandler = (event)=>this.keydownHandler(event);
+
+
     this.hide =function(){
         this.parentUi.style.display = "none";
+        this.toolbox.style.display = "none";
+        document.removeEventListener("keydown", keydownHandler);
+
     };
     this.show = function(){
         this.parentUi.style.display = "";
+        document.addEventListener("keydown", keydownHandler);
+        this.toolbox.style.display = "";
     };
 
     this.render =function()
@@ -757,8 +822,11 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     this._addToolBox = function(){
         let template = document.getElementById("batch-editor-tools-template");
         let tool = template.content.cloneNode(true);
-        this.boxEditorHeaderUi.appendChild(tool);
-        return this.boxEditorHeaderUi.lastElementChild;
+        // this.boxEditorHeaderUi.appendChild(tool);
+        // return this.boxEditorHeaderUi.lastElementChild;
+
+        document.getElementById("dynamic-buttons-placeholder").appendChild(tool);
+        return document.getElementById("dynamic-buttons-placeholder").lastElementChild;
     };
 
     this.toolbox = this._addToolBox();
@@ -869,7 +937,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     //     );
     // }
 
-    this.parentUi.querySelector("#trajectory").onclick = (e)=>{
+    this.toolbox.querySelector("#trajectory").onclick = (e)=>{
         let tracks = this.editingTarget.data.worldList.map(w=>{
             let box = w.annotation.findBoxByTrackId(this.editingTarget.objTrackId);
             let ann = null;
@@ -894,13 +962,13 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         );
     };
 
-    this.parentUi.querySelector("#reload").onclick = (e)=>{
+    this.toolbox.querySelector("#reload").onclick = (e)=>{
 
         let selectedEditors = this.activeEditorList();
         this.reloadAnnotation(selectedEditors);  
     };
 
-    this.parentUi.querySelector("#interpolate").onclick = async ()=>{
+    this.toolbox.querySelector("#interpolate").onclick = async ()=>{
         //this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
         
         let applyIndList = this.activeEditorList().map(e=>true); //all shoud be applied.
@@ -908,17 +976,17 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         
     };
 
-    this.parentUi.querySelector("#auto-annotate").onclick = async ()=>{
+    this.toolbox.querySelector("#auto-annotate").onclick = async ()=>{
         let applyIndList = this.activeEditorList().map(e=>true); //all shoud be applied.
         this.autoAnnotate(applyIndList);
     };
 
-    this.parentUi.querySelector("#auto-annotate-translate-only").onclick = async ()=>{
+    this.toolbox.querySelector("#auto-annotate-translate-only").onclick = async ()=>{
         let applyIndList = this.activeEditorList().map(e=>true); //all shoud be applied.
         this.autoAnnotate(applyIndList, "dontrotate");
     };
 
-    this.parentUi.querySelector("#exit").onclick = ()=>{
+    this.toolbox.querySelector("#exit").onclick = ()=>{
         this.hide();
 
         this.reset();
@@ -927,7 +995,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.onExit();
     };
 
-    this.parentUi.querySelector("#next").onclick = ()=>{
+    this.toolbox.querySelector("#next").onclick = ()=>{
         let maxFrameIndex = this.editingTarget.sceneMeta.frames.length-1;
         this.edit(
             this.editingTarget.data,
@@ -938,7 +1006,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         );
     };
 
-    this.parentUi.querySelector("#prev").onclick = ()=>{
+    this.toolbox.querySelector("#prev").onclick = ()=>{
         this.edit(
             this.editingTarget.data,
             this.editingTarget.sceneMeta,
@@ -948,49 +1016,13 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         );
     };
 
-    this.parentUi.querySelector("#save").onclick = ()=>{
+    this.toolbox.querySelector("#save").onclick = ()=>{
         this._save();
     };
 
-    this.parentUi.querySelector("#finalize").onclick = ()=>{
+    this.toolbox.querySelector("#finalize").onclick = ()=>{
         this.finalize();
     };
-
-    this.parentUi.querySelector("#config").onclick = (event)=>{
-        this.configMenu.show(event.currentTarget);
-    };
-
-
-    this.parentUi.addEventListener( 'keydown', (event)=>{
-        event.preventDefault();
-        event.stopPropagation();
-        
-        switch(event.key){
-            case 's':
-                if (event.ctrlKey){
-                    this._save();
-                    console.log("saved for batch editor");
-                }
-                break;
-            case '+':
-            case '=':
-                this.editingTarget.data.scale_point_size(1.2);
-                this.viewManager.render();
-                break;
-            case '-':
-                this.editingTarget.data.scale_point_size(0.8);
-                this.viewManager.render();
-                break;
-            case 'Escape':
-                this.hide();
-                this.reset();
-                if (this.onExit)
-                    this.onExit();
-
-            default:
-                break;
-        }
-    });
 
     this.finalize = function(){
         this.activeEditorList().forEach(e=>{

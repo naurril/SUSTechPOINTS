@@ -79,7 +79,7 @@ canvas {
 	height: 100%;
 }
 
-.editor-ui{
+#main-ui{
 	position: relative;
 	width: 100%;
 	height: 100%;
@@ -87,14 +87,23 @@ canvas {
 	
 }
 
+#main-ui #header {
+
+}
+
+#main-ui #content {
+	position:relative;
+	/* height: 90%; */
+}
+
 #container{
 	position: relative;
 	width: 100%;
-	height: 100%;
+	/* height: 100%; */
 }
 
 #global-info {
-	position: absolute;
+	/* position: absolute; */
 	top: 0px;
 	color: var(--font-color);
 	background-color: var(--widget-background-color);
@@ -161,11 +170,15 @@ canvas {
 	margin: 0;
 }
 
-#config-button {
+#header #buttons
+{
     display: flex;
     position: absolute;
     right: 0;
     top: 0;
+}
+
+#config-button {
     width: 20px;
     height: 20px;
 }
@@ -539,7 +552,7 @@ dynamic set obj-type css has higher priority than this one.
     height: 100%;
 }
 
-#batch-box-editor-wrapper{
+#batch-box-editor{
 	position: absolute;
 	top: 0%;    
 	left: 0%;
@@ -548,7 +561,7 @@ dynamic set obj-type css has higher priority than this one.
 	border: 0px;
 }
 
-#batch-box-editor-wrapper #sub-views {
+#batch-box-editor #sub-views {
 	display: inline-block;
 	position: relative;	
     width: 130px;
@@ -557,12 +570,12 @@ dynamic set obj-type css has higher priority than this one.
 	overflow: hidden;  /* resize need this attr*/
 }
 
-#batch-box-editor-wrapper .selected {
+#batch-box-editor .selected {
 	background-color: #ffffff20;
 	color:var(--highlight-color);
 }
 
-#batch-box-editor-wrapper .v-buttons-wrapper {
+#batch-box-editor .v-buttons-wrapper {
 	display: none;
 	position: absolute;
 	bottom: 0%;
@@ -571,7 +584,7 @@ dynamic set obj-type css has higher priority than this one.
 	margin: 0;
 }
 
-#batch-box-editor-wrapper .ui-button {
+#batch-box-editor .ui-button {
 	display: block;
 	background-color:var(--widget-background-color);
 	padding-left: 0;
@@ -585,7 +598,7 @@ dynamic set obj-type css has higher priority than this one.
 	height: auto;
 }
 
-#batch-box-editor-wrapper .ui-button:hover {
+#batch-box-editor .ui-button:hover {
 	background-color:  var(--highlight-background-color);;	
 }
 

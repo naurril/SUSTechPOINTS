@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>PCD Annotator</title>
+		<title>SUSTech POINTS</title>
 		<meta charset="utf-8">
 		<link rel="icon" type="image/png" href="/static/icon2.png">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -19,193 +19,202 @@
 		<!-- div id="batch-editor"-->
 		</div>
 		<template id="editor-template"><div id="main-ui" class="editor-ui">
-				<div id="container"  tabindex="-1">			
-					<div id='select-box' ></div>
-					<svg width="100%" height="100%" id = "main-view-svg">
-						<g id="grid-lines-wrapper"></g>
-					</svg>
-				</div>
-				
-				<div id="config-button" class="ui-button">
-					<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
-						<g>
-							<circle cx = 12 cy=7 r=1 />
-							<circle cx = 12 cy=12 r=1 />
-							<circle cx = 12 cy=17 r=1 />							
-						</g>
-					</svg>
-				</div>
-
-				
-				
-
-				<div id="global-info">
-					<!-- text id="frame"></text-->
-					<div id="selectors">
-						<select id="scene-selector">
-							<option>--scene--</option>
-						</select>
-						<div id='btn-reload-scene-list' class="ui-button" title="reload scene list">
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<path d="M 12 20 A 8 8 0 1 1 20 12  M 21 9 L 20 12 L 18 10" />
-							</g></svg>
+				<div id="header">
+					<div id="global-info">
+						<!-- text id="frame"></text-->
+						<div id="selectors">
+							<select id="scene-selector">
+								<option>--scene--</option>
+							</select>
+							<div id='btn-reload-scene-list' class="ui-button" title="reload scene list">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<path d="M 12 20 A 8 8 0 1 1 20 12  M 21 9 L 20 12 L 18 10" />
+								</g></svg>
+							</div>
+							<select id="frame-selector">
+									<option>--frame--</option>
+							</select>
+							<select id="camera-selector">
+									<option>--camera--</option>
+							</select>
 						</div>
-						<select id="frame-selector">
-								<option>--frame--</option>
+
+						<select id="object-selector">
+							<option>--object--</option>
 						</select>
-						<select id="camera-selector">
-								<option>--camera--</option>
-						</select>
+
+						<div id="changed-mark" class="header-button">
+							<div id='save-button'>
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<path d="M 4 4 L 18 4 L 20 6 L 20 20 L 4 20 Z M 8 4 h 8 v 2 h -8 z M 6 10 h 12 V 18 h -12 z "></path>
+								</g></svg>
+							</div>
+							<div id="changed-world-list-wrapper">
+								<div> All modified frames, click to save them all</div>
+								<div id='changed-world-list'></div>
+							</div>
+						</div>
+						
+						<text id="box"></text>			
+						<text id="ref-obj"></text>
 					</div>
 
-					<select id="object-selector">
-						<option>--object--</option>
-					</select>
-
-					<div id="changed-mark" class="header-button">
-						<div id='save-button'>
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<path d="M 4 4 L 18 4 L 20 6 L 20 20 L 4 20 Z M 8 4 h 8 v 2 h -8 z M 6 10 h 12 V 18 h -12 z "></path>
-							</g></svg>
+					<div id="buttons">
+						<div id="dynamic-buttons-placeholder">
 						</div>
-						<div id="changed-world-list-wrapper">
-							<div> All modified frames, click to save them all</div>
-							<div id='changed-world-list'></div>
-						</div>
-					</div>
-					
-					<text id="box"></text>			
-					<text id="ref-obj"></text>
-				</div>
-				
-				<!-- div id="image"></div -->
-				<div id="floating-things">
-				<div id="floating-labels" class="non-selectable"></div>				
-				<div id="obj-editor">
-					<div id="category-id-editor">
-						<select title="category"  id="object-category-selector"></select>
-						<input title="attribute" list="object-attribute" id="object-attribute-editor" type="text" size="10" placeholder="attribute">
-						<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5" placeholder="track id"></input>
-						<datalist id="obj-ids-of-scene"></datalist>						
-						<datalist id="object-attribute"></datalist>
-						<div id="label-gen-id" class="ui-button" title="genearte ID">
-							<!-- <span class="ui-icon ui-icon-copy"></span> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<!-- <rect x="4" y="4" width="12" height="12"/> -->
-								<rect x="6" y="6" width="12" height="12"/>								
-							</g></svg>
-						</div>
-
-
-					</div>
-					<div id="obj-editor-tools">
-						<div id="label-copy" class="ui-button" title="copy (C-c)">
-							<!-- <span class="ui-icon ui-icon-copy"></span> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<!-- <rect x="4" y="4" width="12" height="12"/> -->
-								<rect x="8" y="8" width="12" height="12"/>
-								<polyline points="8 16 4 16 4 4 16 4 16 8 "/>
-							</g></svg>
-						</div>
-						<div id="label-paste" class="ui-button"  title="auto adjust">
-							<!-- <span class="ui-icon ui-icon-key"></span></div> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<!-- <rect x="4" y="8" width="16" height="12"/>
-								<circle cx="12" cy="8" r = "4"/>								 -->
-								<circle cx=12 cy=12 r=4 />
-								<rect x=10 y=16 width=4 height=4 />
-								<polyline points='12 3 12 6' />
-								<polyline points='3 12 6 12' />
-								<polyline points='18 12 21 12' />
-								<polyline points='5 5 8 8' />
-								<polyline points='18 5 15 8' />
-							</g></svg>
-						</div>
-						<div id="label-batchedit" class="ui-button"  title="edit multiple instances">
-							<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<rect x="4" y="4" width="8" height="8"/>
-								<rect x="4" y="12" width="8" height="8"/>
-								<rect x="12" y="4" width="8" height="8"/>
-								
-							</g></svg>
-						</div>
-
-						<div id="label-trajectory" class="ui-button"  title="trajectory">
-							<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<path d="M 4 4 C 20 4, 4 20, 20 20" />
-								
-							</g></svg>
-						</div>
-
-						<div id="label-highlight" class="ui-button"  title="focus">
-							<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<circle cx="10" cy="10" r="7"/>
-								<polyline points="15 15 20 20"/>
-								<polyline points="10 6 10 14"/>
-								<polyline points="6 10 14 10"/>
-							</g></svg>
-						</div>
-						<div id="label-edit" class="ui-button"  title="edit">
-							<!-- <span class="ui-icon ui-icon-pencil"></span> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<polyline points="12 4 12 20" />
-								<polyline points="4 9 12 9" />
-								<polyline points="8 5 12 9 8 13" />
-								<polyline points="20 15 12 15" />
-								<!-- <polyline points="16 19 12 15  16 11" /> -->
+						<div id="config-button" class="ui-button">
+							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
+								<g>
+									<circle cx = 12 cy=7 r=1 />
+									<circle cx = 12 cy=12 r=1 />
+									<circle cx = 12 cy=17 r=1 />							
+								</g>
 							</svg>
 						</div>
-						<div id="label-rotate" class="ui-button"  title="reverse direction (g)">
-							<!-- <span class="ui-icon ui-icon-transferthick-e-w"></span></div> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<!-- <rect x=6 y=4 width=12 height=8 />
-								<polyline points="12 12 12 20" />
-								<polyline points="8 16 12 20 16 16" /> -->
-								<rect x=8 y=8 width=8 height=8 />
+					</div>
 
-								<polyline points="12 12 12 21" />
-								<polyline points="10 19 12 21 14 19" />
-								
-								<polyline points="12 12 12 3"  stroke-dasharray="1" />
-								<polyline points="10 5 12 3 14 5" stroke-dasharray="1" />
-							</g></svg>
-						</div>
-						<div id="label-reset" class="ui-button"  title="reset">
-							<!-- <span class="ui-icon ui-icon-refresh"></span></div>				 -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<circle  cx=12 cy=12 r=8 />
-								<circle  cx=12 cy=12 r=1 />
-							</g></svg>
+					
+				</div>
+
+				<div id="content">
+					<div id="container">			
+						<div id='select-box' ></div>
+						<svg width="100%" height="100%" id = "main-view-svg">
+							<g id="grid-lines-wrapper"></g>
+						</svg>
+					</div>
+												
+					<!-- div id="image"></div -->
+					<div id="floating-things">
+					<div id="floating-labels" class="non-selectable"></div>				
+					<div id="obj-editor">
+						<div id="category-id-editor">
+							<select title="category"  id="object-category-selector"></select>
+							<input title="attribute" list="object-attribute" id="object-attribute-editor" type="text" size="10" placeholder="attribute">
+							<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5" placeholder="track id"></input>
+							<datalist id="obj-ids-of-scene"></datalist>						
+							<datalist id="object-attribute"></datalist>
+							<div id="label-gen-id" class="ui-button" title="genearte ID">
+								<!-- <span class="ui-icon ui-icon-copy"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<!-- <rect x="4" y="4" width="12" height="12"/> -->
+									<rect x="6" y="6" width="12" height="12"/>								
+								</g></svg>
 							</div>
-						<div id="label-del" class="ui-button"  title="delete (Del)">
-							<!-- <span class="ui-icon ui-icon-trash"></span> -->
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-								<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
-							</g></svg>
+
+
+						</div>
+						<div id="obj-editor-tools">
+							<div id="label-copy" class="ui-button" title="copy (C-c)">
+								<!-- <span class="ui-icon ui-icon-copy"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<!-- <rect x="4" y="4" width="12" height="12"/> -->
+									<rect x="8" y="8" width="12" height="12"/>
+									<polyline points="8 16 4 16 4 4 16 4 16 8 "/>
+								</g></svg>
+							</div>
+							<div id="label-paste" class="ui-button"  title="auto adjust">
+								<!-- <span class="ui-icon ui-icon-key"></span></div> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<!-- <rect x="4" y="8" width="16" height="12"/>
+									<circle cx="12" cy="8" r = "4"/>								 -->
+									<circle cx=12 cy=12 r=4 />
+									<rect x=10 y=16 width=4 height=4 />
+									<polyline points='12 3 12 6' />
+									<polyline points='3 12 6 12' />
+									<polyline points='18 12 21 12' />
+									<polyline points='5 5 8 8' />
+									<polyline points='18 5 15 8' />
+								</g></svg>
+							</div>
+							<div id="label-batchedit" class="ui-button"  title="edit multiple instances">
+								<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<rect x="4" y="4" width="8" height="8"/>
+									<rect x="4" y="12" width="8" height="8"/>
+									<rect x="12" y="4" width="8" height="8"/>
+									
+								</g></svg>
+							</div>
+
+							<div id="label-trajectory" class="ui-button"  title="trajectory">
+								<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<path d="M 4 4 C 20 4, 4 20, 20 20" />
+									
+								</g></svg>
+							</div>
+
+							<div id="label-highlight" class="ui-button"  title="focus">
+								<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<circle cx="10" cy="10" r="7"/>
+									<polyline points="15 15 20 20"/>
+									<polyline points="10 6 10 14"/>
+									<polyline points="6 10 14 10"/>
+								</g></svg>
+							</div>
+							<div id="label-edit" class="ui-button"  title="edit">
+								<!-- <span class="ui-icon ui-icon-pencil"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<polyline points="12 4 12 20" />
+									<polyline points="4 9 12 9" />
+									<polyline points="8 5 12 9 8 13" />
+									<polyline points="20 15 12 15" />
+									<!-- <polyline points="16 19 12 15  16 11" /> -->
+								</svg>
+							</div>
+							<div id="label-rotate" class="ui-button"  title="reverse direction (g)">
+								<!-- <span class="ui-icon ui-icon-transferthick-e-w"></span></div> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<!-- <rect x=6 y=4 width=12 height=8 />
+									<polyline points="12 12 12 20" />
+									<polyline points="8 16 12 20 16 16" /> -->
+									<rect x=8 y=8 width=8 height=8 />
+
+									<polyline points="12 12 12 21" />
+									<polyline points="10 19 12 21 14 19" />
+									
+									<polyline points="12 12 12 3"  stroke-dasharray="1" />
+									<polyline points="10 5 12 3 14 5" stroke-dasharray="1" />
+								</g></svg>
+							</div>
+							<div id="label-reset" class="ui-button"  title="reset">
+								<!-- <span class="ui-icon ui-icon-refresh"></span></div>				 -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<circle  cx=12 cy=12 r=8 />
+									<circle  cx=12 cy=12 r=1 />
+								</g></svg>
+								</div>
+							<div id="label-del" class="ui-button"  title="delete (Del)">
+								<!-- <span class="ui-icon ui-icon-trash"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
+								</g></svg>
+							</div>
 						</div>
 					</div>
-				</div>
-				</div>
+					</div>
 
-				<div id="maincanvas-wrapper">
-					<canvas id="maincanvas" width="2048" height="1536"></canvas>
-					<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
-						<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
-						xlink:href=""
-						/>
-						<g id="svg-boxes"></g>
-						<g id="svg-points"></g>
-					</svg>
+					<div id="maincanvas-wrapper">
+						<canvas id="maincanvas" width="2048" height="1536"></canvas>
+						<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
+							<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
+							xlink:href=""
+							/>
+							<g id="svg-boxes"></g>
+							<g id="svg-points"></g>
+						</svg>
+					</div>
+					
+					<div id="main-box-editor-wrapper"></div>
+					<div id="batch-box-editor">
+						<div id="batch-box-editor-header"></div>
+						<div id="batch-box-editor-group"></div>
+					</div>
+
 				</div>
 				
-				<div id="main-box-editor-wrapper"></div>
-				<div id="batch-box-editor-wrapper">
-					<div id="batch-box-editor-header"></div>
-					<div id="batch-box-editor-group"></div>
-				</div>
 				<div id="context-menu-wrapper" class="non-selectable">
 					<div id="context-menu">
 						<div class="menu-item menu-seperator"></div>
@@ -521,174 +530,172 @@
 							</div>
 
 					</div>
-					
-
 				</div>
 
 				<div id="config-wrapper">
-					<div id="config-menu" class="non-selectable">
+						<div id="config-menu" class="non-selectable">
 
-						<div class="menu-item menu-seperator"></div>
+							<div class="menu-item menu-seperator"></div>
 
-						<div class="menu-nonclickable-item" id="cfg-theme">
-							<span>Theme</span>
-							<div class="cfg-widget-group">
-								<select type="checkbox" id="cfg-theme-select" class="cfg-widget">
-									<option value="dark" selected>dark</option>
-									<option value="light" selected>light</option>
-								</select>
+							<div class="menu-nonclickable-item" id="cfg-theme">
+								<span>Theme</span>
+								<div class="cfg-widget-group">
+									<select type="checkbox" id="cfg-theme-select" class="cfg-widget">
+										<option value="dark" selected>dark</option>
+										<option value="light" selected>light</option>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="menu-nonclickable-item" id="cfg-point-size">
-							<span>Point size</span>
-							<div class='cfg-widget-group'>
-								<div id='cfg-increase-size' class='menu-button'>+</div>
-								<div id='cfg-decrease-size' class='menu-button'>-</div>
+							<div class="menu-nonclickable-item" id="cfg-point-size">
+								<span>Point size</span>
+								<div class='cfg-widget-group'>
+									<div id='cfg-increase-size' class='menu-button'>+</div>
+									<div id='cfg-decrease-size' class='menu-button'>-</div>
+								</div>
 							</div>
-						</div>
-						<div class="menu-nonclickable-item" id="cfg-point-brightness">
-							<span>Point brightness</span>
-							<div class='cfg-widget-group'>
-								<div id='cfg-increase-brightness' class='menu-button'>+</div>
-								<div id='cfg-decrease-brightness' class='menu-button'>-</div>
-							</div>
-						</div>
-
-						
-
-						<div class="menu-nonclickable-item" id="cfg-hide-box">
-							<span>Hide box</span>
-							<div class="cfg-widget-group">
-								<input type="checkbox" id="cfg-hide-box-checkbox" class="cfg-widget">
-							</div>
-						</div>
-
-						
-						
-						<div class="menu-nonclickable-item" id="cfg-color-points">
-							<span>Color point</span>
-							<div class="cfg-widget-group">
-								<select type="checkbox" id="cfg-color-points-select" class="cfg-widget">
-									<option value="mono" selected>mono</option>
-									<option value="intensity" selected>by intensity</option>									
-								</select>
-							</div>
-						</div>
-
-						<div class="menu-nonclickable-item" id="cfg-color-object">
-							<span>Color objects</span>
-							<div class="cfg-widget-group">
-								<select id="cfg-color-object-scheme"　 class="cfg-widget">
-									<option value="category">by category</option>
-									<option value="id">by ID</option>
-									<option value="no">don't color</option>
-								</select>
-
-							</div>
-						</div>
-
-						<div class="menu-nonclickable-item" id="cfg-menu-batch-mode-inst-number">
-							<span>Batch mode max box number</span>
-							<div class="cfg-widget-group">								
-								<select title="instance number" id="cfg-batch-mode-inst-number"　 class="cfg-widget">
-									<option value = 10>10</option>
-									<option value = 20 selected>20</option>
-									<option value = 30>30</option>
-									<option value = 40>40</option>
-								</select>
-
-							</div>
-						</div>
-
-
-						<div class="menu-nonclickable-item" id="cfg-coordinate-system">
-							<span>Coordinate system</span>
-							<div class="cfg-widget-group">								
-								<select title="coordinate system" id="cfg-coordinate-system-select"　 class="cfg-widget">
-									<option value = "utm">GPS/UTM</option>
-									<option value = "lidar" selected>LiDAR</option>
-								</select>
-							</div>
-						</div>
-
-						<div class="menu-item menu-seperator"></div>
-
-						<div class="menu-item" id="cfg-data">
-							<span>Data settings</span>
-							<div class="menu-item-arrow menu-item-icon">
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
-									<path d="M12 8 L 18 12 L 12 16Z"></path>
-								</g></svg>
+							<div class="menu-nonclickable-item" id="cfg-point-brightness">
+								<span>Point brightness</span>
+								<div class='cfg-widget-group'>
+									<div id='cfg-increase-brightness' class='menu-button'>+</div>
+									<div id='cfg-decrease-brightness' class='menu-button'>-</div>
+								</div>
 							</div>
 
-							<div id="cfg-data-submenu">
-								<div class="menu-nonclickable-item" id="cfg-data-aux-lidar">
-									<div class="menu-item-text">Auxiliary LiDAR</div>
-									<div class="cfg-widget-group">
-										<input type="checkbox" id="cfg-data-aux-lidar-checkbox" class="cfg-widget">
+							
+
+							<div class="menu-nonclickable-item" id="cfg-hide-box">
+								<span>Hide box</span>
+								<div class="cfg-widget-group">
+									<input type="checkbox" id="cfg-hide-box-checkbox" class="cfg-widget">
+								</div>
+							</div>
+
+							
+							
+							<div class="menu-nonclickable-item" id="cfg-color-points">
+								<span>Color point</span>
+								<div class="cfg-widget-group">
+									<select type="checkbox" id="cfg-color-points-select" class="cfg-widget">
+										<option value="mono" selected>mono</option>
+										<option value="intensity" selected>by intensity</option>									
+									</select>
+								</div>
+							</div>
+
+							<div class="menu-nonclickable-item" id="cfg-color-object">
+								<span>Color objects</span>
+								<div class="cfg-widget-group">
+									<select id="cfg-color-object-scheme"　 class="cfg-widget">
+										<option value="category">by category</option>
+										<option value="id">by ID</option>
+										<option value="no">don't color</option>
+									</select>
+
+								</div>
+							</div>
+
+							<div class="menu-nonclickable-item" id="cfg-menu-batch-mode-inst-number">
+								<span>Batch mode max box number</span>
+								<div class="cfg-widget-group">								
+									<select title="instance number" id="cfg-batch-mode-inst-number"　 class="cfg-widget">
+										<option value = 10>10</option>
+										<option value = 20 selected>20</option>
+										<option value = 30>30</option>
+										<option value = 40>40</option>
+									</select>
+
+								</div>
+							</div>
+
+
+							<div class="menu-nonclickable-item" id="cfg-coordinate-system">
+								<span>Coordinate system</span>
+								<div class="cfg-widget-group">								
+									<select title="coordinate system" id="cfg-coordinate-system-select"　 class="cfg-widget">
+										<option value = "utm">GPS/UTM</option>
+										<option value = "lidar" selected>LiDAR</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="menu-item menu-seperator"></div>
+
+							<div class="menu-item" id="cfg-data">
+								<span>Data settings</span>
+								<div class="menu-item-arrow menu-item-icon">
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
+										<path d="M12 8 L 18 12 L 12 16Z"></path>
+									</g></svg>
+								</div>
+
+								<div id="cfg-data-submenu">
+									<div class="menu-nonclickable-item" id="cfg-data-aux-lidar">
+										<div class="menu-item-text">Auxiliary LiDAR</div>
+										<div class="cfg-widget-group">
+											<input type="checkbox" id="cfg-data-aux-lidar-checkbox" class="cfg-widget">
+										</div>
+									</div>
+
+									<div class="menu-nonclickable-item" id="cfg-data-radar">
+										<div class="menu-item-text">Radar</div>
+										<div class="cfg-widget-group">
+											<input type="checkbox" id="cfg-data-radar-checkbox" class="cfg-widget">
+										</div>
+									</div>
+
+									<div class="menu-nonclickable-item" id="cfg-data-filter-points">
+										<div class="menu-item-text">Hide points</div>
+										<div class="cfg-widget-group">
+											<input type="checkbox" id="cfg-data-filter-points" class="cfg-widget">
+											<span> z-threshold</span>
+											<input id="cfg-data-filter-points-z" class="cfg-widget">
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+
+							<div class="menu-item" id="cfg-experimental">
+								<span>Experimental</span>
+								<div class="menu-item-arrow menu-item-icon">
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
+										<path d="M12 8 L 18 12 L 12 16Z"></path>
+									</g></svg>
+								</div>
+
+								<div id="cfg-experimental-submenu">
+									<div class="menu-nonclickable-item" id="cfg-calib-camera-LiDAR">
+										<div class="menu-item-text">Camera-LiDAR calibration</div>
+										<div class='cfg-widget-group'>
+											<div id='cfg-start-calib' class='menu-button'>start</div>
+											<div id='cfg-show-calib'  class='menu-button'>result</div>
+											<div id='cfg-stop-calib'  class='menu-button'>stop</div>
+											<!-- <div id='cfg-reset-calib' class='menu-button'>reset</div> -->
+										</div>							
+
+									</div>
+									
+									<div class="menu-item" id="cfg-crop-scene">
+										<div class="menu-item-text">Crop scene</div>				
 									</div>
 								</div>
-
-								<div class="menu-nonclickable-item" id="cfg-data-radar">
-									<div class="menu-item-text">Radar</div>
-									<div class="cfg-widget-group">
-										<input type="checkbox" id="cfg-data-radar-checkbox" class="cfg-widget">
-									</div>
-								</div>
-
-								<div class="menu-nonclickable-item" id="cfg-data-filter-points">
-									<div class="menu-item-text">Hide points</div>
-									<div class="cfg-widget-group">
-										<input type="checkbox" id="cfg-data-filter-points" class="cfg-widget">
-										<span> z-threshold</span>
-										<input id="cfg-data-filter-points-z" class="cfg-widget">
-									</div>
-								</div>
-
-							</div>
-						</div>
-
-
-						<div class="menu-item" id="cfg-experimental">
-							<span>Experimental</span>
-							<div class="menu-item-arrow menu-item-icon">
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
-									<path d="M12 8 L 18 12 L 12 16Z"></path>
-								</g></svg>
 							</div>
 
-							<div id="cfg-experimental-submenu">
-								<div class="menu-nonclickable-item" id="cfg-calib-camera-LiDAR">
-									<div class="menu-item-text">Camera-LiDAR calibration</div>
-									<div class='cfg-widget-group'>
-										<div id='cfg-start-calib' class='menu-button'>start</div>
-										<div id='cfg-show-calib'  class='menu-button'>result</div>
-										<div id='cfg-stop-calib'  class='menu-button'>stop</div>
-										<!-- <div id='cfg-reset-calib' class='menu-button'>reset</div> -->
-									</div>							
-
-								</div>
-								
-								<div class="menu-item" id="cfg-crop-scene">
-									<div class="menu-item-text">Crop scene</div>				
-								</div>
+							<div class="menu-item menu-seperator"></div>
+							<div class="menu-item" id="cfg-show-log">
+								<span>Show logs</span>
 							</div>
-						</div>
 
-						<div class="menu-item menu-seperator"></div>
-						<div class="menu-item" id="cfg-show-log">
-							<span>Show logs</span>
-						</div>
-
-						<div class="menu-item" id="cfg-take-screenshot">
-							<span>Take screenshot</span>
-						</div>
-						
-						<div class="menu-item" id="cfg-help">
-							<a href="https://github.com/naurril/SUSTechPOINTS/blob/dev-auto-annotate/README_guide.md" target="_blank">Help</a>
-						</div>
-					</div>					
-			</div>	
+							<div class="menu-item" id="cfg-take-screenshot">
+								<span>Take screenshot</span>
+							</div>
+							
+							<div class="menu-item" id="cfg-help">
+								<a href="https://github.com/naurril/SUSTechPOINTS/blob/dev-auto-annotate/README_guide.md" target="_blank">Help</a>
+							</div>
+						</div>					
+					</div>
 
 				<!-- div id="projective-view-context-menu">
 					<div class="menu-item menu-seperator"></div>
@@ -1039,7 +1046,7 @@
 					<div class="menu-button" id="prev">Previous</div>
 					<div class="menu-button" id="next">Next</div>
 					<div class="menu-button" id="exit">Exit</div>
-					<div class="ui-button" id="config">
+					<!-- <div class="ui-button" id="config">
 						<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
 							<g>
 								<circle cx = 12 cy=7 r=1 />
@@ -1047,7 +1054,7 @@
 								<circle cx = 12 cy=17 r=1 />							
 							</g>
 						</svg>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</template>
