@@ -26,7 +26,7 @@ import { ConfigUi } from './config_ui.js';
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     // create logger before anything else.
-    create_logger(editorUi.querySelector("#log-wrapper"));
+    create_logger(editorUi.querySelector("#log-wrapper"), editorUi.querySelector("#log-button"));
 
 
     this.editorCfg = editorCfg;

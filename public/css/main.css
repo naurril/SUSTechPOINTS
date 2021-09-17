@@ -164,6 +164,11 @@ canvas {
 	position: relative;
 }
 
+#log-button {
+	stroke-width: 5px;
+	display: none;
+}
+
 #changed-world-list-wrapper {
 	position: absolute;
 	top: 100%;

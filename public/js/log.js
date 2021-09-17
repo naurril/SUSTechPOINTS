@@ -8,10 +8,13 @@ class LogWindow extends PopupDialog{
     mouseDwwnPos = {};
 
 
-    constructor(ui)
+    constructor(ui, btn)
     {
         super(ui);
         
+        this.btn = btn;
+        this.svg = btn.querySelector("#log-svg");
+
         this.contentUi = this.ui.querySelector("#content");
         this.clearBtn = this.ui.querySelector("#btn-clear");
 
@@ -86,6 +89,9 @@ class LogWindow extends PopupDialog{
 
     logid = 0;
     log() {
+
+        this.svg.style.fill= this.logid %2 ? "red" : "green";
+
         this.updateAutoScrollFlag();
         //console.log(...arguments);
         let old_content = this.contentUi.innerHTML;
@@ -143,8 +149,8 @@ class LogWindow extends PopupDialog{
 
 let logger = null;
 
-function create_logger(ui){
-    logger = new LogWindow(ui);
+function create_logger(ui, btn){
+    logger = new LogWindow(ui, btn);
 }
 
 export{logger, create_logger};
