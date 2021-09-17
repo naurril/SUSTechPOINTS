@@ -1,10 +1,9 @@
-import * as THREE from './lib/three.module.js';
 
 import {ProjectiveViewOps}  from "./side_view_op.js"
 import {FocusImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
 import {objIdManager} from "./obj_id_list.js"
-import { BooleanKeyframeTrack } from "./lib/three.module.js";
+
 
 /*
 2 ways to attach and edit a box
@@ -1016,9 +1015,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         );
     };
 
-    this.toolbox.querySelector("#save").onclick = ()=>{
-        this._save();
-    };
+    // this.toolbox.querySelector("#save").onclick = ()=>{
+    //     this._save();
+    // };
 
     this.toolbox.querySelector("#finalize").onclick = ()=>{
         this.finalize();

@@ -77,7 +77,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.configUi = new ConfigUi(editorUi.querySelector("#config-button"), editorUi.querySelector("#config-wrapper"), this);
 
-        this.header = new Header(editorUi.querySelector("#global-info"), this.data, this.editorCfg,
+        this.header = new Header(editorUi.querySelector("#header"), this.data, this.editorCfg,
             (e)=>{
                 this.scene_changed(e.currentTarget.value);
                 //event.currentTarget.blur();

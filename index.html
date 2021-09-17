@@ -43,17 +43,7 @@
 							<option>--object--</option>
 						</select>
 
-						<div id="changed-mark" class="header-button">
-							<div id='save-button'>
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<path d="M 4 4 L 18 4 L 20 6 L 20 20 L 4 20 Z M 8 4 h 8 v 2 h -8 z M 6 10 h 12 V 18 h -12 z "></path>
-								</g></svg>
-							</div>
-							<div id="changed-world-list-wrapper">
-								<div> All modified frames, click to save them all</div>
-								<div id='changed-world-list'></div>
-							</div>
-						</div>
+						
 						
 						<text id="box"></text>			
 						<text id="ref-obj"></text>
@@ -62,14 +52,30 @@
 					<div id="buttons">
 						<div id="dynamic-buttons-placeholder">
 						</div>
-						<div id="config-button" class="ui-button">
-							<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
-								<g>
-									<circle cx = 12 cy=7 r=1 />
-									<circle cx = 12 cy=12 r=1 />
-									<circle cx = 12 cy=17 r=1 />							
-								</g>
-							</svg>
+
+						<div id="static-buttons">
+							<div id="changed-mark" class="header-button">
+								<div id='save-button'>
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M 4 4 L 18 4 L 20 6 L 20 20 L 4 20 Z M 8 4 h 8 v 2 h -8 z M 6 10 h 12 V 18 h -12 z "></path>
+									</g></svg>
+								</div>
+								<div id="changed-world-list-wrapper">
+									<div> All modified frames, click to save them all</div>
+									<div id='changed-world-list'></div>
+								</div>
+							</div>
+
+
+							<div id="config-button" class="ui-button">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
+									<g>
+										<circle cx = 12 cy=7 r=1 />
+										<circle cx = 12 cy=12 r=1 />
+										<circle cx = 12 cy=17 r=1 />							
+									</g>
+								</svg>
+							</div>
 						</div>
 					</div>
 
@@ -86,114 +92,112 @@
 												
 					<!-- div id="image"></div -->
 					<div id="floating-things">
-					<div id="floating-labels" class="non-selectable"></div>				
-					<div id="obj-editor">
-						<div id="category-id-editor">
-							<select title="category"  id="object-category-selector"></select>
-							<input title="attribute" list="object-attribute" id="object-attribute-editor" type="text" size="10" placeholder="attribute">
-							<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5" placeholder="track id"></input>
-							<datalist id="obj-ids-of-scene"></datalist>						
-							<datalist id="object-attribute"></datalist>
-							<div id="label-gen-id" class="ui-button" title="genearte ID">
-								<!-- <span class="ui-icon ui-icon-copy"></span> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<!-- <rect x="4" y="4" width="12" height="12"/> -->
-									<rect x="6" y="6" width="12" height="12"/>								
-								</g></svg>
-							</div>
-
-
-						</div>
-						<div id="obj-editor-tools">
-							<div id="label-copy" class="ui-button" title="copy (C-c)">
-								<!-- <span class="ui-icon ui-icon-copy"></span> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<!-- <rect x="4" y="4" width="12" height="12"/> -->
-									<rect x="8" y="8" width="12" height="12"/>
-									<polyline points="8 16 4 16 4 4 16 4 16 8 "/>
-								</g></svg>
-							</div>
-							<div id="label-paste" class="ui-button"  title="auto adjust">
-								<!-- <span class="ui-icon ui-icon-key"></span></div> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<!-- <rect x="4" y="8" width="16" height="12"/>
-									<circle cx="12" cy="8" r = "4"/>								 -->
-									<circle cx=12 cy=12 r=4 />
-									<rect x=10 y=16 width=4 height=4 />
-									<polyline points='12 3 12 6' />
-									<polyline points='3 12 6 12' />
-									<polyline points='18 12 21 12' />
-									<polyline points='5 5 8 8' />
-									<polyline points='18 5 15 8' />
-								</g></svg>
-							</div>
-							<div id="label-batchedit" class="ui-button"  title="edit multiple instances">
-								<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<rect x="4" y="4" width="8" height="8"/>
-									<rect x="4" y="12" width="8" height="8"/>
-									<rect x="12" y="4" width="8" height="8"/>
-									
-								</g></svg>
-							</div>
-
-							<div id="label-trajectory" class="ui-button"  title="trajectory">
-								<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<path d="M 4 4 C 20 4, 4 20, 20 20" />
-									
-								</g></svg>
-							</div>
-
-							<div id="label-highlight" class="ui-button"  title="focus">
-								<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<circle cx="10" cy="10" r="7"/>
-									<polyline points="15 15 20 20"/>
-									<polyline points="10 6 10 14"/>
-									<polyline points="6 10 14 10"/>
-								</g></svg>
-							</div>
-							<div id="label-edit" class="ui-button"  title="edit">
-								<!-- <span class="ui-icon ui-icon-pencil"></span> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<polyline points="12 4 12 20" />
-									<polyline points="4 9 12 9" />
-									<polyline points="8 5 12 9 8 13" />
-									<polyline points="20 15 12 15" />
-									<!-- <polyline points="16 19 12 15  16 11" /> -->
-								</svg>
-							</div>
-							<div id="label-rotate" class="ui-button"  title="reverse direction (g)">
-								<!-- <span class="ui-icon ui-icon-transferthick-e-w"></span></div> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<!-- <rect x=6 y=4 width=12 height=8 />
-									<polyline points="12 12 12 20" />
-									<polyline points="8 16 12 20 16 16" /> -->
-									<rect x=8 y=8 width=8 height=8 />
-
-									<polyline points="12 12 12 21" />
-									<polyline points="10 19 12 21 14 19" />
-									
-									<polyline points="12 12 12 3"  stroke-dasharray="1" />
-									<polyline points="10 5 12 3 14 5" stroke-dasharray="1" />
-								</g></svg>
-							</div>
-							<div id="label-reset" class="ui-button"  title="reset">
-								<!-- <span class="ui-icon ui-icon-refresh"></span></div>				 -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<circle  cx=12 cy=12 r=8 />
-									<circle  cx=12 cy=12 r=1 />
-								</g></svg>
+						<div id="floating-labels" class="non-selectable"></div>				
+						<div id="obj-editor">
+							<div id="category-id-editor">
+								<select title="category"  id="object-category-selector"></select>
+								<input title="attribute" list="object-attribute" id="object-attribute-editor" type="text" size="10" placeholder="attribute">
+								<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5" placeholder="track id"></input>
+								<datalist id="obj-ids-of-scene"></datalist>						
+								<datalist id="object-attribute"></datalist>
+								<div id="label-gen-id" class="ui-button" title="genearte ID">
+									<!-- <span class="ui-icon ui-icon-copy"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<!-- <rect x="4" y="4" width="12" height="12"/> -->
+										<rect x="6" y="6" width="12" height="12"/>								
+									</g></svg>
 								</div>
-							<div id="label-del" class="ui-button"  title="delete (Del)">
-								<!-- <span class="ui-icon ui-icon-trash"></span> -->
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
-								</g></svg>
+							</div>
+							<div id="obj-editor-tools">
+								<div id="label-copy" class="ui-button" title="copy (C-c)">
+									<!-- <span class="ui-icon ui-icon-copy"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<!-- <rect x="4" y="4" width="12" height="12"/> -->
+										<rect x="8" y="8" width="12" height="12"/>
+										<polyline points="8 16 4 16 4 4 16 4 16 8 "/>
+									</g></svg>
+								</div>
+								<div id="label-paste" class="ui-button"  title="auto adjust">
+									<!-- <span class="ui-icon ui-icon-key"></span></div> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<!-- <rect x="4" y="8" width="16" height="12"/>
+										<circle cx="12" cy="8" r = "4"/>								 -->
+										<circle cx=12 cy=12 r=4 />
+										<rect x=10 y=16 width=4 height=4 />
+										<polyline points='12 3 12 6' />
+										<polyline points='3 12 6 12' />
+										<polyline points='18 12 21 12' />
+										<polyline points='5 5 8 8' />
+										<polyline points='18 5 15 8' />
+									</g></svg>
+								</div>
+								<div id="label-batchedit" class="ui-button"  title="edit multiple instances">
+									<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x="4" y="4" width="8" height="8"/>
+										<rect x="4" y="12" width="8" height="8"/>
+										<rect x="12" y="4" width="8" height="8"/>
+										
+									</g></svg>
+								</div>
+
+								<div id="label-trajectory" class="ui-button"  title="trajectory">
+									<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M 4 4 C 20 4, 4 20, 20 20" />
+										
+									</g></svg>
+								</div>
+
+								<div id="label-highlight" class="ui-button"  title="focus">
+									<!-- <span class="ui-icon ui-icon-zoomin"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<circle cx="10" cy="10" r="7"/>
+										<polyline points="15 15 20 20"/>
+										<polyline points="10 6 10 14"/>
+										<polyline points="6 10 14 10"/>
+									</g></svg>
+								</div>
+								<div id="label-edit" class="ui-button"  title="edit">
+									<!-- <span class="ui-icon ui-icon-pencil"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<polyline points="12 4 12 20" />
+										<polyline points="4 9 12 9" />
+										<polyline points="8 5 12 9 8 13" />
+										<polyline points="20 15 12 15" />
+										<!-- <polyline points="16 19 12 15  16 11" /> -->
+									</svg>
+								</div>
+								<div id="label-rotate" class="ui-button"  title="reverse direction (g)">
+									<!-- <span class="ui-icon ui-icon-transferthick-e-w"></span></div> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<!-- <rect x=6 y=4 width=12 height=8 />
+										<polyline points="12 12 12 20" />
+										<polyline points="8 16 12 20 16 16" /> -->
+										<rect x=8 y=8 width=8 height=8 />
+
+										<polyline points="12 12 12 21" />
+										<polyline points="10 19 12 21 14 19" />
+										
+										<polyline points="12 12 12 3"  stroke-dasharray="1" />
+										<polyline points="10 5 12 3 14 5" stroke-dasharray="1" />
+									</g></svg>
+								</div>
+								<div id="label-reset" class="ui-button"  title="reset">
+									<!-- <span class="ui-icon ui-icon-refresh"></span></div>				 -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<circle  cx=12 cy=12 r=8 />
+										<circle  cx=12 cy=12 r=1 />
+									</g></svg>
+									</div>
+								<div id="label-del" class="ui-button"  title="delete (Del)">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
+									</g></svg>
+								</div>
 							</div>
 						</div>
-					</div>
 					</div>
 
 					<div id="maincanvas-wrapper">
@@ -1042,7 +1046,7 @@
 					<div class="menu-button" id="interpolate">Interpolate</div>
 					<div class="menu-button" id="reload">Reload</div>
 					<div class="menu-button" id="finalize">Finalize</div>
-					<div class="menu-button" id="save">Save</div>
+					<!-- <div class="menu-button" id="save">Save</div> -->
 					<div class="menu-button" id="prev">Previous</div>
 					<div class="menu-button" id="next">Next</div>
 					<div class="menu-button" id="exit">Exit</div>
