@@ -200,7 +200,8 @@ class ImageContext extends MovableView{
 
     constructor(ui, cfg, on_img_click){
 
-        super(ui, ui, ui);
+        let handle = ui.querySelector("#move-handle");
+        super(handle, handle, ui);
 
         this.ui = ui;
         this.cfg = cfg;
