@@ -3,7 +3,7 @@ import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {globalObjectCategory, } from './obj_cfg.js';
 import { MovableView } from "./popup_dialog.js";
 
-function FocusImageContext(ui){
+function BoxImageContext(ui){
 
     this.ui = ui;
     
@@ -958,4 +958,4 @@ function  choose_best_camera_for_point(scene_meta, center){
 }
 
 
-export {ImageContext, FocusImageContext};
+export {ImageContext, BoxImageContext};

@@ -1,6 +1,6 @@
 
 import {ProjectiveViewOps}  from "./side_view_op.js"
-import {FocusImageContext} from "./image.js";
+import {BoxImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
 import {objIdManager} from "./obj_id_list.js"
 
@@ -37,7 +37,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.projectiveViewOps.init_view_operation();
 
-    this.focusImageContext = new FocusImageContext(this.ui.querySelector("#focuscanvas"));
+    this.focusImageContext = new BoxImageContext(this.ui.querySelector("#focuscanvas"));
     
     this.target = {};
     this.setTarget = function(world, objTrackId, objType){
@@ -308,11 +308,16 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
                     // so this render is effectiveless.
                     //this.boxView.render();
 
-                    // save 
-                    pointsGlobalConfig.setItem("batchModeSubviewSize", {width: rect.width, height: rect.height});
+                    // save                     
 
                     if (this.boxEditorManager)  // there is no manager for box editor in main ui
+                    {
+                        pointsGlobalConfig.setItem("batchModeSubviewSize", {width: rect.width, height: rect.height});
                         this.boxEditorManager.onSubViewsResize(rect.width, rect.height);
+                    }
+                    else{
+                        this.boxView.render();
+                    }
                 
                     //save
                     this.lastSize.width = rect.width;

@@ -543,8 +543,8 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	top: 0%;    
 	left: 0%;
-    width: 20%;
-	height: 100%;
+    /* width: 20%;
+	height: 100%; */
 }
 
 
