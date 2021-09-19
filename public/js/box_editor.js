@@ -149,8 +149,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             this.projectiveViewOps.attachBox(box);
             this.focusImageContext.updateFocusedImageContext(box);
 
-            this.updateInfo();
-            this.boxView.render();
+            this.update();
+            // this.updateInfo();
+            // this.boxView.render();
         }
 
         

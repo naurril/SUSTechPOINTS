@@ -21,6 +21,7 @@ import { ContextMenu } from './context_menu.js';
 import { InfoBox } from './info_box.js';
 import {CropScene} from './crop_scene.js';
 import { ConfigUi } from './config_ui.js';
+import { MovableView } from './popup_dialog.js';
 
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
@@ -193,8 +194,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             });  //func_on_annotation_reloaded
         this.boxEditorManager.hide();
          
+        let boxEditorUi = this.editorUi.querySelector("#main-box-editor-wrapper");
         this.boxEditor= new BoxEditor(
-            this.editorUi.querySelector("#main-box-editor-wrapper"),
+            boxEditorUi,
             null,  // no box editor manager
             this.viewManager, 
             this.editorCfgg, 
@@ -204,6 +206,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             "main-boxe-ditor");
         this.boxEditor.detach(); // hide it
         this.boxEditor.setResize("both");
+        this.boxEditor.moveHandle = new MovableView(
+            boxEditorUi.querySelector("#focuscanvas"),
+            boxEditorUi.querySelector("#focuscanvas"),
+            boxEditorUi.querySelector("#sub-views"),
+            ()=>{
+                this.boxEditor.update();
+                this.render();
+            }
+        );
 
         this.mouse = new Mouse(
             this.viewManager.mainView,

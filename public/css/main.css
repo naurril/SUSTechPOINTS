@@ -543,8 +543,8 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	top: 0%;    
 	left: 0%;
-    /* width: 20%;
-	height: 100%; */
+    width: 0%;
+	/*height: 0%;*/
 }
 
 
@@ -562,7 +562,7 @@ dynamic set obj-type css has higher priority than this one.
 #main-box-editor-wrapper #sub-views {
 	display: inline-block;
 	position: relative;	
-    width: 100%;
+    width: 320px;
     height: 100%;
 	resize: both;
 	overflow: hidden;

@@ -8,7 +8,7 @@ class MovableView
     // move starts in dragableUi, 
     // movable in movableUi,
     // the pos of posUi is set.
-    constructor(dragableUi, movableUi, posUi)
+    constructor(dragableUi, movableUi, posUi, funcOnMove)
     {
 
         dragableUi.addEventListener("mousedown", (event)=>{
@@ -62,6 +62,9 @@ class MovableView
 
                 posUi.style.left = (left + posDelta.x) + 'px';
                 posUi.style.top = (top + posDelta.y) + 'px';
+
+                if (funcOnMove)
+                    funcOnMove();
             }
 
         });
