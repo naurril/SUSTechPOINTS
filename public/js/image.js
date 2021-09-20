@@ -1,8 +1,9 @@
 
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {globalObjectCategory, } from './obj_cfg.js';
+import { MovableView } from "./popup_dialog.js";
 
-function FocusImageContext(ui){
+function BoxImageContext(ui){
 
     this.ui = ui;
     
@@ -195,47 +196,86 @@ function FocusImageContext(ui){
 
 
 
-function ImageContext(ui, cfg, on_img_click){
-    this.ui = ui;
-    this.cfg = cfg;
-    this.init_image_op = init_image_op;    
-    this.clear_main_canvas= clear_main_canvas;
-    this.choose_best_camera_for_point = choose_best_camera_for_point;
-    //this.image_manager = image_manager;
-    this.on_img_click = on_img_click;
-    this.world = null;
-    this.attachWorld = function(world){
-        this.world = world;
+class ImageContext extends MovableView{
+
+    constructor(ui, cfg, on_img_click){
+
+        let handle = ui.querySelector("#move-handle");
+        super(handle, handle, ui);
+
+        this.ui = ui;
+        this.cfg = cfg;
+        this.on_img_click = on_img_click;
+    }
+    
+    choose_best_camera_for_point = choose_best_camera_for_point;
+    get_selected_box = null;
+
+
+    init_image_op(func_get_selected_box){
+        this.ui.onclick = (e)=>this.on_click(e);
+        this.get_selected_box = func_get_selected_box;
+        // var h = parentUi.querySelector("#resize-handle");
+        // h.onmousedown = resize_mouse_down;
+        
+        // c.onresize = on_resize;
+    }
+    clear_main_canvas(){
+
+        var boxes = this.ui.querySelector("#svg-boxes").children;
+        
+        if (boxes.length>0){
+            for (var c=boxes.length-1; c >= 0; c--){
+                boxes[c].remove();                    
+            }
+        }
+
+        var points = this.ui.querySelector("#svg-points").children;
+        
+        if (points.length>0){
+            for (var c=points.length-1; c >= 0; c--){
+                points[c].remove();                    
+            }
+        }
+    }
+
+
+
+
+
+
+    world = null;
+    img = null;
+
+    attachWorld(world){
+            this.world = world;
     };
 
-    this.hide = function(){
+    hide (){
         this.ui.style.display="none";
     };
 
-    this.hidden = function(){
-        this.ui.style.display=="none";
-    };
+    hidden(){
+            this.ui.style.display=="none";
+        };
 
-    this.show = function(){
-        this.ui.style.display="";
-    };
-    this.img = null;
-   
-
-    //internal
-    let scope =this;
-    var drawing = false;
-    var points = [];
-    var polyline;
-
-    var all_lines=[];
+    show(){
+            this.ui.style.display="";
+        };
     
-    this.img_lidar_point_map = {};
+    
+    drawing = false;
+    points = [];
+    polyline;
 
-    function point_color_by_distance(x,y)
+    all_lines=[];
+    
+    img_lidar_point_map = {};
+
+    point_color_by_distance(x,y)
     {
         // x,y are image coordinates
-        let p = scope.img_lidar_point_map[y*scope.img.width+x];
+        let p = this.img_lidar_point_map[y*this.img.width+x];
 
         let distance = Math.sqrt(p[1]*p[1] + p[2]*p[2] + p[3]*p[3] );
 
@@ -253,62 +293,48 @@ function ImageContext(ui, cfg, on_img_click){
 
     }
 
-    function to_polyline_attr(points){
+    to_polyline_attr(points){
         return points.reduce(function(x,y){
             return String(x)+","+y;
         }
         )
     }
 
-    var get_selected_box;
-
-    function init_image_op(func_get_selected_box){
-        scope.ui.onclick = on_click;
-        get_selected_box = func_get_selected_box;
-        // var h = parentUi.querySelector("#resize-handle");
-        // h.onmousedown = resize_mouse_down;
-        
-        // c.onresize = on_resize;
-    }
-
-    // function on_resize(ev){
-    //     console.log(ev);
-    // }
-
-
-    function to_viewbox_coord(x,y){
-        var div = scope.ui.querySelector("#maincanvas-svg");
+    
+    to_viewbox_coord(x,y){
+        var div = this.ui.querySelector("#maincanvas-svg");
         
         x = Math.round(x*2048/div.clientWidth);
         y = Math.round(y*1536/div.clientHeight);
         return [x,y];
 
     }
-    function on_click(e){
-        var p= to_viewbox_coord(e.layerX, e.layerY);
+
+    on_click(e){
+        var p= this.to_viewbox_coord(e.layerX, e.layerY);
         var x=p[0];
         var y=p[1];
         
         console.log("clicked",x,y);
 
         
-        if (!drawing){
+        if (!this.drawing){
 
             if (e.ctrlKey){
-                drawing = true;
-                var svg = scope.ui.querySelector("#maincanvas-svg");
+                this.drawing = true;
+                var svg = this.ui.querySelector("#maincanvas-svg");
                 //svg.style.position = "absolute";
                 
-                polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
-                svg.appendChild(polyline);
-                points.push(x);
-                points.push(y);
+                this.polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
+                svg.appendChild(this.polyline);
+                this.points.push(x);
+                this.points.push(y);
 
                 
-                polyline.setAttribute("class", "maincanvas-line")
-                polyline.setAttribute("points", to_polyline_attr(points));
+                this.polyline.setAttribute("class", "maincanvas-line")
+                this.polyline.setAttribute("points", this.to_polyline_attr(this.points));
 
-                var c = scope.ui;
+                var c = this.ui;
                 c.onmousemove = on_move;
                 c.ondblclick = on_dblclick;   
                 c.onkeydown = on_key;    
@@ -323,14 +349,14 @@ function ImageContext(ui, cfg, on_img_click){
                     let selected_pts = [];
                     
                     for (let i =x-100; i<x+100; i++){
-                        if (i < 0 || i >= scope.img.width)
+                        if (i < 0 || i >= this.img.width)
                             continue;
 
                         for (let j = y-100; j<y+100; j++){
-                            if (j < 0 || j >= scope.img.height)
+                            if (j < 0 || j >= this.img.height)
                                 continue;
 
-                            let lidarpoint = scope.img_lidar_point_map[j*scope.img.width+i];
+                            let lidarpoint = this.img_lidar_point_map[j*this.img.width+i];
                             if (lidarpoint){
                                 //console.log(i,j, lidarpoint);
                                 selected_pts.push(lidarpoint); //index of lidar point
@@ -344,20 +370,20 @@ function ImageContext(ui, cfg, on_img_click){
                         }
                     }
                     console.log("nearest", nearest_x, nearest_y);
-                    scope.draw_point(nearest_x, nearest_y);
+                    this.draw_point(nearest_x, nearest_y);
                     if (nearest_x < 100000)
                     {
-                        scope.on_img_click([scope.img_lidar_point_map[nearest_y*scope.img.width+nearest_x][0]]);
+                        this.on_img_click([this.img_lidar_point_map[nearest_y*this.img.width+nearest_x][0]]);
                     }
                 }
                 
             }
 
         } else {
-            if (points[points.length-2]!=x || points[points.length-1]!=y){
-                points.push(x);
-                points.push(y);
-                polyline.setAttribute("points", to_polyline_attr(points));
+            if (this.points[this.points.length-2]!=x || this.points[this.points.length-1]!=y){
+                this.points.push(x);
+                this.points.push(y);
+                this.polyline.setAttribute("points", this.to_polyline_attr(this.points));
             }
             
         }
@@ -369,23 +395,23 @@ function ImageContext(ui, cfg, on_img_click){
             var y=p[1];
 
             console.log(x,y);
-            polyline.setAttribute("points", to_polyline_attr(points) + ',' + x + ',' + y);
+            this.polyline.setAttribute("points", this.to_polyline_attr(this.points) + ',' + x + ',' + y);
         }
 
         function on_dblclick(e){
             
-            points.push(points[0]);
-            points.push(points[1]);
+            this.points.push(this.points[0]);
+            this.points.push(this.points[1]);
             
-            polyline.setAttribute("points", to_polyline_attr(points));
-            console.log(points)
+            this.polyline.setAttribute("points", this.to_polyline_attr(this.points));
+            console.log(this.points)
             
-            all_lines.push(points);
+            all_lines.push(this.points);
 
-            drawing = false;
-            points = [];
+            this.drawing = false;
+            this.points = [];
 
-            var c = scope.ui;
+            var c = this.ui;
             c.onmousemove = null;
             c.ondblclick = null;
             c.onkeypress = null;
@@ -396,9 +422,9 @@ function ImageContext(ui, cfg, on_img_click){
                 
                 polyline.remove();
 
-                drawing = false;
-                points = [];
-                var c = scope.ui;
+                this.drawing = false;
+                this.points = [];
+                var c = this.ui;
                 c.onmousemove = null;
                 c.ondblclick = null;
                 c.onkeypress = null;
@@ -416,35 +442,17 @@ function ImageContext(ui, cfg, on_img_click){
 
 
     // all boxes
-    function clear_main_canvas(){
-
-        var boxes = scope.ui.querySelector("#svg-boxes").children;
-        
-        if (boxes.length>0){
-            for (var c=boxes.length-1; c >= 0; c--){
-                boxes[c].remove();                    
-            }
-        }
-
-        var points = scope.ui.querySelector("#svg-points").children;
-        
-        if (points.length>0){
-            for (var c=points.length-1; c >= 0; c--){
-                points[c].remove();                    
-            }
-        }
-    }
+    
 
 
-    function get_active_calib(){
-        var scene_meta = scope.world.sceneMeta;
-
-            
+    get_active_calib(){
+        var scene_meta = this.world.sceneMeta;
+           
         if (!scene_meta.calib.camera){
             return null;
         }
 
-        var active_camera_name = scope.world.cameras.active_name;
+        var active_camera_name = this.world.cameras.active_name;
         var calib = scene_meta.calib.camera[active_camera_name];
 
         return calib;
@@ -453,8 +461,8 @@ function ImageContext(ui, cfg, on_img_click){
 
 
 
-    function get_trans_ratio(){
-        var img = scope.world.cameras.active_image();       
+    get_trans_ratio(){
+        var img = this.world.cameras.active_image();       
 
         if (!img || img.width==0){
             return null;
@@ -473,22 +481,22 @@ function ImageContext(ui, cfg, on_img_click){
         return trans_ratio;
     }
 
-    function show_image(){
-        var svgimage = scope.ui.querySelector("#svg-image");
+    show_image(){
+        var svgimage = this.ui.querySelector("#svg-image");
 
         // active img is set by global, it's not set sometimes.
-        var img = scope.world.cameras.active_image();
+        var img = this.world.cameras.active_image();
         if (img){
             svgimage.setAttribute("xlink:href", img.src);
         }
 
-        scope.img = img;
+        this.img = img;
 
 
     }
 
 
-    function points_to_svg(points, trans_ratio, cssclass, radius=2){
+    points_to_svg(points, trans_ratio, cssclass, radius=2){
         var ptsFinal = points.map(function(x, i){
             if (i%2==0){
                 return Math.round(x * trans_ratio.x);
@@ -531,113 +539,102 @@ function ImageContext(ui, cfg, on_img_click){
         return svg;
     }
 
-    this.draw_point = function(x,y){
-        let trans_ratio = get_trans_ratio();
-        let svg = scope.ui.querySelector("#svg-points");
-        let pts_svg = points_to_svg([x,y], trans_ratio, "radar-points");
+    draw_point(x,y){
+        let trans_ratio = this.get_trans_ratio();
+        let svg = this.ui.querySelector("#svg-points");
+        let pts_svg = this.points_to_svg([x,y], trans_ratio, "radar-points");
         svg.appendChild(pts_svg);
     };
 
 
 
 
-    this.render_2d_image = function(){
+    render_2d_image (){
 
-        let self = this;
+        
         if (this.cfg.disableMainImageContext)
             return;
+        this.clear_main_canvas();
 
-        //console.log("2d iamge rendered!");
-
-        clear_main_canvas();
-
-        // if (params["hide image"]){
-        //     hide_canvas();
-        //     return;
-        // }
-
-        show_image();
-
-        draw_svg();
+        this.show_image();
+        this.draw_svg();
+    }
 
 
-        function hide_canvas(){
-            //document.getElementsByClassName("ui-wrapper")[0].style.display="none";
-            scope.ui.style.display="none";
+    hide_canvas(){
+        //document.getElementsByClassName("ui-wrapper")[0].style.display="none";
+        this.ui.style.display="none";
+    }
+
+    show_canvas(){
+        this.ui.style.display="inline";
+    }
+
+
+    draw_svg(){
+        // draw picture
+        var img = this.world.cameras.active_image();       
+
+        if (!img || img.width==0){
+            this.hide_canvas();
+            return;
         }
 
-        function show_canvas(){
-            scope.ui.style.display="inline";
+        this.show_canvas();
+
+        var trans_ratio = this.get_trans_ratio();
+
+        var calib = this.get_active_calib();
+        if (!calib){
+            return;
         }
 
-        function draw_svg(){
-            // draw picture
-            var img = scope.world.cameras.active_image();       
+        let svg = this.ui.querySelector("#svg-boxes");
 
-            if (!img || img.width==0){
-                hide_canvas();
-                return;
+        // draw boxes
+        this.world.annotation.boxes.forEach((box)=>{
+            var imgfinal = box_to_2d_points(box, calib);
+            if (imgfinal){
+                var box_svg = this.box_to_svg (box, imgfinal, trans_ratio, this.get_selected_box() == box);
+                svg.appendChild(box_svg);
             }
 
-            show_canvas();
+        });
 
-            var trans_ratio = get_trans_ratio();
+        svg = this.ui.querySelector("#svg-points");
 
-            var calib = get_active_calib();
-            if (!calib){
-                return;
-            }
-
-            let svg = scope.ui.querySelector("#svg-boxes");
-
-            // draw boxes
-            scope.world.annotation.boxes.forEach(function(box){
-                var imgfinal = box_to_2d_points(box, calib);
-                if (imgfinal){
-                    var box_svg = box_to_svg (box, imgfinal, trans_ratio, get_selected_box() == box);
-                    svg.appendChild(box_svg);
-                }
-
-            });
-
-            svg = scope.ui.querySelector("#svg-points");
-
-            // draw radar points
-            if (self.cfg.projectRadarToImage)
-            {
-                scope.world.radars.radarList.forEach(radar=>{
-                    let pts = radar.get_unoffset_radar_points();
-                    let ptsOnImg = points3d_to_image2d(pts, calib);
-
-                    // there may be none after projecting
-                    if (ptsOnImg && ptsOnImg.length>0){
-                        let pts_svg = points_to_svg(ptsOnImg, trans_ratio, radar.cssStyleSelector);
-                        svg.appendChild(pts_svg);
-                    }
-                });
-            }
-
-
-
-            // project lidar points onto camera image   
-            if (self.cfg.projectLidarToImage){
-                let pts = scope.world.lidar.get_all_points();
-                let ptsOnImg = points3d_to_image2d(pts, calib, true, self.img_lidar_point_map, img.width, img.height);
+        // draw radar points
+        if (this.cfg.projectRadarToImage)
+        {
+            this.world.radars.radarList.forEach(radar=>{
+                let pts = radar.get_unoffset_radar_points();
+                let ptsOnImg = points3d_to_image2d(pts, calib);
 
                 // there may be none after projecting
                 if (ptsOnImg && ptsOnImg.length>0){
-                    let pts_svg = points_to_svg(ptsOnImg, trans_ratio);
+                    let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio, radar.cssStyleSelector);
                     svg.appendChild(pts_svg);
                 }
-            }
+            });
+        }
 
+
+
+        // project lidar points onto camera image   
+        if (this.cfg.projectLidarToImage){
+            let pts = this.world.lidar.get_all_points();
+            let ptsOnImg = points3d_to_image2d(pts, calib, true, this.img_lidar_point_map, img.width, img.height);
+
+            // there may be none after projecting
+            if (ptsOnImg && ptsOnImg.length>0){
+                let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio);
+                svg.appendChild(pts_svg);
+            }
         }
 
     }
 
-
-
-    function box_to_svg(box, box_corners, trans_ratio, selected){
+    box_to_svg(box, box_corners, trans_ratio, selected){
         
 
         var imgfinal = box_corners.map(function(x, i){
@@ -684,7 +681,7 @@ function ImageContext(ui, cfg, on_img_click){
         )
         */
 
-    for (var i = 0; i<4; ++i){
+        for (var i = 0; i<4; ++i){
             var line =  document.createElementNS("http://www.w3.org/2000/svg", 'line');
             svg.appendChild(line);
             line.setAttribute("x1", imgfinal[(4+i)*2]);
@@ -707,18 +704,18 @@ function ImageContext(ui, cfg, on_img_click){
     }
 
 
-    this.image_manager = {
+    image_manager = {
         display_image: ()=>{
             if (!this.cfg.disableMainImageContext)
                 this.render_2d_image();
         },
 
-        add_box: function(box){
-            var calib = get_active_calib();
+        add_box: (box)=>{
+            var calib = this.get_active_calib();
             if (!calib){
                 return;
             }
-            var trans_ratio = get_trans_ratio();
+            var trans_ratio = this.get_trans_ratio();
             if (trans_ratio){
                 var imgfinal = box_to_2d_points(box, calib);
                 if (imgfinal){
@@ -730,54 +727,54 @@ function ImageContext(ui, cfg, on_img_click){
                         }
                     })
 
-                    var svg_box = box_to_svg(box, imgfinal, trans_ratio);
-                    var svg = scope.ui.querySelector("#svg-boxes");
+                    var svg_box = this.box_to_svg(box, imgfinal, trans_ratio);
+                    var svg = this.ui.querySelector("#svg-boxes");
                     svg.appendChild(svg_box);
                 }
             }
         },
 
 
-        onBoxSelected: function(box_obj_local_id, obj_type){
-            var b = scope.ui.querySelector("#svg-box-local-"+box_obj_local_id);
+        onBoxSelected: (box_obj_local_id, obj_type)=>{
+            var b = this.ui.querySelector("#svg-box-local-"+box_obj_local_id);
             if (b){
                 b.setAttribute("class", "box-svg-selected");
             }
         },
 
 
-        onBoxUnselected: function(box_obj_local_id, obj_type){
-            var b = scope.ui.querySelector("#svg-box-local-"+box_obj_local_id);
+        onBoxUnselected: (box_obj_local_id, obj_type)=>{
+            var b = this.ui.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
                 b.setAttribute("class", obj_type);
         },
 
-        remove_box: function(box_obj_local_id){
-            var b = scope.ui.querySelector("#svg-box-local-"+box_obj_local_id);
+        remove_box: (box_obj_local_id)=>{
+            var b = this.ui.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
                 b.remove();
         },
 
-        update_obj_type: function(box_obj_local_id, obj_type){
+        update_obj_type: (box_obj_local_id, obj_type)=>{
             this.onBoxSelected(box_obj_local_id, obj_type);
         },
         
-        update_box: function(box){
-            var b = scope.ui.querySelector("#svg-box-local-"+box.obj_local_id);
+        update_box: (box)=>{
+            var b = this.ui.querySelector("#svg-box-local-"+box.obj_local_id);
             if (!b){
                 return;
             }
 
             var children = b.childNodes;
 
-            var calib = get_active_calib();
+            var calib = this.get_active_calib();
             if (!calib){
                 return;
             }
 
-            var trans_ratio = get_trans_ratio();
+            var trans_ratio = this.get_trans_ratio();
             var imgfinal = box_to_2d_points(box, calib);
 
             if (!imgfinal){
@@ -926,9 +923,8 @@ function all_points_in_image_range(p){
 }
 
 
-
-function choose_best_camera_for_point(scene_meta, center){
-    
+function  choose_best_camera_for_point(scene_meta, center){
+        
     if (!scene_meta.calib){
         return null;
     }
@@ -961,4 +957,5 @@ function choose_best_camera_for_point(scene_meta, center){
 
 }
 
-export {ImageContext, FocusImageContext};
+
+export {ImageContext, BoxImageContext};

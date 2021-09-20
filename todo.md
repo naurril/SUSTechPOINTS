@@ -73,3 +73,4 @@
 70.  the transformation subnetwork in pointnet for our rotation prediction is possibly unnecessary because we don't want a rotation-invariant model.
 71.  add contextmenu for projective sub-views, so that we can use them in batch-mode
 72.  crop point clouds, so to remove points of trees reaching out above the roads
+73.  http://eprints.utar.edu.my/4212/1/1604655_FYP_Report_-_SHI_HAO_TAN.pdf

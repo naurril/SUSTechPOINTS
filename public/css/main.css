@@ -206,25 +206,22 @@ canvas {
 }
 
 
-#maincanvas {
+
+#maincanvas-svg {
 	position: absolute;
 	top: 0%;
-	left: 0%;
-	width: 100%;
-	height: 100%;
-	padding: 0px;
-	box-sizing: border-box;
-	text-align: left;
-	align-content: right;
-	
-	/* pointer-events: none; */
-	/*z-index: 1; /* TODO Solve this in HTML */
-}
-#maincanvas-svg {
 	width: 100%;
 	height:100%;
 	border: 0px;
 	padding: 0px;
+}
+
+#maincanvas-wrapper #move-handle{
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	width: 100%;
+	height: 90%;
 }
 
 line {
@@ -266,11 +263,12 @@ dynamic set obj-type css has higher priority than this one.
 	overflow:hidden;
     top: 0%;
 	left: 20%;
-	width: 40%;
+	width: 30%;
 	height: 30%;
 	padding: 0px;
     margin: 0px;
 }
+
 
 #resize-handle {
 	position: absolute;
@@ -545,8 +543,8 @@ dynamic set obj-type css has higher priority than this one.
 	position: absolute;
 	top: 0%;    
 	left: 0%;
-    width: 20%;
-	height: 100%;
+    width: 0%;
+	/*height: 0%;*/
 }
 
 
@@ -564,7 +562,7 @@ dynamic set obj-type css has higher priority than this one.
 #main-box-editor-wrapper #sub-views {
 	display: inline-block;
 	position: relative;	
-    width: 100%;
+    width: 320px;
     height: 100%;
 	resize: both;
 	overflow: hidden;

@@ -1,10 +1,83 @@
-class PopupDialog
+
+
+class MovableView
 {
     mouseDown = false;
+    mouseDownPos = null;
+
+    // move starts in dragableUi, 
+    // movable in movableUi,
+    // the pos of posUi is set.
+    constructor(dragableUi, movableUi, posUi, funcOnMove)
+    {
+
+        dragableUi.addEventListener("mousedown", (event)=>{
+            if (event.which == 1)
+            {
+                dragableUi.style.cursor = "move";
+                this.mouseDown = true;
+                this.mouseDownPos = {x: event.clientX, y:event.clientY};
+
+                if (movableUi !== dragableUi)
+                {
+                    this.savedUiSize = {
+                        width: movableUi.style.width,
+                        height: movableUi.style.height,
+                    };
+
+                    movableUi.style.width = "100%";
+                    movableUi.style.height = "100%";
+                }
+            }
+        });
+
+        movableUi.addEventListener("mouseup", (event)=>{
+            if (this.mouseDown){
+                dragableUi.style.cursor = "";
+                event.stopPropagation();
+                event.preventDefault();
+                this.mouseDown = false;          
+                
+                if (movableUi !== dragableUi)
+                {
+                    movableUi.style.width = this.savedUiSize.width;
+                    movableUi.style.height = this.savedUiSize.height;
+                }
+
+            }
+        });
+
+        movableUi.addEventListener("mousemove", (event)=>{
+
+            if (this.mouseDown){
+                let posDelta = {
+                    x: event.clientX - this.mouseDownPos.x,
+                    y: event.clientY - this.mouseDownPos.y 
+                };
+    
+                this.mouseDownPos = {x: event.clientX, y:event.clientY};
+
+                let left = posUi.offsetLeft;
+                let top  = posUi.offsetTop;
+
+                posUi.style.left = (left + posDelta.x) + 'px';
+                posUi.style.top = (top + posDelta.y) + 'px';
+
+                if (funcOnMove)
+                    funcOnMove();
+            }
+
+        });
+    }
+}
 
 
+class PopupDialog extends MovableView
+{
     constructor(ui)
     {
+        super(ui.querySelector("#header"), ui, ui.querySelector("#view"));
+
         this.ui = ui;  //wrapper
         this.viewUi = this.ui.querySelector("#view");
         this.headerUi = this.ui.querySelector("#header");        
@@ -49,54 +122,7 @@ class PopupDialog
         // });
 
 
-        this.headerUi.addEventListener("mousedown", (event)=>{
-            if (event.which == 1)
-            {
-                this.headerUi.style.cursor = "move";
-                this.mouseDown = true;
-                this.mouseDownPos = {x: event.clientX, y:event.clientY};
-
-                this.savedUiSize = {
-                    width: this.ui.style.width,
-                    height: this.ui.style.height,
-                };
-
-                this.ui.style.width = "100%";
-                this.ui.style.height = "100%";
-            }
-        });
-
-        this.ui.addEventListener("mouseup", (event)=>{
-            if (this.mouseDown){
-                this.headerUi.style.cursor = "";
-                event.stopPropagation();
-                event.preventDefault();
-                this.mouseDown = false;          
-                
-                this.ui.style.width = this.savedUiSize.width;
-                this.ui.style.height = this.savedUiSize.height;
-
-            }
-        });
-
-        this.ui.addEventListener("mousemove", (event)=>{
-
-            if (this.mouseDown){
-                let posDelta = {
-                    x: event.clientX - this.mouseDownPos.x,
-                    y: event.clientY - this.mouseDownPos.y 
-                };
-    
-                this.mouseDownPos = {x: event.clientX, y:event.clientY};
-
-                let left = this.viewUi.offsetLeft;
-                let top  = this.viewUi.offsetTop;
-
-                this.viewUi.style.left = (left + posDelta.x) + 'px';
-                this.viewUi.style.top = (top + posDelta.y) + 'px';
-            }
-
-        });
+        
 
 
 
@@ -166,4 +192,4 @@ class PopupDialog
 }
 
 
-export {PopupDialog}
+export {PopupDialog, MovableView}
