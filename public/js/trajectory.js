@@ -112,8 +112,7 @@ class Trajectory extends PopupDialog{
         this.calculateCoordinateTransform(this.object.tracks);
         this.redrawAll();
 
-        
-        
+        this.ui.focus();
     }
 
     redrawAll()

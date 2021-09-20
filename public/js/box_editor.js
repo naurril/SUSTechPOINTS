@@ -732,11 +732,12 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         case 'cm-goto-this-frame':
             {            
                 let targetFrame = this.firingBoxEditor.target.world.frameInfo.frame;
+                let targetTrackId = this.firingBoxEditor.target.objTrackId;
                 this.hide();
 
                 this.reset();
                 if (this.onExit)
-                    this.onExit(targetFrame);
+                    this.onExit(targetFrame, targetTrackId);
             }
             break;
         };

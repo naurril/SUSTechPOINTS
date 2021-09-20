@@ -901,7 +901,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             frame, 
             objectTrackId,
             objectType,
-            (targetFrame)=>{  //on exit
+            (targetFrame, targetTrackId)=>{  //on exit
                 
                 this.keydownDisabled = false;
                 this.viewManager.mainView.enable();
@@ -909,18 +909,23 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.imageContext.show();
                 this.floatLabelManager.show();
 
+                if (targetTrackId)
+                    this.view_state.lock_obj_track_id = targetTrackId;
+
                 this.on_load_world_finished(this.data.world);
                 
-                if (this.selected_box){
-                    // attach again, restore box.boxEditor 
-                    // obj type/id may have changed in batch mode
-                    this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
-                    this.boxEditor.attachBox(this.selected_box);
-                    this.boxEditor.update();
+                // if (this.selected_box){
+                //     // attach again, restore box.boxEditor 
+                //     // obj type/id may have changed in batch mode
+                //     this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
+                //     this.boxEditor.attachBox(this.selected_box);
+                //     this.boxEditor.update();
 
-                    // update fasttoolbox
-                    this.fastToolBox.setValue(this.selected_box.obj_type, this.selected_box.obj_track_id, this.selected_box.obj_attr);
-                }
+                //     // update fasttoolbox
+                //     this.fastToolBox.setValue(this.selected_box.obj_type, this.selected_box.obj_track_id, this.selected_box.obj_attr);
+                // }
+
+                
                 this.showGridLines();
                 this.render();
                 //this.controlGui.show();

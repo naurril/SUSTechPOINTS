@@ -13,7 +13,7 @@ class ObjectCategory
         Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
         ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
         Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2], attr:["laying down"]},
-        BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
+        BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.7], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
         Motorcycle:     {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
         MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
 
@@ -69,11 +69,13 @@ class ObjectCategory
         }
     }
 
+    popularCategoris = ["Car", "Pedestrian", "Van", "Bus", "Truck", "Scooter", "ScooterRider", "Bicycle", "BicycleRider"];
+
     guess_obj_type_by_dimension(scale){
 
         var max_score = 0;
         var max_name = 0;
-        for (var i in this.obj_type_map){
+        this.popularCategoris.forEach(i=>{
             var o = this.obj_type_map[i];
             var scorex = o.size[0]/scale.x;
             var scorey = o.size[1]/scale.y;
@@ -85,7 +87,7 @@ class ObjectCategory
                 max_score = scorex + scorey;
                 max_name = i;
             }
-        };
+        });
 
         console.log("guess type", max_name);
         return max_name;
