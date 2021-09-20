@@ -7,7 +7,7 @@ from progress.bar import Bar
 
 import align_frame_time
 import rectify_image
-
+import pcd_restore
 
 camera_list = ['front', 'front_left', 'front_right', 'rear', 'rear_left', 'rear_right']
 
@@ -143,8 +143,6 @@ def generate_pose(raw_data_path, output_path):
                 
 
 
-
-            
     
 def rectify_cameras(intrinsic_calib_path, raw_data_path, output_path):
           
@@ -176,11 +174,11 @@ def align(raw_data_path, output_path):
 
         if os.path.exists(os.path.join(raw_data_path, 'pandar_points')):
             align_frame_time.link_one_folder(os.path.join(raw_data_path, 'pandar_points'),  #after 07.15, this topic path has hesai prefix.
-                                            os.path.join(output_path, 'intermediate', 'lidar'),
+                                            os.path.join(output_path, 'intermediate', 'lidar/aligned'),
                                             0, 30, 0)
         else:
             align_frame_time.link_one_folder(os.path.join(raw_data_path, 'hesai', 'pandar_packets'),  #after 07.15, this topic path has hesai prefix.
-                                            os.path.join(output_path, 'intermediate', 'lidar'),
+                                            os.path.join(output_path, 'intermediate', 'lidar/aligned'),
                                             0, 30, 0)
 
         for al in aux_lidar_list:
@@ -191,16 +189,52 @@ def align(raw_data_path, output_path):
         
         
         
+def format_timestamp(ts):
+    s = "{:0.03f}".format(ts)
+    # if s[2]=='0':
+    #     s = s[0:2]
+    #     if s[1]=='0':
+    #         s = s[0:1]
+    return s
 
 
+def lidar_pcd_restore(output_path):
+    dst_folder = os.path.join(output_path, "intermediate", "lidar", "restored")
+    if not os.path.exists(dst_folder):
+        os.makedirs(dst_folder)
+
+    src_folder = os.path.join(output_path, "intermediate", "lidar", "aligned")
+
+    files = os.listdir(src_folder)
+    files.sort()
+
+    pose_folder = os.path.join(output_path, "intermediate", "ego_pose", "aligned")
+
+    with Bar('restoring lidar', max=len(files)) as bar:
+        for f in files:
+            bar.next()
+            timestamp = float(os.path.splitext(f)[0])
+            nexttimestamp = timestamp+0.1
+
+            pose1file = os.path.join(pose_folder, format_timestamp(timestamp)+".json")
+            pose2file = os.path.join(pose_folder, format_timestamp(nexttimestamp)+".json")
+
+            if os.path.exists(pose1file) and os.path.exists(pose2file):
+                pcd_restore.pcd_restore(os.path.join(src_folder, f), \
+                                       os.path.join(dst_folder, f), \
+                                       os.path.join(pose_folder, format_timestamp(timestamp)+".json"), \
+                                       os.path.join(pose_folder, format_timestamp(nexttimestamp)+".json"), \
+                                       timestamp)                                        
+            else:
+                print("pose file does not exist", timestamp, nexttimestamp)
     
     
 #path should be abs path.
 #
 if __name__ == "__main__":
 
-    if len(sys.argv) == 5:
-        _, func, intrinsic_calib_path, extrinsic_calib_path, raw_data_root_path = sys.argv
+    if len(sys.argv) >= 5:
+        _, func, intrinsic_calib_path, extrinsic_calib_path, raw_data_root_path = sys.argv[0:5]
 
         raw_data_root_path = os.path.abspath(raw_data_root_path)
         extrinsic_calib_path = os.path.abspath(extrinsic_calib_path)
@@ -215,6 +249,8 @@ if __name__ == "__main__":
             raw_data_path = os.path.join(raw_data_root_path, f)
             if os.path.isdir(raw_data_path):
                 if f.endswith("_preprocessed"):
+                    continue
+                if f.endswith("bagfile"):
                     continue
 
                 output_path = os.path.join(raw_data_root_path, f + "_preprocessed")
@@ -231,6 +267,11 @@ if __name__ == "__main__":
 
                 if func == "align" or func=="all":
                     align(raw_data_path, output_path)
+
+                # restore shoulb be after aligned
+                if  func == "pcd_restore" or func =="all":
+                    lidar_pcd_restore(output_path)
+                
 
                 if func == "generate_dataset"  or func=="all":
                     dataset_name = "dataset_2hz"
