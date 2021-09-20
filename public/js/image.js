@@ -327,12 +327,12 @@ class ImageContext extends MovableView{
                 
                 this.polyline = document.createElementNS("http://www.w3.org/2000/svg", 'polyline');
                 svg.appendChild(this.polyline);
-                points.push(x);
-                points.push(y);
+                this.points.push(x);
+                this.points.push(y);
 
                 
                 this.polyline.setAttribute("class", "maincanvas-line")
-                this.polyline.setAttribute("points", this.to_polyline_attr(points));
+                this.polyline.setAttribute("points", this.to_polyline_attr(this.points));
 
                 var c = this.ui;
                 c.onmousemove = on_move;
@@ -380,10 +380,10 @@ class ImageContext extends MovableView{
             }
 
         } else {
-            if (points[points.length-2]!=x || points[points.length-1]!=y){
-                points.push(x);
-                points.push(y);
-                this.polyline.setAttribute("points", this.to_polyline_attr(points));
+            if (this.points[this.points.length-2]!=x || this.points[this.points.length-1]!=y){
+                this.points.push(x);
+                this.points.push(y);
+                this.polyline.setAttribute("points", this.to_polyline_attr(this.points));
             }
             
         }
@@ -395,21 +395,21 @@ class ImageContext extends MovableView{
             var y=p[1];
 
             console.log(x,y);
-            this.polyline.setAttribute("points", this.to_polyline_attr(points) + ',' + x + ',' + y);
+            this.polyline.setAttribute("points", this.to_polyline_attr(this.points) + ',' + x + ',' + y);
         }
 
         function on_dblclick(e){
             
-            points.push(points[0]);
-            points.push(points[1]);
+            this.points.push(this.points[0]);
+            this.points.push(this.points[1]);
             
-            this.polyline.setAttribute("points", this.to_polyline_attr(points));
-            console.log(points)
+            this.polyline.setAttribute("points", this.to_polyline_attr(this.points));
+            console.log(this.points)
             
-            all_lines.push(points);
+            all_lines.push(this.points);
 
             this.drawing = false;
-            points = [];
+            this.points = [];
 
             var c = this.ui;
             c.onmousemove = null;
@@ -423,7 +423,7 @@ class ImageContext extends MovableView{
                 polyline.remove();
 
                 this.drawing = false;
-                points = [];
+                this.points = [];
                 var c = this.ui;
                 c.onmousemove = null;
                 c.ondblclick = null;
