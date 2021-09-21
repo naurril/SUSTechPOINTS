@@ -245,8 +245,14 @@ if __name__ == "__main__":
         intrinsic_calib_path = os.path.abspath(intrinsic_calib_path)
 
         savecwd = os.getcwd()
+
+
+        if len(sys.argv) >=6:
+            subfolders = [sys.argv[5]]
+        else:
+            subfolders = os.listdir(raw_data_root_path)
         
-        for f in os.listdir(raw_data_root_path):
+        for f in subfolders:
             os.chdir(savecwd)
             print(f)
 
