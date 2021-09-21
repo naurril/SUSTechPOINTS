@@ -87,10 +87,6 @@ canvas {
 	
 }
 
-#main-ui #header {
-
-}
-
 #main-ui #content {
 	position:relative;
 	/* height: 90%; */
@@ -826,6 +822,13 @@ td {
 	stroke: red;
 	fill:none;
 }
+
+
+#svg-scaler {
+	stroke: gray;
+	fill:none;
+}
+
 
 #track-ego-car {
 	stroke: green;

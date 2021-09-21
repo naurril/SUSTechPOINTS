@@ -122,16 +122,27 @@ class Trajectory extends PopupDialog{
         this.updateObjectScale();
         
         this.drawTracks(this.object);
+
+        this.drawScaler();
     }
 
 
     clear(){
 
-        var arrows = this.ui.querySelector("#svg-arrows").children;
+        let arrows = this.ui.querySelector("#svg-arrows").children;
         
         if (arrows.length>0){
             for (var c=arrows.length-1; c >= 0; c--){
                 arrows[c].remove();                    
+            }
+        }
+
+
+        let scaler = this.ui.querySelector("#svg-scaler").children;
+        
+        if (scaler.length>0){
+            for (var c=scaler.length-1; c >= 0; c--){
+                scaler[c].remove();                    
             }
         }
     }
@@ -254,6 +265,71 @@ class Trajectory extends PopupDialog{
 
                 g.appendChild(p);
     }
+
+    calculateScalerUnit()
+    {
+        let x = 100/this.posScale;
+        let e = 0;
+            
+        while (x >= 10 || x < 1)
+        {
+            if (x >= 10)
+            {
+                e += 1;
+                x /= 10;
+            }
+            else if (x < 1)
+            {
+                e -= 1;
+                x *= 10;            
+            }
+        }
+
+        x = 10 * Math.pow(10, e);
+
+        return x;
+    }
+
+    drawScaler()
+    {       
+        let x = this.calculateScalerUnit();
+        let lineLen = x * this.posScale;
+
+        let svg = this.ui.querySelector("#svg-scaler");
+        let g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+        svg.appendChild(g);
+
+        //direction
+        let p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+        p.setAttribute("x1", 100);
+        p.setAttribute("y1", 900);
+        p.setAttribute("x2", 100+lineLen);
+        p.setAttribute("y2", 900);
+        g.appendChild(p);
+
+        p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+        p.setAttribute("x1", 100);
+        p.setAttribute("y1", 900);
+        p.setAttribute("x2", 100);
+        p.setAttribute("y2", 900-lineLen);
+        g.appendChild(p);
+
+        
+        p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
+        p.setAttribute("x", 100);
+        p.setAttribute("y", 875);
+        // p.setAttribute("width", 200 * this.scale);
+        p.setAttribute("font-size", 10 * this.objScale+"px");
+        p.setAttribute("class",'track-label');
+        let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
+        text.textContent = x.toString() + 'm';
+        p.appendChild(text);
+
+        g.appendChild(p);
+
+
+    }
+
 
     drawTracks(object)
     {
