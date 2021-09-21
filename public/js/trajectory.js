@@ -136,6 +136,19 @@ class Trajectory extends PopupDialog{
         }
     }
 
+    /*
+    the viewbox is 1000 by 1000
+    the drawing area is [100,900] by [100,900]
+
+    viewbox coordinate system
+    x goes right
+    y goes down
+
+    utm coordinate system
+    x goes east (right)
+    y goes north (up)
+    
+    */
     calculateCoordinateTransform(tracks)
     {
         tracks = tracks.filter(x=>x[1]);
@@ -156,23 +169,25 @@ class Trajectory extends PopupDialog{
         
         this.posScale = scale;
         this.posTrans = {
-            x:    max_x * this.posScale + 100,
-            y:  - min_y * this.posScale + 100
+            x:  - min_x * this.posScale + 100,
+            y:    max_y * this.posScale + 100
         };
     }
 
     transform(x,y,theta,label, highlight)
     {
         return [
-            -x * this.posScale + this.posTrans.x,
-             y * this.posScale + this.posTrans.y,
-            (theta + Math.PI),
+            x * this.posScale + this.posTrans.x,
+            - y * this.posScale + this.posTrans.y,
+             x,
+             y,
+            theta ,
             label,
             highlight
         ];
     }
 
-    drawOneTrace(x, y, theta, label, highlight)
+    drawOneTrace(x, y, orgX, orgY, theta, label, highlight)
     {
                 let svg = this.ui.querySelector("#svg-arrows");
         
@@ -234,7 +249,7 @@ class Trajectory extends PopupDialog{
                 p.setAttribute("class",'track-label');
 
                 let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
-                text.textContent = label;
+                text.textContent = label + ","+orgX+","+orgY;
                 p.appendChild(text);
 
                 g.appendChild(p);

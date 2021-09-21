@@ -281,7 +281,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 let thisRot = {
                     x: thisPose.pitch * Math.PI/180.0,
                     y: thisPose.roll * Math.PI/180.0,                
-                    z: -thisPose.azimuth * Math.PI/180.0
+                    z: - thisPose.azimuth * Math.PI/180.0
                 };
     
                 let posDelta = {
