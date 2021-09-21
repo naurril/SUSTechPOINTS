@@ -227,8 +227,8 @@ def lidar_pcd_restore(output_path):
                                        os.path.join(pose_folder, format_timestamp(timestamp)+".json"), \
                                        os.path.join(pose_folder, format_timestamp(nexttimestamp)+".json"), \
                                        timestamp)                                        
-                else:
-                    print("output file exists")
+                # else:
+                #     print("output file exists")
             else:
                 print("pose file does not exist", timestamp, nexttimestamp)
     
