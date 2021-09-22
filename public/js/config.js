@@ -26,6 +26,7 @@ class Config{
     batchModeSubviewSize = {width: 130, height: 450};
 
     autoRotateZOnly = true;
+    
     ///editorCfg
 
     //disableSceneSelector = true;

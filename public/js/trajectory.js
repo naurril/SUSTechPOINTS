@@ -260,7 +260,7 @@ class Trajectory extends PopupDialog{
                 p.setAttribute("class",'track-label');
 
                 let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
-                text.textContent = label + ","+orgX+","+orgY;
+                text.textContent = label;
                 p.appendChild(text);
 
                 g.appendChild(p);
@@ -316,7 +316,7 @@ class Trajectory extends PopupDialog{
 
         
         p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
-        p.setAttribute("x", 100);
+        p.setAttribute("x", 105);
         p.setAttribute("y", 875);
         // p.setAttribute("width", 200 * this.scale);
         p.setAttribute("font-size", 10 * this.objScale+"px");

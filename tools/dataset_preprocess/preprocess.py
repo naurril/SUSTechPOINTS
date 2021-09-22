@@ -251,6 +251,7 @@ if __name__ == "__main__":
             subfolders = [sys.argv[5]]
         else:
             subfolders = os.listdir(raw_data_root_path)
+            subfolders.sort()
         
         for f in subfolders:
             os.chdir(savecwd)

@@ -349,8 +349,8 @@ var ml = {
                             
                             if (pointsGlobalConfig.autoRotateZOnly)
                             {
-                                adjustedAnn[3] = 0;
-                                adjustedAnn[4] = 0;
+                                adjustedAnn[3] = tempAnn[3];
+                                adjustedAnn[4] = tempAnn[4];
                             }
                             
                             tempAnn = adjustedAnn;

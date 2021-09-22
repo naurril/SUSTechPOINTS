@@ -379,6 +379,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             else
             {
+                this.header.setObject(this.selected_box.obj_track_id);
                 this.editBatch(
                     this.data.world.frameInfo.scene,
                     this.data.world.frameInfo.frame,
@@ -682,6 +683,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             else
             {
+                this.header.setObject(this.selected_box.obj_track_id);
+
                 this.editBatch(
                     this.data.world.frameInfo.scene,
                     this.data.world.frameInfo.frame,
@@ -693,6 +696,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case "cm-auto-ann-background":
             {
                 this.autoAnnInBackground();
+               
+            }
+            break;
+        case "cm-interpolate-background":
+            {
+                this.interpolateInBackground();
                
             }
             break;
@@ -853,12 +862,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         event.currentTarget.blur();
     };
 
-    this.autoAnnInBackground = function()
+
+    this.checkAnnBeforeBatchEdit = function()
     {
         if (!this.selected_box.obj_track_id)
         {
             this.infoBox.show("Error", "Please assign object track ID.");
-            return;
+            return false;
         }
         
         
@@ -875,8 +885,43 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             this.infoBox.show("Error", 
                 `This scene contains ${meta.frames.length} frames, with ${worldList.length} loaded.<br>Please try after all frames or at least 60 frames are loaded.`);
+            return false;
+        }
+
+        return true;
+    }
+
+
+    this.interpolateInBackground = function()
+    {
+        
+        if (!this.checkAnnBeforeBatchEdit())
+        {
             return;
         }
+
+        let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
+        worldList = worldList.sort((a,b)=>a.frameInfo.frame_index - b.frameInfo.frame_index);
+        let boxList = worldList.map(w=>w.annotation.findBoxByTrackId(this.selected_box.obj_track_id));
+
+        let applyIndList = boxList.map(b=>true);
+        this.boxOp.interpolateAsync(worldList, boxList, applyIndList).then(ret=>{
+            this.header.updateModifiedStatus();
+            this.viewManager.render();
+        });
+    };
+
+
+    this.autoAnnInBackground = function()
+    {
+        if (!this.checkAnnBeforeBatchEdit())
+        {
+            return;
+        }
+
+        let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
+        worldList = worldList.sort((a,b)=>a.frameInfo.frame_index - b.frameInfo.frame_index);
+
 
 
         let boxList = worldList.map(w=>w.annotation.findBoxByTrackId(this.selected_box.obj_track_id));

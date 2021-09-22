@@ -69,6 +69,11 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     this.frameSelectorUi.onchange = (e)=>{this.onFrameChanged(e);};
     this.cameraSelectorUi.onchange = (e)=>{this.onCameraChanged(e);};
 
+    this.setObject = function(id)
+    {
+        this.objectSelectorUi.value = id;
+    }
+
     this.clear_box_info = function(){
         this.boxUi.innerHTML = '';
     };

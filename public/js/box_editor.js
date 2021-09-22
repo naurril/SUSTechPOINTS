@@ -100,7 +100,7 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.tryAttach = function(){
         // find target box, attach to me
-        if (this.target){
+        if (this.target && this.target.world){
 
             let box = this.target.world.annotation.findBoxByTrackId(this.target.objTrackId);
             if (box){
@@ -784,6 +784,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     this.onExit();
                 break;                
             case 'PageUp':
+                break;
             case 'PageDown':
                 break;
             default:
