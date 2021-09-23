@@ -49,7 +49,7 @@ rider的属性： 伞，载客1个，载客2个..
 |Car|轿车|门开着||
 |Van|面包车|||
 |PoliceCar|警车|||
-|Pedestrian|行人|伞,行李||
+|Pedestrian|行人|伞,行李,坐着,蹲着,弯腰||
 |RoadWorker|工人||![roadworker](./doc/road-worker.png)|
 |Child|小孩|||
 |Cone|雪糕筒|||
