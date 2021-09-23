@@ -373,12 +373,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
            break;
 
         case "label-batchedit":
-            if (!this.selected_box.obj_track_id)
             {
-                this.infoBox.show("Error", "Please assign object track ID.");                
-            }
-            else
-            {
+
+                if (!this.checkBoxTrackId())
+                    break;
+
+                if (!this.checkAnnBeforeBatchEdit())
+                    break;
+                    
                 this.header.setObject(this.selected_box.obj_track_id);
                 this.editBatch(
                     this.data.world.frameInfo.scene,
@@ -677,12 +679,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
 
         case "cm-edit-multiple-instances":
-            if (!this.selected_box.obj_track_id)
             {
-                this.infoBox.show("Error", "Please assign object track ID.");                
-            }
-            else
-            {
+                if (!this.checkBoxTrackId())
+                    break;
+
+                if (!this.checkAnnBeforeBatchEdit())
+                    break;
                 this.header.setObject(this.selected_box.obj_track_id);
 
                 this.editBatch(
@@ -702,7 +704,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case "cm-interpolate-background":
             {
                 this.interpolateInBackground();
-               
             }
             break;
         case "cm-show-trajectory":
@@ -863,13 +864,20 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
 
-    this.checkAnnBeforeBatchEdit = function()
+    this.checkBoxTrackId = function()
     {
         if (!this.selected_box.obj_track_id)
         {
             this.infoBox.show("Error", "Please assign object track ID.");
             return false;
         }
+
+        return true;
+    }
+
+    this.checkAnnBeforeBatchEdit = function()
+    {
+        
         
         
         
@@ -884,7 +892,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.data.forcePreloadScene(this.data.world.frameInfo.scene);
 
             this.infoBox.show("Error", 
-                `This scene contains ${meta.frames.length} frames, with ${worldList.length} loaded.<br>Please try after all frames or at least 60 frames are loaded.`);
+                `This scene contains ${meta.frames.length} frames, with only ${worldList.length} loaded.<br>Loading is undertaking now. Please try again later.`);
             return false;
         }
 
@@ -895,10 +903,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.interpolateInBackground = function()
     {
         
+        if (!this.checkBoxTrackId())
+        return;
+
         if (!this.checkAnnBeforeBatchEdit())
-        {
             return;
-        }
 
         let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
         worldList = worldList.sort((a,b)=>a.frameInfo.frame_index - b.frameInfo.frame_index);
@@ -914,10 +923,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.autoAnnInBackground = function()
     {
-        if (!this.checkAnnBeforeBatchEdit())
-        {
+        if (!this.checkBoxTrackId())
             return;
-        }
+
+        if (!this.checkAnnBeforeBatchEdit())
+            return;
 
         let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
         worldList = worldList.sort((a,b)=>a.frameInfo.frame_index - b.frameInfo.frame_index);
@@ -939,6 +949,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
     this.editBatch = function(sceneName, frame, objectTrackId, objectType){
+
         this.keydownDisabled = true;
         // hide something
         this.imageContext.hide();

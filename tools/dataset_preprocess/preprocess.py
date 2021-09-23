@@ -75,7 +75,7 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
     os.chdir(os.path.join(dataset_path, "lidar"))
 
     for slot in timeslots:
-        os.system("ln -s -f ../../intermediate/lidar/*."+slot+".pcd ./")
+        os.system("ln -s -f ../../intermediate/lidar/restored/*."+slot+".pcd ./")
     
     os.chdir(os.path.join(dataset_path, "ego_pose"))
 
@@ -92,7 +92,27 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
             os.system("ln -s -f  ../../../intermediate/aux_lidar/" + al + "/*."+slot+".pcd  ./")
 
 
+def generate_dataset_lidar_destorted(extrinsic_calib_path, dataset_path, timeslots):
 
+    
+    prepare_dirs(dataset_path)
+    prepare_dirs(os.path.join(dataset_path, 'lidar'))
+    prepare_dirs(os.path.join(dataset_path, 'label'))
+    prepare_dirs(os.path.join(dataset_path, 'ego_pose'))
+
+    os.chdir(dataset_path)
+    
+
+    os.chdir(os.path.join(dataset_path, "lidar"))
+
+    for slot in timeslots:
+        os.system("ln -s -f ../../intermediate/lidar/aligned/*."+slot+".pcd ./")
+    
+    os.chdir(os.path.join(dataset_path, "ego_pose"))
+
+    for slot in timeslots:
+        os.system("ln -s -f ../../intermediate/ego_pose/aligned/*."+slot+".json ./")
+    
     
 def generate_pose(raw_data_path, output_path):
     dst_folder = os.path.join(output_path, "intermediate", "ego_pose", "filtered")
@@ -290,9 +310,13 @@ if __name__ == "__main__":
                     generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
                     dataset_name = "dataset_10hz"
-                    timeslots = "000,100,200,300,400,500,600,700,800,900"
+                    timeslots = "?00" #"000,100,200,300,400,500,600,700,800,900"
                     generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
+                if func == "generate_dataset_lidar_destorted":
+                    dataset_name = "dataset_lidar_destorted_2hz"
+                    timeslots = "000,500"
+                    generate_dataset_lidar_destorted(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
     else:
         print("func intrinsic_calib_path, extrinsic_calib_path, raw_data_path")
