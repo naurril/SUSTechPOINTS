@@ -63,8 +63,8 @@ rider的属性： 伞，载客1个，载客2个..
 |MotorcyleRider|骑摩托的人|伞,1个乘客,2个乘客||
 |BicycleRider|骑自行车的|伞,1个乘客,2个乘客||
 |Bicycle|自行车|倒在地上|
-|Babycart|婴儿车||
-|LongVehicle|长尾拖车||
+|Babycart|婴儿车||![babycart](./doc/babycart.png)|
+|LongVehicle|长尾拖车||![longvehicle](./doc/LongVehicle.png)|
 |Motorcycle|||
 |Scooter|电动车||![scooter](./doc/scooter.jpg)|
 |BicycleGroup|路边的电动车/自行车堆||
