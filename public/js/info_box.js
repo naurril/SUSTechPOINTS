@@ -88,6 +88,8 @@ class InfoBox extends PopupDialog{
 
         this.makeVisible(pointerPosition);
 
+        this.ui.focus();
+
     }
 
 }
