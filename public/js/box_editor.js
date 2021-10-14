@@ -726,7 +726,21 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 this.globalHeader.updateModifiedStatus();;
             }
             break;
+        case 'cm-sync-size':
+            editor.data.worldList.forEach(w=>{
+                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.firingBoxEditor.target.objTrackId);
+                if (box && box !== this.firingBoxEditor.box){
+                    box.scale.x = this.firingBoxEditor.box.scale.x;
+                    box.scale.y = this.firingBoxEditor.box.scale.y;
+                    box.scale.z = this.firingBoxEditor.box.scale.z;
+                    //saveList.push(w);
+                    w.annotation.setModified();
+                }                
+            });
+
+            this.viewManager.render();
             
+            break;
         case 'cm-reload':
             
             {
