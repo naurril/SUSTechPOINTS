@@ -2,6 +2,8 @@
 
 import * as THREE from './lib/three.module.js';
 import {globalObjectCategory} from './obj_cfg.js';
+import {saveWorldList} from "./save.js"
+
 
 function Annotation(sceneMeta, world, frameInfo){
     this.world = world;
@@ -12,7 +14,16 @@ function Annotation(sceneMeta, world, frameInfo){
 
 
     this.modified = false;
-    this.setModified = function(){this.modified=true;};
+    this.setModified = function(){
+        this.modified=true;
+
+        if (pointsGlobalConfig.autoSave)
+        {
+            saveWorldList([this.world], ()=>{
+                editor.header.updateModifiedStatus();
+            });
+        }
+    };
     this.resetModified = function(){this.modified=false;};
 
 
