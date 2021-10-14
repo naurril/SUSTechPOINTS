@@ -10,7 +10,7 @@ class ObjectCategory
         Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
         Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
         Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
-        Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
+        Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.0]},
         ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
         Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2], attr:["laying down"]},
         BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.7], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
@@ -32,6 +32,7 @@ class ObjectCategory
         ConstructionCart: {color: '#ff0000',  size:[1.2, 0.8, 1.0]},
         RoadBarrel:     {color: '#ff0000',  size:[0.5, 0.5, 0.6]},
         TrafficBarrier: {color: '#ff0000',  size:[1.5, 0.3, 1.2]},
+        LongVehicle:    {color: '#ff0000',  size:[16, 3, 3]},
 
         
         BicycleGroup:   {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
