@@ -12,7 +12,7 @@ function Calib(data, editor){
     this.save_calibration = function(){
     
         
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
+        var scene_meta = data.meta[data.world.frameInfo.scene];
     
     
         var active_camera_name = data.world.cameras.active_name;
@@ -51,7 +51,7 @@ function Calib(data, editor){
     
     // show a manipulating box
     this.start_calibration = function(){
-        var scene_meta = this.data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
+        var scene_meta = this.data.meta[data.world.frameInfo.scene];
     
         var active_camera_name = this.data.world.cameras.active_name;
         var calib = scene_meta.calib.camera[active_camera_name]
@@ -149,7 +149,7 @@ function Calib(data, editor){
     
     /*
     function calibrate(ax, value){
-        var scene_meta = data.meta.find(function(x){return x.scene==data.world.frameInfo.scene;});
+        var scene_meta = data.meta[data.world.frameInfo.scene];
     
         var active_camera_name = data.world.cameras.active_name;
         var calib = scene_meta.calib.camera[active_camera_name]
