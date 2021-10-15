@@ -252,14 +252,15 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.updateInfo = function(){
         let info = ""
-        if (this.target.world)
+        if (this.target.world){
             info  += String(this.target.world.frameInfo.frame);
         
-        if (this.box && this.box.annotator)
-            info += ","+this.box.annotator;
-
-        if (this.box && this.box.changed)
-            info += " *";
+            if (this.box && this.box.annotator)
+                info += ","+this.box.annotator;
+            
+            // if (this.box && this.box.changed)
+            //     info += " *";
+        }
 
         this.boxInfoUi.innerHTML = info;
     };
@@ -1095,18 +1096,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             editorList.push(e);
         });
 
-        let doneSave = ()=>{
-            editorList.forEach(e=>{
-                if (e.box)
-                    e.box.changed = false;
-                e.updateInfo();
-            });
-
-            this.globalHeader.updateModifiedStatus();
-            
-        };
-
-        saveWorldList(worldList, doneSave);
+       
+        saveWorldList(worldList);
     }
 
 

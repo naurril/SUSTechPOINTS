@@ -60,8 +60,8 @@ class MovableView
                 let left = posUi.offsetLeft;
                 let top  = posUi.offsetTop;
 
-                posUi.style.left = (left + posDelta.x) + 'px';
-                posUi.style.top = (top + posDelta.y) + 'px';
+                posUi.style.left = Math.max(0, (left + posDelta.x)) + 'px';
+                posUi.style.top = Math.max(0, (top + posDelta.y)) + 'px';
 
                 if (funcOnMove)
                     funcOnMove();

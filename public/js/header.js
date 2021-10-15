@@ -148,10 +148,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     }
 
     this.ui.querySelector("#save-button").onclick = ()=>{
-        saveWorldList(this.data.worldList, ()=>{
-            this.updateModifiedStatus();
-            this.ui.querySelector("#changed-world-list-wrapper").style.display = 'none';
-        });
+        saveWorldList(this.data.worldList);
     }
 };
 

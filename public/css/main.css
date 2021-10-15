@@ -578,8 +578,8 @@ dynamic set obj-type css has higher priority than this one.
 	position: relative;	
     width: 130px;
     height: 450px;
-	resize: none;
-	overflow: hidden;  /* resize need this attr*/
+	/* resize: none;
+	overflow: hidden; */
 }
 
 #batch-box-editor .selected {

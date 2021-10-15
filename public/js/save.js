@@ -1,6 +1,7 @@
 
 
 
+import { Editor } from "./editor.js";
 import {logger} from "./log.js"
 
 
@@ -49,8 +50,36 @@ function reloadWorldList(worldList, done){
 }
 
 
-function saveWorldList(worldList, done){
+var saveDelayTimer = null;
+var pendingSaveList = [];
 
+function saveWorldList(worldList){
+
+    pendingSaveList = pendingSaveList.concat(worldList);
+
+    if (!saveDelayTimer)
+    {
+        saveDelayTimer = setTimeout(()=>{
+                
+            logger.log("save delay expired.");
+
+            doSaveWorldList(pendingSaveList, ()=>{editor.header.updateModifiedStatus()});
+
+            //reset
+
+            saveDelayTimer = null;
+            pendingSaveList = [];
+        }, 
+
+        500);
+    }
+
+    
+}
+
+
+function doSaveWorldList(worldList, done)
+{
     if (worldList.length>0){
         if (worldList[0].data.cfg.disableLabels){
             console.log("labels not loaded, save action is prohibitted.")
@@ -96,46 +125,45 @@ function saveWorldList(worldList, done){
     xhr.send(b);
 }
 
+// function saveWorld(world, done){
+//     if (world.data.cfg.disableLabels){
+//         logger.log("labels not loaded, save action is prohibitted.")
+//         return;
+//     }
 
-function saveWorld(world, done){
-    if (world.data.cfg.disableLabels){
-        logger.log("labels not loaded, save action is prohibitted.")
-        return;
-    }
+//     console.log(world.annotation.boxes.length, "boxes");
+//     let bbox_annotations = world.annotation.toBoxAnnotations();
 
-    console.log(world.annotation.boxes.length, "boxes");
-    let bbox_annotations = world.annotation.toBoxAnnotations();
+//     var xhr = new XMLHttpRequest();
+//     xhr.open("POST", "/saveworld" +"?scene="+world.frameInfo.scene+"&frame="+world.frameInfo.frame, true);
+//     xhr.setRequestHeader('Content-Type', 'application/json');
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/saveworld" +"?scene="+world.frameInfo.scene+"&frame="+world.frameInfo.frame, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    xhr.onreadystatechange = function () {
-        if (this.readyState != 4) return;
+//     xhr.onreadystatechange = function () {
+//         if (this.readyState != 4) return;
     
-        if (this.status == 200) {
-            logger.log(`saved: ${world}`);
-            world.annotation.resetModified();
+//         if (this.status == 200) {
+//             logger.log(`saved: ${world}`);
+//             world.annotation.resetModified();
 
-            //reload obj-ids of the scene
-            //todo: this shall be moved to done
-            //load_obj_ids_of_scene(world.frameInfo.scene);
+//             //reload obj-ids of the scene
+//             //todo: this shall be moved to done
+//             //load_obj_ids_of_scene(world.frameInfo.scene);
 
-            if(done){
-                done();
-            }
+//             if(done){
+//                 done();
+//             }
 
             
             
-        }
+//         }
     
-        // end of state change: it can be after some time (async)
-    };
+//         // end of state change: it can be after some time (async)
+//     };
 
-    var b = JSON.stringify(bbox_annotations);
-    //console.log(b);
-    xhr.send(b);
-}
+//     var b = JSON.stringify(bbox_annotations);
+//     //console.log(b);
+//     xhr.send(b);
+// }
 
 
-export {saveWorld, saveWorldList, reloadWorldList}
+export {saveWorldList, reloadWorldList}

@@ -12,7 +12,7 @@ import {Header} from "./header.js";
 import {BoxOp} from './box_op.js';
 import {AutoAdjust} from "./auto-adjust.js";
 import {PlayControl} from "./play.js";
-import {saveWorld, reloadWorldList, saveWorldList} from "./save.js";
+import {reloadWorldList, saveWorldList} from "./save.js";
 import {logger, create_logger} from "./log.js";
 import {autoAnnotate} from "./auto_annotate.js";
 import {Calib} from "./calib.js";
@@ -566,9 +566,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
             
         case 'cm-save':
-            saveWorldList(this.data.worldList, ()=>{
-                this.header.updateModifiedStatus();
-            });
+            saveWorldList(this.data.worldList);
             break;
        
         case "cm-reload":
@@ -892,7 +890,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.data.forcePreloadScene(this.data.world.frameInfo.scene);
 
             this.infoBox.show("Error", 
-                `This scene contains ${meta.frames.length} frames, with only ${worldList.length} loaded.<br>Loading is undertaking now. Please try again later.`);
+                `Loading scene in background. Please try again later.`);
             return false;
         }
 
@@ -1867,10 +1865,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             */
         case 's':
                 if (ev.ctrlKey){
-                    saveWorldList(this.data.worldList, ()=>{
-                        this.header.updateModifiedStatus();
-                    });
-                                    }
+                    saveWorldList(this.data.worldList);
+                }
                 break;
             /*
             case 's':
