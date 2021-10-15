@@ -93,7 +93,8 @@ class LogWindow extends PopupDialog{
         this.svg.style.fill= this.logid %2 ? "red" : "green";
 
         this.updateAutoScrollFlag();
-        //console.log(...arguments);
+        
+        console.log(...arguments);
         let old_content = this.contentUi.innerHTML;
 
         let thisstr = this.gettime() + " ";

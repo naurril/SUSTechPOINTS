@@ -560,10 +560,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             //     link.click();
             // }
             break;
-        
+        case 'cm-go-to-full-2hz':
+            this.load_world(this.data.world.frameInfo.scene+"_full_2hz", this.data.world.frameInfo.frame)
+            break;
+
         case 'cm-go-to-2hz':
             this.load_world(this.data.world.frameInfo.scene.split("_")[0], this.data.world.frameInfo.frame)
             break;
+        
+
             
         case 'cm-save':
             saveWorldList(this.data.worldList);
@@ -851,6 +856,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.frame_changed= function(event){
         var sceneName = this.editorUi.querySelector("#scene-selector").value;
 
+        if (sceneName.length == 0 && this.data.world)
+        {
+            sceneName = this.data.world.frameInfo.scene;
+        }
+
         if (sceneName.length == 0){
             return;
         }
@@ -887,7 +897,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         if (worldList.length < meta.frames.length && worldList.length <= 60)
         {
-            this.data.forcePreloadScene(this.data.world.frameInfo.scene);
+            this.data.forcePreloadScene(this.data.world.frameInfo.scene, this.data.world);
 
             this.infoBox.show("Error", 
                 `Loading scene in background. Please try again later.`);

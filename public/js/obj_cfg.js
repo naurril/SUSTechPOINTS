@@ -44,6 +44,8 @@ class ObjectCategory
 
         Animal:         {color: '#00aaff',  size:[1.6, 0.6, 1.2]},
 
+        TrashCan:         {color: '#00aaff',  size:[0.6, 0.4, 1.0]},
+
         ForkLift:       {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
         Trimotorcycle:  {color: '#00aaff',  size:[2.6, 1.0, 1.6]},
         Crane:          {color: '#00aaff',  size:[5.0, 1.2, 2.0]},

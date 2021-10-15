@@ -221,9 +221,17 @@ class Data
             delete this.refEgoPose[sceneName];
     }
 
-    forcePreloadScene(sceneName){
-        let meta = this.getMetaBySceneName(sceneName);
-        this._doPreload(sceneName, 0, meta.frames.length);
+    forcePreloadScene(sceneName, currentWorld){
+        //this.deleteOtherWorldsExcept(sceneName);
+        let meta = currentWorld.sceneMeta;
+
+        let currentWorldIndex = currentWorld.frameInfo.frame_index;
+        let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/3);
+        let endIndex = Math.min(meta.frames.length, 1 + currentWorldIndex + this.MaxWorldNumber/3);
+
+        this._doPreload(sceneName, startIndex, endIndex);       
+        
+        logger.log(`${endIndex - startIndex} frames created`);
     }
 
     preloadScene(sceneName, currentWorld){
@@ -235,17 +243,8 @@ class Data
         if (this.cfg.disablePreload)
             return;
         
-
-        //this.deleteOtherWorldsExcept(sceneName);
-        let meta = currentWorld.sceneMeta;
-
-        let currentWorldIndex = currentWorld.frameInfo.frame_index;
-        let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/3);
-        let endIndex = Math.min(meta.frames.length, 1 + currentWorldIndex + this.MaxWorldNumber/3);
-
-        this._doPreload(sceneName, startIndex, endIndex);       
+        this.forcePreloadScene(sceneName, currentWorld);
         
-        console.log(`${numLoaded} frames created`);
     };
 
     _doPreload(sceneName, startIndex, endIndex)
