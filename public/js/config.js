@@ -19,8 +19,8 @@ class Config{
     color_obj = "category";
     theme = "dark";
 
-    enableFilterPoints = true;
-    filterPointsZ = 1.0;
+    enableFilterPoints = false;
+    filterPointsZ = 2.0;
 
     batchModeInstNumber = 20;
     batchModeSubviewSize = {width: 130, height: 450};

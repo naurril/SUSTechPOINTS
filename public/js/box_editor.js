@@ -978,7 +978,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.editingTarget.objTrackId,
             tracks,
             (targetFrame)=>{  //onExit
-                this.getSelectedEditors(e=>e.setSelected(false));
+                this.getSelectedEditors().forEach(e=>e.setSelected(false));
                 this.activeEditorList().find(e=>e.target.world.frameInfo.frame == targetFrame).setSelected(true);
             }
         );

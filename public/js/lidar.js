@@ -90,8 +90,10 @@ function Lidar(sceneMeta, world, frameInfo){
                 // }
 
                 
-                // do some filtering work here
-                pcd = _self.remove_high_ponts(pcd, 2.0);
+                if (_self.data.cfg.enableFilterPoints)// do some filtering work here
+                {
+                    pcd = _self.remove_high_ponts(pcd, _self.data.cfg.filterPointsZ);
+                }
 
                 
                 let position = pcd.position;

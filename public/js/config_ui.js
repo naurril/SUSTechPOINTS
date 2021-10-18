@@ -158,6 +158,20 @@ class ConfigUi{
 
             pointsGlobalConfig.setItem("enableRadar", checked);
             return false;
+        },
+
+        "#cfg-data-filter-points-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+
+            pointsGlobalConfig.setItem("enableFilterPoints", checked);
+            return false;
+        },
+
+        "#cfg-data-filter-points-z": (event)=>{
+            let z = event.currentTarget.value;
+
+            pointsGlobalConfig.setItem("filterPointsZ", z);
+            return false;
         }
     };
 
@@ -203,6 +217,8 @@ class ConfigUi{
                 {
                     this.hide();
                 }
+
+                event.stopPropagation();
             }
         }
 
@@ -214,6 +230,8 @@ class ConfigUi{
                 {
                     this.hide();
                 }
+
+                event.stopPropagation();
             }
         }
 
@@ -248,6 +266,8 @@ class ConfigUi{
         this.menu.querySelector("#cfg-color-points-select").value = pointsGlobalConfig.color_points;
         this.menu.querySelector("#cfg-coordinate-system-select").value = pointsGlobalConfig.coordinateSystem;
         this.menu.querySelector("#cfg-batch-mode-inst-number").value = pointsGlobalConfig.batchModeInstNumber;
+        this.menu.querySelector("#cfg-data-filter-points-checkbox").value = pointsGlobalConfig.enableFilterPoints;
+        this.menu.querySelector("#cfg-data-filter-points-z").value = pointsGlobalConfig.filterPointsZ;
     }
 
 
