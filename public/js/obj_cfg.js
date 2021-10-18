@@ -23,8 +23,10 @@ class ObjectCategory
 
         RoadWorker:     {color: '#ff0000',  size:[0.4, 0.5, 1.7]},
         Child:          {color: '#ff0000',  size:[0.4, 0.5, 1.2]},
+
         //Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
 
+        BabyCart:       {color: '#ff0000',  size:[0.8, 0.5, 1.0]},
         Cone:           {color: '#ff0000',  size:[0.3, 0.3, 0.6]},
         FireHydrant:    {color: '#ff0000',  size:[0.4, 0.4, 0.6]},
         SaftyTriangle:  {color: '#ff0000',  size:[0.3, 0.4, 0.4]},
