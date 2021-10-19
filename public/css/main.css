@@ -540,7 +540,7 @@ dynamic set obj-type css has higher priority than this one.
 	top: 0%;    
 	left: 0%;
     width: 0%;
-	/*height: 0%;*/
+	height: 100%;
 }
 
 

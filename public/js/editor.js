@@ -361,7 +361,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             self.setObjectId(id);
             break;
         case "label-copy":
-            self.autoAdjust.mark_bbox(self.selected_box);
+            if (!this.selected_box.obj_track_id)
+            {
+                this.infoBox.show("Error", "Please assign object track ID.");
+            
+            }
+            else
+            {
+                self.autoAdjust.mark_bbox(self.selected_box);
+            }
             break;
 
         case "label-paste":
@@ -715,7 +723,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
 
         case "cm-select-as-ref":
-            this.autoAdjust.mark_bbox(this.selected_box);
+            if (!this.selected_box.obj_track_id)
+            {
+                this.infoBox.show("Error", "Please assign object track ID.");
+                return false;
+            }
+            else
+            {
+                this.autoAdjust.mark_bbox(this.selected_box);
+            }
             break;
         
 
