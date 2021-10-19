@@ -911,7 +911,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         let meta = this.data.get_current_world_scene_meta();
 
         
-        if (worldList.length < meta.frames.length && worldList.length <= 60)
+        let allLoaded = worldList.map(w=>w.preloaded()).reduce((a,b)=>a && b, true);
+
+        if ((worldList.length < meta.frames.length && worldList.length <= 60) || (!allLoaded))
         {
             this.data.forcePreloadScene(this.data.world.frameInfo.scene, this.data.world);
 
@@ -920,6 +922,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             return false;
         }
 
+        
         return true;
     }
 

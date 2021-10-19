@@ -768,7 +768,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     };
 
     this.reset = function(){
-        this.activeEditorList().forEach(e=>e.resetTarget());
+        this.activeEditorList().forEach(e=>{
+            e.setSelected(false);
+            e.resetTarget();
+        });
         this.viewManager.mainView.clearView();
         this.activeIndex = 0;
     };

@@ -846,6 +846,7 @@ td {
 	width: 150px;
 	height: 28px;
 	/* font-size: 18px; */
+	display: none;
 }
 /* 
 .track-label:hover {
@@ -861,6 +862,10 @@ td {
 	color: yellow;
 	stroke: yellow;
 	z-index: 10;
+}
+
+.one-track:hover .track-label{
+	display: inherit;
 }
 
 .track-wrapper {
