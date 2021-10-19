@@ -355,6 +355,14 @@ dynamic set obj-type css has higher priority than this one.
 	background-color: var(--widget-background-color);
 }
 
+#new-submenu {
+	width: 250px;
+}
+
+.cm-new-item {
+	float: left;
+}
+
 .menu-item-arrow {
 	display: inline;
     position: absolute;
