@@ -917,7 +917,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         {
             this.data.forcePreloadScene(this.data.world.frameInfo.scene, this.data.world);
 
-            this.infoBox.show("Error", 
+            this.infoBox.show("Notice", 
                 `Loading scene in background. Please try again later.`);
             return false;
         }
