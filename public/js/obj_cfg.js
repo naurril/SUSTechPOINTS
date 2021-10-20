@@ -10,10 +10,15 @@ class ObjectCategory
         Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
         Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
         Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
-        Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.0]},
+        
         ScooterRider:   {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
-        Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2], attr:["laying down"]},
+        Scooter:        {color: '#aaaa00',  size:[1.6, 0.6, 1.0]},
+
+        
         BicycleRider:   {color: '#88ff00',  size:[1.6, 0.6, 1.7], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
+        Bicycle:        {color: '#ff8800',  size:[1.6, 0.6, 1.2], attr:["laying down"]},
+
+
         Motorcycle:     {color: '#aaaa00',  size:[1.6, 0.6, 1.2]},
         MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
 
@@ -84,12 +89,14 @@ class ObjectCategory
             var o = this.obj_type_map[i];
             var scorex = o.size[0]/scale.x;
             var scorey = o.size[1]/scale.y;
+            var scorez = o.size[2]/scale.z;
 
             if (scorex>1) scorex = 1/scorex;
             if (scorey>1) scorey = 1/scorey;
+            if (scorez>1) scorez = 1/scorez;
 
-            if (scorex + scorey > max_score){
-                max_score = scorex + scorey;
+            if (scorex + scorey + scorez > max_score){
+                max_score = scorex + scorey + scorez;
                 max_name = i;
             }
         });

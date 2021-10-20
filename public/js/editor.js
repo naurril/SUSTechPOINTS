@@ -28,7 +28,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     // create logger before anything else.
     create_logger(editorUi.querySelector("#log-wrapper"), editorUi.querySelector("#log-button"));
-
+    this.logger = logger;
 
     this.editorCfg = editorCfg;
     this.sideview_enabled = true;
@@ -63,7 +63,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.imageContext = null;
     this.boxOp = null;
     this.boxEditorManager  = null; 
-
     this.params={};
 
     this.init = function(editorUi) {
@@ -1572,6 +1571,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.onWindowResize= function() {
 
         this.adjustContainerSize();
+        this.boxEditorManager.onWindowResize();
 
         // use clientwidth and clientheight to resize container
         // but use scrollwidth/height to place other things.
@@ -2006,6 +2006,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;
         }
     };
+
+
 
     this.previous_frame= function(){
 

@@ -848,11 +848,12 @@ td {
 	/* font-size: 18px; */
 	display: none;
 }
-/* 
-.track-label:hover {
-	color: yellow;
+
+.scaler-label{
+	width: 150px;
+	height: 28px;
 }
- */
+
 
 .object-track-current-frame {
 	stroke: purple;
@@ -876,6 +877,10 @@ td {
 
 
 /* info */
+#info-wrapper {
+	background-color: #88888888;
+}
+
 #info-wrapper #view {
 	height: fit-content;
 	width: fit-content;

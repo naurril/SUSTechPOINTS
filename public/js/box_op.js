@@ -409,9 +409,9 @@ function BoxOp(){
 
         
 
-        box.world.lidar.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-        box.world.lidar.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-        box.world.lidar.update_points_color();
+        // box.world.lidar.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+        // box.world.lidar.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+        // box.world.lidar.update_points_color();
         
         var x = end_points.map(function(x){return x[0]});
         //var y = side_points.map(function(x){return x[1]});
@@ -486,9 +486,9 @@ function BoxOp(){
 
         
 
-        box.world.lidar.set_spec_points_color(side_indices, {x:1,y:0,z:0});
-        box.world.lidar.set_spec_points_color(end_indices, {x:0,y:0,z:1});
-        box.world.lidar.update_points_color();
+        // box.world.lidar.set_spec_points_color(side_indices, {x:1,y:0,z:0});
+        // box.world.lidar.set_spec_points_color(end_indices, {x:0,y:0,z:1});
+        // box.world.lidar.update_points_color();
         //render();
 
         var x = side_points.map(function(x){return x[0]});

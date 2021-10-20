@@ -5,6 +5,7 @@ import {saveWorldList, reloadWorldList} from "./save.js"
 import {objIdManager} from "./obj_id_list.js"
 
 
+
 /*
 2 ways to attach and edit a box
 1) attach/detach
@@ -454,6 +455,11 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         }
     };
 
+    this.onWindowResize = function()
+    {
+        this.setBatchSize(this.batchSize);
+    };
+
     this.edit = function(data, sceneMeta, frame, objTrackId, objType, onExit){
         
         this.show();
@@ -805,7 +811,15 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 break;
             case 'PageDown':
                 break;
+            case '3':
+                this.prevBatch();
+                break;
+
+            case '4':
+                this.nextBatch();
+                break;
             default:
+                console.log(`key ${event.key} igonored`);
                 break;
         }
     };
@@ -1021,24 +1035,53 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     };
 
     this.toolbox.querySelector("#next").onclick = ()=>{
-        let maxFrameIndex = this.editingTarget.sceneMeta.frames.length-1;
-        this.edit(
-            this.editingTarget.data,
-            this.editingTarget.sceneMeta,
-            this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex + this.batchSize/2, maxFrameIndex)],
-            this.editingTarget.objTrackId,
-            this.editingTarget.objType
-        );
+        this.nextBatch();
     };
 
     this.toolbox.querySelector("#prev").onclick = ()=>{
-        this.edit(
-            this.editingTarget.data,
-            this.editingTarget.sceneMeta,
-            this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex - this.batchSize/2, 0)],
-            this.editingTarget.objTrackId,
-            this.editingTarget.objType
-        );
+        this.prevBatch();
+    };
+
+    this.nextBatch = function()
+    {
+        let maxFrameIndex = this.editingTarget.sceneMeta.frames.length-1;
+
+        let editors = this.activeEditorList()
+        let lastEditor = editors[editors.length-1];
+        if (lastEditor.target.world.frameInfo.frame_index == maxFrameIndex)
+        {
+            window.editor.infoBox.show("Info", "This is the last batch of frames");
+        }
+        else
+        {
+            this.edit(
+                this.editingTarget.data,
+                this.editingTarget.sceneMeta,
+                this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex + this.batchSize/2, maxFrameIndex)],
+                this.editingTarget.objTrackId,
+                this.editingTarget.objType
+            );
+        }
+    };
+
+    this.prevBatch = function()
+    {
+        let firstEditor = this.activeEditorList()[0];
+        if (firstEditor.target.world.frameInfo.frame_index == 0)
+        {
+            window.editor.infoBox.show("Info", "This is the first batch  of frames");
+        }
+        else
+        {
+            this.edit(
+                this.editingTarget.data,
+                this.editingTarget.sceneMeta,
+                this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex - this.batchSize/2, 0)],
+                this.editingTarget.objTrackId,
+                this.editingTarget.objType
+            );
+        }
+
     };
 
     // this.toolbox.querySelector("#save").onclick = ()=>{

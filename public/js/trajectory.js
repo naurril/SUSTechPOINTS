@@ -320,7 +320,7 @@ class Trajectory extends PopupDialog{
         p.setAttribute("y", 875);
         // p.setAttribute("width", 200 * this.scale);
         p.setAttribute("font-size", 10 * this.objScale+"px");
-        p.setAttribute("class",'track-label');
+        p.setAttribute("class",'scaler-label');
         let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
         text.textContent = x.toString() + 'm';
         p.appendChild(text);

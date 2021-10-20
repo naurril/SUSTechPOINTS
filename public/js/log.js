@@ -88,6 +88,7 @@ class LogWindow extends PopupDialog{
 
 
     logid = 0;
+    maxLogLength = 10000; // stringLength;
     log() {
 
         this.svg.style.fill= this.logid %2 ? "red" : "green";
@@ -103,6 +104,13 @@ class LogWindow extends PopupDialog{
 
         this.logid++;
         
+        if (old_content.length > this.maxLogLength)
+        {
+            old_content = old_content.slice(old_content.length-this.maxLogLength);
+            let firstLogPos = old_content.search("<div id=");
+            old_content = old_content.slice(firstLogPos);
+        }
+
         this.contentUi.innerHTML =  old_content + "<div id='log-" + this.logid + "'>" + thisstr + "</div>";
         this.autoScrollOutput();
     }

@@ -19,9 +19,7 @@ function Annotation(sceneMeta, world, frameInfo){
 
         if (pointsGlobalConfig.autoSave)
         {
-            saveWorldList([this.world], ()=>{
-                editor.header.updateModifiedStatus();
-            });
+            saveWorldList([this.world]);
         }
     };
     this.resetModified = function(){this.modified=false;};
