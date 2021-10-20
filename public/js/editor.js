@@ -22,7 +22,7 @@ import { InfoBox } from './info_box.js';
 import {CropScene} from './crop_scene.js';
 import { ConfigUi } from './config_ui.js';
 import { MovableView } from './popup_dialog.js';
-
+import {globalKeyDownManager} from './keydown_manager.js';
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -148,9 +148,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             //this.editorUi.addEventListener( 'keydown', e=>this.keydown(e); );
 
             this.keydownHandler = (event)=>this.keydown(event);
-            this.keydownDisabled = false;
+            //this.keydownDisabled = false;
             //document.removeEventListener('keydown', this.keydownHandler);
-            document.addEventListener( 'keydown', this.keydownHandler);
+            //document.addEventListener( 'keydown', this.keydownHandler);
+            globalKeyDownManager.register(this.keydownHandler);
         }
 
         this.objectTrackView = new Trajectory(
@@ -976,7 +977,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.editBatch = function(sceneName, frame, objectTrackId, objectType){
 
-        this.keydownDisabled = true;
+        //this.keydownDisabled = true;
         // hide something
         this.imageContext.hide();
         this.floatLabelManager.hide();
@@ -997,7 +998,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             objectType,
             (targetFrame, targetTrackId)=>{  //on exit
                 
-                this.keydownDisabled = false;
+                //this.keydownDisabled = false;
                 this.viewManager.mainView.enable();
 
                 this.imageContext.show();
@@ -1787,8 +1788,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.keydown= function( ev ) {
 
-        if (this.keydownDisabled)
-            return;
+        // if (this.keydownDisabled)
+        //     return;
 
         this.operation_state.key_pressed = true;
 

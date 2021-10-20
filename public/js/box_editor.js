@@ -3,6 +3,7 @@ import {ProjectiveViewOps}  from "./side_view_op.js"
 import {BoxImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
 import {objIdManager} from "./obj_id_list.js"
+import { globalKeyDownManager } from "./keydown_manager.js";
 
 
 
@@ -822,6 +823,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 console.log(`key ${event.key} igonored`);
                 break;
         }
+
+        return false;
     };
 
 
@@ -831,12 +834,14 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     this.hide =function(){
         this.parentUi.style.display = "none";
         this.toolbox.style.display = "none";
-        document.removeEventListener("keydown", keydownHandler);
+        //document.removeEventListener("keydown", keydownHandler);
+        globalKeyDownManager.deregister(this.keydownHandlerId);
 
     };
     this.show = function(){
         this.parentUi.style.display = "";
-        document.addEventListener("keydown", keydownHandler);
+        //document.addEventListener("keydown", keydownHandler);
+        this.keydownHandlerId = globalKeyDownManager.register(keydownHandler);
         this.toolbox.style.display = "";
     };
 
