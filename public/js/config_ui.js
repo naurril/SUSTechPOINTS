@@ -1,3 +1,4 @@
+import { globalKeyDownManager } from "./keydown_manager.js";
 import {logger} from "./log.js";
 
 class ConfigUi{
@@ -202,7 +203,7 @@ class ConfigUi{
         this.menu = this.wrapper.querySelector("#config-menu");
         
         this.wrapper.onclick = ()=>{
-            this.wrapper.style.display = "none";
+            this.hide();
         }
 
         this.button.onclick = (event)=>{            
@@ -276,9 +277,12 @@ class ConfigUi{
 
         this.menu.style.right = "0px";
         this.menu.style.top = target.offsetHeight + "px";
+
+        this.keyHandleId = globalKeyDownManager.register((event)=>false);
     }
 
     hide(){
+        globalKeyDownManager.deregister(this.keyHandleId);
         this.wrapper.style.display="none";
     }
 

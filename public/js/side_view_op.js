@@ -852,6 +852,11 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                             on_moved({x:0, y:-0.01});
                         break;
                     case 'a':
+                        if (event.ctrlKey)
+                        {
+                            break;
+                        }
+                        // no break;
                     case 'ArrowLeft':
                         event.preventDefault();
                         event.stopPropagation();

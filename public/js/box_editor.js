@@ -567,6 +567,74 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     };
 
 
+    this.handleContextMenuKeydownEvent = function(event)
+    {
+        switch(event.key){
+        case 'a':
+            this.activeEditorList().forEach(e=>e.setSelected(true));
+            break;
+        case 'f':
+            this.finalizeSelectedBoxes();
+            break;
+        case 'd':
+            this.deleteSelectedBoxes();
+            break;
+        default:
+            return true;
+        }
+
+        return false;
+    }
+
+    this.finalizeSelectedBoxes = function()
+    {
+        this.getSelectedEditors().forEach(e=>{
+                
+            if (e.box){
+                if (e.box.annotator)
+                {
+                    delete e.box.annotator;
+                    func_on_box_changed(e.box);
+                    //e.box.world.annotation.setModified();
+                    e.updateInfo();
+                }
+            }
+        });
+
+        this.globalHeader.updateModifiedStatus();;
+    }
+
+    this.deleteSelectedBoxes = function()
+    {
+        let selectedEditors = this.getSelectedEditors();
+
+                if (selectedEditors.length >= 2)
+                {
+                    window.editor.infoBox.show(
+                        "Confirm",
+                        `Delete <span class="red">${selectedEditors.length}</span> selected boxes?`,
+                        ["yes", "no"],
+                        (btn)=>{
+                            if (btn == "yes")
+                            {
+
+                                selectedEditors.forEach(e=>{
+                                    if (e.box)  
+                                        func_on_box_remove(e.box, true)
+                                });   
+                            }
+                        },
+                        {x: event.clientX, y: event.clientY}
+                    );
+                }
+                else{
+                    selectedEditors.forEach(e=>{
+                        if (e.box)  
+                            func_on_box_remove(e.box, true)
+                    });
+                }     
+    }
+
     this.handleContextMenuEvent = function(event)
     {
         console.log(event.currentTarget.id, event.type);
@@ -611,33 +679,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         case 'cm-delete':
             {
 
-                let selectedEditors = this.getSelectedEditors();
-
-                if (selectedEditors.length >= 2)
-                {
-                    window.editor.infoBox.show(
-                        "Confirm",
-                        `Delete <span class="red">${selectedEditors.length}</span> selected boxes?`,
-                        ["yes", "no"],
-                        (btn)=>{
-                            if (btn == "yes")
-                            {
-
-                                selectedEditors.forEach(e=>{
-                                    if (e.box)  
-                                        func_on_box_remove(e.box, true)
-                                });   
-                            }
-                        },
-                        {x: event.clientX, y: event.clientY}
-                    );
-                }
-                else{
-                    selectedEditors.forEach(e=>{
-                        if (e.box)  
-                            func_on_box_remove(e.box, true)
-                    });
-                }         
+                this.deleteSelectedBoxes();    
             }   
             break;
         case 'cm-interpolate':
@@ -718,20 +760,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             break;
         case 'cm-finalize':
             {
-                this.getSelectedEditors().forEach(e=>{
-                
-                    if (e.box){
-                        if (e.box.annotator)
-                        {
-                            delete e.box.annotator;
-                            func_on_box_changed(e.box);
-                            //e.box.world.annotation.setModified();
-                            e.updateInfo();
-                        }
-                    }
-                });
-
-                this.globalHeader.updateModifiedStatus();;
+                this.finalizeSelectedBoxes();
             }
             break;
         case 'cm-sync-size':
@@ -787,6 +816,12 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     this.keydownHandler = (event)=>{
 
         switch(event.key){
+            case 'a':
+                if (event.ctrlKey){
+                    this.activeEditorList().forEach(e=>e.setSelected(true));            
+                }
+                break;
+
             case 's':
                 if (event.ctrlKey){
                     this._save();
@@ -809,13 +844,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     this.onExit();
                 break;                
             case 'PageUp':
-                break;
-            case 'PageDown':
-                break;
             case '3':
                 this.prevBatch();
                 break;
-
+            case 'PageDown':
             case '4':
                 this.nextBatch();
                 break;
@@ -832,17 +864,23 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
 
 
     this.hide =function(){
-        this.parentUi.style.display = "none";
-        this.toolbox.style.display = "none";
-        //document.removeEventListener("keydown", keydownHandler);
-        globalKeyDownManager.deregister(this.keydownHandlerId);
+        if (this.parentUi.style.display != "none")
+        {
+            this.parentUi.style.display = "none";
+            this.toolbox.style.display = "none";
+            //document.removeEventListener("keydown", keydownHandler);
+            globalKeyDownManager.deregister(this.keydownHandlerId);
+        }
 
     };
     this.show = function(){
-        this.parentUi.style.display = "";
-        //document.addEventListener("keydown", keydownHandler);
-        this.keydownHandlerId = globalKeyDownManager.register(keydownHandler);
-        this.toolbox.style.display = "";
+        if (this.parentUi.style.display == "none")
+        {
+            this.parentUi.style.display = "";
+            //document.addEventListener("keydown", keydownHandler);
+            this.keydownHandlerId = globalKeyDownManager.register(keydownHandler);
+            this.toolbox.style.display = "";
+        }
     };
 
     this.render =function()

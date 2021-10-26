@@ -1,3 +1,4 @@
+import { globalKeyDownManager } from "./keydown_manager.js";
 
 
 class ContextMenu {
@@ -116,6 +117,8 @@ class ContextMenu {
     hide()
     {
         this.wrapperUi.style.display = "none";
+        globalKeyDownManager.deregister(this.keydownHandleId);
+
     }
 
     show(name, posX, posY, handler, funcSetPos)
@@ -158,6 +161,15 @@ class ContextMenu {
         }
 
 
+        this.keydownHandleId = globalKeyDownManager.register((event)=>{
+            let ret = this.handler.handleContextMenuKeydownEvent(event);
+            if (!ret)
+            {
+                this.hide();
+            }
+
+            return false;  // false means don't propogate
+        })
         
     }
 

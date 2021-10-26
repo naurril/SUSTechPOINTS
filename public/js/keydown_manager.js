@@ -9,7 +9,7 @@ class KeyDownManager
     register(handler)
     {
         this.handlerList.push(handler);
-        return this.handlerList.length;
+        return this.handlerList.length-1;
     }
 
     deregister(id)
