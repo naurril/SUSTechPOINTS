@@ -103,6 +103,21 @@ class ConfigUi{
             return false;
         },
 
+
+        "#cfg-hide-id-checkbox":(event)=>{
+            let checked = event.currentTarget.checked;          
+            this.editor.floatLabelManager.show_id(!checked);            
+            return false;
+        },
+
+
+        "#cfg-hide-category-checkbox":(event)=>{
+            let checked = event.currentTarget.checked;
+            this.editor.floatLabelManager.show_category(!checked);
+            return false;
+        },
+
+
         "#cfg-color-points-select": (event)=>{
             let value = event.currentTarget.value;
             pointsGlobalConfig.setItem("color_points", value);
@@ -269,6 +284,8 @@ class ConfigUi{
         this.menu.querySelector("#cfg-batch-mode-inst-number").value = pointsGlobalConfig.batchModeInstNumber;
         this.menu.querySelector("#cfg-data-filter-points-checkbox").value = pointsGlobalConfig.enableFilterPoints;
         this.menu.querySelector("#cfg-data-filter-points-z").value = pointsGlobalConfig.filterPointsZ;
+        this.menu.querySelector("#cfg-hide-id-checkbox").value = pointsGlobalConfig.hideId;
+        this.menu.querySelector("#cfg-hide-category-checkbox").value = pointsGlobalConfig.hideCategory;
     }
 
 

@@ -466,7 +466,7 @@ dynamic set obj-type css has higher priority than this one.
 	user-select: none; /* Standard */
 }
 
-.label-obj-id-text, .label-obj-type-text {
+.label-obj-id-text, .label-obj-type-text, .label-obj-attr-text {
 	padding-left: 5px;
 }
 

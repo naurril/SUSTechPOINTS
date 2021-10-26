@@ -27,6 +27,9 @@ class Config{
 
     autoRotateZOnly = true;
     autoSave = true;
+
+    hideId = false;
+    hideCategory = false;
     
     ///editorCfg
 
