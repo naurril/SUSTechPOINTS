@@ -151,7 +151,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             //this.keydownDisabled = false;
             //document.removeEventListener('keydown', this.keydownHandler);
             //document.addEventListener( 'keydown', this.keydownHandler);
-            globalKeyDownManager.register(this.keydownHandler);
+            globalKeyDownManager.register(this.keydownHandler, "main editor");
         }
 
         this.globalKeyDownManager = globalKeyDownManager;
@@ -2025,6 +2025,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         if (frame_index < 0){
             console.log("first frame");
+            this.infoBox.show("Notice", "This is the first frame");
             return;
         }
 
@@ -2060,6 +2061,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         if (frame_index >= num_frames){
             console.log("last frame");
+            this.infoBox.show("Notice", "This is the last frame");
             return;
         }
 

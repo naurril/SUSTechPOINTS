@@ -1,3 +1,4 @@
+import { globalKeyDownManager } from "./keydown_manager.js";
 import { PopupDialog } from "./popup_dialog.js";
 
 
@@ -29,6 +30,8 @@ class InfoBox extends PopupDialog{
             }
         }
     }
+
+    
 
     showButtons(btns){
         for (let btn in this.buttons)
@@ -89,7 +92,6 @@ class InfoBox extends PopupDialog{
         this.makeVisible(pointerPosition);
 
         this.ui.focus();
-
     }
 
 }

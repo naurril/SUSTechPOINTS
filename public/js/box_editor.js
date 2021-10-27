@@ -570,8 +570,11 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     this.handleContextMenuKeydownEvent = function(event, menuPos)
     {
         switch(event.key){
-        case 'a':
+        case 's':
             this.activeEditorList().forEach(e=>e.setSelected(true));
+            break;
+        case 'a':
+            this.autoAnnotateSelectedFrames();
             break;
         case 'f':
             this.finalizeSelectedBoxes();
@@ -656,6 +659,14 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         }     
     }
 
+    this.autoAnnotateSelectedFrames = function()
+    {
+        let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+        this.getSelectedEditors().forEach(e=>applyIndList[e.index] = true);
+        this.autoAnnotate(applyIndList);
+    }
+
+
     this.handleContextMenuEvent = function(event)
     {
         console.log(event.currentTarget.id, event.type);
@@ -708,11 +719,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             break;
         
         case 'cm-auto-annotate':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-                this.getSelectedEditors().forEach(e=>applyIndList[e.index] = true);
-                this.autoAnnotate(applyIndList);
-            }
+            this.autoAnnotateSelectedFrames();
             break;
         
         case 'cm-auto-annotate-wo-rotation':
