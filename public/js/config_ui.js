@@ -188,7 +188,15 @@ class ConfigUi{
 
             pointsGlobalConfig.setItem("filterPointsZ", z);
             return false;
+        },
+
+
+        "#cfg-data-preload-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+            pointsGlobalConfig.setItem("enablePreload", checked);
+            return false;
         }
+
     };
 
     ignoreItems = [
@@ -286,6 +294,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-data-filter-points-z").value = pointsGlobalConfig.filterPointsZ;
         this.menu.querySelector("#cfg-hide-id-checkbox").value = pointsGlobalConfig.hideId;
         this.menu.querySelector("#cfg-hide-category-checkbox").value = pointsGlobalConfig.hideCategory;
+        this.menu.querySelector("#cfg-data-preload-checkbox").checked = pointsGlobalConfig.enablePreload;
     }
 
 

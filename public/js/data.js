@@ -240,7 +240,7 @@ class Data
         this.deleteOtherWorldsExcept(sceneName);
         this.deleteDistantWorlds(currentWorld);
 
-        if (this.cfg.disablePreload)
+        if (!this.cfg.enablePreload)
             return;
         
         this.forcePreloadScene(sceneName, currentWorld);

@@ -29,6 +29,12 @@ class InfoBox extends PopupDialog{
                 this.hide(btn);
             }
         }
+
+        this.ui.addEventListener("keydown", (event)=>{  //anykey
+            this.hide();
+            event.preventDefault();
+            event.stopPropagation();              
+        });
     }
 
     

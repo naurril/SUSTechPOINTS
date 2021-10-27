@@ -4,7 +4,7 @@ class Config{
     //dataCfg = {
     
     //disableLabels: true,
-    disablePreload = true;
+    enablePreload = false;
     color_points = "mono";
     enableRadar = false;
     enableAuxLidar = false;
@@ -83,6 +83,7 @@ class Config{
     saveItems = [
         ["theme", null],
         ["enableRadar", this.toBool],
+        ["enablePreload", this.toBool],
         ["enableAuxLidar", this.toBool],
         ["enableFilterPoints", this.toBool],
         ["filterPointsZ", parseFloat],
@@ -90,6 +91,7 @@ class Config{
         ["coordinateSystem", null],
         ["batchModeInstNumber", parseInt],
         ["batchModeSubviewSize", JSON.parse],
+
     ];
 
     load()

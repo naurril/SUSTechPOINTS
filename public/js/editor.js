@@ -291,7 +291,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             body.push(x1,y1,h,x2,y2,h);
             body.push(0.6*x1,0.6*y1,h,0.6*x2,0.6*y2,h);
-            //body.push(0.4*x1,0.4*y1,h,0.4*x2,0.4*y2,h);
+            body.push(2.0*x1,2.0*y1,h,2.0*x2,2.0*y2,h);
         }
 
         this.data.dbg.alloc();
