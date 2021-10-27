@@ -154,6 +154,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             globalKeyDownManager.register(this.keydownHandler);
         }
 
+        this.globalKeyDownManager = globalKeyDownManager;
+
         this.objectTrackView = new Trajectory(
             this.editorUi.querySelector("#object-track-wrapper")
         );

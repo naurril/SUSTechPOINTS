@@ -6,21 +6,16 @@ class KeyDownManager
     handlerList = [];
 
     // return id;
-    register(handler)
+    register(handler, name)
     {
-        this.handlerList.push(handler);
-        return this.handlerList.length-1;
+        this.handlerList.push([name, handler]);
+        console.log("register keydown", name);
     }
 
-    deregister(id)
+    deregister(name)
     {
-        if (id >= this.handlerList.length)
-        {
-            console.log("invalid id!");
-            return;
-        }
-
-        this.handlerList = this.handlerList.filter((v,i)=>i!== id);
+        console.log("deregister keydown", name);
+        this.handlerList = this.handlerList.filter(v=>v[0]!== name);
     }
 
     constructor()
@@ -29,7 +24,7 @@ class KeyDownManager
 
             for (let i = this.handlerList.length-1; i >= 0; i--)
             {
-                let ret = this.handlerList[i](event);
+                let ret = this.handlerList[i][1](event);
 
                 if (!ret)
                 {

@@ -295,11 +295,11 @@ class ConfigUi{
         this.menu.style.right = "0px";
         this.menu.style.top = target.offsetHeight + "px";
 
-        this.keyHandleId = globalKeyDownManager.register((event)=>false);
+        globalKeyDownManager.register((event)=>false, 'config');
     }
 
     hide(){
-        globalKeyDownManager.deregister(this.keyHandleId);
+        globalKeyDownManager.deregister('config');
         this.wrapper.style.display="none";
     }
 

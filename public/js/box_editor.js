@@ -567,7 +567,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     };
 
 
-    this.handleContextMenuKeydownEvent = function(event)
+    this.handleContextMenuKeydownEvent = function(event, menuPos)
     {
         switch(event.key){
         case 'a':
@@ -577,7 +577,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.finalizeSelectedBoxes();
             break;
         case 'd':
-            this.deleteSelectedBoxes();
+            this.deleteSelectedBoxes(menuPos);
+            break;
+        case 'e':
+            this.interpolateSelectedFrames();
             break;
         default:
             return true;
@@ -604,35 +607,53 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         this.globalHeader.updateModifiedStatus();;
     }
 
-    this.deleteSelectedBoxes = function()
+    this.interpolateSelectedFrames = function(){
+        let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
+                let selectedEditors = this.getSelectedEditors();
+
+                // if interpolate only one box, remove it if exist.
+                // no matter who is the annotator.
+                if (selectedEditors.length == 1)
+                {
+                    if (selectedEditors[0].box)
+                    {
+                        func_on_box_remove(selectedEditors[0].box, true);
+                    }
+                }
+
+                selectedEditors.forEach(e=>applyIndList[e.index] = true);
+                this.interpolate(applyIndList);
+    }
+
+    this.deleteSelectedBoxes = function(infoBoxPos)
     {
         let selectedEditors = this.getSelectedEditors();
 
-                if (selectedEditors.length >= 2)
-                {
-                    window.editor.infoBox.show(
-                        "Confirm",
-                        `Delete <span class="red">${selectedEditors.length}</span> selected boxes?`,
-                        ["yes", "no"],
-                        (btn)=>{
-                            if (btn == "yes")
-                            {
+        if (selectedEditors.length >= 2)
+        {
+            window.editor.infoBox.show(
+                "Confirm",
+                `Delete <span class="red">${selectedEditors.length}</span> selected boxes?`,
+                ["yes", "no"],
+                (btn)=>{
+                    if (btn == "yes")
+                    {
 
-                                selectedEditors.forEach(e=>{
-                                    if (e.box)  
-                                        func_on_box_remove(e.box, true)
-                                });   
-                            }
-                        },
-                        {x: event.clientX, y: event.clientY}
-                    );
-                }
-                else{
-                    selectedEditors.forEach(e=>{
-                        if (e.box)  
-                            func_on_box_remove(e.box, true)
-                    });
-                }     
+                        selectedEditors.forEach(e=>{
+                            if (e.box)  
+                                func_on_box_remove(e.box, true)
+                        });   
+                    }
+                },
+                infoBoxPos
+            );
+        }
+        else{
+            selectedEditors.forEach(e=>{
+                if (e.box)  
+                    func_on_box_remove(e.box, true)
+            });
+        }     
     }
 
     this.handleContextMenuEvent = function(event)
@@ -679,27 +700,11 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         case 'cm-delete':
             {
 
-                this.deleteSelectedBoxes();    
+                this.deleteSelectedBoxes( {x: event.clientX, y: event.clientY});    
             }   
             break;
         case 'cm-interpolate':
-            {
-                let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-                let selectedEditors = this.getSelectedEditors();
-
-                // if interpolate only one box, remove it if exist.
-                // no matter who is the annotator.
-                if (selectedEditors.length == 1)
-                {
-                    if (selectedEditors[0].box)
-                    {
-                        func_on_box_remove(selectedEditors[0].box, true);
-                    }
-                }
-
-                selectedEditors.forEach(e=>applyIndList[e.index] = true);
-                this.interpolate(applyIndList);
-            }
+            this.interpolateSelectedFrames();
             break;
         
         case 'cm-auto-annotate':
@@ -869,7 +874,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.parentUi.style.display = "none";
             this.toolbox.style.display = "none";
             //document.removeEventListener("keydown", keydownHandler);
-            globalKeyDownManager.deregister(this.keydownHandlerId);
+            globalKeyDownManager.deregister('batch-editor');
         }
 
     };
@@ -878,7 +883,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         {
             this.parentUi.style.display = "";
             //document.addEventListener("keydown", keydownHandler);
-            this.keydownHandlerId = globalKeyDownManager.register(keydownHandler);
+            globalKeyDownManager.register(keydownHandler, 'batch-editor');
             this.toolbox.style.display = "";
         }
     };

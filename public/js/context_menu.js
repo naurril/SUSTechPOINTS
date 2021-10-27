@@ -81,13 +81,13 @@ class ContextMenu {
             }
 
             
-            this.wrapperUi.onclick = function(event){
-                event.currentTarget.style.display="none"; 
+            this.wrapperUi.onclick = (event)=>{
+                this.hide();
                 event.preventDefault();
                 event.stopPropagation();             
             };
     
-            this.wrapperUi.oncontextmenu = function(event){
+            this.wrapperUi.oncontextmenu = (event)=>{
                 //event.currentTarget.style.display="none"; 
                 event.preventDefault();
                 event.stopPropagation();
@@ -117,7 +117,7 @@ class ContextMenu {
     hide()
     {
         this.wrapperUi.style.display = "none";
-        globalKeyDownManager.deregister(this.keydownHandleId);
+        globalKeyDownManager.deregister('context menu');
 
     }
 
@@ -136,6 +136,8 @@ class ContextMenu {
 
         let menu = this.menus[name]
         menu.style.display = "inherit";
+
+        this.currentMenu = menu;
 
         if (funcSetPos)
         {
@@ -161,15 +163,18 @@ class ContextMenu {
         }
 
 
-        this.keydownHandleId = globalKeyDownManager.register((event)=>{
-            let ret = this.handler.handleContextMenuKeydownEvent(event);
+        globalKeyDownManager.register((event)=>{
+
+            let menuRect = this.currentMenu.getBoundingClientRect();
+            let ret = this.handler.handleContextMenuKeydownEvent(event,
+                {x: menuRect.left, y: menuRect.top});
             if (!ret)
             {
                 this.hide();
             }
 
             return false;  // false means don't propogate
-        })
+        }, 'context menu');
         
     }
 
