@@ -421,7 +421,7 @@ function BoxOp(){
         var  theta =  Math.atan2(dotproduct(x,z), dotproduct(x,x));
         console.log(theta);
 
-        this.change_rotation_y(box, theta, true, on_box_changed);
+        this.change_rotation_y(box, theta, false, on_box_changed);
     }
 
 
@@ -499,7 +499,7 @@ function BoxOp(){
         var  theta =  Math.atan2(dotproduct(y,z), dotproduct(y,y));
         console.log(theta);
 
-        this.change_rotation_x(box, theta, true, on_box_changed);
+        this.change_rotation_x(box, theta, false, on_box_changed);
     };
 
 
