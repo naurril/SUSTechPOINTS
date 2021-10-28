@@ -738,6 +738,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
 
         case "cm-follow-ref":
+
+            if (!this.checkBoxTrackId())
+                break;
             this.autoAdjust.followsRef(this.selected_box);
             this.header.updateModifiedStatus();
 

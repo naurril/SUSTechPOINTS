@@ -770,6 +770,23 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     func_on_box_changed, "noscaling");
             });
             break;
+        case 'cm-reverse-direction':
+            this.getSelectedEditors().forEach(e=>{
+                if (!e.box) 
+                    return;
+                if (e.box.rotation.z > 0){
+                    e.box.rotation.z -= Math.PI;
+                }else{
+                    e.box.rotation.z += Math.PI;
+                }
+
+                e.update('dontrender');
+                e.box.world.annotation.setModified();
+            });
+
+            this.viewManager.render();
+
+            break;
         case 'cm-finalize':
             {
                 this.finalizeSelectedBoxes();
@@ -787,6 +804,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 }                
             });
 
+            this.activeEditorList().forEach(e=>e.update('dontrender'));
             this.viewManager.render();
             
             break;
