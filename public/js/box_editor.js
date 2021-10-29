@@ -758,7 +758,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 let estimatedRot = boxOp.estimate_rotation_by_moving_direciton(currentBox);
                 
                 currentBox.rotation.z = estimatedRot.z;
-                currentBox.world.annotation.setModified(); 
+                onBoxChangedInBatchMode(currentBox);
             });
 
             
