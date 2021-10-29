@@ -628,6 +628,20 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 this.interpolate(applyIndList);
     }
 
+    this.deleteEmptyBoxes = function()
+    {
+        let selectedEditors = this.getSelectedEditors();
+        selectedEditors.forEach(e=>{
+                if (e.box)
+                {
+                    if (e.box.world.lidar.get_box_points_number(e.box) == 0)
+                    {
+                        func_on_box_remove(e.box, true);
+                    }
+                }   
+        });
+    }
+
     this.deleteSelectedBoxes = function(infoBoxPos)
     {
         let selectedEditors = this.getSelectedEditors();
@@ -709,10 +723,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             break
             
         case 'cm-delete':
-            {
-
-                this.deleteSelectedBoxes( {x: event.clientX, y: event.clientY});    
-            }   
+            this.deleteSelectedBoxes( {x: event.clientX, y: event.clientY});    
+            break;
+        case 'cm-delete-empty-boxes':
+            this.deleteEmptyBoxes();
             break;
         case 'cm-interpolate':
             this.interpolateSelectedFrames();
@@ -787,28 +801,18 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.viewManager.render();
 
             break;
-        case 'cm-reset-roll':
+        case 'cm-reset-roll-pitch':
             this.getSelectedEditors().forEach(e=>{
                 if (!e.box) 
                     return;
                 e.box.rotation.x =0;
-                e.update('dontrender');
-                e.box.world.annotation.setModified();
-            });
-
-            this.viewManager.render();
-
-            break;
-        case 'cm-reset-pitch':
-            this.getSelectedEditors().forEach(e=>{
-                if (!e.box) 
-                    return;
                 e.box.rotation.y =0;
                 e.update('dontrender');
                 e.box.world.annotation.setModified();
             });
 
             this.viewManager.render();
+
             break;
         case 'cm-finalize':
             {
