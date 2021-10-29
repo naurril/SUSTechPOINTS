@@ -172,7 +172,7 @@ function BoxOp(){
                                      (box.position.y-orgBox.position.y)*(box.position.y-orgBox.position.y) + 
                                      (box.position.z-orgBox.position.z)*(box.position.z-orgBox.position.z));
 
-            if (distance > Math.max(box.scale.x, box.scale.y, box.scale.z))
+            if (distance > Math.sqrt(box.scale.x*box.scale.x + box.scale.y*box.scale.y + box.scale.z*box.scale.z))
             {
                 return false;
             }

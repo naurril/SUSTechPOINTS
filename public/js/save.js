@@ -57,24 +57,24 @@ function saveWorldList(worldList){
 
     pendingSaveList = pendingSaveList.concat(worldList);
 
-    if (!saveDelayTimer)
+    if (saveDelayTimer)
     {
-        saveDelayTimer = setTimeout(()=>{
-                
-            logger.log("save delay expired.");
-
-            doSaveWorldList(pendingSaveList, ()=>{editor.header.updateModifiedStatus()});
-
-            //reset
-
-            saveDelayTimer = null;
-            pendingSaveList = [];
-        }, 
-
-        500);
+        clearTimeout(saveDelayTimer);
     }
-
     
+    saveDelayTimer = setTimeout(()=>{
+            
+        logger.log("save delay expired.");
+
+        doSaveWorldList(pendingSaveList, ()=>{editor.header.updateModifiedStatus()});
+
+        //reset
+
+        saveDelayTimer = null;
+        pendingSaveList = [];
+    }, 
+
+    500);
 }
 
 

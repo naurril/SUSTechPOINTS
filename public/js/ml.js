@@ -330,7 +330,7 @@ var ml = {
                 let interpolate_step = annMath.div(annMath.sub(anns[end], anns[start]), (end-start));
 
                 for (let inserti=start+1; inserti<end; inserti++){
-                    let tempAnn = annMath.add(anns[start], annMath.mul(interpolate_step, inserti-start));
+                    let tempAnn = annMath.add(anns[inserti-1], interpolate_step);
 
                     if (autoAdj) 
                     {
@@ -364,6 +364,8 @@ var ml = {
                         
                     anns[inserti] = tempAnn;
 
+                    // adjust step since we have finished annotate one more box.
+                    interpolate_step = annMath.div(annMath.sub(anns[end], anns[inserti]), (end-inserti));
 
                     if (onFinishOneBox)
                         onFinishOneBox(inserti);
