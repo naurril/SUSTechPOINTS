@@ -787,6 +787,29 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.viewManager.render();
 
             break;
+        case 'cm-reset-roll':
+            this.getSelectedEditors().forEach(e=>{
+                if (!e.box) 
+                    return;
+                e.box.rotation.x =0;
+                e.update('dontrender');
+                e.box.world.annotation.setModified();
+            });
+
+            this.viewManager.render();
+
+            break;
+        case 'cm-reset-pitch':
+            this.getSelectedEditors().forEach(e=>{
+                if (!e.box) 
+                    return;
+                e.box.rotation.y =0;
+                e.update('dontrender');
+                e.box.world.annotation.setModified();
+            });
+
+            this.viewManager.render();
+            break;
         case 'cm-finalize':
             {
                 this.finalizeSelectedBoxes();
