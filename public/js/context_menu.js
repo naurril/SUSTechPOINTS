@@ -40,6 +40,7 @@ class ContextMenu {
                 "#cm-fit": "#cm-fit-submenu",
             };
 
+
             for (let item in motherMenu)
             {
                 let menu = ui.querySelector(item);
@@ -47,7 +48,14 @@ class ContextMenu {
                     return false;
                 }
 
-                menu.onmouseenter = (event)=>{
+                let self = this;
+                menu.onmouseenter = function(event){
+                    if (this.timerId)
+                    {
+                        clearTimeout(this.timerId);
+                        this.timerId = null;
+                    }
+
                     let menu = event.currentTarget.querySelector(motherMenu[item]);
                     menu.style.display="inherit";
 
@@ -55,7 +63,7 @@ class ContextMenu {
                     let posX = motherMenuRect.right;
                     let posY = motherMenuRect.bottom;
 
-                    if (this.wrapperUi.clientHeight < posY + menu.clientHeight){
+                    if (self.wrapperUi.clientHeight < posY + menu.clientHeight){
                         menu.style.bottom = "0%";
                         menu.style.top = "";
                     }
@@ -65,7 +73,7 @@ class ContextMenu {
                     }
         
         
-                    if (this.wrapperUi.clientWidth < posX + menu.clientWidth){
+                    if (self.wrapperUi.clientWidth < posX + menu.clientWidth){
                         menu.style.right = "100%";
                         menu.style.left = "";
                     }
@@ -75,8 +83,13 @@ class ContextMenu {
                     }
                 }
 
-                menu.onmouseleave = (event)=>{
-                    event.currentTarget.querySelector(motherMenu[item]).style.display="none";
+                menu.onmouseleave = function(event){
+                    let ui = event.currentTarget.querySelector(motherMenu[item]);
+                    this.timerId = setTimeout(()=>{
+                        ui.style.display="none";
+                        this.timerId = null;
+                    },
+                    200);
                 }
             }
 
