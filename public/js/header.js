@@ -121,11 +121,11 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         let frames = this.data.worldList.filter(w=>w.annotation.modified);
         if (frames.length > 0)
         {
-            this.ui.querySelector("#changed-mark").className = 'header-button alarm-mark';            
+            this.ui.querySelector("#changed-mark").className = 'ui-button alarm-mark';            
         }
         else
         {
-            this.ui.querySelector("#changed-mark").className = 'header-button';
+            this.ui.querySelector("#changed-mark").className = 'ui-button';
         }
     }
 

@@ -41,28 +41,29 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
       
     };
 
+    
     this.setColorScheme = function(){
         let scheme = document.documentElement.className;
         if (scheme == "theme-dark")
         {
-            this.mainView.backgroundColor = new THREE.Color( 0.1, 0.1, 0.1 );
+            this.mainView.backgroundColor = new THREE.Color( 0.0, 0.0, 0.0 );
             this.boxViewList.forEach(v=>{
-                v.views[0].backgroundColor = new THREE.Color( 0.3, 0.2, 0.2 );
-                v.views[1].backgroundColor = new THREE.Color( 0.2, 0.3, 0.2 );
-                v.views[2].backgroundColor = new THREE.Color( 0.2, 0.2, 0.3 );
+                v.views[0].backgroundColor = new THREE.Color( 0.1, 0.05, 0.05 );
+                v.views[1].backgroundColor = new THREE.Color( 0.05, 0.1, 0.05 );
+                v.views[2].backgroundColor = new THREE.Color( 0.05, 0.05, 0.1 );
             });
         }
         else{
             this.mainView.backgroundColor = new THREE.Color( 1.0, 1.0, 1.0 );
             this.boxViewList.forEach(v=>{
-                v.views[0].backgroundColor = new THREE.Color( 0.7, 0.8, 0.8 );
-                v.views[1].backgroundColor = new THREE.Color( 0.8, 0.7, 0.8 );
-                v.views[2].backgroundColor = new THREE.Color( 0.8, 0.8, 0.7 );
+                v.views[0].backgroundColor = new THREE.Color( 0.95, 0.9, 0.9 );
+                v.views[1].backgroundColor = new THREE.Color( 0.9, 0.95, 0.9 );
+                v.views[2].backgroundColor = new THREE.Color( 0.9, 0.9, 0.95 );
             })
         }
     };
 
-    this.setColorScheme();
+    //this.setColorScheme();
 
     // no public funcs below
     function create_main_view(scene, renderer, globalRenderFunc, container, on_box_changed){
@@ -487,7 +488,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         view.name="topview";
         view.zoom_ratio = 1.0;
         
-        view.backgroundColor= view.backgroundColor=　(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.3, 0.2, 0.2 ) : new THREE.Color( 0.7, 0.8, 0.8 );
+        view.backgroundColor = 　(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.1, 0.05, 0.05 ) : new THREE.Color( 0.95, 0.9, 0.9 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
@@ -571,7 +572,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         view.name="sideview";
         view.zoom_ratio = 1.0;
         //view.backgroundColor=new THREE.Color( 0.1, 0.2, 0.1 );
-        view.backgroundColor=(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.2, 0.3, 0.2 ) : new THREE.Color( 0.8, 0.7, 0.8 );
+        view.backgroundColor=(document.documentElement.className == "theme-dark") ? new THREE.Color( 0.05, 0.1, 0.05 ) : new THREE.Color( 0.9, 0.95, 0.9 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
@@ -693,7 +694,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         view.name="backview";
         view.zoom_ratio = 1.0;
         //view.backgroundColor=new THREE.Color( 0.2, 0.1, 0.1 );
-        view.backgroundColor= (document.documentElement.className == "theme-dark") ? new THREE.Color( 0.2, 0.2, 0.3 ) : new THREE.Color( 0.8, 0.8, 0.7 );
+        view.backgroundColor= (document.documentElement.className == "theme-dark") ? new THREE.Color( 0.05, 0.05, 0.1 ) : new THREE.Color( 0.9, 0.9, 0.95 );
         view.container = container;
         view.scene = scene;
         view.renderer = renderer;
