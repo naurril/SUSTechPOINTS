@@ -125,8 +125,8 @@ class FloatLabelManager {
         document.head.appendChild(this.style);            
         document.head.appendChild(this.temp_style);      
 
-        this.id_enabled = pointsGlobalConfig.showId;
-        this.category_enabled = pointsGlobalConfig.showCategory;
+        this.id_enabled = !pointsGlobalConfig.hideId;
+        this.category_enabled = !pointsGlobalConfig.hideCategory;
     }
 
     hide(){
@@ -145,13 +145,13 @@ class FloatLabelManager {
         this.id_enabled = show;
 
         if (!show){
-            this.style.sheet.insertRule(".label-obj-id-text {display: none}");
+            this.temp_style.sheet.insertRule(".label-obj-id-text {display: none}");
         }
         else{
-            for (var i in this.style.sheet.cssRules){
-                var r = this.style.sheet.cssRules[i];
+            for (let i = this.temp_style.sheet.cssRules.length-1; i >= 0; i--){
+                var r = this.temp_style.sheet.cssRules[i];
                 if (r.selectorText === ".label-obj-id-text"){
-                    this.style.sheet.deleteRule(i);
+                    this.temp_style.sheet.deleteRule(i);
                 }
             }
             
@@ -164,14 +164,14 @@ class FloatLabelManager {
         this.category_enabled = show;
 
         if (!show){
-            this.style.sheet.insertRule(".label-obj-type-text {display: none}");
+            this.temp_style.sheet.insertRule(".label-obj-type-text {display: none}");
             this.temp_style.sheet.insertRule(".label-obj-attr-text {display: none}");
         }
         else{
-            for (var i in this.style.sheet.cssRules){
-                var r = this.style.sheet.cssRules[i];
+            for (let i = this.temp_style.sheet.cssRules.length-1; i >= 0; i--){
+                var r = this.temp_style.sheet.cssRules[i];
                 if (r.selectorText === ".label-obj-type-text" || r.selectorText === ".label-obj-attr-text"){
-                    this.style.sheet.deleteRule(i);
+                    this.temp_style.sheet.deleteRule(i);
                 }
             }
         }
@@ -180,16 +180,18 @@ class FloatLabelManager {
 
     // hide all temporarily when zoom in one object.
     hide_all(){
-        if (this.temp_style.sheet.cssRules.length == 0){
-            this.temp_style.sheet.insertRule(".label-obj-id-text {display: none}");
-            this.temp_style.sheet.insertRule(".label-obj-type-text {display: none}");
-            this.temp_style.sheet.insertRule(".label-obj-attr-text {display: none}");
-        }
+        // if (this.temp_style.sheet.cssRules.length == 0){
+        //     this.temp_style.sheet.insertRule(".label-obj-id-text {display: none}");
+        //     this.temp_style.sheet.insertRule(".label-obj-type-text {display: none}");
+        //     this.temp_style.sheet.insertRule(".label-obj-attr-text {display: none}");
+        // }
+        this.labelsUi.style.display = "none";
     }
 
     restore_all(){
-        this.show_category(this.category_enabled);
-        this.show_id(this.id_enabled);   
+        // this.show_category(this.category_enabled);
+        // this.show_id(this.id_enabled);   
+        this.labelsUi.style.display = "";
     }
 
     remove_all_labels(){

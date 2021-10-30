@@ -698,7 +698,7 @@ function Lidar(sceneMeta, world, frameInfo){
         var p = this._get_points_of_box(this.points, box, 1, indices).position;                
         var extreme1 = vector_range(p, 3);
 
-        //filter out lowest part
+        //filter out lowest part, to calculate x-y size.
         var p = p.filter(function(x){
             return x[2] - settings.ground_filter_height > extreme1.min[2];
         })
@@ -710,7 +710,7 @@ function Lidar(sceneMeta, world, frameInfo){
             max:{
                 x: extreme2.max[0],
                 y: extreme2.max[1],
-                z: extreme1.max[2],
+                z: extreme1.max[2],   // orignal extreme.
             },
             min:{
                 x: extreme2.min[0],
@@ -796,6 +796,45 @@ function Lidar(sceneMeta, world, frameInfo){
             position: relative_position,
             position_wo_rotation: relative_position_wo_rotation,
         }
+    };
+
+    // find bottom and top points, in range of init_scale_ratio
+    this.findBottom = function(box, init_scale_ratio){
+        
+        var points = this.points;
+        var pos_array = points.geometry.getAttribute("position").array;
+        
+        var trans = transpose(euler_angle_to_rotate_matrix(box.rotation, {x:0, y:0, z:0}), 4);
+
+
+        var cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio);
+        // all cand points are translated into box coordinates
+
+        let translated_cand_points = cand_point_indices.map(function(i){
+            let x = pos_array[i*3];
+            let y = pos_array[i*3+1];
+            let z = pos_array[i*3+2];
+
+            let p = [x-box.position.x, y-box.position.y, z-box.position.z, 1];
+            let tp = matmul(trans, p, 4);
+            return tp;
+        });
+
+
+        let minZ = 1000;
+
+        
+        translated_cand_points.forEach((tp, i)=>{
+            if (Math.abs(tp[0]) < box.scale.x * init_scale_ratio.x/2 && 
+                Math.abs(tp[1]) < box.scale.y * init_scale_ratio.y/2 && 
+                Math.abs(tp[2]) < box.scale.z * init_scale_ratio.z/2)
+            {
+                if (tp[2] < minZ)                    
+                    minZ = tp[2];
+            }
+        });
+
+        return minZ;
     };
 
     this.grow_box = function(box, min_distance, init_scale_ratio){
@@ -1003,6 +1042,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
 
         // refine extreme values
+        //1 set initial value
         let refined_extreme= {
             max: {        
                 x: extreme.max.x - min_distance/2,
@@ -1018,7 +1058,7 @@ function Lidar(sceneMeta, world, frameInfo){
         };
 
 
-
+        //2  find refined values.
         translated_cand_points.forEach(tp=>{
             if (tp[0] > extreme.max.x || tp[0] < extreme.min.x  || 
                 tp[1] > extreme.max.y || tp[1] < extreme.min.y  || 

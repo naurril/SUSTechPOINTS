@@ -795,6 +795,16 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 
             });
             break;
+        case 'cm-fit-bottom':
+            this.getSelectedEditors().forEach(e=>{
+                if (!e.box) 
+                    return;
+                boxOp.fit_bottom(e.box);
+
+                onBoxChangedInBatchMode(e.box);                
+            });
+            
+            break;
         case 'cm-reverse-direction':
             this.getSelectedEditors().forEach(e=>{
                 if (!e.box) 

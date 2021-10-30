@@ -14,6 +14,38 @@ function BoxOp(){
     console.log("BoxOp called");
     this.grow_box_distance_threshold = 0.3;
 
+    this.fit_bottom = function(box)
+    {
+        let bottom = box.world.lidar.findBottom(box, {x:2, y:2, z:3});
+        this.translate_box(box, 'z', bottom + box.scale.z/2);
+    }
+
+    this.justifyAutoAdjResult = function(orgBox, box)
+        {
+            let distance = Math.sqrt((box.position.x-orgBox.position.x)*(box.position.x-orgBox.position.x) + 
+                                     (box.position.y-orgBox.position.y)*(box.position.y-orgBox.position.y) + 
+                                     (box.position.z-orgBox.position.z)*(box.position.z-orgBox.position.z));
+
+            if (distance > Math.sqrt(box.scale.x*box.scale.x + box.scale.y*box.scale.y + box.scale.z*box.scale.z))
+            {
+                return false;
+            }
+
+            // if (Math.abs(box.rotation.z - orgBox.rotation.z) > Math.PI/4)
+            // {
+            //     return false;
+            // }
+
+            if (box.scale.x > orgBox.scale.x*3 ||
+                box.scale.y > orgBox.scale.y*3 ||
+                box.scale.z > orgBox.scale.z*3)
+            {
+                return false;                    
+            }
+
+            return true;
+        }
+
 
     this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling, rotate_method){
 
@@ -166,36 +198,11 @@ function BoxOp(){
                 return box;
         };
 
-        let justifyAutoAdjResult = (orgBox, box)=>
-        {
-            let distance = Math.sqrt((box.position.x-orgBox.position.x)*(box.position.x-orgBox.position.x) + 
-                                     (box.position.y-orgBox.position.y)*(box.position.y-orgBox.position.y) + 
-                                     (box.position.z-orgBox.position.z)*(box.position.z-orgBox.position.z));
-
-            if (distance > Math.sqrt(box.scale.x*box.scale.x + box.scale.y*box.scale.y + box.scale.z*box.scale.z))
-            {
-                return false;
-            }
-
-            // if (Math.abs(box.rotation.z - orgBox.rotation.z) > Math.PI/4)
-            // {
-            //     return false;
-            // }
-
-            if (box.scale.x > orgBox.scale.x*3 ||
-                box.scale.y > orgBox.scale.y*3 ||
-                box.scale.z > orgBox.scale.z*3)
-            {
-                return false;                    
-            }
-
-            return true;
-        }
-
+        
 
         let postProc = (box)=>{
 
-            if (justifyAutoAdjResult(orgBox, box))
+            if (this.justifyAutoAdjResult(orgBox, box))
             {
                 // copy back
                 orgBox.position.x = box.position.x;
