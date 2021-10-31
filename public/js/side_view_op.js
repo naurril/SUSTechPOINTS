@@ -23,7 +23,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
         on_moved, 
         on_scale, 
         on_wheel, 
-        on_auto_move,
+        on_fit_size,
         on_auto_rotate, 
         on_reset_rotate, 
         on_focus=default_on_focus, 
@@ -76,12 +76,12 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
         }
     
         var buttons = {
-            auto_move_wo_scaling: ui.querySelector("#v-auto-translate-wo-scaling"),
-            auto_move: ui.querySelector("#v-auto-translate"),
-            auto_rotate_wo_scaling: ui.querySelector("#v-auto-rotate-wo-scaling"),
-            auto_rotate: ui.querySelector("#v-auto-rotate"),
-            reset_rotate: ui.querySelector("#v-reset-rotate"),
-            moving_direciton: ui.querySelector("#v-moving-direction"),
+            fit_position: ui.querySelector("#v-fit-position"),
+            fit_size: ui.querySelector("#v-fit-size"),
+            fit_rotation: ui.querySelector("#v-fit-rotation"),
+            fit_all: ui.querySelector("#v-fit-all"),
+            reset_rotation: ui.querySelector("#v-reset-rotation"),
+            fit_moving_direction: ui.querySelector("#v-fit-moving-direction"),
         };
         
         
@@ -514,31 +514,31 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 }
             };
 
-            if (buttons.auto_rotate_wo_scaling){
-                buttons.auto_rotate_wo_scaling.onmousedown = ignore_left_mouse_down;
-                buttons.auto_rotate_wo_scaling.onclick = function(event){
+            if (buttons.fit_rotation){
+                buttons.fit_rotation.onmousedown = ignore_left_mouse_down;
+                buttons.fit_rotation.onclick = function(event){
                     on_auto_rotate("noscaling")
                 };
             }
 
-            if (buttons.auto_move_wo_scaling && on_auto_move){
-                buttons.auto_move_wo_scaling.onmousedown = ignore_left_mouse_down;
-                buttons.auto_move_wo_scaling.onclick = function(event){
-                    on_auto_move("noscaling");
+            if (buttons.fit_position && on_fit_size){
+                buttons.fit_position.onmousedown = ignore_left_mouse_down;
+                buttons.fit_position.onclick = function(event){
+                    on_fit_size("noscaling");
                 };
             }
 
-            if (buttons.auto_move && on_auto_move){
+            if (buttons.fit_size && on_fit_size){
 
-                buttons.auto_move.onmousedown = ignore_left_mouse_down;
-                buttons.auto_move.onclick = function(event){
-                    on_auto_move();
+                buttons.fit_size.onmousedown = ignore_left_mouse_down;
+                buttons.fit_size.onclick = function(event){
+                    on_fit_size();
                 };
             }
         
-            buttons.auto_rotate.onmousedown = ignore_left_mouse_down;
+            buttons.fit_all.onmousedown = ignore_left_mouse_down;
                 
-            buttons.auto_rotate.onclick = function(event){
+            buttons.fit_all.onclick = function(event){
                 //console.log("auto rotate button clicked.");
                 on_auto_rotate();
                 //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
@@ -546,20 +546,20 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     
 
 
-            if (buttons.reset_rotate){
+            if (buttons.reset_rotation){
 
-                buttons.reset_rotate.onmousedown = ignore_left_mouse_down;
+                buttons.reset_rotation.onmousedown = ignore_left_mouse_down;
 
-                buttons.reset_rotate.onclick = function(event){
+                buttons.reset_rotation.onclick = function(event){
                     //console.log("auto rotate button clicked.");
                     on_reset_rotate();
                     //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
                 }
             }
 
-            if (buttons.moving_direciton){
-                buttons.moving_direciton.onmousedown = ignore_left_mouse_down;
-                buttons.moving_direciton.onclick = function(event){
+            if (buttons.fit_moving_direction){
+                buttons.fit_moving_direction.onmousedown = ignore_left_mouse_down;
+                buttons.fit_moving_direction.onclick = function(event){
                     //console.log("auto rotate button clicked.");
                     on_auto_rotate("noscaling", "moving-direction");
                     //event.currentTarget.blur();  // this bluring will disable focus on sideview also, which is not expected.
@@ -1119,7 +1119,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
         //z_view_handle.update_view_handle(scope.views[0].getViewPort(), {x: scope.box.scale.y, y:scope.box.scale.x});
     }
 
-    function on_z_auto_move(noscaling){
+    function on_z_fit_size(noscaling){
 
         scope.boxOp.auto_rotate_xyz(scope.box, null, 
             null,//{x:false, y:false, z:true}, 
@@ -1158,7 +1158,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                                            on_z_moved, 
                                            on_z_scaled, 
                                            on_z_wheel, 
-                                           on_z_auto_move, 
+                                           on_z_fit_size, 
                                            on_z_auto_rotate, 
                                            on_z_reset_rotate);
 

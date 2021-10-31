@@ -178,6 +178,9 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
                 // left click
                 this.handleLeftClick(event);
             }
+
+            in_select_mode = false;
+            return;
         }
         
 
