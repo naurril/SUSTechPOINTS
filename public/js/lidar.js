@@ -1264,8 +1264,8 @@ function Lidar(sceneMeta, world, frameInfo){
 
         console.log("select rect points", indices.length);
 
-        this.set_spec_points_color(indices, {x:1,y:0,z:0});
-        this.update_points_color();
+        //this.set_spec_points_color(indices, {x:1,y:0,z:0});
+        //this.update_points_color();
 
         return points;
     };

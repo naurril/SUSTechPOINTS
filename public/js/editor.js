@@ -1311,7 +1311,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         let points = this.data.world.lidar.select_points_by_view_rect(x,y,w,h, this.viewManager.mainView.camera);
 
         // show color
-        this.render();
+        //this.render();
 
         // return;
         // // create new box
@@ -1923,6 +1923,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.boxEditor.boxView.views[ev.key-5].cameraHelper.visible = !this.boxEditor.boxView.views[ev.key-5].cameraHelper.visible;
                 this.render();
                 break;
+            
             /*
             case 'a':
                 if (this.selected_box){
@@ -2025,10 +2026,16 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 }
                 break;
             */
-            case 'f':
-                if (this.selected_box){                
-                    //this.transform_bbox("z_rotate_right");                
-                    this.boxOp.rotate_z(this.selected_box, -0.005, true);
+
+            case 'q':
+                if (this.selected_box){
+                    this.boxOp.rotate_z(this.selected_box, 0.005, false);
+                    this.on_box_changed(this.selected_box);
+                }
+                break;
+            case 'e':
+                if (this.selected_box){
+                    this.boxOp.rotate_z(this.selected_box, -0.005, false);
                     this.on_box_changed(this.selected_box);
                 }
                 break;
@@ -2040,6 +2047,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 }
                 break;
             
+            case 'f':
+                if (this.selected_box){                
+                    //this.transform_bbox("z_rotate_right");                
+                    this.boxOp.rotate_z(this.selected_box, -0.005, true);
+                    this.on_box_changed(this.selected_box);
+                }
+                break;
             case 'g':
                 this.transform_bbox("z_rotate_reverse");
                 break;
