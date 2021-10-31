@@ -1246,22 +1246,28 @@ function Lidar(sceneMeta, world, frameInfo){
         var pos_array = points.geometry.getAttribute("position").array;
 
         var indices = [];
+        var points = [];
         var p = new THREE.Vector3();
 
         for (var i=0; i< pos_array.length/3; i++){
             p.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
+            p = this.world.lidarPosToScene(p);
             p.project(camera);
             //p.x = p.x/p.z;
             //p.y = p.y/p.z;
             //console.log(p);
-            if ((p.x > x) && (p.x < x+w) && (p.y>y) && (p.y<y+h) && (p.z>0)){
+            if ((p.x >= x) && (p.x <= x+w) && (p.y>=y) && (p.y<=y+h) && (p.z>0)){
                 indices.push(i);
+                points.push([pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]]);
             }
         }
 
         console.log("select rect points", indices.length);
+
         this.set_spec_points_color(indices, {x:1,y:0,z:0});
         this.update_points_color();
+
+        return points;
     };
 
     this.get_centroid = function(point_indices){
@@ -1359,89 +1365,6 @@ function Lidar(sceneMeta, world, frameInfo){
         return this.world.annotation.add_box(center, scale, {x:0,y:0,z:rotation_z}, "Unknown", "");
     };
 
-    this.create_box_by_view_rect=function(x,y,w,h, camera, center){
-        var rotation_z = camera.rotation.z + Math.PI/2;
-
-        var points = this.points;
-        var pos_array = points.geometry.getAttribute("position").array;
-
-        var indices = [];
-        var p = new THREE.Vector3();
-
-        //todo: improve performance
-        for (var i=0; i< pos_array.length/3; i++){
-            p.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
-            p = p.applyMatrix4(this.world.webglGroup.matrix);
-            p.project(camera);
-            //p.x = p.x/p.z;
-            //p.y = p.y/p.z;
-            //console.log(p);
-            if ((p.x > x) && (p.x < x+w) && (p.y>y) && (p.y<y+h) && (p.z>0)){
-                indices.push(i);
-            }
-        }
-
-        console.log("select rect points", indices.length);
-
-        //compute center, no need to tranform to box coordinates, and can't do it in this stage.
-        /*
-        var extreme = array_as_vector_index_range(pos_array, 3, indices);
-
-        var center = {
-            x: (extreme.max[0]+extreme.min[0])/2,
-            y: (extreme.max[1]+extreme.min[1])/2,
-            z: (extreme.max[2]+extreme.min[2])/2,
-        };
-        */
-
-        let localRot = this.world.sceneRotToLidar(new THREE.Euler(0,0,rotation_z, "XYZ"));
-        
-        let transToBoxMatrix = new THREE.Matrix4().makeRotationFromEuler(localRot)
-                                                  .setPosition(center.x, center.y, center.z)
-                                                  .invert();
-
-       // var trans = transpose(euler_angle_to_rotate_matrix({x:0,y:0,z:rotation_z}, {x:0, y:0, z:0}), 4);
-
-        let relative_position = [];
-        let v3 = new THREE.Vector3();
-        indices.forEach(function(i){
-        //for (var i  = 0; i < pos.count; i++){
-            
-            // var x = pos_array[i*3];
-            // var y = pos_array[i*3+1];
-            // var z = pos_array[i*3+2];
-            // var p = [x-center.x, y-center.y, z-center.z, 1];
-            // var tp = matmul(trans, p, 4);
-
-            v3.set(pos_array[i*3], pos_array[i*3+1], pos_array[i*3+2]);
-
-            let boxP = v3.applyMatrix4(transToBoxMatrix);
-
-            relative_position.push([boxP.x,boxP.y, boxP.z]);
-        });
-
-        var relative_extreme = vector_range(relative_position);
-        var scale = {
-            x: relative_extreme.max[0] - relative_extreme.min[0],
-            y: relative_extreme.max[1] - relative_extreme.min[1],
-            z: relative_extreme.max[2] - relative_extreme.min[2],
-        };
-
-        // enlarge scale a little
-
-
-        // adjust center
-        this.world.annotation.translate_box_position(center, rotation_z, "x", relative_extreme.min[0] + scale.x/2);
-        this.world.annotation.translate_box_position(center, rotation_z, "y", relative_extreme.min[1] + scale.y/2);
-        this.world.annotation.translate_box_position(center, rotation_z, "z", relative_extreme.min[2] + scale.z/2);
-        
-
-        scale.x += 0.02;
-        scale.y += 0.02;
-        scale.z += 0.02;
-
-        return this.world.annotation.add_box(center, scale, localRot, "Unknown", "");
-    };
 }
 
 export{Lidar}

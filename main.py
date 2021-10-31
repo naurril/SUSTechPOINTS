@@ -248,7 +248,8 @@ class Root(object):
       all_objs={}
       for x in boxes:
           for o in x:
-              k = o["category"]+"-"+str(o["id"])
+              
+              k = str(o["category"])+"-"+str(o["id"])
 
               if all_objs.get(k):
                 all_objs[k]['count']= all_objs[k]['count']+1

@@ -383,12 +383,13 @@ function Annotation(sceneMeta, world, frameInfo){
         for (var i=0; i< this.boxes.length; i++){
             let box_center = this.boxes[i].position;
 
-            p.set(box_center.x, box_center.y, box_center.z);
+            let pw = this.world.lidarPosToScene(box_center);
+            p.set(pw.x, pw.y, pw.z);
             p.project(camera);
-            //p.x = p.x/p.z;
-            //p.y = p.y/p.z;
+            p.x = p.x/p.z;
+            p.y = p.y/p.z;
             //console.log(p);
-            if ((p.x > x) && (p.x < x+w) && (p.y>y) && (p.y<y+h) && (p.z>0)){
+            if ((p.x > x) && (p.x < x+w) && (p.y>y) && (p.y<y+h)){
                 selected_boxes_by_rect.push(this.boxes[i]);
             }
         }

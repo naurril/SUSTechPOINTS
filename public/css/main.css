@@ -743,7 +743,7 @@ td {
 
 #select-box {
 	display: none;
-	position: fixed;
+	position: absolute;
 	border: 1px solid #55aaff;
 	background-color: rgba(75, 160, 255, 0.3);
 	

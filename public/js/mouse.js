@@ -60,10 +60,10 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
 
 
 
-    this.getMousePosition = function( dom, x, y ) {
+    this.getMousePosition = function( dom, offsetX, offsetY ) {
 
-        var rect = dom.getBoundingClientRect();
-        return [ ( x - rect.left ) / rect.width, ( y - rect.top ) / rect.height ];
+        
+        return [offsetX/dom.clientWidth * 2 - 1,  - offsetY/dom.clientHeight * 2 + 1];
 
     };
 
@@ -71,7 +71,7 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
 
         // mouse is temp var
         let mouse = new THREE.Vector2();
-        mouse.set( ( point.x * 2 ) - 1, - ( point.y * 2 ) + 1 );
+        mouse.set(point.x, point.y); 
 
         this.raycaster.setFromCamera( mouse, this.view.camera );
 
@@ -96,16 +96,16 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
                 in_select_mode = true;
             
                 select_start_pos={
-                    x: event.clientX,
-                    y: event.clientY,
+                    x: event.offsetX,
+                    y: event.offsetY,
                 }            
             }
         }
         
 
-        var array = this.getMousePosition(this.domElement, event.clientX, event.clientY );
+        var array = this.getMousePosition(this.domElement, event.offsetX, event.offsetY );
         this.onDownPosition.fromArray( array );        
-        
+        console.log("mouse down", array);
 
         this.domElement.addEventListener( 'mouseup', on_mouse_up, false );
 
@@ -113,23 +113,24 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
 
     this.onMouseMove=function( event ) {
         event.preventDefault();
-        this.mousePos.x = ( event.clientX / this.domElement.clientWidth ) * 2 - 1;
-        this.mousePos.y = - ( event.clientY / this.domElement.clientHeight ) * 2 + 1;
-    
-        // if (event.ctrlKey)
-        //     console.log(mouse);   
+
+        //console.log(this.getMousePosition(this.domElement, event.offsetX, event.offsetY));
 
         if (in_select_mode){
-            if (event.clientX != select_start_pos.x || event.clientY != select_end_pos.y){
+
+            select_end_pos={
+                x: event.offsetX,
+                y: event.offsetY,
+            };
+
+
+            if (event.offsetX != select_start_pos.x || event.offsetY != select_end_pos.y){
                 //draw select box
                 var sbox = this.parentUi.querySelector("#select-box");
                 
                 sbox.style.display="inherit";
 
-                select_end_pos={
-                    x: event.clientX,
-                    y: event.clientY,
-                } 
+                
 
                 if (select_start_pos.x < select_end_pos.x){
                     sbox.style.left = select_start_pos.x + 'px';
@@ -162,8 +163,10 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
         }
 
         
-        var array = this.getMousePosition(this.domElement, event.clientX, event.clientY );
+        var array = this.getMousePosition(this.domElement, event.offsetX, event.offsetY );
         this.onUpPosition.fromArray( array );
+
+        console.log("mouse up", array);
 
         if ( this.onDownPosition.distanceTo( this.onUpPosition ) === 0 ) {
             if (event.which == 3){

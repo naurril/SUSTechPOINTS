@@ -23,6 +23,7 @@ import {CropScene} from './crop_scene.js';
 import { ConfigUi } from './config_ui.js';
 import { MovableView } from './popup_dialog.js';
 import {globalKeyDownManager} from './keydown_manager.js';
+import {vector_range} from "./util.js"
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -1269,11 +1270,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
     
     this.handleSelectRect= function(x,y,w,h, ctrl, shift){
-        y = y+h;
-        x = x*2-1;
-        y = -y*2+1;
-        w *= 2;
-        h *= 2;
+        // y = y+h;
+        // x = x*2-1;
+        // y = -y*2+1;
+        // w *= 2;
+        // h *= 2;
         
         // x,y: start cornor, w: width, h: height
 
@@ -1287,7 +1288,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         */
 
         // check if any box is inside the rectangle
-        this.viewManager.mainView.camera.updateMatrixWorld();
+
+        this.viewManager.mainView.camera.updateProjectionMatrix();
+
         let boxes = this.data.world.annotation.find_boxes_inside_rect(x,y,w,h, this.viewManager.mainView.camera);
         if (boxes.length > 0) {
 
@@ -1305,12 +1308,21 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             return;
         }
 
-        // create new box
-        var self=this;
+        let points = this.data.world.lidar.select_points_by_view_rect(x,y,w,h, this.viewManager.mainView.camera);
+
+        // show color
+        this.render();
+
+        // return;
+        // // create new box
+        // var self=this;
         var center_pos = this.mouse.get_screen_location_in_world(x+w/2, y+h/2);
         center_pos = this.data.world.scenePosToLidar(center_pos);
         
-        var box = this.data.world.lidar.create_box_by_view_rect(x,y,w,h, this.viewManager.mainView.camera, center_pos);
+        let initRoationZ = this.viewManager.mainView.camera.rotation.z + Math.PI/2;
+
+        var box = this.create_box_by_points(points, initRoationZ);
+
         //this.scene.add(box);
         
         this.imageContext.image_manager.add_box(box);
@@ -1335,11 +1347,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.on_box_changed(box);
 
         if (!shift){
-            this.boxOp.auto_rotate_xyz(box, function(){
+            this.boxOp.auto_rotate_xyz(box, ()=>{
                 box.obj_type = globalObjectCategory.guess_obj_type_by_dimension(box.scale);
-                self.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
-                self.fastToolBox.setValue(box.obj_type, box.obj_track_id, box.obj_attr);
-                self.on_box_changed(box);
+                this.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
+                this.fastToolBox.setValue(box.obj_type, box.obj_track_id, box.obj_attr);
+                this.on_box_changed(box);
             });
         }
         
@@ -1347,9 +1359,49 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         //floatLabelManager.add_label(box);
 
         
-
-        
     };
+
+
+
+    this.create_box_by_points=function(points, rotationZ){
+        
+        let localRot = this.data.world.sceneRotToLidar(new THREE.Euler(0,0,rotationZ, "XYZ"));
+        
+        let transToBoxMatrix = new THREE.Matrix4().makeRotationFromEuler(localRot)
+                                                  .setPosition(0, 0, 0)
+                                                  .invert();
+
+       // var trans = transpose(euler_angle_to_rotate_matrix({x:0,y:0,z:rotation_z}, {x:0, y:0, z:0}), 4);
+
+        let relative_position = [];
+        let v = new THREE.Vector3();
+        points.forEach(function(p){
+            v.set(p[0],p[1],p[2]);
+            let boxP = v.applyMatrix4(transToBoxMatrix);
+            relative_position.push([boxP.x,boxP.y, boxP.z]);
+        });
+
+        var relative_extreme = vector_range(relative_position);
+        var scale = {
+            x: relative_extreme.max[0] - relative_extreme.min[0],
+            y: relative_extreme.max[1] - relative_extreme.min[1],
+            z: relative_extreme.max[2] - relative_extreme.min[2],
+        };
+
+        // enlarge scale a little
+
+        let center = this.boxOp.translateBoxInBoxCoord(
+            localRot,
+            {
+                x: (relative_extreme.max[0] + relative_extreme.min[0])/2,
+                y: (relative_extreme.max[1] + relative_extreme.min[1])/2,
+                z: (relative_extreme.max[2] + relative_extreme.min[2])/2,
+            }
+        );
+
+        return this.data.world.annotation.add_box(center, scale, localRot, "Unknown", "");
+    };
+
 
     this.handleLeftClick= function(event) {
 

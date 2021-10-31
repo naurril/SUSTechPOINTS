@@ -511,22 +511,42 @@ function BoxOp(){
 
 
     this.translate_box=function(box, axis, delta){
-        switch (axis){
-            case 'x':
-                box.position.x += delta*Math.cos(box.rotation.z);
-                box.position.y += delta*Math.sin(box.rotation.z);
-                break;
-            case 'y':
-                box.position.x += delta*Math.cos(Math.PI/2 + box.rotation.z);
-                box.position.y += delta*Math.sin(Math.PI/2 + box.rotation.z);  
-                break;
-            case 'z':
-                box.position.z += delta;
-                break;
+        let t = {x:0, y:0, z:0};
 
-        }
+        t[axis] = delta;
+
+        // switch (axis){
+        //     case 'x':
+
+        //         box.position.x += delta*Math.cos(box.rotation.z);
+        //         box.position.y += delta*Math.sin(box.rotation.z);
+        //         break;
+        //     case 'y':
+        //         box.position.x += delta*Math.cos(Math.PI/2 + box.rotation.z);
+        //         box.position.y += delta*Math.sin(Math.PI/2 + box.rotation.z);  
+        //         break;
+        //     case 'z':
+        //         box.position.z += delta;
+        //         break;
+
+        // }
+
+        let trans = this.translateBoxInBoxCoord(box.rotation, t);
+        box.position.x += trans.x;
+        box.position.y += trans.y;
+        box.position.z += trans.z;
+       
     };
 
+    this.translateBoxInBoxCoord = function(rotation, t)
+    {
+        // euler 
+        let euler = new THREE.Euler(rotation.x, rotation.y, rotation.z, "XYZ")
+
+        let trans  = new THREE.Vector3(t.x, t.y, t.z).applyEuler(euler);
+
+        return trans;
+    };
 
     this.rotate_z=function(box, theta, sticky){
         // points indices shall be obtained before rotation.
