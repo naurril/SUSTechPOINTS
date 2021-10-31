@@ -1287,6 +1287,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         */
 
         // check if any box is inside the rectangle
+        this.viewManager.mainView.camera.updateMatrixWorld();
         let boxes = this.data.world.annotation.find_boxes_inside_rect(x,y,w,h, this.viewManager.mainView.camera);
         if (boxes.length > 0) {
 
