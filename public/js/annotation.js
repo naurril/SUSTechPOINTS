@@ -133,7 +133,7 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
     this.toBoxAnnotations = function(){
-        return this.boxes.map((b)=>{
+        let anns = this.boxes.map((b)=>{
             //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
             let ann = this.boxToAnn(b);
 
@@ -144,6 +144,10 @@ function Annotation(sceneMeta, world, frameInfo){
                 ann.follows = b.follows;
             return ann;
         });
+
+        anns.sort((a,b)=>a.obj_id- b.obj_id);
+
+        return anns;
     };
 
 

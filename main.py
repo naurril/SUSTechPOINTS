@@ -56,16 +56,16 @@ class Root(object):
       tmpl = env.get_template('view.html')
       return tmpl.render()
 
-    @cherrypy.expose
-    def saveworld(self, scene, frame):
+    # @cherrypy.expose
+    # def saveworld(self, scene, frame):
 
-      # cl = cherrypy.request.headers['Content-Length']
-      rawbody = cherrypy.request.body.readline().decode('UTF-8')
+    #   # cl = cherrypy.request.headers['Content-Length']
+    #   rawbody = cherrypy.request.body.readline().decode('UTF-8')
 
-      with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
-        f.write(rawbody)
+    #   with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
+    #     f.write(rawbody)
       
-      return "ok"
+    #   return "ok"
 
     @cherrypy.expose
     def saveworldlist(self):
@@ -79,7 +79,7 @@ class Root(object):
         frame = d["frame"]
         ann = d["annotation"]
         with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
-          json.dump(ann, f)
+          json.dump(ann, f, indent=2, sort_keys=True)
 
       return "ok"
 
