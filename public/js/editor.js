@@ -202,7 +202,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             boxEditorUi,
             null,  // no box editor manager
             this.viewManager, 
-            this.editorCfgg, 
+            this.editorCfg, 
             this.boxOp, 
             (b)=>this.on_box_changed(b),
             (b)=>this.remove_box(b),
@@ -2029,20 +2029,20 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             case 'q':
                 if (this.selected_box){
-                    this.boxOp.rotate_z(this.selected_box, 0.005, false);
+                    this.boxOp.rotate_z(this.selected_box, this.editorCfg.rotateStep, false);
                     this.on_box_changed(this.selected_box);
                 }
                 break;
             case 'e':
                 if (this.selected_box){
-                    this.boxOp.rotate_z(this.selected_box, -0.005, false);
+                    this.boxOp.rotate_z(this.selected_box, -this.editorCfg.rotateStep, false);
                     this.on_box_changed(this.selected_box);
                 }
                 break;
             case 'r':
                 if (this.selected_box){
                     //this.transform_bbox("z_rotate_left");
-                    this.boxOp.rotate_z(this.selected_box, 0.005, true);
+                    this.boxOp.rotate_z(this.selected_box, this.editorCfg.rotateStep, true);
                     this.on_box_changed(this.selected_box);
                 }
                 break;
@@ -2050,7 +2050,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             case 'f':
                 if (this.selected_box){                
                     //this.transform_bbox("z_rotate_right");                
-                    this.boxOp.rotate_z(this.selected_box, -0.005, true);
+                    this.boxOp.rotate_z(this.selected_box, -this.editorCfg.rotateStep, true);
                     this.on_box_changed(this.selected_box);
                 }
                 break;

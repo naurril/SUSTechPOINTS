@@ -30,6 +30,9 @@ class Config{
 
     hideId = false;
     hideCategory = false;
+
+    moveStep = 0.01;  // ratio, percentage
+    rotateStep = Math.PI/360;
     
     ///editorCfg
 

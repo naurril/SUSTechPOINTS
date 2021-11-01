@@ -51,7 +51,7 @@ class Data
 
     worldGap=1000.0;
     worldList=[];
-    MaxWorldNumber=120;
+    MaxWorldNumber=80;
     createWorldIndex = 0; // this index shall not repeat, so it increases permanently
 
     async getWorld(sceneName, frame, on_preload_finished){

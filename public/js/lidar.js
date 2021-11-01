@@ -853,7 +853,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
         if (this.data.cfg.enableDynamicGroundLevel)
         {
-            groundLevel = Math.min(box.scale.z/3,  Math.max(0.1, box.scale.x/10, box.scale.y/10));
+            groundLevel = Math.min(box.scale.z/3,  Math.max(0.2, box.scale.x/10, box.scale.y/10));
             console.log('ground level', groundLevel, box.scale);
         }
         

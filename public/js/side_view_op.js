@@ -15,7 +15,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     this.boxOp = boxOp;
     this.boxEditor = boxEditor;
     //internals
-
+    var scope = this;
+    
     function create_view_handler(ui, 
         on_edge_changed, 
         on_direction_changed, 
@@ -791,23 +792,23 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                     case 'e':
                         event.preventDefault();
                         event.stopPropagation();
-                        on_direction_changed(-0.005, event.ctrlKey);
+                        on_direction_changed(-scope.cfg.rotateStep, event.ctrlKey);
                         
                         return true;
                     case 'q':
                         event.preventDefault();
                         event.stopPropagation();
-                        on_direction_changed(0.005, event.ctrlKey);
+                        on_direction_changed(scope.cfg.rotateStep, event.ctrlKey);
                         break;
                     case 'f':
                         event.preventDefault();
                         event.stopPropagation();
-                        on_direction_changed(-0.005, true);
+                        on_direction_changed(-scope.cfg.rotateStep, true);
                         break;
                     case 'r':                
                         event.preventDefault();
                         event.stopPropagation();
-                        on_direction_changed(0.005, true);
+                        on_direction_changed(scope.cfg.rotateStep, true);
                         break;
                     case 'g':
                         event.preventDefault();
@@ -820,10 +821,10 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         event.stopPropagation();
                         if (mouseLeftDown){
                             //console.log("right mouse down!");
-                            on_scale({x:0, y:0.01});
+                            on_scale({x:0, y: scope.cfg.moveStep});
                         }
                         else{
-                            on_moved({x:0, y:0.01});
+                            on_moved({x:0, y: scope.cfg.moveStep});
                         }
                         break;
                     case 's':
@@ -832,10 +833,10 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                             event.stopPropagation();
                             if (mouseLeftDown){
                                 //console.log("right mouse down!");
-                                on_scale({x:0, y:-0.01});
+                                on_scale({x:0, y:-scope.cfg.moveStep});
                             }
                             else
-                                on_moved({x:0, y:-0.01});
+                                on_moved({x:0, y:-scope.cfg.moveStep});
                             break;    
                         } else{
                             console.log("ctrl+s");
@@ -846,10 +847,10 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         event.stopPropagation();
                         if (mouseLeftDown){
                             //console.log("right mouse down!");
-                            on_scale({x:0, y:-0.01});
+                            on_scale({x:0, y:-scope.cfg.moveStep});
                         }
                         else
-                            on_moved({x:0, y:-0.01});
+                            on_moved({x:0, y:-scope.cfg.moveStep});
                         break;
                     case 'a':
                         if (event.ctrlKey)
@@ -861,9 +862,9 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         event.preventDefault();
                         event.stopPropagation();
                         if (mouseLeftDown)
-                            on_scale({x:-0.01, y:0});
+                            on_scale({x:-scope.cfg.moveStep, y:0});
                         else
-                            on_moved({x:-0.01, y:0});
+                            on_moved({x:-scope.cfg.moveStep, y:0});
                         break;
                     case 'd':
                         if (event.ctrlKey){
@@ -875,9 +876,9 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         event.preventDefault();
                         event.stopPropagation();
                         if (mouseLeftDown)
-                            on_scale({x:0.01, y:0});
+                            on_scale({x:scope.cfg.moveStep, y:0});
                         else
-                            on_moved({x:0.01, y:0});
+                            on_moved({x:scope.cfg.moveStep, y:0});
                         break;
                 }
             }
@@ -892,7 +893,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
         }
     }
     
-    var scope = this;
+    
 
     function default_on_del(){
         if (scope.box){
@@ -1122,7 +1123,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     function on_z_fit_size(noscaling){
 
         scope.boxOp.auto_rotate_xyz(scope.box, null, 
-            null,//{x:false, y:false, z:true}, 
+            {x:true, y:true, z:false}, 
             scope.on_box_changed, noscaling, "dontrotate");
     }
 
