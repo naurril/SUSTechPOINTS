@@ -226,8 +226,8 @@ class Data
         let meta = currentWorld.sceneMeta;
 
         let currentWorldIndex = currentWorld.frameInfo.frame_index;
-        let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/3);
-        let endIndex = Math.min(meta.frames.length, 1 + currentWorldIndex + this.MaxWorldNumber/3);
+        let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/2);
+        let endIndex = Math.min(meta.frames.length, startIndex + this.MaxWorldNumber);
 
         this._doPreload(sceneName, startIndex, endIndex);       
         
