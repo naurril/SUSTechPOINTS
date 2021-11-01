@@ -290,7 +290,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-color-points-select").value = pointsGlobalConfig.color_points;
         this.menu.querySelector("#cfg-coordinate-system-select").value = pointsGlobalConfig.coordinateSystem;
         this.menu.querySelector("#cfg-batch-mode-inst-number").value = pointsGlobalConfig.batchModeInstNumber;
-        this.menu.querySelector("#cfg-data-filter-points-checkbox").value = pointsGlobalConfig.enableFilterPoints;
+        this.menu.querySelector("#cfg-data-filter-points-checkbox").checked = pointsGlobalConfig.enableFilterPoints;
         this.menu.querySelector("#cfg-data-filter-points-z").value = pointsGlobalConfig.filterPointsZ;
         this.menu.querySelector("#cfg-hide-id-checkbox").value = pointsGlobalConfig.hideId;
         this.menu.querySelector("#cfg-hide-category-checkbox").value = pointsGlobalConfig.hideCategory;

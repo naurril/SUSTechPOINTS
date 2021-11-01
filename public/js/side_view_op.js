@@ -16,7 +16,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     this.boxEditor = boxEditor;
     //internals
     var scope = this;
-    
+
     function create_view_handler(ui, 
         on_edge_changed, 
         on_direction_changed, 
@@ -1084,8 +1084,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     // box.y  horizental
     function on_z_moved(ratio){
         var delta = {        
-            x: scope.box.scale.x*ratio.y,
-            y: -scope.box.scale.y*ratio.x,
+            x:  Math.max(0.02, scope.box.scale.x*ratio.y),
+            y: -Math.max(0.02, scope.box.scale.y*ratio.x),
         };
 
         
