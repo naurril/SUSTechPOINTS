@@ -1082,12 +1082,25 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     //ratio.x  horizental
     // box.x  vertical
     // box.y  horizental
+
+    function limit_move_step(v, min_abs_v)
+    {
+        if (v < 0)
+            return Math.min(v, -min_abs_v)
+        else if (v > 0)
+            return Math.max(v, min_abs_v)
+        else
+            return v;
+    }
+
     function on_z_moved(ratio){
-        var delta = {        
+        let delta = {        
             x:  scope.box.scale.x*ratio.y,
             y: -scope.box.scale.y*ratio.x,
         };
 
+        delta.x = limit_move_step(delta.x, 0.02);
+        delta.y = limit_move_step(delta.y, 0.02);
         
         scope.boxOp.translate_box(scope.box, "x", delta.x);
         scope.boxOp.translate_box(scope.box, "y", delta.y);
@@ -1121,10 +1134,19 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
     }
 
     function on_z_fit_size(noscaling){
-
-        scope.boxOp.auto_rotate_xyz(scope.box, null, 
-            {x:true, y:true, z:false}, 
-            scope.on_box_changed, noscaling, "dontrotate");
+        if (noscaling)
+        {
+            // fit position only
+            scope.boxOp.auto_rotate_xyz(scope.box, null, 
+                {x:true, y:true, z:false}, 
+                scope.on_box_changed, noscaling, "dontrotate");
+        }
+        else
+        {
+            scope.boxOp.fit_size(scope.box, ['x','y']);
+            scope.on_box_changed(scope.box);
+        }
+        
     }
 
     function on_z_auto_rotate(noscaling, rotate_method){
@@ -1226,8 +1248,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
 
     function on_y_moved(ratio){
         var delta = {
-            x: scope.box.scale.x*ratio.x,
-            z: scope.box.scale.z*ratio.y
+            x: limit_move_step(scope.box.scale.x*ratio.x, 0.02),
+            z: limit_move_step(scope.box.scale.z*ratio.y,0.02),
         };
 
         
@@ -1342,8 +1364,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
 
     function on_x_moved(ratio){
         var delta = {
-            y: scope.box.scale.y*(-ratio.x),
-            z: scope.box.scale.z*ratio.y
+            y: limit_move_step(scope.box.scale.y*(-ratio.x), 0.02),
+            z: limit_move_step(scope.box.scale.z*ratio.y, 0.02),
         };
 
         

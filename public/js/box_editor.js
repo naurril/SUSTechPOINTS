@@ -770,10 +770,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 if (!e.box) 
                     return;
 
-                boxOp.auto_rotate_xyz(e.box, null, 
-                    null,//{x:false, y:false, z:true}, 
-                    onBoxChangedInBatchMode,//func_on_box_changed, 
-                    null, "dontrotate");
+                boxOp.fit_size(e.box, ['x','y']);
+                onBoxChangedInBatchMode(e.box);
             });
             break;
         case 'cm-fit-position':

@@ -20,6 +20,12 @@ function BoxOp(){
         this.translate_box(box, 'z', bottom + box.scale.z/2);
     }
 
+    this.fit_size = function(box,axies)
+    {
+        this.grow_box(box, this.grow_box_distance_threshold, {x:2, y:2, z:3}, axies);
+    }
+
+
     this.justifyAutoAdjResult = function(orgBox, box)
         {
             let distance = Math.sqrt((box.position.x-orgBox.position.x)*(box.position.x-orgBox.position.x) + 
@@ -132,7 +138,7 @@ function BoxOp(){
                 }
        
        
-            // rotation set, now rescaling the box
+                // rotation set, now rescaling the box
                 // important: should use original points before rotation set
                 var extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
     
@@ -259,7 +265,7 @@ function BoxOp(){
             postProc(box);
             return box;
         }
-        else{
+        else{  //dont rotate, or null
             applyRotation({
                 angle:[
                     box.rotation.x, // use original rotation
@@ -339,13 +345,19 @@ function BoxOp(){
         return estimatedRot;        
     };
 
-    this.grow_box= function(box, min_distance, init_scale_ratio){
+    this.grow_box= function(box, min_distance, init_scale_ratio, axies){
+
+        if (!axies)
+        {
+            axies = ['x','y','z'];
+        }
+
 
         var extreme = box.world.lidar.grow_box(box, min_distance, init_scale_ratio);
 
         if (extreme){
 
-            ['x','y', 'z'].forEach((axis)=>{
+            axies.forEach((axis)=>{
                 this.translate_box(box, axis, (extreme.max[axis] + extreme.min[axis])/2);
                 box.scale[axis] = extreme.max[axis] - extreme.min[axis];        
             }) 
