@@ -28,10 +28,9 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
     var in_select_mode = false;
     var select_start_pos;
     var select_end_pos;
-    this.mousePos = new THREE.Vector2();  // keep position of mouse
-
+    
     this.get_mouse_location_in_world = function(){
-        this.raycaster.setFromCamera( this.mousePos, this.view.camera );
+        this.raycaster.setFromCamera( this.onUpPosition, this.view.camera );
         var o = this.raycaster.ray.origin;
         var d = this.raycaster.ray.direction;
 
@@ -156,7 +155,6 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
 
     this.onMouseUp=function( event ) {
         this.domElement.removeEventListener( 'mouseup', on_mouse_up, false );
-
 
         if (event.which==3){
             this.operation_state.mouse_right_down = false;
