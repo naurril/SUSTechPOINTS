@@ -3,11 +3,6 @@
 import os
 import json
 
-stat_scenes = [
-    'sustechscapes-mini-dataset',
-    '20200411-2hz',
-    'ruby_ruby144_shizilukou_1200529160951'
-]
 
 
 def stat_scene(scene):
@@ -35,7 +30,7 @@ def stat_scene(scene):
     return stat
 
 if __name__=="__main__":
-    for s in stat_scenes:
+    for s in os.listdir("./"):
         print("stat {}".format(s))
         stat = stat_scene(s)
         print(stat)
