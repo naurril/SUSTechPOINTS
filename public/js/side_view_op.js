@@ -615,7 +615,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
 
                     highlight();
                     disable_handle_except(handle);
-    
+                    ui.querySelector("#v-buttons").style.display="none";
+
                     handle.onmouseleave = null;
     
                     var lines_pos = {
@@ -638,6 +639,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         hide();
                         handle.onmouseleave = hide;
                         
+                        ui.querySelector("#v-buttons").style.display="inherit";
+
                         var handle_delta = {
                             x: mouse_cur_pos.x - mouse_start_pos.x,
                             y: -(mouse_cur_pos.y - mouse_start_pos.y),  //reverse since it'll be used by 3d-coord system
