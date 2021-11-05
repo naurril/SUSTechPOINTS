@@ -1,9 +1,13 @@
 # SUSTechPOINTS: Point Cloud 3D Bounding Box Annotation Tool
 
+### Main UI
 ![screenshot](./doc/pcd_label.png)
-## News
-2020.4.2  automatic yaw angle (z-axis) prediction.
+
+### Automatic yaw angle (z-axis) prediction.
 ![auto-rotate](./doc/auto-rotate.gif)
+
+### batch-mode box editing
+![batch-mode](./doc/batch-mode.png)
 
 ## Note
 This project is still under heavy development, some features/algorithms need packages which are not uploaded yet, we will upload them soon.

@@ -4,12 +4,10 @@ import os
 import json
 
 
-
+stat = {}
 def stat_scene(scene):
     
-
-    stat = {}
-    label_folder = os.path.join("./data", scene, "label")
+    label_folder = os.path.join("./", scene, "label")
     label_files  = os.listdir(label_folder)
     
     for file in label_files:
@@ -33,4 +31,5 @@ if __name__=="__main__":
     for s in os.listdir("./"):
         print("stat {}".format(s))
         stat = stat_scene(s)
-        print(stat)
+    for x in stat:
+        print(x, stat[x])
