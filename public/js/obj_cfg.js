@@ -75,7 +75,7 @@ class ObjectCategory
         for (let obj in this.obj_type_map)
         {
             if (this.obj_type_map[obj].attr)
-                this.objAttrsOptions[obj] = this.obj_type_map[obj].attr.reduce((a,b)=>a+`<option value="${b}">${b}</option>`, "");
+                this.objAttrsOptions[obj] = this.obj_type_map[obj].attr.reduce((a,b)=>a+`<option value="${b}">${b}</option>`, '<option value="static">static</option>');
         }
     }
 
