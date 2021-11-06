@@ -268,12 +268,23 @@ class ConfigUi{
         });
 
         this.subMenus.forEach(item=>{
-            this.menu.querySelector(item).onmouseenter = (event)=>{
+            this.menu.querySelector(item).onmouseenter = function(event){
+                if (this.timerId)
+                {
+                    clearTimeout(this.timerId);
+                    this.timerId = null;
+                }
+                
                 event.currentTarget.querySelector(item +"-submenu").style.display="inherit";
             }
 
-            this.menu.querySelector(item).onmouseleave = (event)=>{
-                event.currentTarget.querySelector(item +"-submenu").style.display="none";
+            this.menu.querySelector(item).onmouseleave = function(event){
+                let ui = event.currentTarget.querySelector(item +"-submenu");
+                this.timerId = setTimeout(()=>{
+                    ui.style.display="none";
+                    this.timerId = null;
+                },
+                200);
             }
         });
 
