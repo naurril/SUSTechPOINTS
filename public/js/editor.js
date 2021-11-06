@@ -443,8 +443,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case "object-track-id-editor":
             this.object_track_id_changed(event);
             break;
-        case "object-attribute-editor":
-            this.object_attribute_changed(event);
+        case "attr-input":
+            this.object_attribute_changed(event.currentTarget.value);
             break;
         }
     };
@@ -1122,10 +1122,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
     };
 
-    this.object_attribute_changed = function(event){
+    this.object_attribute_changed = function(value){
         if (this.selected_box){
-            this.selected_box.obj_attr = event.currentTarget.value;
-            this.floatLabelManager.set_object_attr(this.selected_box.obj_local_id, event.currentTarget.value);
+            this.selected_box.obj_attr = value;
+            this.floatLabelManager.set_object_attr(this.selected_box.obj_local_id, value);
+            this.data.world.annotation.setModified();
+            this.header.updateModifiedStatus();
         }
     };
 

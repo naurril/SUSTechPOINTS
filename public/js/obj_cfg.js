@@ -70,13 +70,7 @@ class ObjectCategory
 
 
     constructor(){
-        this.objAttrsOptions = {};
-
-        for (let obj in this.obj_type_map)
-        {
-            if (this.obj_type_map[obj].attr)
-                this.objAttrsOptions[obj] = this.obj_type_map[obj].attr.reduce((a,b)=>a+`<option value="${b}">${b}</option>`, '<option value="static">static</option>');
-        }
+        
     }
 
     popularCategoris = ["Car", "Pedestrian", "Van", "Bus", "Truck", "Scooter", "ScooterRider", "Bicycle", "BicycleRider"];

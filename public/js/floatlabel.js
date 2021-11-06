@@ -10,6 +10,16 @@ class FastToolBox{
         this.eventHandler = eventHandler;
 
         this.installEventHandler();
+
+        this.ui.querySelector("#attr-editor").onmouseenter=(event)=>{
+            this.ui.querySelector("#attr-selector").style.display="";
+        }
+
+
+        this.ui.querySelector("#attr-editor").onmouseleave=(event)=>{
+            this.ui.querySelector("#attr-selector").style.display="none";
+        }
+        
     }
 
     hide()
@@ -20,20 +30,21 @@ class FastToolBox{
     show()
     {
         this.ui.style.display = "inline-block";
+        this.ui.querySelector("#attr-selector").style.display="none";
     }
 
 
     setValue(obj_type, obj_track_id, obj_attr){
         this.ui.querySelector("#object-category-selector").value = obj_type;
 
-        this.setAttrOptions(obj_type);
+        this.setAttrOptions(obj_type, obj_attr);
 
         this.ui.querySelector("#object-track-id-editor").value = obj_track_id;
 
         if (obj_attr)
-            this.ui.querySelector("#object-attribute-editor").value = obj_attr;
+            this.ui.querySelector("#attr-input").value = obj_attr;
         else
-            this.ui.querySelector("#object-attribute-editor").value = "";
+            this.ui.querySelector("#attr-input").value = "";
         
     }
 
@@ -46,13 +57,74 @@ class FastToolBox{
         }
     }
 
-    setAttrOptions(obj_type)
+    setAttrOptions(obj_type, obj_attr)
     {
-        let options = globalObjectCategory.objAttrsOptions[obj_type];
-        if (options)
-            this.ui.querySelector("#object-attribute").innerHTML = options;
-        else
-            this.ui.querySelector("#object-attribute").innerHTML = "";
+       
+        let attrs = ["static"];
+
+
+        if (globalObjectCategory.obj_type_map[obj_type].attr)
+            attrs = attrs.concat(globalObjectCategory.obj_type_map[obj_type].attr);
+        
+        // merge attrs
+        if (obj_attr){
+            let objAttrs = obj_attr.split(",").map(a=>a.trim());
+            objAttrs.forEach(a=>{
+                if (!attrs.find(x=>x==a))
+                {
+                    attrs.push(a);
+                }
+            })
+        }
+
+
+        let items = ``;
+
+        
+        attrs.forEach(a=>{
+            items+= `<div class='attr-item'>${a}</div>`
+        });
+        
+            
+        this.ui.querySelector("#attr-selector").innerHTML = items;
+
+        this.ui.querySelector("#attr-selector").onclick = (event)=>{
+
+            let attrs = this.ui.querySelector("#attr-input").value;
+
+            let objCurrentAttrs = [];
+            if (attrs)
+                objCurrentAttrs = attrs.split(",").map(a=>a.trim());
+            
+
+            let clickedAttr = event.target.innerText;
+
+            if (objCurrentAttrs.find(x=>x==clickedAttr))
+            {
+                objCurrentAttrs = objCurrentAttrs.filter(x => x!= clickedAttr);
+            }
+            else
+            {
+                objCurrentAttrs.push(clickedAttr);
+            }
+
+            attrs = "";
+            if (objCurrentAttrs.length > 0)
+            {
+                attrs = objCurrentAttrs.reduce((a,b)=>a+ (a?",":"") + b);
+            }
+
+            this.ui.querySelector("#attr-input").value = attrs;
+
+            this.eventHandler({
+                currentTarget:{
+                    id: "attr-input",
+                    value: attrs
+                }
+            });
+            
+        }
+        
     }
 
     installEventHandler(){
@@ -78,8 +150,8 @@ class FastToolBox{
 
         this.ui.querySelector("#object-category-selector").onchange =  event=>{
             
-            //this.ui.querySelector("#object-attribute-editor").value="";
-            this.setAttrOptions(event.currentTarget.value);
+            //this.ui.querySelector("#attr-input").value="";
+            this.setAttrOptions(event.currentTarget.value, this.ui.querySelector("#attr-input").value);
             this.eventHandler(event);
         };
 
@@ -91,9 +163,9 @@ class FastToolBox{
             this.eventHandler(event);
         });
         
-        this.ui.querySelector("#object-attribute-editor").onchange =    event=>this.eventHandler(event);
-        this.ui.querySelector("#object-attribute-editor").addEventListener("keydown", e=>e.stopPropagation());
-        this.ui.querySelector("#object-attribute-editor").addEventListener("keyup", event=>{
+        this.ui.querySelector("#attr-input").onchange =    event=>this.eventHandler(event);
+        this.ui.querySelector("#attr-input").addEventListener("keydown", e=>e.stopPropagation());
+        this.ui.querySelector("#attr-input").addEventListener("keyup", event=>{
             event.stopPropagation();
             this.eventHandler(event);
         });
@@ -375,7 +447,7 @@ class FloatLabelManager {
 
             if (this.obj_attr)
             {
-                label_text += '<div class="label-obj-attr-text">,';                
+                label_text += '<div class="label-obj-attr-text">';                
                 label_text += this.obj_attr;
                 label_text += '</div>';
             }
