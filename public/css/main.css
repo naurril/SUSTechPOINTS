@@ -342,6 +342,10 @@ dynamic set obj-type css has higher priority than this one.
     padding-right: 5px;
 }
 
+.attr-selected {
+	color: var(--highlight-color);
+}
+
 .attr-item:hover {
 	background-color: var(--highlight-background-color);
 }

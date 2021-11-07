@@ -98,8 +98,10 @@ class FastToolBox{
             attrs = attrs.concat(globalObjectCategory.obj_type_map[obj_type].attr);
         
         // merge attrs
+        let objAttrs = [];
+
         if (obj_attr){
-            let objAttrs = obj_attr.split(",").map(a=>a.trim());
+            objAttrs = obj_attr.split(",").map(a=>a.trim());
             objAttrs.forEach(a=>{
                 if (!attrs.find(x=>x==a))
                 {
@@ -113,7 +115,12 @@ class FastToolBox{
 
         
         attrs.forEach(a=>{
-            items+= `<div class='attr-item'>${a}</div>`
+            if (objAttrs.find(x=>x==a)){
+                items+= `<div class='attr-item attr-selected'>${a}</div>`
+            }
+            else {
+                items+= `<div class='attr-item'>${a}</div>`
+            }
         });
         
             
@@ -133,10 +140,12 @@ class FastToolBox{
             if (objCurrentAttrs.find(x=>x==clickedAttr))
             {
                 objCurrentAttrs = objCurrentAttrs.filter(x => x!= clickedAttr);
+                event.target.className = 'attr-item';
             }
             else
             {
                 objCurrentAttrs.push(clickedAttr);
+                event.target.className = 'attr-item attr-selected';
             }
 
             attrs = "";
