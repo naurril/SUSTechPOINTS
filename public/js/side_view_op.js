@@ -91,7 +91,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             return lines[name];
         }
     
-        function highlight_lines(lines){
+        function show_lines(lines){
             let theme = document.documentElement.className;
 
             let lineColor = "yellow";
@@ -101,6 +101,18 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
             for (var l in lines){
                 lines[l].style.stroke=lineColor;
             };
+
+        }
+
+        function hightlight_line(line)
+        {
+            let theme = document.documentElement.className;
+
+            let lineColor = "red";
+            if (theme == "theme-light")
+                lineColor = "blue";
+
+            line.style.stroke=lineColor;
         }
     
         function hide_lines(lines){
@@ -495,15 +507,15 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 on_wheel(event.deltaY);        
             };
     
-            install_edge_hanler(handles.left,   lines,   {x:-1,y:0});
-            install_edge_hanler(handles.right,  lines,   {x:1, y:0});
-            install_edge_hanler(handles.top,    lines,   {x:0, y:1});
-            install_edge_hanler(handles.bottom, lines,   {x:0, y:-1});
-            install_edge_hanler(handles.topleft, lines,   {x:-1, y:1});
-            install_edge_hanler(handles.topright, lines,   {x:1, y:1});
-            install_edge_hanler(handles.bottomleft, lines,   {x:-1, y:-1});
-            install_edge_hanler(handles.bottomright, lines,   {x:1, y:-1});
-            install_edge_hanler(handles.move, lines,  null);
+            install_edge_hanler('left', handles.left,   lines,   {x:-1,y:0});
+            install_edge_hanler('right', handles.right,  lines,   {x:1, y:0});
+            install_edge_hanler('top', handles.top,    lines,   {x:0, y:1});
+            install_edge_hanler('bottom', handles.bottom, lines,   {x:0, y:-1});
+            install_edge_hanler('top,left', handles.topleft, lines,   {x:-1, y:1});
+            install_edge_hanler('top,right', handles.topright, lines,   {x:1, y:1});
+            install_edge_hanler('bottom,left', handles.bottomleft, lines,   {x:-1, y:-1});
+            install_edge_hanler('bottom,right', handles.bottomright, lines,   {x:1, y:-1});
+            install_edge_hanler('left,right,top,bottom', handles.move, lines,  null);
     
             if (on_direction_changed){
                 install_direction_handler("line-direction");
@@ -567,23 +579,24 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 }
             }
     
-            function highlight(){
-                if (scope.boxEditor.box)
-                    highlight_lines(lines);
-            }
-
             function hide(){
                 hide_lines(lines);
             };
             //install_move_handler();
     
-            function install_edge_hanler(handle, lines, direction)
+            function install_edge_hanler(name, handle, lines, direction)
             {
-                
-                
-                
-                
-                handle.onmouseenter = highlight;    
+                                                               
+                handle.onmouseenter = ()=>{
+                    if (scope.boxEditor.box){
+                        show_lines(lines);
+
+                        if (name)
+                            name.split(",").forEach(n=> hightlight_line(lines[n]));
+                    }
+
+
+                };    
                 handle.onmouseleave = hide;
     
         
@@ -613,7 +626,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                     event.stopPropagation();
                     event.preventDefault();
 
-                    highlight();
+                    
                     disable_handle_except(handle);
                     ui.querySelector("#v-buttons").style.display="none";
 
@@ -636,7 +649,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         svg.onmouseup=null;
                         enable_handles();
                         // restore color
-                        hide();
+                        //hide();
                         handle.onmouseleave = hide;
                         
                         ui.querySelector("#v-buttons").style.display="inherit";
@@ -692,7 +705,12 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 var line = ui.querySelector("#"+linename);
                 var svg = ui.querySelector("#view-svg");
         
-                handle.onmouseenter = highlight;
+                handle.onmouseenter = (event)=>{
+                    if (scope.boxEditor.box){
+                        show_lines(lines);
+                        hightlight_line(line);
+                    }
+                };
                 /*function(event){
                     line.style.stroke="black";
                 };
@@ -723,9 +741,10 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                     if (event.which!=1)
                         return;
     
-                    line.style.stroke="yellow";
+                    //line.style.stroke="yellow";
                     handle.onmouseleave = null;
-                    highlight_lines(lines);
+                    //show_lines(lines);
+                    
                     disable_handle_except(handle);
     
     
