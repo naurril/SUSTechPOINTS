@@ -271,7 +271,8 @@ function AutoAdjust(boxOp, mouse, header){
                         box.scale, 
                         newObjRot, 
                         box.obj_type, 
-                        box.obj_track_id);
+                        box.obj_track_id,
+                        box.obj_attr);
                     newBox.annotator="F";
                     newBox.follows = {
                         obj_track_id: refObj.obj_track_id,
@@ -335,7 +336,7 @@ function AutoAdjust(boxOp, mouse, header){
            pos.z = this.marked_object.ann.psr.position.z;
     
         return  add_box(pos, this.marked_object.ann.psr.scale, this.marked_object.ann.psr.rotation,
-            this.marked_object.ann.obj_type, this.marked_object.ann.obj_id);    
+            this.marked_object.ann.obj_type, this.marked_object.ann.obj_id, this.marked_object.ann.obj_attr);    
     };
     
     

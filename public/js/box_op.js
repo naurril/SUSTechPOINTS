@@ -637,6 +637,7 @@ function BoxOp(){
         let refObj = boxList.find(b=>!!b);
         let obj_type = refObj.obj_type;
         let obj_track_id = refObj.obj_track_id;
+        let obj_attr = refObj.obj_attr;
 
         for (let i = 0; i< boxList.length; i++){
             if (!applyIndList[i])
@@ -660,7 +661,8 @@ function BoxOp(){
                               ann.scale, 
                               ann.rotation, 
                               obj_type, 
-                              obj_track_id);
+                              obj_track_id,
+                              obj_attr);
                 newBox.annotator="M";
                 world.annotation.load_box(newBox);
                 world.annotation.setModified();
@@ -719,6 +721,7 @@ function BoxOp(){
         let refObj = boxList.find(b=>!!b);
         let obj_type = refObj.obj_type;
         let obj_track_id = refObj.obj_track_id;
+        let obj_attr = refObj.obj_attr;
 
         let onFinishOneBox= (index)=>{
             console.log(`auto insert ${index} ${worldList[index].frameInfo.frame}done`);
@@ -737,7 +740,8 @@ function BoxOp(){
                               ann.scale, 
                               ann.rotation, 
                               obj_type, 
-                              obj_track_id);
+                              obj_track_id,
+                              obj_attr);
                 newBox.annotator="M";
                 world.annotation.load_box(newBox);
 

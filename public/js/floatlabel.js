@@ -190,7 +190,6 @@ class FastToolBox{
             "#label-batchedit",
             "#label-trajectory",
             "#label-edit",
-            "#label-reset",
             "#label-highlight",
             "#label-rotate",
         ];

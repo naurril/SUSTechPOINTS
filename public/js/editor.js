@@ -413,13 +413,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
         
 
-        case "label-reset":
-            event.currentTarget.blur();
-            if (self.selected_box){
-                //switch_bbox_type(this.selected_box.obj_type);
-                self.transform_bbox("reset");
-            }        
-            break;
+        // case "label-reset":
+        //     event.currentTarget.blur();
+        //     if (self.selected_box){
+        //         //switch_bbox_type(this.selected_box.obj_type);
+        //         self.transform_bbox("reset");
+        //     }        
+        //     break;
 
         case "label-highlight":
             event.currentTarget.blur();
@@ -1709,7 +1709,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         let refbox = this.autoAdjust.marked_object.ann;
         pos.z = refbox.psr.position.z;
-        let box = this.add_box(pos, refbox.psr.scale, refbox.psr.rotation, refbox.obj_type, refbox.obj_id);
+
+        let id = refbox.obj_id;
+
+        if (this.autoAdjust.marked_object.frame == this.data.world.frameInfo.frame)
+        {
+            id = "";
+        }
+
+        let box = this.add_box(pos, refbox.psr.scale, refbox.psr.rotation, refbox.obj_type, id, refbox.obj_attr);
         
         return box;
     };
@@ -1737,8 +1745,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         return box;
     };
 
-    this.add_box= function(pos, scale, rotation, obj_type, obj_track_id){
-        let box = this.data.world.annotation.add_box(pos, scale, rotation, obj_type, obj_track_id);
+    this.add_box= function(pos, scale, rotation, obj_type, obj_track_id, obj_attr){
+        let box = this.data.world.annotation.add_box(pos, scale, rotation, obj_type, obj_track_id, obj_attr);
 
         this.floatLabelManager.add_label(box);
         
