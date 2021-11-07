@@ -127,8 +127,20 @@ function AutoAdjust(boxOp, mouse, header){
             newObjRot.y /= denorm;
             newObjRot.z /= denorm;
 
-            // apply
             
+
+            // ignor distant objects
+
+            if (pointsGlobalConfig.ignoreDistantObject){
+                let objDistance = Math.sqrt(newObjPos.x * newObjPos.x + newObjPos.y * newObjPos.y + newObjPos.z * newObjPos.z);
+
+                if ((box.scale.z < 2 && objDistance > 100) || objDistance > 150)
+                {
+                    return;
+                }
+            }
+
+            // apply
             if (existedBox){
                 existedBox.position.x = newObjPos.x;
                 existedBox.position.y = newObjPos.y;

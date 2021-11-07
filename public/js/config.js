@@ -36,6 +36,8 @@ class Config{
     moveStep = 0.01;  // ratio, percentage
     rotateStep = Math.PI/360;
     
+    ignoreDistantObjects = true;
+    
     ///editorCfg
 
     //disableSceneSelector = true;

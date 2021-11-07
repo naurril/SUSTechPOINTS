@@ -450,7 +450,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.handleContextMenuEvent(event);
             break;   
         }
-        
+
     };
 
     this.cancelFocus= function(box){
@@ -746,6 +746,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
             if (!this.checkBoxTrackId())
                 break;
+            if (!this.checkAnnBeforeBatchEdit())
+                break;
             this.autoAdjust.followsRef(this.selected_box);
             this.header.updateModifiedStatus();
 
@@ -753,11 +755,16 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 'cm-follow-static-objects':
             if (!this.checkBoxTrackId())
                 break;
+            if (!this.checkAnnBeforeBatchEdit())
+                break;
             this.autoAdjust.followStaticObjects(this.selected_box);
             this.header.updateModifiedStatus();
 
             break;
         case "cm-sync-followers":
+            
+            if (!this.checkAnnBeforeBatchEdit())
+                break;
             this.autoAdjust.syncFollowers(this.selected_box);
             this.header.updateModifiedStatus();
             this.render();
@@ -784,6 +791,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-modify-obj-type":
             {
+                if (!this.checkAnnBeforeBatchEdit())
+                    break;
                 //let saveList=[];
                 this.data.worldList.forEach(w=>{
                     let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
@@ -803,6 +812,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-modify-obj-size":
             {
+                if (!this.checkAnnBeforeBatchEdit())
+                    break;
                 //let saveList=[];
                 this.data.worldList.forEach(w=>{
                     let box = w.annotation.boxes.find(b=>b.obj_track_id == this.selected_box.obj_track_id);
