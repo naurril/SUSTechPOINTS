@@ -191,11 +191,65 @@
 									</g></svg>
 								</div>
 
-								
+								<div id="label-more" class="ui-button">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M12 8 L 18 12 L 12 16Z"></path>
+									</g></svg>
+
+									<div id="object-dropdown-menu" class="non-selectable">
+										<div class="menu-item" id="cm-delete-obj">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Delete (all) in other frames</div>
+										</div>
+										<div class="menu-item" id="cm-modify-obj-type">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Sync object type & attr</div>
+										</div>
+										<div class="menu-item" id="cm-modify-obj-size">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Sync object size</div>
+										</div>
+				
+										<div class="menu-item menu-seperator"></div>
+										<div class="menu-item" id="cm-auto-ann-background">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Auto ann. it in background</div>
+										</div>
+										<div class="menu-item" id="cm-interpolate-background">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">interpolate it in background</div>
+										</div>			
+			
+										<div class="menu-item menu-seperator"></div>
+										<div class="menu-item" id="cm-select-as-ref">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Copy/Select as Ref</div>
+										</div>
+										
+										<div class="menu-item" id="cm-follow-ref">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Follow Ref</div>
+										</div>
+				
+										<div class="menu-item" id="cm-sync-followers">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Sync followers</div>
+										</div>
+										
+				
+										<div class="menu-item" id="cm-follow-static-objects">
+											<div class="menu-item-icon"></div>
+											<div class="menu-item-text">Follow Static Objects</div>
+										</div>
+				
+									</div>
+								</div>
+
 
 							</div>
 
-							
+
 							
 							<div id="category-id-editor">
 								<select title="category"  id="object-category-selector"></select>
@@ -454,7 +508,11 @@
 						</div>
 						
 
-						<div class="menu-item menu-seperator"></div>
+						<div class="menu-item" id="cm-follow-static-objects">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">Follow Static Objects</div>
+						</div>
+
 					</div>
 
 					<div id="box-editor-context-menu">
@@ -591,8 +649,6 @@
 
 				<div id="config-wrapper">
 						<div id="config-menu" class="non-selectable">
-
-							<div class="menu-item menu-seperator"></div>
 
 							<div class="menu-nonclickable-item" id="cfg-theme">
 								<span>Theme</span>

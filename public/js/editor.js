@@ -446,7 +446,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case "attr-input":
             this.object_attribute_changed(event.currentTarget.value);
             break;
+        default:
+            this.handleContextMenuEvent(event);
+            break;   
         }
+        
     };
 
     this.cancelFocus= function(box){
@@ -746,7 +750,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.header.updateModifiedStatus();
 
             break;
+        case 'cm-follow-static-objects':
+            if (!this.checkBoxTrackId())
+                break;
+            this.autoAdjust.followStaticObjects(this.selected_box);
+            this.header.updateModifiedStatus();
 
+            break;
         case "cm-sync-followers":
             this.autoAdjust.syncFollowers(this.selected_box);
             this.header.updateModifiedStatus();

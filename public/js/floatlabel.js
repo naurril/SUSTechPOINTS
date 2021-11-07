@@ -20,6 +20,37 @@ class FastToolBox{
             this.ui.querySelector("#attr-selector").style.display="none";
         }
         
+        this.ui.querySelector("#label-more").onmouseenter=function(event){
+            if (this.timerId)
+            {
+                clearTimeout(this.timerId);
+                this.timerId = null;
+            }
+            event.target.querySelector("#object-dropdown-menu").style.display="inherit";
+        }
+        this.ui.querySelector("#label-more").onmouseleave=function(event){
+            let ui = event.target.querySelector("#object-dropdown-menu");
+            this.timerId = setTimeout(()=>{
+                ui.style.display="none";
+                this.timerId = null;
+            },
+            200);           
+        }
+
+
+        let dropdownMenu = this.ui.querySelector("#object-dropdown-menu");
+        for (let i = 0; i < dropdownMenu.children.length; i++)
+        {
+            dropdownMenu.children[i].onclick = (event) =>
+            {          
+                //event.preventDefault();
+                event.stopPropagation();
+
+                this.eventHandler(event);                        
+
+                this.ui.querySelector("#object-dropdown-menu").style.display="none";                
+            }                   
+        }
     }
 
     hide()

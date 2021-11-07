@@ -4,7 +4,7 @@ class Config{
     //dataCfg = {
     
     //disableLabels: true,
-    enablePreload = false;
+    enablePreload = true;
     color_points = "mono";
     enableRadar = false;
     enableAuxLidar = false;
@@ -25,6 +25,8 @@ class Config{
     batchModeInstNumber = 20;
     batchModeSubviewSize = {width: 130, height: 450};
 
+
+    // only rotate z in 'auto/interpolate' algs
     autoRotateZOnly = true;
     autoSave = true;
 

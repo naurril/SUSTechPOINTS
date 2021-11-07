@@ -527,6 +527,19 @@ dynamic set obj-type css has higher priority than this one.
 	display: flex;
 }
 
+#label-more {
+	position:relative;
+}
+#object-dropdown-menu {
+	display: none;
+	position:absolute;
+	top: 100%;
+	left: 0%;
+	background-color: var(--widget-background-color);
+	width: 250px;
+	line-height: 1.5;
+}
+
 .ui-button {
 	background-color: var(--widget-background-color);
 	padding-left: 0;
