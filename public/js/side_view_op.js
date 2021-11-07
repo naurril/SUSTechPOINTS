@@ -605,7 +605,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         return;
 
                     //line.style["stroke-dasharray"]="none";
-                    hide();
+                    //hide();
                     handle.onmouseleave = hide;
                 };
         

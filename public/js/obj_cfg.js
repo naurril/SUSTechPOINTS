@@ -6,7 +6,7 @@ class ObjectCategory
 
     obj_type_map = {
         Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5], attr:["door open"]},
-        Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7], attr:["baby cart", "trash can", "umbrella", "sitting", "squating", "bending over", "luggage"]},
+        Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7], attr:["umbrella", "sitting", "squating", "bending over", "luggage"]},
         Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
         Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
         Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
