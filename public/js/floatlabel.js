@@ -11,14 +11,26 @@ class FastToolBox{
 
         this.installEventHandler();
 
-        this.ui.querySelector("#attr-editor").onmouseenter=(event)=>{
-            this.ui.querySelector("#attr-selector").style.display="";
-        }
+        this.ui.querySelector("#attr-editor").onmouseenter=function(event){
+            if (this.timerId)
+            {
+                clearTimeout(this.timerId);
+                this.timerId = null;
+            }
+            event.target.querySelector("#attr-selector").style.display="";
+        };
 
 
-        this.ui.querySelector("#attr-editor").onmouseleave=(event)=>{
-            this.ui.querySelector("#attr-selector").style.display="none";
-        }
+        this.ui.querySelector("#attr-editor").onmouseleave=function(event){
+            let ui = event.target.querySelector("#attr-selector");
+
+            this.timerId = setTimeout(()=>{
+                ui.style.display="none";
+                this.timerId = null;
+            },
+            200);           
+
+        };
         
         this.ui.querySelector("#label-more").onmouseenter=function(event){
             if (this.timerId)
@@ -27,7 +39,8 @@ class FastToolBox{
                 this.timerId = null;
             }
             event.target.querySelector("#object-dropdown-menu").style.display="inherit";
-        }
+        };
+
         this.ui.querySelector("#label-more").onmouseleave=function(event){
             let ui = event.target.querySelector("#object-dropdown-menu");
             this.timerId = setTimeout(()=>{
@@ -35,7 +48,7 @@ class FastToolBox{
                 this.timerId = null;
             },
             200);           
-        }
+        };
 
 
         let dropdownMenu = this.ui.querySelector("#object-dropdown-menu");
