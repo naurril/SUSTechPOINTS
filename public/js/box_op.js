@@ -698,7 +698,17 @@ function BoxOp(){
         
         
         // if annotator is not null, it's annotated by us algorithms
-        let anns = boxList.map(b=> (!b || b.annotator)? null : b.world.annotation.ann_to_vector_global(b));
+        let anns = boxList.map((b,i)=> {
+            
+            if (!b)
+                return null;
+
+            if (b.annotator)
+                return null; 
+            
+            return b.world.annotation.ann_to_vector_global(b);
+        });
+
         console.log("anns to interpolate", anns);
 
         let autoAdjAsync = async (index, newAnn)=>{
@@ -710,10 +720,12 @@ function BoxOp(){
             
             // autoadj is timecomsuming
             // jump this step
+            let rotateThis = dontRotate;
             if (!applyIndList[index]){
-                return newAnn;
+                rotateThis = "dontrotate";
             }
-            let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true, dontRotate);
+            
+            let adjustedBox =  await this.auto_rotate_xyz(tempBox, null, null, null, true, rotateThis);
             return world.annotation.ann_to_vector_global(adjustedBox);
         };
 
