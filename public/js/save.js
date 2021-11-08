@@ -116,6 +116,10 @@ function doSaveWorldList(worldList, done)
                 done();
             }
         }
+        else{
+            window.editor.infoBox.show("Error", `save failed, status : ${this.status}`);
+        }
+        
     
         // end of state change: it can be after some time (async)
     };
