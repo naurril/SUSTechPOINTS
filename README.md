@@ -9,9 +9,6 @@
 ### batch-mode box editing
 ![batch-mode](./doc/batch-mode.png)
 
-## Note
-This project is still under heavy development, some features/algorithms need packages which are not uploaded yet, we will upload them soon.
-
 ## Features
 
 - 9 DoF box editing
