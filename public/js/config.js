@@ -27,7 +27,7 @@ class Config{
 
 
     // only rotate z in 'auto/interpolate' algs
-    autoRotateZOnly = true;
+    enableAutoRotateXY = false;
     autoSave = true;
 
     hideId = false;
@@ -98,6 +98,7 @@ class Config{
         ["coordinateSystem", null],
         ["batchModeInstNumber", parseInt],
         ["batchModeSubviewSize", JSON.parse],
+        ["enableAutoRotateXY", this.toBool]
 
     ];
 

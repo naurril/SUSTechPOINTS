@@ -102,7 +102,7 @@
 						<div id="floating-labels" class="non-selectable"></div>				
 						<div id="obj-editor">
 							
-							<div id="obj-editor-tools">
+							<div class="obj-editor-row">
 								<div id="label-copy" class="ui-button" title="copy (C-c)">
 									<!-- <span class="ui-icon ui-icon-copy"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -185,33 +185,6 @@
 									</g></svg>
 								</div>
 
-								
-
-
-							</div>
-
-
-							
-							<div id="category-id-editor">
-								<select title="category"  id="object-category-selector"></select>
-								
-								<div id="attr-editor">
-									<input title="attribute" id="attr-input" type="text" size="10" placeholder="attribute">
-									<div id="attr-selector">									
-									</div>
-								</div>
-
-								<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5" placeholder="track id"></input>
-								<datalist id="obj-ids-of-scene"></datalist>														
-								<div id="label-gen-id" class="ui-button" title="generate ID">
-									<!-- <span class="ui-icon ui-icon-copy"></span> -->
-									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-										<!-- <rect x="4" y="4" width="12" height="12"/> -->
-										<rect x="6" y="6" width="12" height="12"/>								
-									</g></svg>
-								</div>
-
-						
 								<div id="label-more" class="ui-button">
 									<!-- <span class="ui-icon ui-icon-trash"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -270,7 +243,29 @@
 				
 									</div>
 								</div>
+							</div>
 
+						
+							<div class="obj-editor-row">
+								<select title="category"  id="object-category-selector"></select>
+
+								<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5" placeholder="track id"></input>
+								<datalist id="obj-ids-of-scene"></datalist>														
+								<div id="label-gen-id" class="ui-button" title="generate ID">
+									<!-- <span class="ui-icon ui-icon-copy"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<!-- <rect x="4" y="4" width="12" height="12"/> -->
+										<rect x="6" y="6" width="12" height="12"/>								
+									</g></svg>
+								</div>
+							</div>
+
+							<div class = "obj-editor-row">
+								<div id="attr-editor">
+									<input title="attribute" id="attr-input" type="text" size="10" placeholder="attribute">
+									<div id="attr-selector">									
+									</div>
+								</div>
 							</div>
 							
 						</div>
@@ -298,7 +293,7 @@
 				
 				<div id="context-menu-wrapper" class="non-selectable">
 					<div id="context-menu">
-						<div class="menu-item menu-seperator"></div>
+						
 
 						<div class="menu-item" id="cm-new">
 							<div class="menu-item-icon"></div>
@@ -480,11 +475,11 @@
 						</div>
 						<div class="menu-item" id="cm-auto-ann-background">
 							<div class="menu-item-icon"></div>
-							<div class="menu-item-text">Auto ann. it in background</div>
+							<div class="menu-item-text">Auto annotate in background</div>
 						</div>
 						<div class="menu-item" id="cm-interpolate-background">
 							<div class="menu-item-icon"></div>
-							<div class="menu-item-text">interpolate it in background</div>
+							<div class="menu-item-text">Interpolate in background</div>
 						</div>
 
 						<div class="menu-item" id="cm-show-trajectory">
@@ -747,6 +742,13 @@
 										<option value = "utm">GPS/UTM</option>
 										<option value = "lidar" selected>LiDAR</option>
 									</select>
+								</div>
+							</div>
+
+							<div class="menu-nonclickable-item" id="cfg-auto-rotate-xy">
+								<span>Auto rotate X/Y (roll/pitch)</span>
+								<div class="cfg-widget-group">
+									<input type="checkbox" id="cfg-auto-rotate-xy-checkbox" class="cfg-widget">
 								</div>
 							</div>
 

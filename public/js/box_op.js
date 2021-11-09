@@ -651,7 +651,7 @@ function BoxOp(){
                 let ann = world.annotation.vector_global_to_ann(ret[i]);
                 
                 // don't roate x/y
-                if (pointsGlobalConfig.autoRotateZOnly)
+                if (pointsGlobalConfig.enableAutoRotateXY)
                 {
                     ann.rotation.x = 0;
                     ann.rotation.y = 0;
@@ -671,7 +671,7 @@ function BoxOp(){
                 // modify box attributes
                 let b = boxList[i].world.annotation.vector_global_to_ann(anns[i]);
 
-                if (pointsGlobalConfig.autoRotateZOnly)
+                if (pointsGlobalConfig.enableAutoRotateXY)
                 {
                     b.rotation.x = 0;
                     b.rotation.y = 0;

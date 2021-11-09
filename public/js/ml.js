@@ -347,7 +347,7 @@ var ml = {
                                 adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
                             }
                             
-                            if (pointsGlobalConfig.autoRotateZOnly)
+                            if (pointsGlobalConfig.enableAutoRotateXY)
                             {
                                 adjustedAnn[3] = tempAnn[3];
                                 adjustedAnn[4] = tempAnn[4];

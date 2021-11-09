@@ -6,6 +6,7 @@ import { globalObjectCategory } from "./obj_cfg.js";
 class FastToolBox{
     constructor(ui, eventHandler)
     {
+        let self = this;
         this.ui = ui;
         this.eventHandler = eventHandler;
 
@@ -17,7 +18,9 @@ class FastToolBox{
                 clearTimeout(this.timerId);
                 this.timerId = null;
             }
+            
             event.target.querySelector("#attr-selector").style.display="";
+
         };
 
 
@@ -38,7 +41,26 @@ class FastToolBox{
                 clearTimeout(this.timerId);
                 this.timerId = null;
             }
-            event.target.querySelector("#object-dropdown-menu").style.display="inherit";
+            let ui = event.target.querySelector("#object-dropdown-menu");
+            ui.style.display="inherit";
+            ui.style.top = "100%";
+            ui.style.left = "0%";
+            ui.style.right = null;
+            ui.style.bottom = null;
+
+            let rect = ui.getClientRects()[0];
+            if (window.innerHeight < rect.y+rect.height)
+            {
+                ui.style.top = null;
+                ui.style.bottom = "100%";
+            }
+
+            if (window.innerWidth < rect.x+rect.width)
+            {
+                ui.style.left = null;
+                ui.style.right = "0%";
+            }
+            
         };
 
         this.ui.querySelector("#label-more").onmouseleave=function(event){
@@ -351,41 +373,16 @@ class FloatLabelManager {
         }
     }
 
-    getLabelPos(local_id)
+    getLabelEditorPos(local_id)
     {
         let label = this.editor_ui.querySelector("#obj-local-"+local_id);
         if (label)
         {
-            return {top: label.style.top,
-                   left: label.style.left
+            
+            return {
+                top: label.offsetTop + label.offsetHeight + "px",
+                left: label.offsetLeft + 30 + "px",
                 };
-        }
-    }
-
-    select_box(local_id){
-        var label = this.editor_ui.querySelector("#obj-local-"+local_id);
-
-        
-        if (label){                
-            if (!label.selected){
-                label.className = "selected-float-label";
-                label.hidden = true;
-                label.selected = true;                
-                
-                //this.editor_ui.querySelector("#obj-editor").style.display = "inherit";//"none";
-                //this.editor_ui.querySelector("#obj-label").style.display = "none";
-                //this.editor_ui.querySelector("#obj-label").innerText = label.innerText;
-                
-            }
-        }
-    }
-
-    unselect_box(local_id){
-        var label = this.editor_ui.querySelector("#obj-local-"+local_id);
-        if (label){                
-            label.className = label.orgClassName;
-            label.hidden = false;
-            label.selected = false;
         }
     }
 
@@ -531,8 +528,6 @@ class FloatLabelManager {
         if (pos.out_view){
             label.className += " label-out-view";
         }
-
-        label.selected = false;
 
         this.labelsUi.appendChild(label);
 

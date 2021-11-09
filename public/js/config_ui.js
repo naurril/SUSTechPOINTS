@@ -111,9 +111,17 @@ class ConfigUi{
         },
 
 
+        
         "#cfg-hide-category-checkbox":(event)=>{
             let checked = event.currentTarget.checked;
             this.editor.floatLabelManager.show_category(!checked);
+            return false;
+        },
+
+
+        "#cfg-auto-rotate-xy-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+            pointsGlobalConfig.setItem("enableAutoRotateXY", checked);
             return false;
         },
 
@@ -306,6 +314,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-hide-id-checkbox").value = pointsGlobalConfig.hideId;
         this.menu.querySelector("#cfg-hide-category-checkbox").value = pointsGlobalConfig.hideCategory;
         this.menu.querySelector("#cfg-data-preload-checkbox").checked = pointsGlobalConfig.enablePreload;
+        this.menu.querySelector("#cfg-auto-rotate-xy-checkbox").checked = pointsGlobalConfig.enableAutoRotateXY;
     }
 
 

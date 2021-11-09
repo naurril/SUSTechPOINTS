@@ -856,7 +856,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.floatLabelManager.update_all_position();
         if (this.selected_box){
-            this.fastToolBox.setPos(this.floatLabelManager.getLabelPos(this.selected_box.obj_local_id));
+            this.fastToolBox.setPos(this.floatLabelManager.getLabelEditorPos(this.selected_box.obj_local_id));
         }
     };
 
@@ -1512,7 +1512,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                         //this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
                         //this.selected_box.material.opacity = this.data.cfg.box_opacity;
                         this.boxOp.unhighlightBox(this.selected_box);
-                        this.floatLabelManager.unselect_box(this.selected_box.obj_local_id, this.selected_box.obj_type);
+                        //this.floatLabelManager.unselect_box(this.selected_box.obj_local_id, this.selected_box.obj_type);
                         this.fastToolBox.hide();
 
                         if (!keep_lock){
@@ -1551,7 +1551,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
                 this.selected_box.material.color = new THREE.Color(parseInt("0x"+globalObjectCategory.get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
                 this.selected_box.material.opacity = this.data.cfg.box_opacity;                
-                this.floatLabelManager.unselect_box(this.selected_box.obj_local_id);
+                //this.floatLabelManager.unselect_box(this.selected_box.obj_local_id);
                 this.fastToolBox.hide();
                 this.imageContext.image_manager.onBoxUnselected(this.selected_box.obj_local_id, this.selected_box.obj_type);
 
@@ -1606,9 +1606,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             // shold change this id if the current selected box changed id.
             this.view_state.lock_obj_track_id = object.obj_track_id;
 
-            this.floatLabelManager.select_box(this.selected_box.obj_local_id);
+            //this.floatLabelManager.select_box(this.selected_box.obj_local_id);
             
-            this.fastToolBox.setPos(this.floatLabelManager.getLabelPos(this.selected_box.obj_local_id));
+            this.fastToolBox.setPos(this.floatLabelManager.getLabelEditorPos(this.selected_box.obj_local_id));
             this.fastToolBox.setValue(object.obj_type, object.obj_track_id, object.obj_attr);
             this.fastToolBox.show();
 
@@ -2445,8 +2445,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         if (box){        
             this.header.update_box_info(box);
-            this.floatLabelManager.update_position(box, true);
-            this.fastToolBox.setPos(this.floatLabelManager.getLabelPos(box.obj_local_id));
+            // this.floatLabelManager.update_position(box, true);
+            // this.fastToolBox.setPos(this.floatLabelManager.getLabelEditorPos(box.obj_local_id));
             this.imageContext.image_manager.onBoxSelected(box.obj_local_id, box.obj_type);
 
 
@@ -2474,7 +2474,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         })
 
         if (this.selected_box){
-            this.floatLabelManager.select_box(this.selected_box.obj_local_id)
+            //this.floatLabelManager.select_box(this.selected_box.obj_local_id)
             this.fastToolBox.show();
             this.fastToolBox.setValue(this.selected_box.obj_type, this.selected_box.obj_track_id, this.selected_box.obj_attr);
         }

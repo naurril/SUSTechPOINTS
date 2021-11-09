@@ -311,13 +311,6 @@ dynamic set obj-type css has higher priority than this one.
 	display: none;
 }
 
-#category-id-editor {
-	display: flex;
-	color: inherit;
-	background: inherit;
-	padding: inherit;
-}
-
 
 #attr-editor {
 	position: relative;	
@@ -490,8 +483,8 @@ dynamic set obj-type css has higher priority than this one.
 	color: #0000ff;
 	position: absolute;
 	display:inline-flex;
-	/* background-color: #403b3b99; */
 }
+
 
 .non-selectable {
 	-webkit-user-select: none; /* Safari */        
@@ -508,11 +501,8 @@ dynamic set obj-type css has higher priority than this one.
 	display: none;
 }
 
-.selected-float-label {
-	color: #ff00ff;
-	position: absolute;
-	/* background-color: #403b3b99; */
-}
+
+
 
 
 
@@ -527,8 +517,12 @@ dynamic set obj-type css has higher priority than this one.
 	display: inherit;
 }
 
-#obj-editor-tools {
+.obj-editor-row {
 	display: flex;
+	color: inherit;
+	background: inherit;
+	padding: inherit;
+	margin: 2px;
 }
 
 #label-more {
@@ -536,8 +530,8 @@ dynamic set obj-type css has higher priority than this one.
 }
 #object-dropdown-menu {
 	position:absolute;
-	top: 100%;
-	left: 0%;
+	/* top: 100%;
+	left: 0%; */
 	background-color: var(--widget-background-color);
 	width: 250px;
 	line-height: 1.5;
