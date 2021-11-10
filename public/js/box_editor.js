@@ -151,8 +151,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             this.projectiveViewOps.attachBox(box);
             this.focusImageContext.updateFocusedImageContext(box);
 
-            this.update();
-            // this.updateInfo();
+            //this.update();
+            this.updateInfo();
             // this.boxView.render();
         }
 
@@ -517,18 +517,21 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         let frames = sceneMeta.frames.slice(startIndex, startIndex+this.batchSize);
 
         
-        this.viewManager.mainView.clearView();
+        //this.viewManager.mainView.clearView();
 
         frames.forEach(async (frame, editorIndex)=>{
             let world = await data.getWorld(sceneName, frame);
             let editor = this.addEditor();
-            editor.setTarget(world, objTrackId, objType);
+            //editor.setTarget(world, objTrackId, objType);
             editor.setIndex(editorIndex);
             editor.resize(pointsGlobalConfig.batchModeSubviewSize.width, pointsGlobalConfig.batchModeSubviewSize.height);
             
             data.activate_world(world, 
                 ()=>{
-                    editor.tryAttach();
+                    //editor.tryAttach();
+
+                    editor.setTarget(world, objTrackId, objType);
+                    
                     //
                     //this.viewManager.render();
                 },
@@ -885,7 +888,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             e.setSelected(false);
             e.resetTarget();
         });
-        this.viewManager.mainView.clearView();
+        
+        //this.viewManager.mainView.clearView();
+
         this.activeIndex = 0;
     };
 
