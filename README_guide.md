@@ -163,7 +163,7 @@ box应该包括整个人，包括四肢．人走动时形状发生变化，box�
 
 - 如何修改类别
   
-  如果某个object的类别标错了，又不想一个一个去修改，可以在某帧修改好之后，鼠标移到工具框的｀...｀然后选｀Sync object type & attr｀.
+  如果某个object的类别标错了，又不想一个一个去修改，可以在某帧修改好之后，鼠标移到工具框的`...`然后选`Sync object type & attr`.
 
   ![modify-type](./doc/modify-type-attr.png)
 
