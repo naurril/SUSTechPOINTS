@@ -220,11 +220,15 @@ class Trajectory extends PopupDialog{
 
                 svg.appendChild(g);
 
+                let r = 5;
+                let d = 25;
+                let a = 5;
+
                 //wrapper circle
                 let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-                p.setAttribute("cx", x);
-                p.setAttribute("cy", y);
-                p.setAttribute("r", 20 * this.objScale);
+                p.setAttribute("cx", x + (d-r)/2 * this.objScale * Math.cos(theta));
+                p.setAttribute("cy", y - (d-r)/2  * this.objScale* Math.sin(theta));
+                p.setAttribute("r", (d+2*r)/2 * this.objScale);
                 p.setAttribute("class","track-wrapper");
                 
                 g.appendChild(p);
@@ -233,16 +237,35 @@ class Trajectory extends PopupDialog{
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
                 p.setAttribute("cx", x);
                 p.setAttribute("cy", y);
-                p.setAttribute("r", 10 * this.objScale);
+                p.setAttribute("r", r * this.objScale);
                 
                 g.appendChild(p);
 
-                //direction
+                // //arrow head
+                // p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+                // p.setAttribute("x1", x + d * this.objScale * Math.cos(theta));
+                // p.setAttribute("y1", y - d * this.objScale* Math.sin(theta));
+
+                // p.setAttribute("x2", x + d * this.objScale * Math.cos(theta) - a * this.objScale * Math.cos(Math.PI/6+theta));
+                // p.setAttribute("y2", y - d * this.objScale * Math.sin(theta) + a * this.objScale * Math.sin(Math.PI/6+theta));
+                // g.appendChild(p);
+
+                // p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+                // p.setAttribute("x1", x + d * this.objScale * Math.cos(theta));
+                // p.setAttribute("y1", y - d * this.objScale * Math.sin(theta));
+
+                // p.setAttribute("x2", x + d * this.objScale * Math.cos(theta) - a * this.objScale * Math.cos(-Math.PI/6+theta));
+                // p.setAttribute("y2", y - d * this.objScale * Math.sin(theta) + a * this.objScale * Math.sin(-Math.PI/6+theta));
+                // g.appendChild(p);
+
+
+                // direction
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-                p.setAttribute("x1", x);
-                p.setAttribute("y1", y);
-                p.setAttribute("x2", x + 30 * this.objScale * Math.cos(theta));
-                p.setAttribute("y2", y - 30  * this.objScale* Math.sin(theta));
+                p.setAttribute("x1", x + 5  * this.objScale * Math.cos(theta));
+                p.setAttribute("y1", y - 5  * this.objScale* Math.sin(theta));
+
+                p.setAttribute("x2", x + 20  * this.objScale * Math.cos(theta));
+                p.setAttribute("y2", y - 20  * this.objScale* Math.sin(theta));
                 g.appendChild(p);
 
                 // frame
