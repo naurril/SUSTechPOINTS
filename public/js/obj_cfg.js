@@ -7,7 +7,7 @@ class ObjectCategory
     obj_type_map = {
         Car:            {color: '#86af49',  size:[4.5, 1.8, 1.5], attr:["door open"]},
         Pedestrian:     {color: '#ff0000',  size:[0.4, 0.5, 1.7], attr:["umbrella", "sitting", "squating", "bending over", "luggage"]},
-        Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5]},
+        Van:            {color: '#00ff00',  size:[4.5, 1.8, 1.5], attr:["door open"]},
         Bus:            {color: '#ffff00',  size:[13, 3, 3.5]},
         Truck:          {color: '#00ffff',  size:[10., 2.8, 3]},
         
@@ -23,6 +23,7 @@ class ObjectCategory
         MotorcyleRider: {color: '#ff8800',  size:[1.6, 0.6, 1.6], attr:["umbrella", "1 passenger", "2 passengers", "3 passengers"]},
 
         
+
         PoliceCar:      {color: '#86af49',  size:[4.5, 1.8, 1.5]},
         TourCar:        {color: '#86af49',  size:[4.4, 1.5, 2.2]},
 
@@ -59,6 +60,7 @@ class ObjectCategory
         RoadRoller:     {color: '#00aaff',  size:[2.7, 1.5, 2.0]},
         Bulldozer:      {color: '#00aaff',  size:[3.0, 2.0, 2.0]},
 
+        DontCare:       {color: '#00ff88',  size:[4, 4, 3]},
         Misc:           {color: '#008888',  size:[4.5, 1.8, 1.5]},
         Unknown:        {color: '#008888',  size:[4.5, 1.8, 1.5]},
         Unknown1:       {color: '#008888',  size:[4.5, 1.8, 1.5]},
