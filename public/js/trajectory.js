@@ -19,24 +19,31 @@ class Trajectory extends PopupDialog{
         this.svgUi.addEventListener("wheel", (event)=>{
             console.log("wheel", event.wheelDelta);
 
+
             let scaleRatio = event.wheelDelta/2400;
 
-            
+            if (event.ctrlKey)
+            {
+                this.objScale *= 1 + (scaleRatio);
+            }
+            else
+            {
+                let clientLength = Math.min(this.svgUi.clientWidth, this.svgUi.clientHeight);
 
-            let clientLength = Math.min(this.svgUi.clientWidth, this.svgUi.clientHeight);
+                let currentTargetRect = event.currentTarget.getBoundingClientRect();
+                let eventOffsetX = event.pageX - currentTargetRect.left;
+                let eventOffsetY = event.pageY - currentTargetRect.top;
+    
+                let x = eventOffsetX/clientLength*1000;
+                let y = eventOffsetY/clientLength*1000;
+    
+                this.posTrans.x = x - (x-this.posTrans.x) * (1+scaleRatio);
+                this.posTrans.y = y - (y-this.posTrans.y) * (1+scaleRatio);
+    
+    
+                this.posScale *= 1 + (scaleRatio);
+            }
 
-            let currentTargetRect = event.currentTarget.getBoundingClientRect();
-            let eventOffsetX = event.pageX - currentTargetRect.left;
-            let eventOffsetY = event.pageY - currentTargetRect.top;
-
-            let x = eventOffsetX/clientLength*1000;
-            let y = eventOffsetY/clientLength*1000;
-
-            this.posTrans.x = x - (x-this.posTrans.x) * (1+scaleRatio);
-            this.posTrans.y = y - (y-this.posTrans.y) * (1+scaleRatio);
-
-
-            this.posScale *= 1 + (scaleRatio);
 
             this.redrawAll();
 
@@ -87,12 +94,13 @@ class Trajectory extends PopupDialog{
 
     }
 
+    viewScale = 1;
     objScale = 1;
 
     updateObjectScale()
     {
         let v = this.viewUi;
-        this.objScale = Math.max(1000/v.clientHeight, 1000/v.clientWidth);
+        this.viewScale = Math.max(1000/v.clientHeight, 1000/v.clientWidth);
     }
     
     object = {};
@@ -220,15 +228,15 @@ class Trajectory extends PopupDialog{
 
                 svg.appendChild(g);
 
-                let r = 5;
-                let d = 25;
-                let a = 5;
+                let r = 5 * this.objScale;
+                let d = 25 * this.objScale;
+                let a = 5 * this.objScale;
 
                 //wrapper circle
                 let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-                p.setAttribute("cx", x + (d-r)/2 * this.objScale * Math.cos(theta));
-                p.setAttribute("cy", y - (d-r)/2  * this.objScale* Math.sin(theta));
-                p.setAttribute("r", (d+2*r)/2 * this.objScale);
+                p.setAttribute("cx", x + (d-r)/2 * this.viewScale * Math.cos(theta));
+                p.setAttribute("cy", y - (d-r)/2  * this.viewScale* Math.sin(theta));
+                p.setAttribute("r", (d+2*r)/2 * this.viewScale);
                 p.setAttribute("class","track-wrapper");
                 
                 g.appendChild(p);
@@ -237,35 +245,35 @@ class Trajectory extends PopupDialog{
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
                 p.setAttribute("cx", x);
                 p.setAttribute("cy", y);
-                p.setAttribute("r", r * this.objScale);
+                p.setAttribute("r", r * this.viewScale);
                 
                 g.appendChild(p);
 
                 // //arrow head
                 // p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-                // p.setAttribute("x1", x + d * this.objScale * Math.cos(theta));
-                // p.setAttribute("y1", y - d * this.objScale* Math.sin(theta));
+                // p.setAttribute("x1", x + d * this.viewScale * Math.cos(theta));
+                // p.setAttribute("y1", y - d * this.viewScale* Math.sin(theta));
 
-                // p.setAttribute("x2", x + d * this.objScale * Math.cos(theta) - a * this.objScale * Math.cos(Math.PI/6+theta));
-                // p.setAttribute("y2", y - d * this.objScale * Math.sin(theta) + a * this.objScale * Math.sin(Math.PI/6+theta));
+                // p.setAttribute("x2", x + d * this.viewScale * Math.cos(theta) - a * this.viewScale * Math.cos(Math.PI/6+theta));
+                // p.setAttribute("y2", y - d * this.viewScale * Math.sin(theta) + a * this.viewScale * Math.sin(Math.PI/6+theta));
                 // g.appendChild(p);
 
                 // p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-                // p.setAttribute("x1", x + d * this.objScale * Math.cos(theta));
-                // p.setAttribute("y1", y - d * this.objScale * Math.sin(theta));
+                // p.setAttribute("x1", x + d * this.viewScale * Math.cos(theta));
+                // p.setAttribute("y1", y - d * this.viewScale * Math.sin(theta));
 
-                // p.setAttribute("x2", x + d * this.objScale * Math.cos(theta) - a * this.objScale * Math.cos(-Math.PI/6+theta));
-                // p.setAttribute("y2", y - d * this.objScale * Math.sin(theta) + a * this.objScale * Math.sin(-Math.PI/6+theta));
+                // p.setAttribute("x2", x + d * this.viewScale * Math.cos(theta) - a * this.viewScale * Math.cos(-Math.PI/6+theta));
+                // p.setAttribute("y2", y - d * this.viewScale * Math.sin(theta) + a * this.viewScale * Math.sin(-Math.PI/6+theta));
                 // g.appendChild(p);
 
 
                 // direction
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-                p.setAttribute("x1", x + 5  * this.objScale * Math.cos(theta));
-                p.setAttribute("y1", y - 5  * this.objScale* Math.sin(theta));
+                p.setAttribute("x1", x + r  * this.viewScale * Math.cos(theta));
+                p.setAttribute("y1", y - r  * this.viewScale* Math.sin(theta));
 
-                p.setAttribute("x2", x + 20  * this.objScale * Math.cos(theta));
-                p.setAttribute("y2", y - 20  * this.objScale* Math.sin(theta));
+                p.setAttribute("x2", x + d  * this.viewScale * Math.cos(theta));
+                p.setAttribute("y2", y - d  * this.viewScale* Math.sin(theta));
                 g.appendChild(p);
 
                 // frame
@@ -276,10 +284,10 @@ class Trajectory extends PopupDialog{
                 // g.appendChild(p);
 
                 p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
-                p.setAttribute("x", x + 50 * this.objScale);
+                p.setAttribute("x", x + 50 * this.viewScale);
                 p.setAttribute("y", y);
                 // p.setAttribute("width", 200 * this.scale);
-                p.setAttribute("font-size", 10 * this.objScale+"px");
+                p.setAttribute("font-size", 10 * this.viewScale+"px");
                 p.setAttribute("class",'track-label');
 
                 let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
@@ -342,7 +350,7 @@ class Trajectory extends PopupDialog{
         p.setAttribute("x", 105);
         p.setAttribute("y", 875);
         // p.setAttribute("width", 200 * this.scale);
-        p.setAttribute("font-size", 10 * this.objScale+"px");
+        p.setAttribute("font-size", 10 * this.viewScale+"px");
         p.setAttribute("class",'scaler-label');
         let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
         text.textContent = x.toString() + 'm';
@@ -380,17 +388,17 @@ class Trajectory extends PopupDialog{
         svg.appendChild(g);
 
         let p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-        p.setAttribute("x1", x-10 * this.objScale);
+        p.setAttribute("x1", x-10 * this.viewScale);
         p.setAttribute("y1", y);
-        p.setAttribute("x2", x+10 * this.objScale);
+        p.setAttribute("x2", x+10 * this.viewScale);
         p.setAttribute("y2", y);
         g.appendChild(p);
 
         p = document.createElementNS("http://www.w3.org/2000/svg", 'line');
         p.setAttribute("x1", x);
-        p.setAttribute("y1", y-10 * this.objScale);
+        p.setAttribute("y1", y-10 * this.viewScale);
         p.setAttribute("x2", x);
-        p.setAttribute("y2", y+10 * this.objScale);
+        p.setAttribute("y2", y+10 * this.viewScale);
         g.appendChild(p);
     }
 
