@@ -89,21 +89,31 @@ def pcd_restore(pcdfile, outputfile, pose1_file, pose2_file, timestamp):
 
     with open(pose2_file) as f:
         pose2 = formatpose(json.load(f))
-    
-    delta = utm_translate(pose1, pose2)
 
+    print(pose1)
+    print(pose2)    
+    delta = utm_translate(pose1, pose2)
 
     # euler angles cannot be subtracted directly
     # but roll and pitch are near zero,
     # this cause little error.
+
+    azimuth_delta = pose2["azimuth"] - pose1["azimuth"]
+    
+    if azimuth_delta > math.pi:
+        azimuth_delta -= math.pi * 2
+    elif azimuth_delta < -math.pi:
+        azimuth_delta += math.pi * 2
+
+    
     cmd = bin_pcd_restore + " " + pcdfile + " " + outputfile + " " + str(timestamp) + " " +\
            str(delta[0]) + " " + str(delta[1]) + " " + str(delta[2]) + " " +\
            str(pose2["roll"] - pose1["roll"]) + " " +\
            str(pose2["pitch"] - pose1["pitch"]) + " " +\
-           str(pose2["azimuth"] - pose1["azimuth"]) + " ZYX"
-    #print(cmd)
+           str(azimuth_delta) + " ZYX"
+    print(cmd)
     os.system(cmd)
 
 
 if __name__ == "__main__":
-    pcd_restore("/home/lie/mnt/lie-u-home/code/pcltest/files/1631521579.000.pcd", "a.pcd", "/home/lie/mnt/lie-u-home/code/pcltest/files/1631521579.000.json", "/home/lie/mnt/lie-u-home/code/pcltest/files/1631521579.100.json", 1631521579.000)
+    pcd_restore("/home/lie/nas/2021-10-28/2021-10-28-02-07-39_preprocessed/intermediate/lidar/aligned/1635387187.500.pcd", "/home/lie/nas/2021-10-28/2021-10-28-02-07-39_preprocessed/intermediate/lidar/restored/1635387187.500.pcd", "/home/lie/nas/2021-10-28/2021-10-28-02-07-39_preprocessed/intermediate/ego_pose/aligned/1635387187.500.json", "/home/lie/nas/2021-10-28/2021-10-28-02-07-39_preprocessed/intermediate/ego_pose/aligned/1635387187.600.json", "1635387187.500")
