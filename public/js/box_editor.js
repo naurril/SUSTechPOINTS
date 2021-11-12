@@ -889,7 +889,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             e.resetTarget();
         });
         
-        //this.viewManager.mainView.clearView();
+        this.viewManager.mainView.clearView();
 
         this.activeIndex = 0;
     };
