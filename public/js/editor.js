@@ -211,7 +211,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.boxEditor.setResize("both");
         this.boxEditor.moveHandle = new MovableView(
             boxEditorUi.querySelector("#focuscanvas"),
-            boxEditorUi.querySelector("#focuscanvas"),
             boxEditorUi.querySelector("#sub-views"),
             ()=>{
                 this.boxEditor.update();

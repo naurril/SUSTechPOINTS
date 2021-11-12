@@ -980,3 +980,14 @@ td {
 	line-height: 1.5;
     overflow-y: auto;
 }
+
+#move-handle-wrapper {
+	position: absolute;
+	display: none;
+	cursor: move;
+	top: 0%;
+	left: 0%;
+	height: 100%;
+	width: 100%;
+	z-index: 10;	
+}
