@@ -378,10 +378,14 @@ class FloatLabelManager {
         let label = this.editor_ui.querySelector("#obj-local-"+local_id);
         if (label)
         {
+            // if label is hidden, we can't use its pos directly.
+            let best_pos = this.compute_best_position(label.vertices);
+            let pos = this.coord_to_pixel(best_pos);
+
             
             return {
-                top: label.offsetTop + label.offsetHeight + "px",
-                left: label.offsetLeft + 30 + "px",
+                top:  Math.round(pos.y) + label.offsetHeight + "px",
+                left: Math.round(pos.x) + 30 + "px",
                 };
         }
     }
