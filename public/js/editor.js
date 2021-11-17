@@ -166,8 +166,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         );
 
         this.cropScene = new CropScene(
-            this.editorUi.querySelector("#crop-scene-wrapper")
-        )
+            this.editorUi.querySelector("#crop-scene-wrapper"),
+            this
+        );
 
         this.contextMenu = new ContextMenu(this.editorUi.querySelector("#context-menu-wrapper"));        
 
@@ -266,8 +267,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.wrapperUi.style.display="block";
     };
 
+
+
+
     this.moveRangeCircle = function(world){
-        if (this.rangeCircle){
+        if (this.rangeCircle.parent){
             world.webglGroup.add(this.rangeCircle);
         }
     };
@@ -310,6 +314,24 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         box.computeLineDistances();
         this.rangeCircle = box;
         this.scene.add(box);
+    };
+
+
+    this.showRangeCircle = function(show){
+
+        if (show){
+            if (this.data.world)
+            {
+                this.data.world.webglGroup.add(this.rangeCircle);
+            }
+        }
+        else 
+        {
+            if (this.rangeCircle.parent)
+                this.rangeCircle.parent.remove(this.rangeCircle);
+        }
+
+        this.render();
     };
 
     this.hideGridLines = function(){
@@ -684,9 +706,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case "cm-reset-view":
             {
                 let pos = this.data.world.lidarPosToScene({x:0, y:0, z:50});
-                this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z);
+                this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z);  //object is camera
                 this.viewManager.mainView.orbit.target.set(pos.x, pos.y, 0);
-                this.viewManager.mainView.orbit.update();
+                this.viewManager.mainView.orbit.update(); 
                 this.render();
             }
             break;

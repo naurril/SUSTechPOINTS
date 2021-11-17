@@ -58,9 +58,7 @@ class ConfigUi{
         // }
 
         "#cfg-crop-scene": (event)=>{
-            this.editor.cropScene.show(
-                this.editor.data.world.frameInfo
-            );
+            this.editor.cropScene.show();
 
             return true;
         },
@@ -118,6 +116,11 @@ class ConfigUi{
             return false;
         },
 
+        "#cfg-hide-circle-ruler-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+            this.editor.showRangeCircle(!checked);
+            return false;
+        },
 
         "#cfg-auto-rotate-xy-checkbox": (event)=>{
             let checked = event.currentTarget.checked;

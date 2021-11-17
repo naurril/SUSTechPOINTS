@@ -6,11 +6,12 @@ class CropScene extends PopupDialog{
 
 
 
-    constructor(ui)
+    constructor(ui, editor)
     {
         super(ui);
 
         this.ui = ui;  //wrapper
+        this.editor = editor;
 
         this.contentUi = this.ui.querySelector("#content");
 
@@ -32,7 +33,7 @@ class CropScene extends PopupDialog{
             xhr.open('POST', "/cropscene", true);
 
             let para={
-                rawSceneId: this.frameInfo.scene,
+                rawSceneId: this.editor.data.world.frameInfo.scene,
                 //id: this.ui.querySelector("#scene-id").value,
                 desc: this.ui.querySelector("#scene-desc").value,
                 startTime: this.ui.querySelector("#scene-start-time").value,
@@ -44,12 +45,11 @@ class CropScene extends PopupDialog{
     }
 
 
-    frameInfo = {};
 
-    show(frameInfo)
+    show()
     {
-        
-        this.frameInfo = frameInfo;
+  
+        let frameInfo = this.editor.data.world.frameInfo;
         this.ui.querySelector("#scene-start-time").value=parseInt(frameInfo.frame)-10;
         this.ui.querySelector("#scene-seconds").value=20;
         this.contentUi.querySelector("#log").innerText = "";

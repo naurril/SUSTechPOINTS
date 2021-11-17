@@ -90,8 +90,7 @@ def pcd_restore(pcdfile, outputfile, pose1_file, pose2_file, timestamp):
     with open(pose2_file) as f:
         pose2 = formatpose(json.load(f))
 
-    print(pose1)
-    print(pose2)    
+     
     delta = utm_translate(pose1, pose2)
 
     # euler angles cannot be subtracted directly
@@ -111,7 +110,7 @@ def pcd_restore(pcdfile, outputfile, pose1_file, pose2_file, timestamp):
            str(pose2["roll"] - pose1["roll"]) + " " +\
            str(pose2["pitch"] - pose1["pitch"]) + " " +\
            str(azimuth_delta) + " ZYX"
-    print(cmd)
+    
     os.system(cmd)
 
 
