@@ -105,6 +105,10 @@ function AutoAdjust(boxOp, mouse, header){
             candPoseSets = candPoseSets.filter(p=>!!p);
 
 
+            if (candPoseSets.length == 0) {
+                return;
+            }
+            
             // calculate mean pos/rot
             let denorm = candPoseSets.reduce((a,b)=>a+b.weight, 0);
 
