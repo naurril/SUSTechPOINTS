@@ -193,7 +193,7 @@ PCDLoader.prototype = {
 
 			for ( var i = 0, l = PCDheader.fields.length; i < l; i ++ ) {
 
-				if ( PCDheader.data === 'ascii' ) {
+				if ( PCDheader.data === 'ascii' || PCDheader.data === 'ascill') {
 
 					PCDheader.offset[ PCDheader.fields[ i ] ] = i;
 
@@ -241,7 +241,7 @@ PCDLoader.prototype = {
 		}
 
 
-		if ( PCDheader.data === 'ascii' ) {
+		if ( PCDheader.data === 'ascii' || PCDheader.data === 'ascill') {
 
 			var offset = PCDheader.offset;
 			var pcdData = textData.substr( PCDheader.headerLen );

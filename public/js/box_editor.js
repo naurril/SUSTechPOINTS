@@ -539,6 +539,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         });
 
         
+        // set obj selector
+        this.globalHeader.setObject(objTrackId);
     };
     
     this.onContextMenu = function(event, boxEditor)
@@ -584,6 +586,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             break;
         case 'e':
             this.interpolateSelectedFrames();
+            break;
+        case 't':
+            this.showTrajectory();
             break;
         default:
             return true;
@@ -837,11 +842,14 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.viewManager.render();
 
             break;
-        case 'cm-finalize':
-            {
-                this.finalizeSelectedBoxes();
-            }
+        case 'cm-show-trajectory':
+            this.showTrajectory();
             break;
+
+        case 'cm-finalize':
+            this.finalizeSelectedBoxes();
+            break;
+
         case 'cm-sync-size':
             editor.data.worldList.forEach(w=>{
                 let box = w.annotation.boxes.find(b=>b.obj_track_id == this.firingBoxEditor.target.objTrackId);
@@ -932,6 +940,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             case 'PageDown':
             case '4':
                 this.nextBatch();
+                break;
+            case 't':
+                this.showTrajectory();
                 break;
             default:
                 console.log(`key ${event.key} igonored`);
@@ -1083,7 +1094,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
     //     );
     // }
 
-    this.toolbox.querySelector("#trajectory").onclick = (e)=>{
+    this.showTrajectory = () =>{
         let tracks = this.editingTarget.data.worldList.map(w=>{
             let box = w.annotation.findBoxByTrackId(this.editingTarget.objTrackId);
             let ann = null;
@@ -1106,6 +1117,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 this.activeEditorList().find(e=>e.target.world.frameInfo.frame == targetFrame).setSelected(true);
             }
         );
+    };
+
+    this.toolbox.querySelector("#trajectory").onclick = (e)=>{
+        this.showTrajectory();
     };
 
     this.toolbox.querySelector("#reload").onclick = (e)=>{
@@ -1157,7 +1172,15 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         let lastEditor = editors[editors.length-1];
         if (lastEditor.target.world.frameInfo.frame_index == maxFrameIndex)
         {
-            window.editor.infoBox.show("Info", "This is the last batch of frames");
+            if (this.batchSize >= this.editingTarget.sceneMeta.frames.length)
+            {
+                this.nextObj();
+            }
+            else 
+            {
+                window.editor.infoBox.show("Info", "This is the last batch of frames.");
+            }
+            
         }
         else
         {
@@ -1176,7 +1199,16 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         let firstEditor = this.activeEditorList()[0];
         if (firstEditor.target.world.frameInfo.frame_index == 0)
         {
-            window.editor.infoBox.show("Info", "This is the first batch  of frames");
+
+            if (this.batchSize >= this.editingTarget.sceneMeta.frames.length)
+            {
+                this.prevObj();
+            }
+            else 
+            {
+                window.editor.infoBox.show("Info", "This is the first batch  of frames");
+            }
+            
         }
         else
         {
@@ -1189,6 +1221,45 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             );
         }
 
+    };
+
+    this.prevObj = function(){
+        let idx = objIdManager.objectList.findIndex(x=>x.id==this.editingTarget.objTrackId);
+
+        let objNum = objIdManager.objectList.length;
+
+        idx = (idx + objNum - 1) % objNum;
+
+        let obj = objIdManager.objectList[idx];
+
+        
+
+        this.edit(
+            this.editingTarget.data,
+            this.editingTarget.sceneMeta,
+            this.editingTarget.sceneMeta.frames[this.editingTarget.frameIndex],
+            obj.id,
+            obj.category,
+        );
+    };
+
+
+    this.nextObj = function(){
+        let idx = objIdManager.objectList.findIndex(x=>x.id==this.editingTarget.objTrackId);
+
+        let objNum = objIdManager.objectList.length;
+        
+        idx = (idx + 1) % objNum;
+
+        let obj = objIdManager.objectList[idx];
+
+        this.edit(
+            this.editingTarget.data,
+            this.editingTarget.sceneMeta,
+            this.editingTarget.sceneMeta.frames[this.editingTarget.frameIndex],
+            obj.id,
+            obj.category,
+        );
     };
 
     // this.toolbox.querySelector("#save").onclick = ()=>{
