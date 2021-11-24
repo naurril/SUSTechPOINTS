@@ -512,6 +512,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
     
     this.showTrajectory = function(){
+
+        if (!this.selected_box)
+            return;
+            
         if (!this.selected_box.obj_track_id){
             console.error("no track id");
             return;
@@ -780,6 +784,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;
             this.autoAdjust.followStaticObjects(this.selected_box);
             this.header.updateModifiedStatus();
+
+            this.editBatch(
+                this.data.world.frameInfo.scene,
+                this.data.world.frameInfo.frame,
+                this.selected_box.obj_track_id,
+                this.selected_box.obj_type
+            );
 
             break;
         case "cm-sync-followers":
@@ -2110,7 +2121,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.transform_bbox("z_rotate_reverse");
                 break;
             case 't':
-                this.transform_bbox("reset");
+                //this.transform_bbox("reset");
+                this.showTrajectory();
                 break;
             
             case 'd':
