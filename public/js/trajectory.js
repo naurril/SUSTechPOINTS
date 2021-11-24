@@ -14,12 +14,16 @@ class Trajectory extends PopupDialog{
 
 
         this.ui.addEventListener("keydown", (event)=>{  //anykey
-            this.hide();
-            event.preventDefault();
-            event.stopPropagation();              
+
+            if (!event.ctrlKey && !event.shiftKey && !event.altKey)
+            {
+                this.hide();
+                event.preventDefault();
+                event.stopPropagation();              
+            }
         });
 
-        
+
         this.tracksUi = this.ui.querySelector("#svg-arrows");
 
         this.svgUi = this.ui.querySelector("#object-track-svg");
