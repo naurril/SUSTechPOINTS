@@ -94,6 +94,11 @@ function AutoAdjust(boxOp, mouse, header){
                     z: refObjInW.rotation.z + relativeRot.z
                 };
 
+                if (newObjRot.z > Math.pI)
+                    newObjRot.z -= Math.PI*2;
+                else if (newObjRot.z < -Math.PI)
+                    newObjRot.z += Math.PI*2;
+
                 return {
                     distance: refObj.distance,
                     weight: Math.exp(-refObj.distance * (refObjInW.annotator?1:0.1)),
@@ -108,7 +113,7 @@ function AutoAdjust(boxOp, mouse, header){
             if (candPoseSets.length == 0) {
                 return;
             }
-            
+
             // calculate mean pos/rot
             let denorm = candPoseSets.reduce((a,b)=>a+b.weight, 0);
 
