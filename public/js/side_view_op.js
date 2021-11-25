@@ -908,6 +908,9 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         else
                             on_moved({x:scope.cfg.moveStep, y:0});
                         break;
+                    case 'Delete':
+                        default_on_del();
+                        break;
                 }
             }
     

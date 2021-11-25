@@ -11,6 +11,8 @@
 
 ## Features
 
+- Batch-mode editing
+- Automatic object rotation
 - 9 DoF box editing
 - Editing on perspective view and projective views
 - Multiple camera images as context, with auto-camera-switching
@@ -119,6 +121,9 @@ Main View:
      left click on non-box area: hide transform control if present, or unselect box
 
      Ctrl+mouse drag: add a new box
+     Shift+mouse drag: add a new box, w/o automatic box fitting
+
+     Right click to show popup menu.
 
      -/=: adjust point size
 
@@ -131,14 +136,18 @@ Main View:
      del/ctrl+d  remove selected box
 
      1,2  select previous/next box
-     3,4  show previous/next frame in current scene
+     3,4, or pageup/pagedown  show previous/next frame in current scene
      5,6,7  show camera helper box of sideviews.
 
      space: pause/continue stream play
 
+     
+
 Side sbu-view (projective view):
 
-     (note: in perspective view, all keyboard operations are same as operating in top-view)
+     note: 
+     - in perspective view, all keyboard operations are same as operating in top-view
+     - these shortcuts are applicable when a subview is activated by placing the mouse over it.
 
      a: move box left
      s: move box down
@@ -149,7 +158,11 @@ Side sbu-view (projective view):
      r: rotate box counterclockwise, with box auto-fitting
      f: rotate box clockwise, with box auto-fitting
      g: reverse heading direction (rotate by PI)
-     t: reset box
+     
+     t: show object trajectory
+
+     del: delete the box
+     ctrl+d: delete the box
 
      double click on center: auto-shrink box by adjusting all borders to nearest innner point.
      double click on border: auto-shrink box by adjusting the border to nearest innner point.
@@ -157,7 +170,21 @@ Side sbu-view (projective view):
 
      drag border/corner/center: move border/corner/box.
      ctrl + drag border/corner: move border/corner/box with box auto-fitting
+     Shft + drag border/corner: move border/corner/box with box auto-fitting while keeping the box size
 
+
+batch-editing mode:
+     t: show object trajectory
+     3/pageup: prev batch, or prev object (if one batch shows the whole scene)
+     4/pagedown: nex batch, or next object (if one batch shows the whole scene)
+     Escape: exit batch mode
+     
+     when context menu shown (underscored char):
+          s: select all
+          a: auto annotate selected frames
+          f: finalize selected frames
+          e: interpolate selected frames
+          d: delete selected frames
 
 ```
 
