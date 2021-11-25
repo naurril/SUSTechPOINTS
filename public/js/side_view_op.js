@@ -600,14 +600,14 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 handle.onmouseleave = hide;
     
         
-                handle.onmouseup = function(event){
-                    if (event.which!=1)
-                        return;
+                // handle.onmouseup = function(event){
+                //     if (event.which!=1)
+                //         return;
 
-                    //line.style["stroke-dasharray"]="none";
-                    //hide();
-                    handle.onmouseleave = hide;
-                };
+                //     //line.style["stroke-dasharray"]="none";
+                //     //hide();
+                //     handle.onmouseleave = hide;
+                // };
         
                 handle.ondblclick= function(event){
                     if (event.which!=1)
@@ -730,16 +730,21 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                 //     line.style.stroke="#00000000";
                 // };
         
-                handle.onmouseup = function(event){
-                    //line.style["stroke-dasharray"]="none";
-                    line.style.stroke="#00000000";
-                    handle.onmouseleave = hide;
-                };
+                // handle.onmouseup = function(event){
+                //     if (event.which!=1)
+                //         return;
+                //     //line.style["stroke-dasharray"]="none";
+                //     //line.style.stroke="#00000000";
+                //     handle.onmouseleave = hide;
+                // };
         
                 handle.onmousedown = function(event){
                     
                     if (event.which!=1)
                         return;
+
+                    event.stopPropagation();
+                    event.preventDefault();
     
                     //line.style.stroke="yellow";
                     handle.onmouseleave = null;
@@ -791,12 +796,12 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         svg.onmouseup=null;
         
                         // restore color
-                        line.style.stroke="#00000000";
+                        //line.style.stroke="#00000000";
                         enable_handles();
                         handle.onmouseleave = hide;
     
                         ui.querySelector("#v-buttons").style.display="inherit";
-                        
+
                         if (theta == 0){
                             return;
                         }
