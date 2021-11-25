@@ -1,5 +1,5 @@
 
-import {transpose, matmul2, euler_angle_to_rotate_matrix_3by3 } from "./util.js";
+import {transpose, matmul2, euler_angle_to_rotate_matrix_3by3,normalizeAngle } from "./util.js";
 import { logger } from "./log.js";
 
 // todo: this module needs a proper name
@@ -37,11 +37,12 @@ function AutoAdjust(boxOp, mouse, header){
                         box.position.z - refObj.position.z];
                 let relativePos = matmul2(trans, p, 3);
                 let relativeRot = {
-                    x: box.rotation.x - refObj.rotation.x,
-                    y: box.rotation.y - refObj.rotation.y,
-                    z: box.rotation.z - refObj.rotation.z,
+                    x: normalizeAngle(box.rotation.x - refObj.rotation.x),
+                    y: normalizeAngle(box.rotation.y - refObj.rotation.y),
+                    z: normalizeAngle(box.rotation.z - refObj.rotation.z),
                 };
 
+                
                 let distance = Math.sqrt(relativePos[0]*relativePos[0] + relativePos[1]*relativePos[1] + relativePos[2]*relativePos[2]);
                 return {
                     obj_track_id: refObj.obj_track_id,
@@ -89,15 +90,12 @@ function AutoAdjust(boxOp, mouse, header){
                 };
 
                 let newObjRot = {
-                    x: refObjInW.rotation.x + relativeRot.x,
-                    y: refObjInW.rotation.y + relativeRot.y,
-                    z: refObjInW.rotation.z + relativeRot.z
+                    x: normalizeAngle(refObjInW.rotation.x + relativeRot.x),
+                    y: normalizeAngle(refObjInW.rotation.y + relativeRot.y),
+                    z: normalizeAngle(refObjInW.rotation.z + relativeRot.z)
                 };
 
-                if (newObjRot.z > Math.pI)
-                    newObjRot.z -= Math.PI*2;
-                else if (newObjRot.z < -Math.PI)
-                    newObjRot.z += Math.PI*2;
+             
 
                 return {
                     distance: refObj.distance,
@@ -118,7 +116,7 @@ function AutoAdjust(boxOp, mouse, header){
             let denorm = candPoseSets.reduce((a,b)=>a+b.weight, 0);
 
             let newObjPos = {x:0, y:0, z:0};
-            let newObjRot = {x:0, y:0, z:0};
+            let newObjRot = {x:0, y:0, z:0, cosZ: 0, sinZ:0};
             candPoseSets.forEach(p=>{
                 newObjPos.x += p.position.x * p.weight;
                 newObjPos.y += p.position.y * p.weight;
@@ -126,7 +124,9 @@ function AutoAdjust(boxOp, mouse, header){
 
                 newObjRot.x += p.rotation.x * p.weight;
                 newObjRot.y += p.rotation.y * p.weight;
-                newObjRot.z += p.rotation.z * p.weight;
+                //newObjRot.z += p.rotation.z * p.weight;
+                newObjRot.cosZ +=  Math.cos(p.rotation.z) * p.weight;
+                newObjRot.sinZ +=  Math.sin(p.rotation.z) * p.weight;
             });
 
             newObjPos.x /= denorm;
@@ -134,8 +134,9 @@ function AutoAdjust(boxOp, mouse, header){
             newObjPos.z /= denorm;
             newObjRot.x /= denorm;
             newObjRot.y /= denorm;
-            newObjRot.z /= denorm;
-
+            newObjRot.cosZ /= denorm;
+            newObjRot.sinZ /= denorm;
+            newObjRot.z = Math.atan2(newObjRot.sinZ, newObjRot.cosZ);
             
 
             // ignor distant objects

@@ -747,7 +747,7 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                     
                     disable_handle_except(handle);
     
-    
+                    ui.querySelector("#v-buttons").style.display="none";
     
                     var handle_center={
                         x: parseInt(line.getAttribute('x1')),
@@ -795,7 +795,8 @@ function ProjectiveViewOps(ui, editorCfg, boxEditor, views, boxOp, func_on_box_c
                         enable_handles();
                         handle.onmouseleave = hide;
     
-    
+                        ui.querySelector("#v-buttons").style.display="inherit";
+                        
                         if (theta == 0){
                             return;
                         }

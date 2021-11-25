@@ -477,6 +477,18 @@ var linalg_std = {
 }
 
 
+function normalizeAngle(a)
+{
+    while (true)
+    {
+    if ( a > Math.PI)
+        a -= Math.PI *2;
+    else if (a < -Math.PI)
+        a += Math.PI * 2;
+    else
+        return a;
+    }
+}
 
 export {dotproduct, vector_range, array_as_vector_range, array_as_vector_index_range, vector4to3, vector3_nomalize, psr_to_xyz, matmul, 
     matmul2, 
@@ -484,4 +496,5 @@ export {dotproduct, vector_range, array_as_vector_range, array_as_vector_index_r
     linalg_std,
     transpose,
     mat,
+    normalizeAngle
 }
