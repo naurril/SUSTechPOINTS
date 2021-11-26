@@ -181,8 +181,6 @@ Side sbu-view (projective view):
      ctrl + drag border/corner: move border/corner/box with box auto-fitting
      Shft + drag border/corner: move border/corner/box with box auto-fitting while keeping the box size
 
-perspective view:
-
 
 
 batch-editing mode:
