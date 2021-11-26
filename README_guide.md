@@ -49,35 +49,35 @@ rider的属性： 伞，载客1个，载客2个..
 |Van|面包车|||
 |PoliceCar|警车|||
 |Pedestrian|行人|伞,行李,坐着,蹲着,弯腰||
-|RoadWorker|工人||![roadworker](./doc/road-worker.png)|
+|RoadWorker|工人||![roadworker](./doc/objtype/road-worker.png)|
 |Child|小孩|||
 |Cone|雪糕筒|||
 |FireHydrant|消防栓|||
-|ReflectiveTriangle|安全三角||![triangle](./doc/Triangle.jpeg)|
-|PlatformCart|平板车||![platform cart](./doc/platform-cart.jpg)|
-|ConstructionCart|建筑小车||![Construction Cart](./doc/construction-cart.jpeg)|
-|RoadBarrel|安全桶||![road barrel](./doc/road-barrel.jpg)|
-|TrafficBarrier|交通护栏||![traffic barrier](./doc/TrafficBarrier.jpeg)|
+|ReflectiveTriangle|安全三角||![triangle](./doc/objtype/Triangle.jpeg)|
+|PlatformCart|平板车||![platform cart](./doc/objtype/platform-cart.jpg)|
+|ConstructionCart|建筑小车||![Construction Cart](./doc/objtype/construction-cart.jpeg)|
+|RoadBarrel|安全桶||![road barrel](./doc/objtype/road-barrel.jpg)|
+|TrafficBarrier|交通护栏||![traffic barrier](./doc/objtype/TrafficBarrier.jpeg)|
 |ScooterRider|骑电动车的人|伞,1个乘客,2个乘客||
 |MotorcyleRider|骑摩托的人|伞,1个乘客,2个乘客||
 |BicycleRider|骑自行车的|伞,1个乘客,2个乘客||
 |Bicycle|自行车|倒在地上|
-|Babycart|婴儿车||![babycart](./doc/babycart.png)|
-|LongVehicle|长尾拖车||![longvehicle](./doc/LongVehicle.png)|
+|Babycart|婴儿车||![babycart](./doc/objtype/babycart.png)|
+|LongVehicle|长尾拖车||![longvehicle](./doc/objtype/LongVehicle.png)|
 |Motorcycle|||
-|Scooter|电动车||![scooter](./doc/scooter.jpg)|
+|Scooter|电动车||![scooter](./doc/objtype/scooter.jpg)|
 |BicycleGroup|路边的电动车/自行车堆||
 |Bus|||
 |Truck|卡车||
-|ConcreteTruck|水泥车||![Construction Cart](./doc/concrete-truck.jpeg)|
+|ConcreteTruck|水泥车||![Construction Cart](./doc/objtype/concrete-truck.jpeg)|
 |Tram|电车||
 |Animal|动物||
-|ForkLift|叉车||![Forklift](./doc/forklift.jpg)|
-|Trimotorcycle|三轮车||![Trimotocycle](./doc/Trimotorcycle.jpeg)|
-|Crane|吊车||![crane](./doc/crane.jpeg)|
-|Eexcavator|挖掘机||![excavator](./doc/excavator.png)|
-|Roadroller|压路机||![road roller](./doc/RoadRoller.jpeg)|
-|Bulldozer|推土机||![bull dozer](./doc/Bulldozer.jpeg)|
+|ForkLift|叉车||![Forklift](./doc/objtype/forklift.jpg)|
+|Trimotorcycle|三轮车||![Trimotocycle](./doc/objtype/Trimotorcycle.jpeg)|
+|Crane|吊车||![crane](./doc/objtype/crane.jpeg)|
+|Eexcavator|挖掘机||![excavator](./doc/objtype/excavator.png)|
+|Roadroller|压路机||![road roller](./doc/objtype/RoadRoller.jpeg)|
+|Bulldozer|推土机||![bull dozer](./doc/objtype/Bulldozer.jpeg)|
 
     
   
