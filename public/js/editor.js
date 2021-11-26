@@ -2019,7 +2019,34 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 if (ev.ctrlKey){
                     saveWorldList(this.data.worldList);
                 }
+                else if (this.selected_box)
+                {
+                    let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.x, 0.02);
+                    this.boxOp.translate_box(this.selected_box, 'x', -v);
+                    this.on_box_changed(this.selected_box);
+                }
                 break;
+        case 'w':
+            if (this.selected_box){
+                let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.x, 0.02);
+                this.boxOp.translate_box(this.selected_box, 'x', v);
+                this.on_box_changed(this.selected_box);                
+            }
+            break;
+        case 'a':
+            if (this.selected_box){
+                let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.y, 0.02);
+                this.boxOp.translate_box(this.selected_box, 'y', v);
+                this.on_box_changed(this.selected_box);                
+            }
+            break;
+        case 'd':
+            if (this.selected_box){
+                let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.y, 0.02);
+                this.boxOp.translate_box(this.selected_box, 'y', -v);
+                this.on_box_changed(this.selected_box);                
+            }
+            break;
             /*
             case 's':
                 if (ev.ctrlKey){

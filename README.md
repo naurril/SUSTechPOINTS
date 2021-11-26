@@ -1,7 +1,7 @@
 # SUSTechPOINTS: Point Cloud 3D Bounding Box Annotation Tool
 
 ### Main UI
-![screenshot](./doc/pcd_label.png)
+![screenshot](./doc/main-ui.png)
 
 ### Automatic yaw angle (z-axis) prediction.
 ![auto-rotate](./doc/auto-rotate.gif)
@@ -142,6 +142,18 @@ Main View:
      space: pause/continue stream play
 
      
+     when a box is selected:
+          t: show object trajectory
+
+          del: delete the box
+          ctrl+d: delete the box
+
+          a,s,d,w,r,f,g: save as operations in top-view.
+
+     when transform control in perspective view is active:
+          z/x/c: toggle x/y/z asix handle
+          v: switch among dimension/rotation/position
+
 
 Side sbu-view (projective view):
 
@@ -159,10 +171,7 @@ Side sbu-view (projective view):
      f: rotate box clockwise, with box auto-fitting
      g: reverse heading direction (rotate by PI)
      
-     t: show object trajectory
 
-     del: delete the box
-     ctrl+d: delete the box
 
      double click on center: auto-shrink box by adjusting all borders to nearest innner point.
      double click on border: auto-shrink box by adjusting the border to nearest innner point.
@@ -172,13 +181,16 @@ Side sbu-view (projective view):
      ctrl + drag border/corner: move border/corner/box with box auto-fitting
      Shft + drag border/corner: move border/corner/box with box auto-fitting while keeping the box size
 
+perspective view:
+
+
 
 batch-editing mode:
      t: show object trajectory
      3/pageup: prev batch, or prev object (if one batch shows the whole scene)
      4/pagedown: nex batch, or next object (if one batch shows the whole scene)
      Escape: exit batch mode
-     
+
      when context menu shown (underscored char):
           s: select all
           a: auto annotate selected frames
