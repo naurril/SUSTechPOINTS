@@ -7,7 +7,15 @@
 ![auto-rotate](./doc/auto-rotate.gif)
 
 ### batch-mode box editing
-![batch-mode](./doc/batch-mode.png)
+
+automatically annotate a car
+
+![batch-mode](./doc/auto-anno-car.gif)
+
+
+automatically annotate a scooter-rider
+
+![batch-mode](./doc/auto-anno-rider.gif)
 
 ## Features
 
@@ -19,7 +27,6 @@
 - Camera-LiDAR fusion
 - Binary/ascii pcd files
 - Jpg/png image files
-- Semi-auto box annotation (need extra package)
 - Objects/boxes color by category
 - Focus mode to hide background to check details easily
 - Stream play/stop
