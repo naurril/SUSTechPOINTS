@@ -47,22 +47,19 @@ import math
 import numpy as np
 import sys
 
-def get_inv_matrix(calib_path, frame=None):
 
-    file  = calib_path
-    if frame:
-        file = os.path.join(calib_path, frame+".txt")
 
+def get_inv_matrix(file, v2c, rect):
     with open(file) as f:
         lines = f.readlines()
-        trans = [x for x in filter(lambda s: s.startswith("Tr_velo_to_cam"), lines)][0]
+        trans = [x for x in filter(lambda s: s.startswith(v2c), lines)][0]
         matrix = [m for m in map(lambda x: float(x), trans.split(" ")[1:])]
         matrix = matrix + [0,0,0,1]
         m = np.array(matrix)
         velo_to_cam  = m.reshape([4,4])
 
 
-        trans = [x for x in filter(lambda s: s.startswith("R0_rect"), lines)][0]
+        trans = [x for x in filter(lambda s: s.startswith(rect), lines)][0]
         matrix = [m for m in map(lambda x: float(x), trans.split(" ")[1:])]        
         m = np.array(matrix).reshape(3,3)
         
@@ -77,6 +74,15 @@ def get_inv_matrix(calib_path, frame=None):
         m = np.linalg.inv(m)
         
         return m
+def get_detection_inv_matrix(calib_path, frame):
+    file = os.path.join(calib_path, frame+".txt")
+    return get_inv_matrix(file, "Tr_velo_to_cam", "R0_rect")
+
+
+
+def get_tracking_inv_matrix(calib_path):
+    return get_inv_matrix(calib_path, "Tr_velo_cam", "R_rect")
+
 
 def parse_one_detection_obj(inv_matrix, l):
     words = l.strip().split(" ")
@@ -110,7 +116,7 @@ def trans_detection_label(src_label_path, src_calib_path, tgt_label_path):
         frame, _ = os.path.splitext(fname)
         print(frame)
   
-        inv_m = get_inv_matrix(src_calib_path, frame)
+        inv_m = get_detection_inv_matrix(src_calib_path, frame)
 
         with open(os.path.join(src_label_path, fname)) as f:
             lines = f.readlines()
@@ -157,7 +163,7 @@ def format_frame(f):
 
 def trans_tracking_label(src_label_path, src_calib_path, tgt_label_path):
 
-    inv_m = get_inv_matrix(src_calib_path)
+    inv_m = get_tracking_inv_matrix(src_calib_path)
 
     frame_obj_map = {}
 
