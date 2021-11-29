@@ -53,14 +53,15 @@ def get_inv_matrix(file, v2c, rect):
     with open(file) as f:
         lines = f.readlines()
         trans = [x for x in filter(lambda s: s.startswith(v2c), lines)][0]
-        matrix = [m for m in map(lambda x: float(x), trans.split(" ")[1:])]
+        
+        matrix = [m for m in map(lambda x: float(x), trans.strip().split(" ")[1:])]
         matrix = matrix + [0,0,0,1]
         m = np.array(matrix)
         velo_to_cam  = m.reshape([4,4])
 
 
         trans = [x for x in filter(lambda s: s.startswith(rect), lines)][0]
-        matrix = [m for m in map(lambda x: float(x), trans.split(" ")[1:])]        
+        matrix = [m for m in map(lambda x: float(x), trans.strip().split(" ")[1:])]        
         m = np.array(matrix).reshape(3,3)
         
         m = np.concatenate((m, np.expand_dims(np.zeros(3), 1)), axis=1)
