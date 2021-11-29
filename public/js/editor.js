@@ -775,7 +775,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;
             this.autoAdjust.followsRef(this.selected_box);
             this.header.updateModifiedStatus();
-
+            this.editBatch(
+                this.data.world.frameInfo.scene,
+                this.data.world.frameInfo.frame,
+                this.selected_box.obj_track_id,
+                this.selected_box.obj_type
+            );
             break;
         case 'cm-follow-static-objects':
             if (!this.checkBoxTrackId())

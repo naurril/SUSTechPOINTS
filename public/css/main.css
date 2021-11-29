@@ -372,7 +372,7 @@ dynamic set obj-type css has higher priority than this one.
 	background-color: var(--widget-background-color);
 }
 
-#new-submenu, #saveall-submenu, #play-submenu, #goto-submenu, #cm-fit-submenu {
+#new-submenu, #saveall-submenu, #play-submenu, #goto-submenu, #cm-fit-submenu, #cm-this-submenu {
 	display: none;
 	position: absolute;	
 	/* left:100%;

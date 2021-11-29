@@ -598,23 +598,6 @@
 							<div class="menu-item-text">Reset roll & pitch</div>
 						</div>
 
-						<div class="menu-item" id="cm-sync-size">
-							<div class="menu-item-icon"></div>
-							<div class="menu-item-text">Sync this size to all</div>
-						</div>
-
-						<div class="menu-item menu-seperator"></div>
-						
-
-						<div class="menu-item" id="cm-show-trajectory">
-							<div class="menu-item-icon">							
-							</div>
-							<div class="menu-item-text"><u>T</u>rajectory</div>
-						</div>
-
-
-						<div class="menu-item menu-seperator"></div>
-
 						<div class="menu-item" id="cm-finalize">
 							<div class="menu-item-icon">							
 							</div>
@@ -627,15 +610,45 @@
 							<div class="menu-item-text">Reload</div>
 						</div>
 
+
 						<div class="menu-item menu-seperator"></div>
-						<div class="menu-item" id="cm-goto-this-frame">
+
+						<div class="menu-item" id="cm-this">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">This frame</div>
+							<div class="menu-item-arrow menu-item-icon">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-menu-icon"><g>
+									<path d="M12 8 L 18 12 L 12 16Z"></path>
+								</g></svg>
+							</div>
+							<div id="cm-this-submenu">
+								<div class="menu-item" id="cm-sync-size">
+									<div class="menu-item-text">Sync size to all</div>
+								</div>
+								<div class="menu-item" id="cm-follow-static-objects">
+									<div class="menu-item-text">Follow static objects</div>
+								</div>	
+								
+								<div class="menu-item" id="cm-goto-this-frame">
+									<div class="menu-item-text">Go to this frame</div>
+								</div>
+							</div>
+						</div>
+						
+
+   					    <div class="menu-item menu-seperator"></div>
+						
+
+						<div class="menu-item" id="cm-show-trajectory">
 							<div class="menu-item-icon">							
 							</div>
-							<div class="menu-item-text">Go to this frame</div>
+							<div class="menu-item-text"><u>T</u>rajectory</div>
 						</div>
 
-
 					</div>
+
+
+
 					<div id="box-editor-manager-context-menu">
 							<div class="menu-item" id="cm-increase-box-editor">
 								<div class="menu-item-icon">							

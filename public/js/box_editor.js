@@ -885,8 +885,21 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     this.onExit(targetFrame, targetTrackId);
             }
             break;
+        case 'cm-follow-static-objects':
+            {
+                let b = this.firingBoxEditor.box;
+                editor.autoAdjust.followStaticObjects(b);
+                this.globalHeader.updateModifiedStatus();
+
+                this.activeEditorList().forEach(e=>{
+                    e.tryAttach();                    
+                });
+                this.viewManager.render();
+            }
+            break;
         };
 
+        
 
         return true;
     };
