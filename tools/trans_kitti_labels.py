@@ -173,10 +173,12 @@ def trans_tracking_label(src_label_path, src_calib_path, tgt_label_path):
 
         for l in lines:
             frame, obj = parse_one_tracking_obj(inv_m, l)
-            if frame_obj_map.get(frame):
-                frame_obj_map[frame].append(obj)
-            else:
-                frame_obj_map[frame] = [obj]
+
+            if obj["obj_type"] != 'DontCare':
+                if frame_obj_map.get(frame):
+                    frame_obj_map[frame].append(obj)
+                else:
+                    frame_obj_map[frame] = [obj]
 
 
         for f in frame_obj_map:
