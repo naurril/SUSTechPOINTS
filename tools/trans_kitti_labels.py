@@ -68,7 +68,7 @@ def get_inv_matrix(file, v2c, rect):
         
         rect = np.concatenate((m, np.expand_dims(np.array([0,0,0,1]), 0)), axis=0)        
         
-        
+        print(velo_to_cam, rect)    
         m = np.matmul(rect, velo_to_cam)
 
 
@@ -133,17 +133,16 @@ def trans_detection_label(src_label_path, src_calib_path, tgt_label_path):
 def parse_one_tracking_obj(inv_matrix, l):
     words = l.strip().split(" ")
     obj = {}
+    obj["obj_id"] = words[1]
+    frame = words[0]
+
+    #shift words
+    words = words[2:]
 
     pos = np.array([float(words[11]), float(words[12]), float(words[13]), 1]).T
     trans_pos = np.matmul(inv_matrix, pos)
     #print(trans_pos)
 
-    frame = words[0]
-    
-    obj["obj_id"] = words[1]
-
-    #shift words
-    words = words[2:]
     obj["obj_type"] = words[0]
     
     obj["psr"] = {"scale": 
