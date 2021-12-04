@@ -128,6 +128,11 @@ class ConfigUi{
             return false;
         },
 
+        '#cfg-auto-update-interpolated-boxes-checkbox': (event)=>{
+            let checked = event.currentTarget.checked;
+            pointsGlobalConfig.setItem("autoUpdateInterpolatedBoxes", checked);
+            return false;
+        },
 
         "#cfg-color-points-select": (event)=>{
             let value = event.currentTarget.value;
@@ -318,6 +323,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-hide-category-checkbox").value = pointsGlobalConfig.hideCategory;
         this.menu.querySelector("#cfg-data-preload-checkbox").checked = pointsGlobalConfig.enablePreload;
         this.menu.querySelector("#cfg-auto-rotate-xy-checkbox").checked = pointsGlobalConfig.enableAutoRotateXY;
+        this.menu.querySelector("#cfg-auto-update-interpolated-boxes-checkbox").checked = pointsGlobalConfig.autoUpdateInterpolatedBoxes;
     }
 
 
