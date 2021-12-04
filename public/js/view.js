@@ -35,7 +35,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
            this.mainView.renderAll();
 
         this.boxViewList.forEach(v=>{
-            if (v.ui.style.display != 'none')
+            //if (v.ui.style.display != 'none')  //we have pseudo box now. render as commanded.
                 v.render()
         });
       
@@ -427,10 +427,12 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
         this.onBoxChanged();
     };
 
-    this.onBoxChanged=function(){
+    this.onBoxChanged=function(dontRender){
         this.updateCameraPose(this.box);
         this.updateCameraRange(this.box);
-        this.render();
+
+        if (!dontRender)
+            this.render();
     };
 
     this.updateCameraPose = function(box){

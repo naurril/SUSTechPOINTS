@@ -2377,6 +2377,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             //this.remove_selected_box();
         } 
         
+
+
+        this.do_remove_box(box, false); // render later.
+
+        // this should be after do-remove-box
+        // subview renderings don't need to be done again after
+        // the box is removed.
         if (box.boxEditor)
         {
             if (box.boxEditor){
@@ -2387,7 +2394,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
         }
 
-        this.do_remove_box(box, false); // render later.
 
         this.header.updateModifiedStatus();
 

@@ -4,7 +4,7 @@ import {BoxImageContext} from "./image.js";
 import {saveWorldList, reloadWorldList} from "./save.js"
 import {objIdManager} from "./obj_id_list.js"
 import { globalKeyDownManager } from "./keydown_manager.js";
-
+import{ml} from "./ml.js";
 
 
 /*
@@ -41,12 +41,44 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     this.focusImageContext = new BoxImageContext(this.ui.querySelector("#focuscanvas"));
     
+    this.pseudoBox = {
+        position: {x: 0, y: 0, z: 0},
+        rotation: {x: 0, y: 0, z: 0},
+        scale: {x: 1, y: 1, z: 1},
+    };
+
+    this.copyPseudoBox = function(b)
+    {
+        this.pseudoBox.position.x = b.position.x;
+        this.pseudoBox.position.y = b.position.y;
+        this.pseudoBox.position.z = b.position.z;
+
+        this.pseudoBox.rotation.x = b.rotation.x;
+        this.pseudoBox.rotation.y = b.rotation.y;
+        this.pseudoBox.rotation.z = b.rotation.z;
+
+        this.pseudoBox.scale.x = b.scale.x;
+        this.pseudoBox.scale.y = b.scale.y;
+        this.pseudoBox.scale.z = b.scale.z;
+    };
+    
+    this.isInBatchMode = function(){
+        return !!this.boxEditorManager;
+    }
+
     this.target = {};
+
     this.setTarget = function(world, objTrackId, objType){
         this.target = {
             world: world,
             objTrackId: objTrackId,
             objType: objType,
+        }
+
+        if (this.isInBatchMode()){
+
+            this.pseudoBox.world = world;
+            this.boxView.attachBox(this.pseudoBox);
         }
 
         this.tryAttach();
@@ -132,6 +164,9 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     };
 
 
+
+
+
     this.box = null;
     this.attachBox = function(box){
         if (this.box && this.box !== box){
@@ -154,10 +189,11 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             //this.update();
             this.updateInfo();
             // this.boxView.render();
+            
+            if (this.isInBatchMode()){
+                this.boxEditorManager.onBoxChanged(this);
+            }
         }
-
-        
-
     };
 
     this.detach = function(dontHide){
@@ -169,6 +205,13 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
             //todo de-highlight box
             this.projectiveViewOps.detach();
             this.boxView.detach();
+
+            if (this.isInBatchMode()){
+                this.copyPseudoBox(this.box);
+                this.boxView.attachBox(this.pseudoBox);
+                
+            }
+            
             this.focusImageContext.clear_canvas();
             this.box = null;
         }
@@ -212,8 +255,8 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         // don't mark world's change flag, for it's hard to clear it.
         
         // inform boxEditorMgr to transfer annotation to other frames.
-        // if (this.boxEditorManager)
-        //     this.boxEditorManager.onBoxChanged(this);
+        if (this.boxEditorManager)
+            this.boxEditorManager.onBoxChanged(this);
 
         this.updateInfo();
 
@@ -223,24 +266,29 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
     this.onDelBox = function(){
         let box = this.box;
         this.detach("donthide");
-
-
     };
 
     // windowresize...
     this.update = function(dontRender=false){
+
+        if (this.boxView){
+            this.boxView.onBoxChanged(dontRender);
+
+            // this.boxView.updateCameraRange(this.box);
+            // this.boxView.updateCameraPose(this.box);
+
+            // if (!dontRender) 
+            //     this.boxView.render();
+        }
+
+        // boxview should be updated for pseudobox.
+
         if (this.box === null)
             return;
 
         this.projectiveViewOps.update_view_handle();
         
-        if (this.boxView){
-            this.boxView.updateCameraRange(this.box);
-            this.boxView.updateCameraPose(this.box);
-
-            if (!dontRender) 
-                this.boxView.render();
-        }
+        
         
         // this is not needed somtime
         this.focusImageContext.updateFocusedImageContext(this.box); 
@@ -597,6 +645,40 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         return false;
     };
 
+    this.delayUpdatePseudoBoxesTimer = null;
+
+    this.updatePseudoBoxes = function(){
+
+        if (this.delayUpdatePseudoBoxesTimer)
+        {
+            clearTimeout(this.delayUpdatePseudoBoxesTimer)
+        }
+
+        this.delayUpdatePseudoBoxesTimer = setTimeout(async ()=>{
+            let editorList = this.activeEditorList();
+            let boxList = editorList.map(e=>e.box);      
+            let anns = boxList.map(b=> b?b.world.annotation.ann_to_vector_global(b):null);
+
+            let ret = await ml.interpolate_annotation(anns);
+
+            editorList.forEach((e,i)=>{
+                if (!e.box){
+                    let ann = e.target.world.annotation.vector_global_to_ann(ret[i]);
+                    e.copyPseudoBox(ann);
+                    e.boxView.onBoxChanged();
+                }
+            });
+        },        
+        500);
+    };
+
+
+    // manager
+    this.onBoxChanged = function(e){
+        this.updatePseudoBoxes();
+        //
+    };
+
 
     let onBoxChangedInBatchMode = function(box)
     {
@@ -625,20 +707,22 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
 
     this.interpolateSelectedFrames = function(){
         let applyIndList = this.activeEditorList().map(e=>false); //all shoud be applied.
-                let selectedEditors = this.getSelectedEditors();
+        let selectedEditors = this.getSelectedEditors();
 
-                // if interpolate only one box, remove it if exist.
-                // no matter who is the annotator.
-                if (selectedEditors.length == 1)
-                {
-                    if (selectedEditors[0].box)
-                    {
-                        func_on_box_remove(selectedEditors[0].box, true);
-                    }
-                }
+        // if interpolate only one box, remove it if exist.
+        // no matter who is the annotator.
+        if (selectedEditors.length == 1)
+        {
+            if (selectedEditors[0].box)
+            {
+                func_on_box_remove(selectedEditors[0].box, true);
+            }
+        }
 
-                selectedEditors.forEach(e=>applyIndList[e.index] = true);
-                this.interpolate(applyIndList);
+        selectedEditors.forEach(e=>applyIndList[e.index] = true);
+        this.interpolate(applyIndList);
+
+        this.updatePseudoBoxes();
     };
 
     this.deleteEmptyBoxes = function()
@@ -653,6 +737,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     }
                 }   
         });
+
+        this.updatePseudoBoxes();
     };
 
     this.deleteSelectedBoxes = function(infoBoxPos)
@@ -671,8 +757,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
 
                         selectedEditors.forEach(e=>{
                             if (e.box)  
-                                func_on_box_remove(e.box, true)
-                        });   
+                                func_on_box_remove(e.box, true);
+                        });
+
+                        this.updatePseudoBoxes();
                     }
                 },
                 infoBoxPos
@@ -683,6 +771,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 if (e.box)  
                     func_on_box_remove(e.box, true)
             });
+
+            this.updatePseudoBoxes();
         }     
     };
 
@@ -771,7 +861,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 }
             });
 
-            
+            this.updatePseudoBoxes();
+
             break;
         case 'cm-fit-size':
             this.getSelectedEditors().forEach(e=>{
@@ -781,6 +872,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 boxOp.fit_size(e.box, ['x','y']);
                 onBoxChangedInBatchMode(e.box);
             });
+
+            this.updatePseudoBoxes();
             break;
         case 'cm-fit-position':
             this.getSelectedEditors().forEach(e=>{
@@ -791,6 +884,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     onBoxChangedInBatchMode,//func_on_box_changed, 
                     "noscaling", "dontrotate");
             });
+
+            this.updatePseudoBoxes();
             break;
         case 'cm-fit-rotation':
             this.getSelectedEditors().forEach(e=>{
@@ -802,6 +897,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     "noscaling");
                 
             });
+
+            this.updatePseudoBoxes();
             break;
         case 'cm-fit-bottom':
             this.getSelectedEditors().forEach(e=>{
@@ -812,6 +909,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 onBoxChangedInBatchMode(e.box);                
             });
             
+            this.updatePseudoBoxes();
             break;
         case 'cm-reverse-direction':
             this.getSelectedEditors().forEach(e=>{
@@ -826,7 +924,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 onBoxChangedInBatchMode(e.box);
             });
 
-            this.viewManager.render();
+            //this.viewManager.render();
+
+            this.updatePseudoBoxes();
 
             break;
         case 'cm-reset-roll-pitch':
@@ -837,9 +937,12 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 e.box.rotation.y =0;
                 e.update('dontrender');
                 e.box.world.annotation.setModified();
+
+                onBoxChangedInBatchMode(e.box);
             });
 
-            this.viewManager.render();
+            //this.viewManager.render();
+            this.updatePseudoBoxes();
 
             break;
         case 'cm-show-trajectory':
@@ -859,18 +962,24 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     box.scale.z = this.firingBoxEditor.box.scale.z;
                     //saveList.push(w);
                     w.annotation.setModified();
+
+                    onBoxChangedInBatchMode(box);
                 }                
             });
 
-            this.activeEditorList().forEach(e=>e.update('dontrender'));
-            this.viewManager.render();
-            
+            //this.activeEditorList().forEach(e=>e.update('dontrender'));
+            //this.viewManager.render();
+            this.updatePseudoBoxes();
+
             break;
         case 'cm-reload':
             
             {
                 let selectedEditors = this.getSelectedEditors();
-                this.reloadAnnotation(selectedEditors);  
+                this.reloadAnnotation(selectedEditors);
+
+                this.updatePseudoBoxes();
+
             }
             break;
 
@@ -894,7 +1003,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 this.activeEditorList().forEach(e=>{
                     e.tryAttach();                    
                 });
-                this.viewManager.render();
+                
+                //this.viewManager.render();
+                this.updatePseudoBoxes();
+
             }
             break;
         };
@@ -1075,6 +1187,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             editors[i].tryAttach();
             editors[i].box.world.annotation.setModified();
             this.viewManager.render();
+
+            this.updatePseudoBoxes();
         }
         
         await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList, dontRotate);
