@@ -7,7 +7,7 @@ import {
 } from "./lib/three.module.js";
 
 import{ml} from "./ml.js";
-import {dotproduct, transpose, euler_angle_to_rotate_matrix_3by3, matmul} from "./util.js"
+import {dotproduct, transpose, matmul, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 
 
 function BoxOp(){
@@ -790,8 +790,7 @@ function BoxOp(){
         //     onFinishOneBox(i);
         // }
     };
-
-
+  
     
 }
 

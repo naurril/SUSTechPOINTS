@@ -3,6 +3,7 @@
 import * as THREE from './lib/three.module.js';
 import {globalObjectCategory} from './obj_cfg.js';
 import {saveWorldList} from "./save.js"
+import { intersect } from './util.js';
 
 
 function Annotation(sceneMeta, world, frameInfo){
@@ -41,6 +42,9 @@ function Annotation(sceneMeta, world, frameInfo){
         return null;
     };
 
+    this.findIntersectedBoxes = function(box){
+        return this.boxes.filter(b=>b!=box).filter(b=>intersect(box, b));
+    };
 
     this.preload = function(on_preload_finished){
         this.on_preload_finished = on_preload_finished;
