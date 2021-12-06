@@ -30,6 +30,8 @@ class Config{
     enableAutoRotateXY = false;
     autoSave = true;
 
+    autoUpdateInterpolatedBoxes = true;
+
     hideId = false;
     hideCategory = false;
 
@@ -98,8 +100,8 @@ class Config{
         ["coordinateSystem", null],
         ["batchModeInstNumber", parseInt],
         ["batchModeSubviewSize", JSON.parse],
-        ["enableAutoRotateXY", this.toBool]
-
+        ["enableAutoRotateXY", this.toBool],
+        ["autoUpdateInterpolatedBoxes", this.toBool],
     ];
 
     load()

@@ -3,6 +3,7 @@
 import * as THREE from './lib/three.module.js';
 import {globalObjectCategory} from './obj_cfg.js';
 import {saveWorldList} from "./save.js"
+import { intersect } from './util.js';
 
 
 function Annotation(sceneMeta, world, frameInfo){
@@ -41,6 +42,9 @@ function Annotation(sceneMeta, world, frameInfo){
         return null;
     };
 
+    this.findIntersectedBoxes = function(box){
+        return this.boxes.filter(b=>b!=box).filter(b=>intersect(box, b));
+    };
 
     this.preload = function(on_preload_finished){
         this.on_preload_finished = on_preload_finished;
@@ -477,7 +481,7 @@ function Annotation(sceneMeta, world, frameInfo){
                     old_box.position.set(nb.psr.position.x, nb.psr.position.y, nb.psr.position.z);
                     old_box.scale.set(nb.psr.scale.x, nb.psr.scale.y, nb.psr.scale.z);
                     old_box.rotation.set(nb.psr.rotation.x, nb.psr.rotation.y, nb.psr.rotation.z); 
-                    
+                    old_box.obj_attr = nb.obj_attr;
                     old_box.annotator = nb.annotator;
                     old_box.changed=false; // clear changed flag.
                     

@@ -7,7 +7,7 @@ import {
 } from "./lib/three.module.js";
 
 import{ml} from "./ml.js";
-import {dotproduct, transpose, euler_angle_to_rotate_matrix_3by3, matmul} from "./util.js"
+import {dotproduct, transpose, matmul, euler_angle_to_rotate_matrix_3by3} from "./util.js"
 
 
 function BoxOp(){
@@ -645,38 +645,40 @@ function BoxOp(){
                 continue;
             }
 
+            // 
+            let world = worldList[i];
+            let ann = world.annotation.vector_global_to_ann(ret[i]);
+
+            // don't roate x/y
+            if (!pointsGlobalConfig.enableAutoRotateXY)
+            {
+                ann.rotation.x = 0;
+                ann.rotation.y = 0;
+            }
+
+
+            // if (world.lidar.get_box_points_number(ann) == 0)
+            // {
+            //     continue;
+            // }
+
+
             if (!boxList[i]){
                 // create new box
-                let world = worldList[i];
-                let ann = world.annotation.vector_global_to_ann(ret[i]);
-                
-                // don't roate x/y
-                if (!pointsGlobalConfig.enableAutoRotateXY)
-                {
-                    ann.rotation.x = 0;
-                    ann.rotation.y = 0;
-                }
-                
                 let newBox  = world.annotation.add_box(ann.position, 
                               ann.scale, 
                               ann.rotation, 
                               obj_type, 
                               obj_track_id,
                               obj_attr);
-                newBox.annotator="M";
+                newBox.annotator="i";
                 world.annotation.load_box(newBox);
                 world.annotation.setModified();
 
             } else if (boxList[i].annotator) {
                 // modify box attributes
-                let b = boxList[i].world.annotation.vector_global_to_ann(anns[i]);
+                let b = ann;
 
-                if (!pointsGlobalConfig.enableAutoRotateXY)
-                {
-                    b.rotation.x = 0;
-                    b.rotation.y = 0;
-                }
-                
                 boxList[i].position.x = b.position.x;
                 boxList[i].position.y = b.position.y;
                 boxList[i].position.z = b.position.z;
@@ -688,6 +690,8 @@ function BoxOp(){
                 boxList[i].rotation.x = b.rotation.x;
                 boxList[i].rotation.y = b.rotation.y;
                 boxList[i].rotation.z = b.rotation.z;
+
+                boxList[i].annotator = "i";
 
                 boxList[i].world.annotation.setModified();
             }
@@ -754,7 +758,7 @@ function BoxOp(){
                               obj_type, 
                               obj_track_id,
                               obj_attr);
-                newBox.annotator="M";
+                newBox.annotator="a";
                 world.annotation.load_box(newBox);
 
             } else if (boxList[i].annotator) {
@@ -771,6 +775,8 @@ function BoxOp(){
                 boxList[i].rotation.x = b.rotation.x;
                 boxList[i].rotation.y = b.rotation.y;
                 boxList[i].rotation.z = b.rotation.z;
+
+                boxList[i].annotator="a";
             }
 
             if (onFinishOneBoxCB)
@@ -784,8 +790,7 @@ function BoxOp(){
         //     onFinishOneBox(i);
         // }
     };
-
-
+  
     
 }
 
