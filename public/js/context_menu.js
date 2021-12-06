@@ -14,7 +14,7 @@ class ContextMenu {
                 playSubMenu: ui.querySelector("#play-submenu"),
                 gotoSubMenu: ui.querySelector("#goto-submenu"),
                 fitSubMenu: ui.querySelector("#cm-fit-submenu"),
-                thisSubMenu: ui.querySelector("#cm-this-submenu"),
+                //thisSubMenu: ui.querySelector("#cm-this-submenu"),
             };
             
             for (let m in this.menus){
@@ -39,7 +39,7 @@ class ContextMenu {
                 "#cm-new": "#new-submenu",
                 "#cm-play": "#play-submenu",                
                 "#cm-fit": "#cm-fit-submenu",
-                "#cm-this": "#cm-this-submenu",
+                //"#cm-this": "#cm-this-submenu",
             };
 
 
