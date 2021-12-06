@@ -352,7 +352,7 @@ var ml = {
                                 adjustedAnn[3] = tempAnn[3];
                                 adjustedAnn[4] = tempAnn[4];
                             }
-                            
+                        
                             tempAnn = adjustedAnn;
                         }
                         catch (e)
@@ -431,7 +431,7 @@ var ml = {
         // now extrapolate
         
         //backward
-        i = anns.length;
+        i = anns.length-1;
         while (i >= 0 && !anns[i])
             i--;
         
