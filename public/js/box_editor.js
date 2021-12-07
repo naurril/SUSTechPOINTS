@@ -636,6 +636,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         case 'e':
             this.interpolateSelectedFrames();
             break;
+        case 'g':
+            this.gotoThisFrame();
+            break;
         case 't':
             this.showTrajectory();
             break;
@@ -1037,13 +1040,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
 
         case 'cm-goto-this-frame':
             {            
-                let targetFrame = this.firingBoxEditor.target.world.frameInfo.frame;
-                let targetTrackId = this.firingBoxEditor.target.objTrackId;
-                this.hide();
-
-                this.reset();
-                if (this.onExit)
-                    this.onExit(targetFrame, targetTrackId);
+                this.gotoThisFrame();
             }
             break;
         case 'cm-follow-static-objects':
@@ -1229,6 +1226,16 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         this.globalHeader.updateModifiedStatus();
 
         this.viewManager.render();
+    };
+
+    this.gotoThisFrame = function(){
+        let targetFrame = this.firingBoxEditor.target.world.frameInfo.frame;
+        let targetTrackId = this.firingBoxEditor.target.objTrackId;
+        this.hide();
+
+        this.reset();
+        if (this.onExit)
+            this.onExit(targetFrame, targetTrackId);
     };
 
     this.autoAnnotate = async function(applyIndList, dontRotate){

@@ -708,13 +708,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         /// object
 
         case "cm-reset-view":
-            {
-                let pos = this.data.world.lidarPosToScene({x:0, y:0, z:50});
-                this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z);  //object is camera
-                this.viewManager.mainView.orbit.target.set(pos.x, pos.y, 0);
-                this.viewManager.mainView.orbit.update(); 
-                this.render();
-            }
+            this.resetView();
             break;
         case "cm-delete":
             this.remove_selected_box();
@@ -898,6 +892,19 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
     
+    this.resetView = function(targetPos){
+
+        if (!targetPos)
+            targetPos = {x:0, y:0, z:50};
+        else
+            targetPos.z = 50;
+
+        let pos = this.data.world.lidarPosToScene(targetPos);
+        this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z);  //object is camera
+        this.viewManager.mainView.orbit.target.set(pos.x, pos.y, 0);
+        this.viewManager.mainView.orbit.update(); 
+        this.render();
+    };
 
     this.scene_changed= async function(sceneName){
         
@@ -1092,10 +1099,25 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
                 if (targetFrame)
                 {
-                    this.load_world(this.data.world.frameInfo.scene, targetFrame);
+                    this.load_world(this.data.world.frameInfo.scene, targetFrame, ()=>{  // onfinished
+                        this.makeVisible(targetTrackId);
+                    });
                 }
             }
             );
+    };
+
+    this.makeVisible = function(targetTrackId){
+        let box = this.data.world.annotation.findBoxByTrackId(targetTrackId);
+
+        if (box){
+            if (this.selected_box != box){
+                this.selectBox(box);
+            }
+            
+            this.resetView({x:box.position.x, y:box.position.y, z:50});
+        }
+
     };
 
     this.object_changed = function(event){
@@ -2328,7 +2350,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
     };
 
-    this.load_world = async function(sceneName, frame){
+    this.load_world = async function(sceneName, frame, onFinished){
 
         this.data.dbg.dump();
 
@@ -2359,7 +2381,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 world, 
                 function(){
                     self.on_load_world_finished(world);
-
+                    if (onFinished)
+                        onFinished();
                     
                 }
             );
