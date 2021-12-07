@@ -716,21 +716,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
 
         case "cm-edit-multiple-instances":
-            {
-                if (!this.checkBoxTrackId())
-                    break;
-
-                if (!this.checkAnnBeforeBatchEdit())
-                    break;
-                this.header.setObject(this.selected_box.obj_track_id);
-
-                this.editBatch(
-                    this.data.world.frameInfo.scene,
-                    this.data.world.frameInfo.frame,
-                    this.selected_box.obj_track_id,
-                    this.selected_box.obj_type
-                );
-            }
+            this.enterBatchEditMode();
+            
             break;
         case "cm-auto-ann-background":
             {
@@ -1017,7 +1004,23 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.viewManager.render();
         });
     };
+    this.enterBatchEditMode = function()
+    {
+        if (!this.checkBoxTrackId())
+           return;
 
+        if (!this.checkAnnBeforeBatchEdit())
+            return;
+
+        this.header.setObject(this.selected_box.obj_track_id);
+
+        this.editBatch(
+            this.data.world.frameInfo.scene,
+            this.data.world.frameInfo.frame,
+            this.selected_box.obj_track_id,
+            this.selected_box.obj_type
+        );
+    };
 
     this.autoAnnInBackground = function()
     {
@@ -1114,7 +1117,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             if (this.selected_box != box){
                 this.selectBox(box);
             }
-            
+
             this.resetView({x:box.position.x, y:box.position.y, z:50});
         }
 
@@ -1969,9 +1972,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.downloadWebglScreenShot();
                 break;
             
-            case 'v':
-                this.change_transform_control_view();
-                break;
+            // case 'v':
+            //     this.change_transform_control_view();
+            //     break;
             /*
             case 'm':
             case 'M':
@@ -2178,7 +2181,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 //this.transform_bbox("reset");
                 this.showTrajectory();
                 break;
-            
+            case 'v':
+                this.enterBatchEditMode();
+                break;
             case 'd':
             case 'D':
                 if (ev.ctrlKey){
