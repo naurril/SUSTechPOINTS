@@ -198,17 +198,32 @@ function BoxImageContext(ui){
 
 class ImageContext extends MovableView{
 
-    constructor(ui, cfg, on_img_click){
+    constructor(parentUi, name, cfg, on_img_click){
 
+        // create ui
+        let template = document.getElementById("image-wrapper-template");
+        let tool = template.content.cloneNode(true);
+        // this.boxEditorHeaderUi.appendChild(tool);
+        // return this.boxEditorHeaderUi.lastElementChild;
+
+        parentUi.appendChild(tool);
+        let ui = parentUi.lastElementChild;
         let handle = ui.querySelector("#move-handle");
         super(handle, ui);
 
         this.ui = ui;
         this.cfg = cfg;
         this.on_img_click = on_img_click;
+        this.setImageName(name);
     }
     
-    choose_best_camera_for_point = choose_best_camera_for_point;
+    setImageName(name)
+    {
+        this.name = name;
+        this.ui.querySelector("#header").innerText = name;
+    }
+
+    
     get_selected_box = null;
 
 
@@ -246,6 +261,8 @@ class ImageContext extends MovableView{
 
     world = null;
     img = null;
+
+    autoSwitch = false;
 
     attachWorld(world){
             this.world = world;
@@ -445,15 +462,15 @@ class ImageContext extends MovableView{
     
 
 
-    get_active_calib(){
+    getCalib(){
         var scene_meta = this.world.sceneMeta;
            
         if (!scene_meta.calib.camera){
             return null;
         }
 
-        var active_camera_name = this.world.cameras.active_name;
-        var calib = scene_meta.calib.camera[active_camera_name];
+        //var active_camera_name = this.world.cameras.active_name;
+        var calib = scene_meta.calib.camera[this.name];
 
         return calib;
     }
@@ -462,7 +479,7 @@ class ImageContext extends MovableView{
 
 
     get_trans_ratio(){
-        var img = this.world.cameras.active_image();       
+        var img = this.world.cameras.getImageByName(this.name);       
 
         if (!img || img.width==0){
             return null;
@@ -485,7 +502,7 @@ class ImageContext extends MovableView{
         var svgimage = this.ui.querySelector("#svg-image");
 
         // active img is set by global, it's not set sometimes.
-        var img = this.world.cameras.active_image();
+        var img = this.world.cameras.getImageByName(this.name);
         if (img){
             svgimage.setAttribute("xlink:href", img.src);
         }
@@ -573,7 +590,7 @@ class ImageContext extends MovableView{
 
     draw_svg(){
         // draw picture
-        var img = this.world.cameras.active_image();       
+        var img = this.world.cameras.getImageByName(this.name);
 
         if (!img || img.width==0){
             this.hide_canvas();
@@ -584,7 +601,7 @@ class ImageContext extends MovableView{
 
         var trans_ratio = this.get_trans_ratio();
 
-        var calib = this.get_active_calib();
+        var calib = this.getCalib();
         if (!calib){
             return;
         }
@@ -704,14 +721,14 @@ class ImageContext extends MovableView{
     }
 
 
-    image_manager = {
+    boxes_manager = {
         display_image: ()=>{
             if (!this.cfg.disableMainImageContext)
                 this.render_2d_image();
         },
 
         add_box: (box)=>{
-            var calib = this.get_active_calib();
+            var calib = this.getCalib();
             if (!calib){
                 return;
             }
@@ -769,7 +786,7 @@ class ImageContext extends MovableView{
 
             var children = b.childNodes;
 
-            var calib = this.get_active_calib();
+            var calib = this.getCalib();
             if (!calib){
                 return;
             }
@@ -822,6 +839,102 @@ class ImageContext extends MovableView{
 
 }
 
+
+class ImageContextManager {
+    constructor(parentUi, cfg, on_img_click){
+        this.parentUi = parentUi;
+        this.cfg = cfg;
+        this.on_img_click = on_img_click;
+
+        let image = this.addImage("");
+        image.autoSwitch = true;
+    }
+
+    images = [];
+    addImage(name)
+    {
+        let image = new ImageContext(this.parentUi, name, this.cfg, this.on_img_click);
+
+        this.images.push(image);
+        return image;
+    }
+
+    setBestCamera(camera)
+    {
+        this.images.filter(i=>i.autoSwitch).forEach(i=>{
+            i.setImageName(camera);
+            i.boxes_manager.display_image();
+        });
+    }
+
+    render_2d_image(){
+        this.images.forEach(i=>i.render_2d_image());
+    }
+
+    attachWorld(world){
+        this.images.forEach(i=>i.attachWorld(world));
+    }
+
+    hide(){
+        this.images.forEach(i=>i.hide());
+    }
+
+
+    show(){
+        this.images.forEach(i=>i.show());
+    }
+
+    clear_main_canvas(){
+        this.images.forEach(i=>i.clear_main_canvas());
+    }
+
+    init_image_op(op){
+        this.images.forEach(i=>i.init_image_op(op));
+    }
+    hidden(){
+        return false;
+    }
+
+    choose_best_camera_for_point = choose_best_camera_for_point;
+
+    self = this;
+
+    boxes_manager = {
+        
+        display_image: ()=>{
+            if (!this.cfg.disableMainImageContext)
+                this.render_2d_image();
+        },
+
+        add_box: (box)=>{
+            this.images.forEach(i=>i.boxes_manager.add_box(box));
+        },
+
+
+        onBoxSelected: (box_obj_local_id, obj_type)=>{
+            this.images.forEach(i=>i.boxes_manager.onBoxSelected(box_obj_local_id, obj_type));
+        },
+
+
+        onBoxUnselected: (box_obj_local_id, obj_type)=>{
+            this.images.forEach(i=>i.boxes_manager.onBoxUnselected(box_obj_local_id, obj_type));
+        },
+
+        remove_box: (box_obj_local_id)=>{
+            this.images.forEach(i=>i.boxes_manager.remove_box(box_obj_local_id));
+        },
+
+        update_obj_type: (box_obj_local_id, obj_type)=>{
+            this.images.forEach(i=>i.boxes_manager.update_obj_type(box_obj_local_id, obj_type));
+        },
+        
+        update_box: (box)=>{
+            this.images.forEach(i=>i.boxes_manager.update_box(box));
+        }
+    }
+    
+
+}
 
 function box_to_2d_points(box, calib){
     var scale = box.scale;
@@ -958,4 +1071,4 @@ function  choose_best_camera_for_point(scene_meta, center){
 }
 
 
-export {ImageContext, BoxImageContext};
+export {ImageContextManager, BoxImageContext};

@@ -271,23 +271,15 @@
 						</div>
 					</div>
 
-					<div id="maincanvas-wrapper">
-						<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
-							<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
-							xlink:href=""
-							/>
-							<g id="svg-boxes"></g>
-							<g id="svg-points"></g>
-						</svg>
-						<div id="move-handle">
-						</div>
-					</div>
+					
 					
 					<div id="main-box-editor-wrapper"></div>
 					<div id="batch-box-editor">
 						<div id="batch-box-editor-header"></div>
 						<div id="batch-box-editor-group"></div>
 					</div>
+
+					
 
 				</div>
 				
@@ -1250,7 +1242,20 @@
 				</div>
 			</div>
 		</template>
-
+		<template id="image-wrapper-template">
+			<div class="image-wrapper">
+				<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
+					<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
+					xlink:href=""
+					/>
+					<g id="svg-boxes"></g>
+					<g id="svg-points"></g>
+				</svg>
+				<div id="move-handle">
+				</div>
+				<header id="header"></header>
+			</div>
+		</template>
 
 		<script src="/static/js/lib/ml/tf.min.js"></script>
 		<script type="module"  src="/static/js/main.js"></script>		

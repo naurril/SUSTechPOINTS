@@ -373,22 +373,22 @@ class Data
         })
     };
 
-    active_camera_name = "";
+    // active_camera_name = "";
 
-    // return null means not changed.
-    set_active_image(name){
-        if (name === this.active_camera_name){
-            return null;
-        }
+    // // return null means not changed.
+    // set_active_image(name){
+    //     if (name === this.active_camera_name){
+    //         return null;
+    //     }
 
-        this.active_camera_name = name;
-        if (this.world){
-            this.world.cameras.activate(name);
-        }
-        this.worldList.forEach(w=>w.cameras.activate(name));
+    //     this.active_camera_name = name;
+    //     if (this.world){
+    //         this.world.cameras.activate(name);
+    //     }
+    //     this.worldList.forEach(w=>w.cameras.activate(name));
         
-        return name;
-    };
+    //     return name;
+    // };
 
     world=null;
 
