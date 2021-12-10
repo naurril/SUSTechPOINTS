@@ -39,7 +39,7 @@ function Calib(data, editor){
     
     this.reset_calibration = function(){
         // to be done
-        this.editor.imageContext.render_2d_image();
+        this.editor.imageContextManager.render_2d_image();
     }
     
     this.calib_box = null;
@@ -135,7 +135,7 @@ function Calib(data, editor){
             console.log("extrinsic", calib.extrinsic)
             console.log("euler", euler_angle, "translate", translate);    
         
-            this.editor.imageContext.render_2d_image();
+            this.editor.imageContextManager.render_2d_image();
         }
 
 

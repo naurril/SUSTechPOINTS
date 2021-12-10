@@ -157,17 +157,17 @@ function Images(sceneMeta, sceneName, frame){
 
     this.names = sceneMeta.camera; //["image","left","right"],
     this.loaded_flag = {};
-    this.active_name = "";
-    this.active_image = function(){
-        return this.content[this.active_name];
-    };
+    // this.active_name = "";
+    // this.active_image = function(){
+    //     return this.content[this.active_name];
+    // };
     this.getImageByName = function(name){
         return this.content[name];
     };
 
-    this.activate = function(name){
-        this.active_name = name;
-    };
+    // this.activate = function(name){
+    //     this.active_name = name;
+    // };
 
     this.content = {};
     this.on_all_loaded = null;
@@ -176,10 +176,10 @@ function Images(sceneMeta, sceneName, frame){
         this.on_all_loaded = on_all_loaded;
         
         // if global camera not set, use first camera as default.
-        if (active_name.length > 0)
-            this.active_name = active_name;
-        else if (this.names && this.names.length>0)
-            this.active_name = this.names[0];
+        // if (active_name.length > 0)
+        //     this.active_name = active_name;
+        // else if (this.names && this.names.length>0)
+        //     this.active_name = this.names[0];
 
         var _self = this;
 
