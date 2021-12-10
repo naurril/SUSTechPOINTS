@@ -118,6 +118,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.imageContextManager = new ImageContextManager(
                 this.editorUi.querySelector("#content"), 
+                this.editorUi.querySelector("#camera-selector"),
                 this.editorCfg,
                 (lidar_points)=>this.on_img_click(lidar_points));
 
@@ -917,10 +918,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         
         if (meta.camera){
-            var camera_selector_str = meta.camera.map(function(c){
-                return '<option value="'+c+'">'+c+'</option>';
-            }).reduce(function(x,y){return x+y;}, "<option>--camera--</option>");
-            this.editorUi.querySelector("#camera-selector").innerHTML = camera_selector_str;
+            this.imageContextManager.updateCameraList(meta.camera);
         }
 
         //load_obj_ids_of_scene(sceneName);

@@ -198,7 +198,7 @@ function BoxImageContext(ui){
 
 class ImageContext extends MovableView{
 
-    constructor(parentUi, name, cfg, on_img_click){
+    constructor(parentUi, name, autoSwitch, cfg, on_img_click){
 
         // create ui
         let template = document.getElementById("image-wrapper-template");
@@ -214,13 +214,19 @@ class ImageContext extends MovableView{
         this.ui = ui;
         this.cfg = cfg;
         this.on_img_click = on_img_click;
+        this.autoSwitch = autoSwitch;
         this.setImageName(name);
     }
     
+    remove(){
+        this.ui.remove();    
+    }
+
+
     setImageName(name)
     {
         this.name = name;
-        this.ui.querySelector("#header").innerText = name;
+        this.ui.querySelector("#header").innerText = (this.autoSwitch?"auto-":"")+name;
     }
 
     
@@ -262,8 +268,6 @@ class ImageContext extends MovableView{
     world = null;
     img = null;
 
-    autoSwitch = false;
-
     attachWorld(world){
             this.world = world;
     };
@@ -279,6 +283,7 @@ class ImageContext extends MovableView{
     show(){
             this.ui.style.display="";
         };
+    
     
     
     drawing = false;
@@ -841,22 +846,148 @@ class ImageContext extends MovableView{
 
 
 class ImageContextManager {
-    constructor(parentUi, cfg, on_img_click){
+    constructor(parentUi, selectorUi, cfg, on_img_click){
         this.parentUi = parentUi;
+        this.selectorUi = selectorUi;
         this.cfg = cfg;
         this.on_img_click = on_img_click;
 
-        let image = this.addImage("");
-        image.autoSwitch = true;
+        this.addImage("", true);
+
+
+        this.selectorUi.onmouseenter=function(event){
+            if (this.timerId)
+            {
+                clearTimeout(this.timerId);
+                this.timerId = null;
+            }
+            
+            event.target.querySelector("#camera-list").style.display="";
+
+        };
+
+
+        this.selectorUi.onmouseleave=function(event){
+            let ui = event.target.querySelector("#camera-list");
+
+            this.timerId = setTimeout(()=>{
+                ui.style.display="none";
+                this.timerId = null;
+            },
+            200);           
+
+        };
+
+        this.selectorUi.querySelector("#camera-list").onclick = (event)=>{
+            let cameraName = event.target.innerText;
+            
+            if (cameraName == "auto"){
+
+                let existed = this.images.find(x=>x.autoSwitch);
+
+                if (existed)
+                {
+                    this.removeImage(existed);
+                }
+                else
+                {
+                    this.addImage("", true);
+                }
+
+            }
+            else{
+                let existed = this.images.find(x=>!x.autoSwitch && x.name == cameraName);
+
+                if (existed)
+                {
+                    this.removeImage(existed);
+                    
+                }
+                else
+                {
+                    this.addImage(cameraName);
+                }
+            }
+        };
+
+    }
+
+    updateCameraList(cameras){
+
+        let autoCamera = '<div class="camera-item" id="camera-item-auto">auto</div>';
+
+        if (this.images.find(i=>i.autoSwitch)){
+            autoCamera = '<div class="camera-item camera-selected" id="camera-item-auto">auto</div>';
+        }
+
+        let camera_selector_str = cameras.map(c=>{
+
+                let existed = this.images.find(i=>i.name == c && !i.autoSwitch);
+                let className = existed?"camera-item camera-selected":"camera-item";
+
+                return `<div class="${className}" id="camera-item-${c}">${c}</div>`;
+            }).reduce((x,y)=>x+y,  autoCamera);
+
+        let ui = this.selectorUi.querySelector("#camera-list");
+        ui.innerHTML = camera_selector_str;
+        ui.style.display="none";
+
+        this.setDefaultBestCamera(cameras[0]);
+    }
+
+    setDefaultBestCamera(c){
+
+        if (!this.bestCamera)
+        {
+            let existed = this.images.find(x=>x.autoSwitch);
+            if (existed)
+            {
+                existed.setImageName(c);
+            }
+
+            this.bestCamera = c;
+        }
     }
 
     images = [];
-    addImage(name)
+    addImage(name, autoSwitch)
     {
-        let image = new ImageContext(this.parentUi, name, this.cfg, this.on_img_click);
+
+        if (autoSwitch && this.bestCamera && !name)
+            name = this.bestCamera;
+            
+        let image = new ImageContext(this.parentUi, name, autoSwitch, this.cfg, this.on_img_click);
 
         this.images.push(image);
+
+        if (this.init_image_op_para){
+            image.init_image_op(this.init_image_op_para);
+        }
+
+        if (this.world){
+            image.attachWorld(this.world);
+            image.render_2d_image();
+        }
+
+
+        let selectorName = autoSwitch?"auto":name;
+            
+        let ui = this.selectorUi.querySelector("#camera-item-"+selectorName);
+        if (ui)
+            ui.className = "camera-item camera-selected";
+
+
         return image;
+    }
+
+    removeImage(image){
+
+        let selectorName = image.autoSwitch?"auto":image.name;
+        this.selectorUi.querySelector("#camera-item-"+selectorName).className = "camera-item";
+        this.images = this.images.filter(x=>x!=image);
+        image.remove();
+
+
     }
 
     setBestCamera(camera)
@@ -865,6 +996,8 @@ class ImageContextManager {
             i.setImageName(camera);
             i.boxes_manager.display_image();
         });
+
+        this.bestCamera = camera;
     }
 
     render_2d_image(){
@@ -872,6 +1005,8 @@ class ImageContextManager {
     }
 
     attachWorld(world){
+
+        this.world = world;
         this.images.forEach(i=>i.attachWorld(world));
     }
 
@@ -889,6 +1024,7 @@ class ImageContextManager {
     }
 
     init_image_op(op){
+        this.init_image_op_para = op;
         this.images.forEach(i=>i.init_image_op(op));
     }
     hidden(){
