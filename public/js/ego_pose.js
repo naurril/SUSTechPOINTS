@@ -50,13 +50,11 @@ class EgoPose
     };
 
 
-    loaded = false;
     go_cmd_received = false;
     on_go_finished = null;
 
     go(webglScene, on_go_finished)
     {
-        this.loaded = true;
         if (this.preloaded){
             if (on_go_finished)
                 on_go_finished();

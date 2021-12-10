@@ -232,10 +232,6 @@ function Lidar(sceneMeta, world, frameInfo){
 
         if (this.preloaded){
             
-            //this.webglScene.add(this.points);            
-            this.loaded = true;
-
-
             if (!this.world.data.cfg.show_background){
                 this.hide_background();
             }

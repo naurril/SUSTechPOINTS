@@ -42,12 +42,12 @@
 #
 
 import os
-import json
+#import json
 import math
 import numpy as np
 import pypcd.pypcd as pypcd
 
-rootdir = "./data/sustechscapes-mini-dataset"
+rootdir = "./data/scene-000600"
 camera = "front"
 
 
@@ -90,13 +90,14 @@ def euler_angle_to_rotate_matrix(eu, t):
     return R
 
 
-rotate_matrix = euler_angle_to_rotate_matrix([0,0,math.pi/2],np.array([0,0,0]))[:3,:3]
+#rotate_matrix = euler_angle_to_rotate_matrix([0,0,math.pi/2],np.array([0,0,0]))[:3,:3]
+rotate_matrix = euler_angle_to_rotate_matrix([0,0,0],np.array([0,0,0]))[:3,:3]
 print(rotate_matrix)
 
 
 lidar_folder = rootdir + "/lidar"
 
-lidars = os.listdir(lidar_folder)
+lidars = os.listdir(lidar_folder).sort()
 
 for l in lidars:
     f = lidar_folder + "/" + l
@@ -115,7 +116,7 @@ for l in lidars:
     #pts = np.matmul(pts, np.transpose(rotate_matrix))
 
     pts = np.concatenate([pts.astype(np.float32), np.expand_dims(pc.pc_data["intensity"].astype(np.float32),-1)], axis=1)
-    print(pts.dtype)
-    pts.tofile(rootdir+"/training/velodyne/{}.bin".format(frame))
+    #print(pts.dtype)
+    pts.tofile(rootdir+"/lidar.bin/{}.bin".format(frame))
 
 

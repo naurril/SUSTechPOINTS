@@ -550,8 +550,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         if (!color){
             color = 0x00ff00;
         }
-
-    
+   
         var material = new THREE.LineBasicMaterial( { color: color, linewidth: 1, opacity: this.data.cfg.box_opacity, transparent: true } );
         return new THREE.LineSegments( line, material );                
     };

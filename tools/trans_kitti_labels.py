@@ -158,9 +158,6 @@ def parse_one_tracking_obj(inv_matrix, l):
     return frame,obj
 
 
-def format_frame(f):
-    return "{%06d}".format(f)
-
 def trans_tracking_label(src_label_path, src_calib_path, tgt_label_path):
 
     inv_m = get_tracking_inv_matrix(src_calib_path)

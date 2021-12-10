@@ -53,7 +53,6 @@ function Annotation(sceneMeta, world, frameInfo){
 
     
 
-    this.loaded = false;
     this.go_cmd_received = false;
     this.webglScene = null;
     this.on_go_finished = null;
@@ -62,12 +61,7 @@ function Annotation(sceneMeta, world, frameInfo){
 
         if (this.preloaded){
 
-            
             //this.boxes.forEach(b=>this.webglScene.add(b));
-
-            
-            this.loaded = true;
-
             if (this.data.cfg.color_obj != "no"){
                 this.color_boxes();
             }
@@ -338,13 +332,13 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
     this.load_box = function(box){
-        if (this.loaded)
-            this.webglGroup.add(box);
+        
+        this.webglGroup.add(box);
     };
 
     this.unload_box = function(box){
-        if (this.loaded)
-            this.webglGroup.remove(box);
+        
+        this.webglGroup.remove(box);
     };
 
     this.remove_box=function(box){
@@ -500,8 +494,8 @@ function Annotation(sceneMeta, world, frameInfo){
                     b.boxEditor.detach("donthide");
                 }
 
-                if (this.loaded)
-                    this.webglGroup.remove(b);
+                this.webglGroup.remove(b);
+
                 this.remove_box(b);
             })
 
@@ -518,13 +512,11 @@ function Annotation(sceneMeta, world, frameInfo){
 
             this.color_boxes();
 
-            // add to scene if current world is active.
-            if (this.loaded){
-                // add new boxes
-                pendingBoxList.forEach(b=>{
-                    this.webglGroup.add(b);                    
-                })
-            }
+            // add new boxes
+            pendingBoxList.forEach(b=>{
+                this.webglGroup.add(b);                    
+            })
+        
 
             this.resetModified();
             

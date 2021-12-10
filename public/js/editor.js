@@ -799,10 +799,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                         w.annotation.remove_box(box);
                         //saveList.push(w);
                         w.annotation.setModified();
-                    }                
+                    }
                 });
 
                 //saveWorldList(saveList);
+                this.remove_selected_box();
                 this.header.updateModifiedStatus();
             }
             break;

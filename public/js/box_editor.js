@@ -623,6 +623,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         switch(event.key){
         case 's':
             this.activeEditorList().forEach(e=>e.setSelected(true));
+            return true;
             break;
         case 'a':
             this.autoAnnotateSelectedFrames();
@@ -869,12 +870,15 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
 
         case 'cm-select-all':
             this.activeEditorList().forEach(e=>e.setSelected(true));
+            return false;//don't hide context menu
             break;
         case 'cm-select-all-previous':
             this.activeEditorList().forEach(e=> e.setSelected(e.index <= this.firingBoxEditor.index));
+            return false;//don't hide context menu
             break;
         case 'cm-select-all-next':
             this.activeEditorList().forEach(e=> e.setSelected(e.index >= this.firingBoxEditor.index));
+            return false;//don't hide context menu
             break
             
         case 'cm-delete':
@@ -1101,6 +1105,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 this.editingTarget.data.scale_point_size(0.8);
                 this.viewManager.render();
                 break;
+            case 'v':
             case 'Escape':
                 this.hide();
                 this.reset();
