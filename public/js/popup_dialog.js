@@ -16,7 +16,7 @@ class MovableView
         dragableUi.addEventListener("mousedown", (event)=>{
             if (event.which == 1 && event.currentTarget == event.target)
             {
-                dragableUi.style.cursor = "move";
+                
                 this.mouseDown = true;
                 this.mouseDownPos = {x: event.clientX, y:event.clientY};
 
@@ -42,7 +42,9 @@ class MovableView
                     x: event.clientX - this.mouseDownPos.x,
                     y: event.clientY - this.mouseDownPos.y 
                 };
-    
+                    
+                dragableUi.style.cursor = "move";
+
                 this.mouseDownPos = {x: event.clientX, y:event.clientY};
 
                 let left = posUi.offsetLeft;

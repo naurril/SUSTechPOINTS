@@ -266,8 +266,17 @@ canvas {
 	padding-left: 5px;
 }
 
-line {
+/* line {
 	stroke-width: 2;
+} */
+
+/* .box-svg :hover{
+	stroke-width: 5px;
+} */
+
+
+.box-svg{
+	stroke-width: 3px;
 }
 
 /* 

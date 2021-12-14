@@ -672,7 +672,7 @@ class ImageContext extends MovableView{
         svg.setAttribute("id", "svg-box-local-"+box.obj_local_id);
 
         if (selected){
-            svg.setAttribute("class", box.obj_type+" box-svg-selected");
+            svg.setAttribute("class", box.obj_type+" box-svg box-svg-selected");
         } else{
             if (box.world.data.cfg.color_obj == "id")
             {
@@ -680,7 +680,7 @@ class ImageContext extends MovableView{
             }
             else // by id
             {
-                svg.setAttribute("class", box.obj_type);
+                svg.setAttribute("class", box.obj_type + " box-svg");
             }
         }
 
