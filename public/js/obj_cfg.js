@@ -56,6 +56,7 @@ class ObjectCategory
 
         ForkLift:       {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
         Trimotorcycle:  {color: '#00aaff',  size:[2.6, 1.0, 1.6]},
+        FreightTricycle: {color: '#00aaff',  size:[2.6, 1.0, 1.6]},
         Crane:          {color: '#00aaff',  size:[5.0, 1.2, 2.0]},
         RoadRoller:     {color: '#00aaff',  size:[2.7, 1.5, 2.0]},
         Bulldozer:      {color: '#00aaff',  size:[3.0, 2.0, 2.0]},
