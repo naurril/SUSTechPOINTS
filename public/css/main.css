@@ -287,6 +287,7 @@ dynamic set obj-type css has higher priority than this one.
 .box-svg-selected{
 	stroke: #ff00ff88;
 	fill: #ff00ff22;
+	stroke-width: 2px;
 }
 
 .maincanvas-line{

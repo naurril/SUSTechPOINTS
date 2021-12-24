@@ -1403,11 +1403,16 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         let initRoationZ = this.viewManager.mainView.camera.rotation.z + Math.PI/2;
 
-        var box = this.create_box_by_points(points, initRoationZ);
+        let box = this.create_box_by_points(points, initRoationZ);
+
+        let id = objIdManager.generateNewUniqueId();
+        box.obj_track_id = id;
+
+        
 
         //this.scene.add(box);
         
-        this.imageContextManager.boxes_manager.add_box(box);
+        
         
         if (!shift){
             try{
@@ -1423,6 +1428,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         box.obj_type = globalObjectCategory.guess_obj_type_by_dimension(box.scale);
         
+        objIdManager.addObject({
+            category: box.obj_type,
+            id: box.obj_track_id,
+        });
+
+
+
+        this.imageContextManager.boxes_manager.add_box(box);
         this.floatLabelManager.add_label(box);
 
         this.selectBox(box);
@@ -1801,7 +1814,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         };
 
         pos.z = -1.8 + scale.z/2;  // -1.8 is height of lidar
-        let box = this.add_box(pos, scale, rotation, obj_type, "");
+
+        let id = objIdManager.generateNewUniqueId();
+
+        objIdManager.addObject({
+            category: obj_type,
+            id: id,
+        });
+
+        let box = this.add_box(pos, scale, rotation, obj_type, id);
         
         return box;
     };
