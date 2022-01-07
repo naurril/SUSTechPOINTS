@@ -586,7 +586,9 @@ function cornersAinB(boxA,boxB){
         y: boxA.position.y - boxB.position.y,
         z: boxA.position.z - boxB.position.z};
 
-    let cornersA = psr_to_xyz_face_points(boxAPosInB, boxA.scale, boxA.rotation, minGrid);  
+    let cornersA = psr_to_xyz_face_points(boxAPosInB, boxA.scale, boxA.rotation, minGrid);   // in world coordinates
+
+    cornersA.push(boxAPosInB.x, boxAPosInB.y, boxAPosInB.z); //center point
     
 
     // in box b coord

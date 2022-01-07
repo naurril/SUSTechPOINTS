@@ -84,7 +84,6 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
         in_select_mode = false;
 
         if (event.which==3){
-            this.operation_state.mouse_right_down = true;
             this.operation_state.key_pressed = false;
         } else if (event.which == 1){
             console.log("mouse left key down!");
@@ -100,7 +99,6 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
                 }            
             }
         }
-        
 
         var array = this.getMousePosition(this.domElement, event.offsetX, event.offsetY );
         this.onDownPosition.fromArray( array );        
@@ -156,9 +154,7 @@ function Mouse(view, op_state, mainui_container, parentUi, on_left_click, on_rig
     this.onMouseUp=function( event ) {
         this.domElement.removeEventListener( 'mouseup', on_mouse_up, false );
 
-        if (event.which==3){
-            this.operation_state.mouse_right_down = false;
-        }
+        
 
         
         var array = this.getMousePosition(this.domElement, event.offsetX, event.offsetY );

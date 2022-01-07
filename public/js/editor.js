@@ -46,7 +46,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.windowHeight= null;
     this.floatLabelManager = null;
     this.operation_state = {
-            mouse_right_down : false,
             key_pressed : false,
             box_navigate_index:0,
         };
@@ -220,14 +219,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
         );
 
-        this.mouse = new Mouse(
-            this.viewManager.mainView,
-            this.operation_state,
-            this.container, 
-            this.editorUi,
-            function(ev){self.handleLeftClick(ev);}, 
-            function(ev){self.handleRightClick(ev);}, 
-            function(x,y,w,h,ctl,shift){self.handleSelectRect(x,y,w,h,ctl,shift);});
+        // this.mouse = new Mouse(
+        //     this.viewManager.mainView,
+        //     this.operation_state,
+        //     this.container, 
+        //     this.editorUi,
+        //     function(ev){self.handleLeftClick(ev);}, 
+        //     function(ev){self.handleRightClick(ev);}, 
+        //     function(x,y,w,h,ctl,shift){self.handleSelectRect(x,y,w,h,ctl,shift);});
 
         this.autoAdjust=new AutoAdjust(this.boxOp, this.mouse, this.header);
 
@@ -2037,135 +2036,39 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.render();
                 break;
             
-            /*
-            case 'a':
-                if (this.selected_box){
-                    if (!operation_state.mouse_right_down){
-                        this.transform_bbox("x_move_down");
-                    }
-                    else{
-                        this.transform_bbox("x_scale_down");
-                    }
-                }
-                break;
-            case 'A':
-                this.transform_bbox("x_scale_down");
-                break;
-            case 'q':
-                if (this.selected_box){
-                    if (!operation_state.mouse_right_down){
-                        this.transform_bbox("x_move_up");
-                    }
-                    else{
-                        this.transform_bbox("x_scale_up");
-                    }                
-                }            
-                break;        
-            case 'Q':
-                this.transform_bbox("x_scale_up");
-                break;
-            */
-        case 's':
-                if (ev.ctrlKey){
-                    saveWorldList(this.data.worldList);
-                }
-                else if (this.selected_box)
-                {
-                    let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.x, 0.02);
-                    this.boxOp.translate_box(this.selected_box, 'x', -v);
-                    this.on_box_changed(this.selected_box);
-                }
-                break;
-        case 'w':
-            if (this.selected_box){
-                let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.x, 0.02);
-                this.boxOp.translate_box(this.selected_box, 'x', v);
-                this.on_box_changed(this.selected_box);                
-            }
-            break;
-        case 'a':
-            if (this.selected_box){
-                let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.y, 0.02);
-                this.boxOp.translate_box(this.selected_box, 'y', v);
-                this.on_box_changed(this.selected_box);                
-            }
-            break;
-        case 'd':
-            if (this.selected_box){
-                let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.y, 0.02);
-                this.boxOp.translate_box(this.selected_box, 'y', -v);
-                this.on_box_changed(this.selected_box);                
-            }
-            break;
-            /*
+            
             case 's':
-                if (ev.ctrlKey){
-                    saveWorld();
-                }
-                else if (this.selected_box){
-                    if (!operation_state.mouse_right_down){
-                        this.transform_bbox("y_move_down");
-                    }else{
-                        this.transform_bbox("y_scale_down");
+                    if (ev.ctrlKey){
+                        saveWorldList(this.data.worldList);
                     }
-                }
-                break;
-            case 'S':
-                if (ev.ctrlKey){
-                    saveWorld();
-                }
-                else if (this.selected_box){
-                    this.transform_bbox("y_scale_down");
-                }            
-                break;
-            case 'w':
-                if (this.selected_box){
-                    if (!operation_state.mouse_right_down)
-                        this.transform_bbox("y_move_up");
-                    else
-                        this.transform_bbox("y_scale_up");                
-                }
-                break;
-            case 'W':
-                if (this.selected_box){
-                    this.transform_bbox("y_scale_up");
-                }
-                break;
-
-
-            case 'd':
-                if (this.selected_box){
-                    if (operation_state.mouse_right_down){
-                        this.transform_bbox("z_scale_down");                    
-                    }
-                    else if (ev.ctrlKey){
-                        remove_selected_box();
-                        self.header.mark_changed_flag();
-                    }else{
-                        this.transform_bbox("z_move_down");
-                    }
-                    
-                }
-                break;
-            case 'D':
-                if (this.selected_box){
-                    this.transform_bbox("z_scale_down");
-                }            
-                break;        
-            case 'e':
-                    if (this.selected_box){
-                        if (!operation_state.mouse_right_down)
-                            this.transform_bbox("z_move_up");
-                        else
-                            this.transform_bbox("z_scale_up");                    
+                    else if (this.selected_box)
+                    {
+                        let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.x, 0.02);
+                        this.boxOp.translate_box(this.selected_box, 'x', -v);
+                        this.on_box_changed(this.selected_box);
                     }
                     break;
-            case 'E':
+            case 'w':
                 if (this.selected_box){
-                    this.transform_bbox("z_scale_up");
+                    let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.x, 0.02);
+                    this.boxOp.translate_box(this.selected_box, 'x', v);
+                    this.on_box_changed(this.selected_box);                
                 }
                 break;
-            */
+            case 'a':
+                if (this.selected_box){
+                    let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.y, 0.02);
+                    this.boxOp.translate_box(this.selected_box, 'y', v);
+                    this.on_box_changed(this.selected_box);                
+                }
+                break;
+            case 'd':
+                if (this.selected_box){
+                    let v = Math.max(this.editorCfg.moveStep * this.selected_box.scale.y, 0.02);
+                    this.boxOp.translate_box(this.selected_box, 'y', -v);
+                    this.on_box_changed(this.selected_box);                
+                }
+                break;
 
             case 'q':
                 if (this.selected_box){
