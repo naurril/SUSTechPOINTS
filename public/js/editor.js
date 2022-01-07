@@ -219,14 +219,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
         );
 
-        // this.mouse = new Mouse(
-        //     this.viewManager.mainView,
-        //     this.operation_state,
-        //     this.container, 
-        //     this.editorUi,
-        //     function(ev){self.handleLeftClick(ev);}, 
-        //     function(ev){self.handleRightClick(ev);}, 
-        //     function(x,y,w,h,ctl,shift){self.handleSelectRect(x,y,w,h,ctl,shift);});
+        this.mouse = new Mouse(
+            this.viewManager.mainView,
+            this.operation_state,
+            this.container, 
+            this.editorUi,
+            function(ev){self.handleLeftClick(ev);}, 
+            function(ev){self.handleRightClick(ev);}, 
+            function(x,y,w,h,ctl,shift){self.handleSelectRect(x,y,w,h,ctl,shift);});
 
         this.autoAdjust=new AutoAdjust(this.boxOp, this.mouse, this.header);
 
