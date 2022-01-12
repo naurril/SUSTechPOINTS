@@ -1123,8 +1123,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         var sceneName = this.data.world.frameInfo.scene; //this.editorUi.querySelector("#scene-selector").value;
 
         let objectTrackId = event.currentTarget.value;
+        let obj = objIdManager.getObjById(objectTrackId);
 
-        this.editBatch(sceneName, null, objectTrackId);
+        this.editBatch(sceneName, null, objectTrackId, obj.category);
     };
 
     this.camera_changed= function(event){

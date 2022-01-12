@@ -38,8 +38,6 @@ function BoxEditor(parentUi, boxEditorManager, viewManager, cfg, boxOp,
         func_on_box_changed,
         func_on_box_remove);
 
-    this.projectiveViewOps.init_view_operation();
-
     this.focusImageContext = new BoxImageContext(this.ui.querySelector("#focuscanvas"));
     
     this.pseudoBox = {
@@ -1437,7 +1435,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
 
 
     this.nextObj = function(){
-        let idx = objIdManager.objectList.findIndex(x=>x.id==this.editingTarget.objTrackId);
+        let idx = objIdManager.objectList.findIndex(x=>x.id==this.editingTarget.objTrackId && x.category == this.editingTarget.objType);
 
         let objNum = objIdManager.objectList.length;
         
