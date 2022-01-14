@@ -93,7 +93,11 @@ class ProjectiveView{
             }
         };
         ui.onmouseleave = (event)=>{
-            ui.querySelector("#v-buttons").style.display="none";
+            if (this.showButtonsTimer)
+                clearTimeout(this.showButtonsTimer);
+                
+            this.hide_buttons();
+
             ui.blur();
         };
 
@@ -490,12 +494,19 @@ class ProjectiveView{
     }
     
 
+    showButtonsTimer = null;
     hide_buttons(delay){
         this.ui.querySelector("#v-buttons").style.display="none";
 
         if (delay)
         {
+            if (this.showButtonsTimer){
+                clearTimeout(this.showButtonsTimer);
+            }
 
+            this.showButtonsTimer = setTimeout(() => {
+                this.ui.querySelector("#v-buttons").style.display="inherit";
+            }, 200);
         }
     }
     
@@ -550,7 +561,7 @@ class ProjectiveView{
 
             
             this.disable_handle_except(handle);
-            this.ui.querySelector("#v-buttons").style.display="none";
+            this.hide_buttons();
 
             handle.onmouseleave = null;
 
@@ -665,7 +676,7 @@ class ProjectiveView{
             
             this.disable_handle_except(handle);
 
-            this.ui.querySelector("#v-buttons").style.display="none";
+            this.hide_buttons();
 
             let handle_center={
                 x: parseInt(line.getAttribute('x1')),
@@ -734,22 +745,25 @@ class ProjectiveView{
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_direction_changed(-this.cfg.rotateStep, event.ctrlKey);
-                
+                this.hide_buttons(true);
                 return true;
             case 'q':
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_direction_changed(this.cfg.rotateStep, event.ctrlKey);
+                this.hide_buttons(true);
                 break;
             case 'f':
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_direction_changed(-this.cfg.rotateStep, true);
+                this.hide_buttons(true);
                 break;
             case 'r':                
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_direction_changed(this.cfg.rotateStep, true);
+                this.hide_buttons(true);
                 break;
             case 'g':
                 event.preventDefault();
@@ -761,12 +775,14 @@ class ProjectiveView{
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_moved({x:0, y: this.cfg.moveStep});
+                this.hide_buttons(true);
                 break;
             case 's':
                 if (!event.ctrlKey){
                     event.preventDefault();
                     event.stopPropagation();
                     this.on_moved({x:0, y:-this.cfg.moveStep});
+                    this.hide_buttons(true);
                     break;    
                 } else{
                     console.log("ctrl+s");
@@ -776,6 +792,7 @@ class ProjectiveView{
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_moved({x:0, y:-this.cfg.moveStep});
+                this.hide_buttons(true);
                 break;
             case 'a':
                 if (event.ctrlKey)
@@ -787,6 +804,7 @@ class ProjectiveView{
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_moved({x:-this.cfg.moveStep, y:0});
+                this.hide_buttons(true);
                 break;
             case 'd':
                 if (event.ctrlKey){
@@ -798,6 +816,7 @@ class ProjectiveView{
                 event.preventDefault();
                 event.stopPropagation();
                 this.on_moved({x:this.cfg.moveStep, y:0});
+                this.hide_buttons(true);
                 break;
             case 'Delete':
                 this.on_box_remove();
