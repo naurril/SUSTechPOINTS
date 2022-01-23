@@ -212,6 +212,45 @@ PCDLoader.prototype = {
 
 		}
 
+		function decompressLZF(inData, outLength) {
+          var inLength = inData.length
+          var outData = new Uint8Array(outLength)
+          var inPtr = 0
+          var outPtr = 0
+          var ctrl
+          var len
+          var ref
+          do {
+            ctrl = inData[inPtr++]
+            if (ctrl < 1 << 5) {
+              ctrl++
+              if (outPtr + ctrl > outLength) throw new Error('Output buffer is not large enough')
+              if (inPtr + ctrl > inLength) throw new Error('Invalid compressed data')
+              do {
+                outData[outPtr++] = inData[inPtr++]
+              } while (--ctrl)
+            } else {
+              len = ctrl >> 5
+              ref = outPtr - ((ctrl & 0x1f) << 8) - 1
+              if (inPtr >= inLength) throw new Error('Invalid compressed data')
+              if (len === 7) {
+                len += inData[inPtr++]
+                if (inPtr >= inLength) throw new Error('Invalid compressed data')
+              }
+
+              ref -= inData[inPtr++]
+              if (outPtr + len + 2 > outLength) throw new Error('Output buffer is not large enough')
+              if (ref < 0) throw new Error('Invalid compressed data')
+              if (ref >= outPtr) throw new Error('Invalid compressed data')
+              do {
+                outData[outPtr++] = outData[ref++]
+              } while (--len + 2)
+            }
+          } while (inPtr < inLength)
+
+          return outData
+        }
+
 		var textData = LoaderUtils.decodeText( new Uint8Array( data ) );
 
 		// parse header (always ascii format)
@@ -224,11 +263,11 @@ PCDLoader.prototype = {
 		var normal = [];
 		var color = [];
 
+        var offset = PCDheader.offset;
+
 		// ascii
 
 		if ( PCDheader.data === 'ascii' ) {
-
-			var offset = PCDheader.offset;
 			var pcdData = textData.substr( PCDheader.headerLen );
 			var lines = pcdData.split( '\n' );
 
@@ -272,19 +311,50 @@ PCDLoader.prototype = {
 
 		}
 
-		// binary
+		// binary_compressed
 
-		if ( PCDheader.data === 'binary_compressed' ) {
+		else if ( PCDheader.data === 'binary_compressed' ) {
 
-			console.error( 'THREE.PCDLoader: binary_compressed files are not supported' );
-			return;
+			var sizes = new Uint32Array(data.slice(PCDheader.headerLen, PCDheader.headerLen + 8))
+            var compressedSize = sizes[0]
+            var decompressedSize = sizes[1]
+            var decompressed = decompressLZF(new Uint8Array(data, PCDheader.headerLen + 8, compressedSize), decompressedSize)
+            var dataview = new DataView(decompressed.buffer)
 
+			for ( var i = 0, row = 0; i < PCDheader.points; i ++, row += PCDheader.rowSize ) {
+
+				if ( offset.x !== undefined ) {
+
+					position.push(dataview.getFloat32(PCDheader.points * offset.x + PCDheader.size[0] * i, this.littleEndian));
+                    position.push(dataview.getFloat32(PCDheader.points * offset.y + PCDheader.size[1] * i, this.littleEndian));
+                    position.push(dataview.getFloat32(PCDheader.points * offset.z + PCDheader.size[2] * i, this.littleEndian));
+
+				}
+
+				if ( offset.rgb !== undefined ) {
+
+					color.push(dataview.getUint8(PCDheader.points * offset.rgb + PCDheader.size[3] * i + 0) / 255.0);
+                    color.push(dataview.getUint8(PCDheader.points * offset.rgb + PCDheader.size[3] * i + 1) / 255.0);
+                    color.push(dataview.getUint8(PCDheader.points * offset.rgb + PCDheader.size[3] * i + 2) / 255.0);
+
+				}
+
+				if ( offset.normal_x !== undefined ) {
+
+					normal.push( dataview.getFloat32(PCDheader.points * offset.normal_x + PCDheader.size[4] * i, this.littleEndian) );
+                    normal.push( dataview.getFloat32(PCDheader.points * offset.normal_y + PCDheader.size[5] * i, this.littleEndian) );
+                    normal.push( dataview.getFloat32(PCDheader.points * offset.normal_z + PCDheader.size[6] * i, this.littleEndian) );
+
+				}
+
+			}
 		}
 
-		if ( PCDheader.data === 'binary' ) {
+        // binary
+
+		else if ( PCDheader.data === 'binary' ) {
 
 			var dataview = new DataView( data, PCDheader.headerLen );
-			var offset = PCDheader.offset;
 
 			for ( var i = 0, row = 0; i < PCDheader.points; i ++, row += PCDheader.rowSize ) {
 
