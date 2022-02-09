@@ -13,6 +13,7 @@ import {dotproduct, transpose, matmul, euler_angle_to_rotate_matrix_3by3} from "
 function BoxOp(){
     console.log("BoxOp called");
     this.grow_box_distance_threshold = 0.3;
+    this.init_scale_ratio = {x:2, y:2, z:3};
 
     this.fit_bottom = function(box)
     {
@@ -20,11 +21,57 @@ function BoxOp(){
         this.translate_box(box, 'z', bottom + box.scale.z/2);
     }
 
+    this.fit_top = function(box)
+    {
+        let top = box.world.lidar.findTop(box, {x:1.2, y:1.2, z:2});
+        this.translate_box(box, 'z', top - box.scale.z/2);
+    }
+
+    this.fit_left = function(box)
+    {
+        var extreme = box.world.lidar.grow_box(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+
+        if (extreme){
+            this.translate_box(box, 'y', extreme.max.y - box.scale.y/2);            
+        }
+    }
+
+    this.fit_right = function(box)
+    {
+        var extreme = box.world.lidar.grow_box(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+
+        if (extreme){
+            this.translate_box(box, 'y', extreme.min.y + box.scale.y/2);            
+        }
+    }
+
+    this.fit_front = function(box)
+    {
+        var extreme = box.world.lidar.grow_box(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+
+        if (extreme){
+            this.translate_box(box, 'x', extreme.max.x - box.scale.x/2);            
+        }
+    }
+
+    this.fit_rear = function(box)
+    {
+        var extreme = box.world.lidar.grow_box(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+
+        if (extreme){
+            this.translate_box(box, 'x', extreme.min.x + box.scale.x/2);            
+        }
+    }
+
+
+
+
     this.fit_size = function(box,axies)
     {
         this.grow_box(box, this.grow_box_distance_threshold, {x:2, y:2, z:3}, axies);
     }
 
+    
 
     this.justifyAutoAdjResult = function(orgBox, box)
         {

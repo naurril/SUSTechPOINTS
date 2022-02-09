@@ -794,6 +794,43 @@ function Lidar(sceneMeta, world, frameInfo){
         }
     };
 
+    this.findTop = function(box, init_scale_ratio){
+        var points = this.points;
+        var pos_array = points.geometry.getAttribute("position").array;
+        
+        var trans = transpose(euler_angle_to_rotate_matrix(box.rotation, {x:0, y:0, z:0}), 4);
+
+
+        var cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio);
+        // all cand points are translated into box coordinates
+
+        let translated_cand_points = cand_point_indices.map(function(i){
+            let x = pos_array[i*3];
+            let y = pos_array[i*3+1];
+            let z = pos_array[i*3+2];
+
+            let p = [x-box.position.x, y-box.position.y, z-box.position.z, 1];
+            let tp = matmul(trans, p, 4);
+            return tp;
+        });
+
+
+        let maxZ = -1000;
+
+        
+        translated_cand_points.forEach((tp, i)=>{
+            if (Math.abs(tp[0]) < box.scale.x * init_scale_ratio.x/2 && 
+                Math.abs(tp[1]) < box.scale.y * init_scale_ratio.y/2 && 
+                Math.abs(tp[2]) < box.scale.z * init_scale_ratio.z/2)
+            {
+                if (tp[2] > maxZ)                    
+                    maxZ = tp[2];
+            }
+        });
+
+        return maxZ;
+    }
+
     // find bottom and top points, in range of init_scale_ratio
     this.findBottom = function(box, init_scale_ratio){
         

@@ -405,10 +405,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case "label-batchedit":
             {
 
-                if (!this.checkBoxTrackId())
+                if (!this.ensureBoxTrackIdExist())
                     break;
 
-                if (!this.checkAnnBeforeBatchEdit())
+                if (!this.ensurePreloaded())
                     break;
                     
                 this.header.setObject(this.selected_box.obj_track_id);
@@ -745,12 +745,45 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             break;
         
+        case "cm-change-id-to-ref":
+            if (!this.ensureRefObjExist())
+                break;
 
+            this.setObjectId(this.autoAdjust.marked_object.ann.obj_id);
+            this.fastToolBox.setValue(this.selected_box.obj_type, 
+                this.selected_box.obj_track_id, 
+                this.selected_box.obj_attr);
+
+            break;
+        case "cm-change-id-to-ref-in-scene":
+
+            if (!this.ensureBoxTrackIdExist())
+                break;
+            if (!this.ensurePreloaded())
+                break;
+            if (!this.ensureRefObjExist())
+                break;
+
+            this.data.worldList.forEach(w=>{
+                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                if (box && box !== this.selected_box){
+                    box.obj_track_id = this.autoAdjust.marked_object.ann.obj_id;
+                    w.annotation.setModified();
+                }
+            });
+
+            
+            this.setObjectId(this.autoAdjust.marked_object.ann.obj_id);
+            this.fastToolBox.setValue(this.selected_box.obj_type, 
+                this.selected_box.obj_track_id, 
+                this.selected_box.obj_attr);
+
+            break;
         case "cm-follow-ref":
 
-            if (!this.checkBoxTrackId())
+            if (!this.ensureBoxTrackIdExist())
                 break;
-            if (!this.checkAnnBeforeBatchEdit())
+            if (!this.ensurePreloaded())
                 break;
             this.autoAdjust.followsRef(this.selected_box);
             this.header.updateModifiedStatus();
@@ -762,9 +795,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             );
             break;
         case 'cm-follow-static-objects':
-            if (!this.checkBoxTrackId())
+            if (!this.ensureBoxTrackIdExist())
                 break;
-            if (!this.checkAnnBeforeBatchEdit())
+            if (!this.ensurePreloaded())
                 break;
             this.autoAdjust.followStaticObjects(this.selected_box);
             this.header.updateModifiedStatus();
@@ -779,7 +812,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
         case "cm-sync-followers":
             
-            if (!this.checkAnnBeforeBatchEdit())
+            if (!this.ensurePreloaded())
                 break;
             this.autoAdjust.syncFollowers(this.selected_box);
             this.header.updateModifiedStatus();
@@ -808,7 +841,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-modify-obj-type":
             {
-                if (!this.checkAnnBeforeBatchEdit())
+                if (!this.ensurePreloaded())
                     break;
                 //let saveList=[];
                 this.data.worldList.forEach(w=>{
@@ -829,7 +862,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-modify-obj-size":
             {
-                if (!this.checkAnnBeforeBatchEdit())
+                if (!this.ensurePreloaded())
                     break;
                 //let saveList=[];
                 this.data.worldList.forEach(w=>{
@@ -942,7 +975,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
 
 
-    this.checkBoxTrackId = function()
+    this.ensureBoxTrackIdExist = function()
     {
         if (!this.selected_box.obj_track_id)
         {
@@ -953,12 +986,19 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         return true;
     }
 
-    this.checkAnnBeforeBatchEdit = function()
+    this.ensureRefObjExist = function()
     {
+        if (!this.autoAdjust.marked_object)
+        {
+            this.infoBox.show("Notice", 'No reference object was selected');
+            return false;
+        }
+
         
-        
-        
-        
+        return true;
+    }
+    this.ensurePreloaded = function()
+    {
         let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
         worldList = worldList.sort((a,b)=>a.frameInfo.frame_index - b.frameInfo.frame_index);
 
@@ -984,10 +1024,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.interpolateInBackground = function()
     {
         
-        if (!this.checkBoxTrackId())
+        if (!this.ensureBoxTrackIdExist())
         return;
 
-        if (!this.checkAnnBeforeBatchEdit())
+        if (!this.ensurePreloaded())
             return;
 
         let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
@@ -1002,10 +1042,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     };
     this.enterBatchEditMode = function()
     {
-        if (!this.checkBoxTrackId())
+        if (!this.ensureBoxTrackIdExist())
            return;
 
-        if (!this.checkAnnBeforeBatchEdit())
+        if (!this.ensurePreloaded())
             return;
 
         this.header.setObject(this.selected_box.obj_track_id);
@@ -1020,10 +1060,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.autoAnnInBackground = function()
     {
-        if (!this.checkBoxTrackId())
+        if (!this.ensureBoxTrackIdExist())
             return;
 
-        if (!this.checkAnnBeforeBatchEdit())
+        if (!this.ensurePreloaded())
             return;
 
         let worldList = this.data.worldList.filter(w=>w.frameInfo.scene == this.data.world.frameInfo.scene);
