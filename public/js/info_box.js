@@ -30,10 +30,19 @@ class InfoBox extends PopupDialog{
             }
         }
 
-        this.ui.addEventListener("keydown", (event)=>{  //anykey
-            this.hide();
-            event.preventDefault();
-            event.stopPropagation();              
+        this.ui.addEventListener("keydown", (ev)=>{  
+            //anykey
+            if ( ev.shiftKey || ev.ctrlKey || ev.altKey)
+            {
+                //
+            }
+            else
+            {
+                this.hide();
+                ev.preventDefault();
+                ev.stopPropagation();              
+             }
+            
         });
     }
 
