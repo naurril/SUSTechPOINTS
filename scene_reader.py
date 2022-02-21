@@ -74,8 +74,8 @@ def get_one_scene(s):
             calibs = os.listdir(os.path.join(scene_dir, "calib", "camera"))
             for c in calibs:
                 calib_file = os.path.join(scene_dir, "calib", "camera", c)
-                calib_name, _ = os.path.splitext(c)
-                if os.path.isfile(calib_file):
+                calib_name, ext = os.path.splitext(c)
+                if os.path.isfile(calib_file) and ext==".json":
                     #print(calib_file)
                     with open(calib_file)  as f:
                         cal = json.load(f)
