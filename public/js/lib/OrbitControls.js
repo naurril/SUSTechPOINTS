@@ -58,7 +58,7 @@ class OrbitControls extends EventDispatcher {
 
 		// Set to true to enable damping (inertia)
 		// If damping is enabled, you must call controls.update() in your animation loop
-		this.enableDamping = false;
+		this.enableDamping = true;
 		this.dampingFactor = 0.05;
 
 		// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
@@ -73,8 +73,8 @@ class OrbitControls extends EventDispatcher {
 		// Set to false to disable panning
 		this.enablePan = true;
 		this.panSpeed = 1.0;
-		this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
-		this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
+		this.screenSpacePanning = false; // if false, pan orthogonal to world-space direction camera.up
+		this.keyPanSpeed = 35.0;	// pixels moved per arrow key push
 
 		// Set to true to automatically rotate around the target
 		// If auto-rotate is enabled, you must call controls.update() in your animation loop

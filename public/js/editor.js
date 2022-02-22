@@ -248,7 +248,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
 
     this.run = function(){
-        //this.animate();
+        this.animate();
         this.render();
         //$( "#maincanvas" ).resizable();
         
@@ -891,11 +891,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         return true; 
     };
 
-    // this.animate= function() {
-    //     let self=this;
-    //     requestAnimationFrame( function(){self.animate();} );
-    //     this.viewManager.mainView.orbit_orth.update();
-    // };
+    this.animate= function() {
+        let self=this;
+        requestAnimationFrame( function(){self.animate();} );
+        this.viewManager.mainView.orbit_perspective.update();
+    };
 
 
 

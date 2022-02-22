@@ -167,6 +167,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
 
 
         var orbit_perspective = new OrbitControls( view.camera_perspective, view.container );
+        orbit_perspective.listenToKeyEvents(window)
         orbit_perspective.update();
         orbit_perspective.addEventListener( 'change', globalRenderFunc );
         //orbit_perspective.enabled = true;
