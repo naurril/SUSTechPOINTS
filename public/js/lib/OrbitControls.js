@@ -73,7 +73,7 @@ class OrbitControls extends EventDispatcher {
 		// Set to false to disable panning
 		this.enablePan = true;
 		this.panSpeed = 1.0;
-		this.screenSpacePanning = false; // if false, pan orthogonal to world-space direction camera.up
+		this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
 		this.keyPanSpeed = 35.0;	// pixels moved per arrow key push
 
 		// Set to true to automatically rotate around the target
@@ -276,7 +276,9 @@ class OrbitControls extends EventDispatcher {
 				scale = 1;
 
 				if ( scope.enabled === true && scope.enablePan === true ) {
+					scope.screenSpacePanning = false;
 					handleKeyDown();
+					scope.screenSpacePanning = true;
 				}
 
 				// update condition is:
@@ -1055,7 +1057,6 @@ class OrbitControls extends EventDispatcher {
 
 			if (keyName) {
 				scope.keysPressed[keyName] = true;
-				console.log("keyPressed", keyName)
 			}
 		}
 
@@ -1064,7 +1065,6 @@ class OrbitControls extends EventDispatcher {
 
 			if (keyName) {
 				scope.keysPressed[keyName] = false;
-				console.log("keyReleased", keyName)
 			}
 		}
 
