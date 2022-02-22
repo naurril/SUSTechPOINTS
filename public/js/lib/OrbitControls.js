@@ -58,7 +58,7 @@ class OrbitControls extends EventDispatcher {
 
 		// Set to true to enable damping (inertia)
 		// If damping is enabled, you must call controls.update() in your animation loop
-		this.enableDamping = true;
+		this.enableDamping = false;
 		this.dampingFactor = 0.05;
 
 		// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
@@ -83,6 +83,12 @@ class OrbitControls extends EventDispatcher {
 
 		// The four arrow keys
 		this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
+		this.keysPressed = {
+			LEFT: false,
+			UP: false,
+			RIGHT: false,
+			BOTTOM: false
+		}
 
 		// Mouse buttons
 		this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
@@ -123,6 +129,7 @@ class OrbitControls extends EventDispatcher {
 		this.listenToKeyEvents = function ( domElement ) {
 
 			domElement.addEventListener( 'keydown', onKeyDown );
+			domElement.addEventListener( 'keyup', onKeyUp );
 			this._domElementKeyEvents = domElement;
 
 		};
@@ -268,6 +275,10 @@ class OrbitControls extends EventDispatcher {
 
 				scale = 1;
 
+				if ( scope.enabled === true && scope.enablePan === true ) {
+					handleKeyDown();
+				}
+
 				// update condition is:
 				// min(camera displacement, camera rotation in radians)^2 > EPS
 				// using small-angle approximation cos(x/2) = 1 - x^2 / 8
@@ -307,7 +318,7 @@ class OrbitControls extends EventDispatcher {
 			if ( scope._domElementKeyEvents !== null ) {
 
 				scope._domElementKeyEvents.removeEventListener( 'keydown', onKeyDown );
-
+				scope._domElementKeyEvents.removeEventListener( 'keyup', onKeyUp );
 			}
 
 			//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
@@ -603,40 +614,36 @@ class OrbitControls extends EventDispatcher {
 
 		}
 
-		function handleKeyDown( event ) {
+		function handleKeyDown() {
 
 			let needsUpdate = false;
 
-			switch ( event.code ) {
+			if (scope.keysPressed.UP) {
+				pan( 0, scope.keyPanSpeed );
+				needsUpdate = true;
+			}
 
-				case scope.keys.UP:
-					pan( 0, scope.keyPanSpeed );
-					needsUpdate = true;
-					break;
+			if (scope.keysPressed.BOTTOM) {
+				pan( 0, - scope.keyPanSpeed );
+				needsUpdate = true;
+			}
 
-				case scope.keys.BOTTOM:
-					pan( 0, - scope.keyPanSpeed );
-					needsUpdate = true;
-					break;
+			if (scope.keysPressed.LEFT) {
+				pan( scope.keyPanSpeed, 0 );
+				needsUpdate = true;
+			}
 
-				case scope.keys.LEFT:
-					pan( scope.keyPanSpeed, 0 );
-					needsUpdate = true;
-					break;
-
-				case scope.keys.RIGHT:
-					pan( - scope.keyPanSpeed, 0 );
-					needsUpdate = true;
-					break;
-
+			if (scope.keysPressed.RIGHT) {
+				pan( - scope.keyPanSpeed, 0 );
+				needsUpdate = true;
 			}
 
 			if ( needsUpdate ) {
 
 				// prevent the browser from scrolling on cursor keys
-				event.preventDefault();
+				// event.preventDefault();
 
-				scope.update();
+				// scope.update();
 
 			}
 
@@ -1044,11 +1051,21 @@ class OrbitControls extends EventDispatcher {
 		}
 
 		function onKeyDown( event ) {
+			const keyName = Object.keys(scope.keys).find(v => scope.keys[v] == event.code)
 
-			if ( scope.enabled === false || scope.enablePan === false ) return;
+			if (keyName) {
+				scope.keysPressed[keyName] = true;
+				console.log("keyPressed", keyName)
+			}
+		}
 
-			handleKeyDown( event );
+		function onKeyUp( event ) {
+			const keyName = Object.keys(scope.keys).find(v => scope.keys[v] == event.code)
 
+			if (keyName) {
+				scope.keysPressed[keyName] = false;
+				console.log("keyReleased", keyName)
+			}
 		}
 
 		function onTouchStart( event ) {
