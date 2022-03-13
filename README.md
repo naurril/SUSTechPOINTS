@@ -1,4 +1,4 @@
-# SUSTechPOINTS: Point Cloud 3D Bounding Box Annotation Tool
+# SUSTechPOINTS: Point Cloud 3D Bounding Box Annotation Tool For Autonomous Driving
 
 ### Main UI
 ![screenshot](./doc/main-ui.png)
@@ -32,12 +32,14 @@ semi-auto-annotation
 ## Get started
 
 [Docker](./doc/docker.md)
+
 [Install from source](./doc/install_from_source.md)
 
 ## Operations
 [operations](./doc/operations.md)
 
 [Annotation guide(中文)](./doc/shortcuts_cn.md)
+
 [Shortcuts(中文)](./doc/shortcuts_cn.md)
 
 ## Other Doc
