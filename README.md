@@ -38,8 +38,6 @@ semi-auto-annotation
 ## Operations
 [Operations](./doc/operations.md)
 
-[Annotation guide(中文)](./doc/shortcuts_cn.md)
-
 [Shortcuts(中文)](./doc/shortcuts_cn.md)
 
 ## Other Doc
