@@ -28,10 +28,3 @@ sudo docker run -it -d --restart=always -p 8081:8081 juhaoming/sustechpoints:v1.
 sudo docker run -it -d --restart=always -p 8081:8081 -v ${YourDataPath}:/root/SUSTechPOINTS/data juhaoming/sustechpoints:v1.0.0 bash
 
 ```
-
-
-## Start
-Run the following command in shell, then go to http://127.0.0.1:8081
-```
-python main.py
-```
