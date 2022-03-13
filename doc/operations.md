@@ -1,5 +1,5 @@
 
-###Add a new box
+### Add a new box
 
 You have 2 ways to add a new box:
 1. Right click on an object, choose object type in popup context menu
@@ -11,7 +11,7 @@ Hint:
 
 
 
-###Main View
+### Main View
 ```
      mouse scroll up/down:  zoom in/out
      mouse left key hold/move: rotate (change main view)

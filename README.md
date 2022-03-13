@@ -36,7 +36,7 @@ semi-auto-annotation
 [Install from source](./doc/install_from_source.md)
 
 ## Operations
-[operations](./doc/operations.md)
+[Operations](./doc/operations.md)
 
 [Annotation guide(中文)](./doc/shortcuts_cn.md)
 
