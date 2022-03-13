@@ -35,13 +35,13 @@ semi-auto-annotation
 
 [Install from source](./doc/install_from_source.md)
 
+[uwsgi](./doc/deploy_server.md)
+
 ## Operations
 [Operations](./doc/operations.md)
 
 [Shortcuts(中文)](./doc/shortcuts_cn.md)
 
-## Other Doc
-[Deploy uwsgi](./doc/deploy_server.md)
 ## Cite
 
 If you find this work useful in your research, please consider cite:
