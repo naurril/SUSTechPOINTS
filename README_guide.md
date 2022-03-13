@@ -8,6 +8,7 @@
 
 [操作说明](./README_cn.md)
 
+[快捷键](./doc/shortcuts_cn.md)
 
 # 什么是3D目标检测/追踪
 
