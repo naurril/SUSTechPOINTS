@@ -1,10 +1,15 @@
 
 ### Install
+
+0. clone the project
+   ```
+   git clone https://github.com/naurril/SUSTechPOINTS
+   ```
 1. Install packages
      ```
      pip install -r requirement.txt
      ```
-1. Download model
+2. Download model
 
      download pretrained model file [deep_annotation_inference.h5](https://github.com/naurril/SUSTechPOINTS/releases/download/0.1/deep_annotation_inference.h5), put it into `./algos/models`
      ```
