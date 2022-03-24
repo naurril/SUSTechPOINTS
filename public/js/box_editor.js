@@ -715,7 +715,9 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
 
     let onBoxChangedInBatchMode = function(box)
     {
-        box.boxEditor.update(); //render.
+        if (box.boxEditor) // if in batch mode with less than 40 windows, some box don't have editor attached.
+            box.boxEditor.update(); //render.
+
         box.world.annotation.setModified();
     };
 
