@@ -913,8 +913,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     
     this.resetView = function(targetPos){
 
-        if (!targetPos)
-            targetPos = {x:0, y:0, z:50};
+        let center = this.data.world.lidar.computeCenter();
+        if (!targetPos){
+            targetPos = {...center};//{x:0, y:0, z:50};
+            targetPos.z += 50;
+        }
         else
             targetPos.z = 50;
 

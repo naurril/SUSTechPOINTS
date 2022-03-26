@@ -96,8 +96,12 @@ function Lidar(sceneMeta, world, frameInfo){
                 }
 
                 
+
+                
+                
                 let position = pcd.position;
-                                
+
+
                 // build geometry
                 _self.world.data.dbg.alloc();
                 var geometry = new THREE.BufferGeometry();
@@ -353,6 +357,30 @@ function Lidar(sceneMeta, world, frameInfo){
         return this.points.geometry.getAttribute("position");
     };
     
+    this.computeCenter = function(){
+
+        if (! this.center)
+        {
+            let position = this.points.geometry.getAttribute("position");
+            // computer center position
+            let center = {x:0,y:0,z:0};
+            for (let i = 0; i<position.count; i++)
+            {
+                center.x += position.array[i*3];
+                center.y += position.array[i*3+1];
+                center.z += position.array[i*3+2];
+            }
+
+            center.x /= position.count;
+            center.y /= position.count;
+            center.z /= position.count;
+
+            this.center = center;
+        }
+
+        return this.center;
+    };
+
     this.build_points_index=function(){
         var ps = this.points.geometry.getAttribute("position");
         var points_index = {};
