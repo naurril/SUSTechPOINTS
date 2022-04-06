@@ -22,6 +22,45 @@ var PCDLoader = function ( manager ) {
 
 };
 
+function decompressLZF(inData, outLength) {
+	var inLength = inData.length
+	var outData = new Uint8Array(outLength)
+	var inPtr = 0
+	var outPtr = 0
+	var ctrl
+	var len
+	var ref
+	do {
+	  ctrl = inData[inPtr++]
+	  if (ctrl < 1 << 5) {
+		ctrl++
+		if (outPtr + ctrl > outLength) throw new Error('Output buffer is not large enough')
+		if (inPtr + ctrl > inLength) throw new Error('Invalid compressed data')
+		do {
+		  outData[outPtr++] = inData[inPtr++]
+		} while (--ctrl)
+	  } else {
+		len = ctrl >> 5
+		ref = outPtr - ((ctrl & 0x1f) << 8) - 1
+		if (inPtr >= inLength) throw new Error('Invalid compressed data')
+		if (len === 7) {
+		  len += inData[inPtr++]
+		  if (inPtr >= inLength) throw new Error('Invalid compressed data')
+		}
+
+		ref -= inData[inPtr++]
+		if (outPtr + len + 2 > outLength) throw new Error('Output buffer is not large enough')
+		if (ref < 0) throw new Error('Invalid compressed data')
+		if (ref >= outPtr) throw new Error('Invalid compressed data')
+		do {
+		  outData[outPtr++] = outData[ref++]
+		} while (--len + 2)
+	  }
+	} while (inPtr < inLength)
+
+	return outData
+  }
+
 
 PCDLoader.prototype = {
 
@@ -309,12 +348,65 @@ PCDLoader.prototype = {
 
 		if ( PCDheader.data === 'binary_compressed' ) {
 
-			console.error( 'THREE.PCDLoader: binary_compressed files are not supported' );
-			return;
+			var sizes = new Uint32Array( data.slice( PCDheader.headerLen, PCDheader.headerLen + 8 ) );
+			var compressedSize = sizes[ 0 ];
+			var decompressedSize = sizes[ 1 ];
+			var decompressed = decompressLZF( new Uint8Array( data, PCDheader.headerLen + 8, compressedSize ), decompressedSize );
+			var dataview = new DataView( decompressed.buffer );
+			
+			var offset = PCDheader.offset;
+			var intensity_index = PCDheader.fields.findIndex(n=>n==="intensity");
+			var intensity_type = "F";
+			var intensity_size = 4;
+
+			if (intensity_index >= 0){
+				intensity_type = PCDheader.type[intensity_index];
+				intensity_size = PCDheader.size[intensity_index];
+			}
+
+			let size = {};
+			
+			PCDheader.fields.forEach((n,i)=>size[n]=PCDheader.size[i])
+
+
+			for ( var i = 0; i < PCDheader.points; i ++ ) {
+			
+				if ( offset.x !== undefined ) {
+				
+					position.push( dataview.getFloat32( ( PCDheader.points * offset.x ) + size.x * i, this.littleEndian ) );
+					position.push( dataview.getFloat32( ( PCDheader.points * offset.y ) + size.y * i, this.littleEndian ) );
+					position.push( dataview.getFloat32( ( PCDheader.points * offset.z ) + size.z * i, this.littleEndian ) );
+					
+				}
+				
+				// if ( offset.rgb !== undefined ) {
+				
+				// 	color.push( dataview.getUint8( ( PCDheader.points * ( offset.rgb + 2 ) ) + PCDheader.size[ 3 ] * i ) / 255.0 );
+				// 	color.push( dataview.getUint8( ( PCDheader.points * ( offset.rgb + 1 ) ) + PCDheader.size[ 3 ] * i ) / 255.0 );
+				// 	color.push( dataview.getUint8( ( PCDheader.points * ( offset.rgb + 0 ) ) + PCDheader.size[ 3 ] * i ) / 255.0 );
+				
+				// }
+				
+				// if ( offset.normal_x !== undefined ) {
+				
+				// 	normal.push( dataview.getFloat32( ( PCDheader.points * offset.normal_x ) + PCDheader.size[ 4 ] * i, this.littleEndian ) );
+				// 	normal.push( dataview.getFloat32( ( PCDheader.points * offset.normal_y ) + PCDheader.size[ 5 ] * i, this.littleEndian ) );
+				// 	normal.push( dataview.getFloat32( ( PCDheader.points * offset.normal_z ) + PCDheader.size[ 6 ] * i, this.littleEndian ) );
+				
+				// }
+			
+				if (offset.intensity !== undefined) {
+					if (intensity_type == "U" && intensity_size == 1){
+						intensity.push( dataview.getUint8(PCDheader.points * offset.intensity + size.intensity*i));
+					}
+					else if (intensity_type == "F" && intensity_size == 4){
+						intensity.push( dataview.getFloat32(PCDheader.points * offset.intensity + size.intensity*i, this.littleEndian));
+					}
+				}
+			}
 
 		}
-
-		if ( PCDheader.data === 'binary' ) {
+		else if ( PCDheader.data === 'binary' ) {
 
 			var dataview = new DataView( data, PCDheader.headerLen );
 			var offset = PCDheader.offset;
