@@ -17,9 +17,9 @@ automatically annotate a scooter-rider
 
 ![batch-mode](./doc/auto-anno-rider.gif)
 
-automatically annotate a pedestrian
+<!-- automatically annotate a pedestrian
 
-![batch-mode](./doc/auto-anno-pedestrian.gif)
+![batch-mode](./doc/auto-anno-pedestrian.gif) -->
 
 ## Features
 

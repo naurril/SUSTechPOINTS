@@ -73,7 +73,8 @@ rider的属性： 伞，载客1个，载客2个..
 |Tram|电车||
 |Animal|动物||
 |ForkLift|叉车||![Forklift](./doc/objtype/forklift.jpg)|
-|Trimotorcycle|三轮车||![Trimotocycle](./doc/objtype/Trimotorcycle.jpeg)|
+|Trimotorcycle|电动三轮车||![Trimotocycle](./doc/objtype/Trimotorcycle.jpeg)|
+|FreightTricycle|人力三轮车||![freight tricycle](./doc/objtype/freight-tricycle.png)|
 |Crane|吊车||![crane](./doc/objtype/crane.jpeg)|
 |Eexcavator|挖掘机||![excavator](./doc/objtype/excavator.png)|
 |Roadroller|压路机||![road roller](./doc/objtype/RoadRoller.jpeg)|
