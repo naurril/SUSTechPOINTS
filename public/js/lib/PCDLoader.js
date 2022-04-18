@@ -373,9 +373,18 @@ PCDLoader.prototype = {
 			
 				if ( offset.x !== undefined ) {
 				
-					position.push( dataview.getFloat32( ( PCDheader.points * offset.x ) + size.x * i, this.littleEndian ) );
-					position.push( dataview.getFloat32( ( PCDheader.points * offset.y ) + size.y * i, this.littleEndian ) );
-					position.push( dataview.getFloat32( ( PCDheader.points * offset.z ) + size.z * i, this.littleEndian ) );
+					if (size.x==4)
+					{
+						position.push( dataview.getFloat64( ( PCDheader.points * offset.x ) + size.x * i, this.littleEndian ) );
+						position.push( dataview.getFloat64( ( PCDheader.points * offset.y ) + size.y * i, this.littleEndian ) );
+						position.push( dataview.getFloat64( ( PCDheader.points * offset.z ) + size.z * i, this.littleEndian ) );
+					}
+					else
+					{
+						position.push( dataview.getFloat32( ( PCDheader.points * offset.x ) + size.x * i, this.littleEndian ) );
+						position.push( dataview.getFloat32( ( PCDheader.points * offset.y ) + size.y * i, this.littleEndian ) );
+						position.push( dataview.getFloat32( ( PCDheader.points * offset.z ) + size.z * i, this.littleEndian ) );
+					}
 					
 				}
 				
@@ -420,13 +429,24 @@ PCDLoader.prototype = {
 				intensity_size = PCDheader.size[intensity_index];
 			}
 
+			let x_index = PCDheader.fields.findIndex(n=>n==="x");
+			let x_size = 4;
+			let x_type = 'F';
+			if (x_index >= 0){
+				x_type = PCDheader.type[x_index];
+				x_size = PCDheader.size[x_index];
+			}
+
 
 			for ( var i = 0, row = 0; i < PCDheader.points; i ++, row += PCDheader.rowSize ) {
 
 				if ( offset.x !== undefined ) {
-					let x = dataview.getFloat32( row + offset.x, this.littleEndian );
-					let y = dataview.getFloat32( row + offset.y, this.littleEndian );
-					let z = dataview.getFloat32( row + offset.z, this.littleEndian );
+
+					let getFloat =  (x_size==8)? dataview.getFloat64.bind(dataview) : dataview.getFloat32.bind(dataview);
+					
+					let x = getFloat( row + offset.x, this.littleEndian );
+					let y = getFloat( row + offset.y, this.littleEndian );
+					let z = getFloat( row + offset.z, this.littleEndian );
 
 					if (filterPoint(x,y,z)){
 						continue;
