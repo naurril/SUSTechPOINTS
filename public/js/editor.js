@@ -2605,9 +2605,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             //self.auto_shrink_box(box);
             //self.on_box_changed(box);
 
+            let noscaling = event.shiftKey;
+
             self.boxOp.auto_rotate_xyz(box, null, null, function(b){
                 self.on_box_changed(b);
-            });
+            }, noscaling);
             return true;
         });
 
