@@ -1100,10 +1100,16 @@ class ProjectiveViewOps{
             delta.x = limit_move_step(delta.x, 0.02);
             delta.y = limit_move_step(delta.y, 0.02);
             
-            scope.boxOp.translate_box(scope.box, "x", delta.x);
-            scope.boxOp.translate_box(scope.box, "y", delta.y);
+            // scope.boxOp.translate_box(scope.box, "x", delta.x);
+            // scope.boxOp.translate_box(scope.box, "y", delta.y);
 
-            scope.on_box_changed(scope.box);
+            // scope.on_box_changed(scope.box);
+            scope.boxEditor.onOpCmd({
+                op: "translate",
+                params:{
+                    delta
+                }
+            });
         }
 
 
@@ -1255,10 +1261,16 @@ class ProjectiveViewOps{
             };
 
             
-            scope.boxOp.translate_box(scope.box, "x", delta.x);
-            scope.boxOp.translate_box(scope.box, "z", delta.z);
+            // scope.boxOp.translate_box(scope.box, "x", delta.x);
+            // scope.boxOp.translate_box(scope.box, "z", delta.z);
 
-            scope.on_box_changed(scope.box);
+            // scope.on_box_changed(scope.box);
+            scope.boxEditor.onOpCmd({
+                op: "translate",
+                params:{
+                    delta
+                }
+            });
         }
 
         function on_y_direction_changed(theta, sticky){
@@ -1380,10 +1392,17 @@ class ProjectiveViewOps{
             };
 
             
-            scope.boxOp.translate_box(scope.box, "y", delta.y);
-            scope.boxOp.translate_box(scope.box, "z", delta.z);
+            // scope.boxOp.translate_box(scope.box, "y", delta.y);
+            // scope.boxOp.translate_box(scope.box, "z", delta.z);
 
-            scope.on_box_changed(scope.box);
+            // scope.on_box_changed(scope.box);
+
+            scope.boxEditor.onOpCmd({
+                op: "translate",
+                params:{
+                    delta
+                }
+            });
         }
 
         function on_x_direction_changed(theta, sticky){

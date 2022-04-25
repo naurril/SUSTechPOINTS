@@ -55,7 +55,12 @@ var pendingSaveList = [];
 
 function saveWorldList(worldList){
 
-    pendingSaveList = pendingSaveList.concat(worldList);
+    //pendingSaveList = pendingSaveList.concat(worldList);
+
+    worldList.forEach(w=>{
+        if (!pendingSaveList.includes(w))
+            pendingSaveList.push(w);
+    });
 
     if (saveDelayTimer)
     {

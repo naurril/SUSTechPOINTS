@@ -241,8 +241,8 @@ def lidar_pcd_restore(output_path):
 
             if os.path.exists(pose1file) and os.path.exists(pose2file):
                 dst_file = os.path.join(dst_folder, f)
-                if not os.path.exists(dst_file):
-                    pcd_restore.pcd_restore(os.path.join(src_folder, f), \
+                #if not os.path.exists(dst_file):
+                pcd_restore.pcd_restore(os.path.join(src_folder, f), \
                                        os.path.join(dst_folder, f), \
                                        os.path.join(pose_folder, format_timestamp(timestamp)+".json"), \
                                        os.path.join(pose_folder, format_timestamp(nexttimestamp)+".json"), \
@@ -273,50 +273,55 @@ if __name__ == "__main__":
             subfolders = os.listdir(raw_data_root_path)
             subfolders.sort()
         
-        for f in subfolders:
-            os.chdir(savecwd)
-            print(f)
+        if func=='all':
+            for f in subfolders:
+                os.chdir(savecwd)
+                print(f)
 
-            raw_data_path = os.path.join(raw_data_root_path, f)
-            if os.path.isdir(raw_data_path):
-                if f.endswith("_preprocessed"):
-                    continue
-                if f.endswith("bagfile"):
-                    continue
+                raw_data_path = os.path.join(raw_data_root_path, f)
+                if os.path.isdir(raw_data_path):
+                    if f.endswith("_preprocessed"):
+                        continue
+                    if f.endswith("bagfile"):
+                        continue
 
-                output_path = os.path.join(raw_data_root_path, f + "_preprocessed")
-                
-                if os.path.exists(output_path) and func=='all':
-                    continue
+                    output_path = os.path.join(raw_data_root_path, f + "_preprocessed")
+                    
+                    if os.path.exists(output_path) and func=='all':
+                        continue
 
 
-                if func == "rectify" or func=="all":
-                    rectify_cameras(intrinsic_calib_path, raw_data_path, output_path)
+                    if func == "rectify" or func=="all":
+                        rectify_cameras(intrinsic_calib_path, raw_data_path, output_path)
 
-                if func == "pose" or func=="all":
-                    generate_pose(raw_data_path, output_path)
+                    if func == "pose" or func=="all":
+                        generate_pose(raw_data_path, output_path)
 
-                if func == "align" or func=="all":
-                    align(raw_data_path, output_path)
+                    if func == "align" or func=="all":
+                        align(raw_data_path, output_path)
 
-                # restore shoulb be after aligned
-                if  func == "pcd_restore" or func =="all":
-                    lidar_pcd_restore(output_path)
-                
+                    # restore shoulb be after aligned
+                    if  func == "pcd_restore" or func =="all":
+                        lidar_pcd_restore(output_path)
+                    
 
-                if func == "generate_dataset"  or func=="all":
-                    dataset_name = "dataset_2hz"
-                    timeslots = "000,500"
-                    generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
+                    if func == "generate_dataset"  or func=="all":
+                        dataset_name = "dataset_2hz"
+                        timeslots = "000,500"
+                        generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
-                    dataset_name = "dataset_10hz"
-                    timeslots = "?00" #"000,100,200,300,400,500,600,700,800,900"
-                    generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
+                        dataset_name = "dataset_10hz"
+                        timeslots = "?00" #"000,100,200,300,400,500,600,700,800,900"
+                        generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
-                if func == "generate_dataset_lidar_destorted":
-                    dataset_name = "dataset_lidar_destorted_2hz"
-                    timeslots = "000,500"
-                    generate_dataset_lidar_destorted(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
+                    if func == "generate_dataset_lidar_destorted":
+                        dataset_name = "dataset_lidar_destorted_2hz"
+                        timeslots = "000,500"
+                        generate_dataset_lidar_destorted(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
+        else: 
+            if  func == "pcd_restore":
+                output_path = os.path.join(raw_data_root_path + "_preprocessed")
+                lidar_pcd_restore(output_path)
 
     else:
         print("func intrinsic_calib_path, extrinsic_calib_path, raw_data_path")

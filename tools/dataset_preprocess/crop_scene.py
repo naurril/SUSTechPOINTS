@@ -160,7 +160,7 @@ def  regen_scene(scene_path):
 
 def checkfile(f):
     if not os.path.exists(f):
-        print(f, "doesn't exit")
+        print(f, "doesn't exist")
         return False
     if not os.path.isfile(f):
         print(f, "is not a file")
@@ -169,7 +169,7 @@ def checkfile(f):
 
 def checkdir(f):
     if not os.path.exists(f):
-        print(f, "doesn't exit")
+        print(f, "doesn't exist")
         return False
         
     if not os.path.isdir(f):

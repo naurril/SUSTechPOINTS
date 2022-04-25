@@ -705,6 +705,34 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             break;
         /// object
 
+        case 'cm-check-scene':
+            {
+                let scene = this.data.world.frameInfo.scene;
+                
+                const req = new Request(`/checkscene?scene=${scene}`);
+                let init = {
+                    method: 'GET',
+                    //body: JSON.stringify({"points": data})
+                };
+                // we defined the xhr
+                
+                return fetch(req, init)
+                .then(response=>{
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }else{
+                        return response.json();
+                    }
+                })
+                .then(ret=>
+                {
+                    this.infoBox.show("Check - " + scene, JSON.stringify(info, null,"<br>"));
+                })
+                .catch(reject=>{
+                    console.log("error check scene!");
+                });
+            }
+            break;
         case "cm-reset-view":
             this.resetView();
             break;
@@ -765,7 +793,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;
 
             this.data.worldList.forEach(w=>{
-                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id &&  b.obj_type === this.selected_box.obj_type);
                 if (box && box !== this.selected_box){
                     box.obj_track_id = this.autoAdjust.marked_object.ann.obj_id;
                     w.annotation.setModified();

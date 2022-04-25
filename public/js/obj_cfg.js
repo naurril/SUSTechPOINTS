@@ -77,13 +77,13 @@ class ObjectCategory
         
     }
 
-    popularCategoris = ["Car", "Pedestrian", "Van", "Bus", "Truck", "Scooter", "ScooterRider", "Bicycle", "BicycleRider"];
+    popularCategories = ["Car", "Pedestrian", "Van", "Bus", "Truck", "Scooter", "ScooterRider", "Bicycle", "BicycleRider"];
 
     guess_obj_type_by_dimension(scale){
 
         var max_score = 0;
         var max_name = 0;
-        this.popularCategoris.forEach(i=>{
+        this.popularCategories.forEach(i=>{
             var o = this.obj_type_map[i];
             var scorex = o.size[0]/scale.x;
             var scorey = o.size[1]/scale.y;

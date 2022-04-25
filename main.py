@@ -10,7 +10,7 @@ env = Environment(loader=FileSystemLoader('./'))
 import os
 import sys
 import scene_reader
-
+import tools.check_labels  as check
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -116,6 +116,16 @@ class Root(object):
       return {"code": code,
               "log": log
               }
+
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def checkscene(self, scene):
+      ck = check.LabelChecker(os.path.join("./data", scene))
+      ck.check()
+      print(ck.messages)
+      return ck.messages
+
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

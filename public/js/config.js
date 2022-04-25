@@ -26,6 +26,9 @@ class Config{
     batchModeSubviewSize = {width: 130, height: 450};
 
 
+    // edit on one box, apply to all selected boxes.
+    linkEditorsInBatchMode = false;
+
     // only rotate z in 'auto/interpolate' algs
     enableAutoRotateXY = false;
     autoSave = true;

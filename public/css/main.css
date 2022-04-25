@@ -9,6 +9,8 @@
 	--highlight-background-color: darkgray;
 	--highlight-color: yellow;
 	--highlight-color-editor: #ffff0020;
+
+	--highlight-background-transparent-color: #aaaaaa44;
 }
 
 .theme-light {
@@ -20,6 +22,8 @@
 	--highlight-background-color: gray;
 	--highlight-color: blue;
 	--highlight-color-editor: #0000ff20;
+
+	--highlight-background-transparent-color: #22222244;
 }
 
 html,body {
@@ -724,12 +728,16 @@ dynamic set obj-type css has higher priority than this one.
 	top: 0px;
 	/*color: #ffff00; */
 	/* background-color: var(--widget-background-color);; */
-	width: auto;
+	width: 100%;
 	padding: 0px;
 	box-sizing: border-box;
 	text-align: left;	
 	/*z-index: 3; /* TODO Solve this in HTML */
 	font-size: x-small;
+}
+
+.selected #box-info{
+	background-color: var(--highlight-background-transparent-color);
 }
 
 .view-manipulator {
