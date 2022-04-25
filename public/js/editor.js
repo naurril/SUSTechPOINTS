@@ -726,7 +726,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 })
                 .then(ret=>
                 {
-                    this.infoBox.show("Check - " + scene, JSON.stringify(info, null,"<br>"));
+                    //this.infoBox.show("Check - " + scene, JSON.stringify(info, null,"<br>"));
                 })
                 .catch(reject=>{
                     console.log("error check scene!");
