@@ -44,16 +44,17 @@ class LabelChecker:
         obj_ids = {}
 
         files.sort()
+        print(files)
         for f in files:
             with open(os.path.join(label_folder, f),'r') as fp:
                 l = json.load(fp)
                 #print(l)
                 frame_id = os.path.splitext(f)[0]
-                labels[id] = l
+                labels[frame_id] = l
 
                 for o in l:
                     obj_id = o['obj_id']
-                    if id:
+                    if frame_id:
                         if obj_ids.get(obj_id):
                             obj_ids[obj_id].append([frame_id,o])
                         else:
@@ -84,7 +85,7 @@ class LabelChecker:
     
     def check_obj_id(self, frame_id, o):
         if not o["obj_id"]:
-            print(frame_id, o["obj_type"], "object id absent")
+            self.push_message(frame_id, "", "object {} id absent".format(o["obj_type"]))
 
     def check_frame_duplicate_id(self, frame_id, objs):
         obj_id_cnt = {}
@@ -96,13 +97,16 @@ class LabelChecker:
         
         for id in obj_id_cnt:
             if obj_id_cnt[id] > 1:
-                print(frame_id, id, obj_id_cnt[id], "duplicate object id")
+                self.push_message(frame_id, id, "duplicate object id")               
 
 
     def check_obj_size(self, obj_id, label_list):
 
         #print("object", obj_id, len(label_list), "instances")
 
+        if label_list[0][1]['obj_type'] == 'Pedestrian':
+            return
+            
         mean = {}
         for axis in ['x','y','z']:
             vs = list(map(lambda l: float(l[1]["psr"]["scale"][axis]), label_list))
@@ -116,13 +120,46 @@ class LabelChecker:
                 ratio = label["psr"]["scale"][axis] / mean[axis]
                 if ratio < 0.95:
                     self.push_message(frame_id, obj_id, "dimension {} too small: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
+                    #return
                 elif ratio > 1.05:
                     self.push_message(frame_id, obj_id, "dimension {} too large: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
+                    #return
 
-        #print(mean)
+    def check_obj_direction(self, obj_id, label_list):
 
+        for i in range(1, len(label_list)):
+            l = label_list[i]
+            pl = label_list[i-1]
+            frame_id = l[0]
+            label = l[1]
+            plabel = pl[1]
+
+            
+            for axis in ['x','y','z']:
+                rotation_delta = label['psr']['rotation'][axis] -  plabel['psr']['rotation'][axis]
+                pi = 3.141592543
+                if rotation_delta > pi:
+                    rotation_delta =  2*pi - rotation_delta
+                elif rotation_delta < -pi:
+                    rotation_delta =  2*pi + rotation_delta
+
+                if rotation_delta > 30/180*pi or rotation_delta < - 30/180*pi:
+                    self.push_message(frame_id, obj_id, "rotation {} delta too large".format(axis))
+                    #return
+
+    def check_obj_type_consistency(self, obj_id, label_list):
+        for i in range(1, len(label_list)):
+            
+            l = label_list[i]
+            pl = label_list[i-1]
+            frame_id = l[0]
+            label = l[1]
+            plabel = pl[1]
+
+            if label['obj_type'] != plabel['obj_type']:
+                self.push_message(frame_id, obj_id, "different object types: {}, previous {}".format(label['obj_type'], plabel['obj_type']))
+                #return
         pass
-
     def check(self):
         self.clear_messages()
 
@@ -132,6 +169,8 @@ class LabelChecker:
         self.check_one_frame(lambda f,o: self.check_frame_duplicate_id(f,o))
 
         self.check_one_obj(lambda id, o: self.check_obj_size(id ,o))
+        self.check_one_obj(lambda id, o: self.check_obj_direction(id ,o))
+        self.check_one_obj(lambda id, o: self.check_obj_type_consistency(id ,o))
 
 if __name__ == "__main__":
     ck = LabelChecker(sys.argv[1])

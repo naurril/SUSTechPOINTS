@@ -24,6 +24,7 @@ import { ConfigUi } from './config_ui.js';
 import { MovableView } from './popup_dialog.js';
 import {globalKeyDownManager} from './keydown_manager.js';
 import {vector_range} from "./util.js"
+import { checkScene } from './error_check.js';
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -64,6 +65,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.boxOp = null;
     this.boxEditorManager  = null; 
     this.params={};
+
+    this.currentMainEditor = this;  // who is on focus, this or batch-editor-manager?
 
     this.init = function(editorUi) {
     
@@ -708,29 +711,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 'cm-check-scene':
             {
                 let scene = this.data.world.frameInfo.scene;
-                
-                const req = new Request(`/checkscene?scene=${scene}`);
-                let init = {
-                    method: 'GET',
-                    //body: JSON.stringify({"points": data})
-                };
-                // we defined the xhr
-                
-                return fetch(req, init)
-                .then(response=>{
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }else{
-                        return response.json();
-                    }
-                })
-                .then(ret=>
-                {
-                    //this.infoBox.show("Check - " + scene, JSON.stringify(info, null,"<br>"));
-                })
-                .catch(reject=>{
-                    console.log("error check scene!");
-                });
+                checkScene(scene);   
+                logger.show();             
+                logger.errorBtn.onclick();
             }
             break;
         case "cm-reset-view":
@@ -1118,6 +1101,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.editBatch = function(sceneName, frame, objectTrackId, objectType){
 
+        
+
         //this.keydownDisabled = true;
         // hide something
         this.imageContextManager.hide();
@@ -1131,6 +1116,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         //this.controlGui.hide();
         this.editorUi.querySelector("#selectors").style.display='none';
         //this.editorUi.querySelector("#object-selector").style.display='none';
+        this.currentMainEditor = this.boxEditorManager;
 
         this.boxEditorManager.edit(this.data, 
             this.data.getMetaBySceneName(sceneName), 
@@ -1138,7 +1124,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             objectTrackId,
             objectType,
             (targetFrame, targetTrackId)=>{  //on exit
-                
+                this.currentMainEditor = this
                 //this.keydownDisabled = false;
                 this.viewManager.mainView.enable();
 
@@ -1175,6 +1161,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 }
             }
             );
+    };
+
+    this.gotoObjectFrame = function(frame, objId)
+    {
+        this.load_world(this.data.world.frameInfo.scene, frame, ()=>{  // onfinished
+            this.makeVisible(objId);
+        });
     };
 
     this.makeVisible = function(targetTrackId){

@@ -207,6 +207,24 @@ canvas {
 	display: none;
 }
 
+#log-wrapper #tabs{
+	display: flex;
+}
+
+#log-wrapper .tab-button{
+	color: var(--widget-color);    
+    text-align: center;
+	width: 40px;
+	cursor:default;
+}
+
+#log-wrapper .tab-selected{
+	color: var(--font-color);
+	border-bottom-color: var(--font-color);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+
 #changed-world-list-wrapper {
 	position: absolute;
 	top: 100%;
@@ -1040,11 +1058,17 @@ td {
 	width: 600px; /*60%; */
 }
 
-#log-wrapper #content {
+#log-wrapper #content-logs,#content-errors {
 	height: 100%;
 	width: 100%;
 	line-height: 1.5;
     overflow-y: auto;
+}
+
+
+
+.log-object-frame-id{
+	cursor: pointer;
 }
 
 #move-handle-wrapper {

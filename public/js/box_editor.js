@@ -6,6 +6,8 @@ import {objIdManager} from "./obj_id_list.js"
 import { globalKeyDownManager } from "./keydown_manager.js";
 import{ml} from "./ml.js";
 import { BooleanKeyframeTrack } from "./lib/three.module.js";
+import { checkScene } from "./error_check.js";
+import { logger } from "./log.js";
 
 
 /*
@@ -599,6 +601,10 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             editor.setIndex(editorIndex);
             editor.resize(pointsGlobalConfig.batchModeSubviewSize.width, pointsGlobalConfig.batchModeSubviewSize.height);
             
+            if (this.editingTarget.frame == frame){
+                editor.setSelected(true);
+            }
+
             data.activate_world(world, 
                 ()=>{
                     //editor.tryAttach();
@@ -1110,6 +1116,15 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
             this.showTrajectory();
             break;
 
+        case 'cm-check':
+            {
+                let scene = this.editingTarget.sceneMeta.scene;
+                checkScene(scene);   
+                logger.show();             
+                logger.errorBtn.onclick();
+            }
+            break;
+
         case 'cm-finalize':
             this.finalizeSelectedBoxes();
             break;
@@ -1546,6 +1561,29 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         );
     };
 
+
+    this.gotoFrame = function(frameID){
+        this.getSelectedEditors().forEach(e=>e.setSelected(false));
+        this.activeEditorList().find(e=>e.target.world.frameInfo.frame == frameID).setSelected(true);
+    }
+
+    this.gotoObjectFrame = function(frameId, objId){
+        if (objId != this.editingTarget.objTrackId)
+        {
+            let obj = objIdManager.getObjById(objId);
+    
+            this.edit(
+                this.editingTarget.data,
+                this.editingTarget.sceneMeta,
+                frameId,
+                objId,
+                obj.category,
+            );
+        }
+
+        this.getSelectedEditors().forEach(e=>e.setSelected(false));
+        this.activeEditorList().find(e=>e.target.world.frameInfo.frame == frameId).setSelected(true);
+    }
 
     this.nextObj = function(){
         let idx = objIdManager.objectList.findIndex(x=>x.id==this.editingTarget.objTrackId && x.category == this.editingTarget.objType);
