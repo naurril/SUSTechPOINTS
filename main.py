@@ -33,7 +33,7 @@ import algos.trajectory as trajectory
 class Root(object):
     @cherrypy.expose
     def index(self, scene="", frame=""):
-      tmpl = env.get_template('index.html')
+      tmpl = env.get_template('./build/index.html')
       return tmpl.render()
   
     @cherrypy.expose
