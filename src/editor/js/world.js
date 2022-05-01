@@ -7,7 +7,7 @@ import {Lidar} from "./lidar.js"
 import {Annotation} from "./annotation.js"
 import {EgoPose} from "./ego_pose.js"
 import {logger} from "./log.js"
-import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 , mat} from './util.js';
+//import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 , mat} from './util.js';
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
     
@@ -17,7 +17,7 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
     this.scene = sceneName;
     this.frame = frame;
     this.pcd_ext = "";
-    this.frame_index = this.sceneMeta.frames.findIndex(function(x){return x==frame;});
+    this.frame_index = this.sceneMeta.frames.findIndex(function(x){return x===frame;});
     this.transform_matrix = this.sceneMeta.point_transform_matrix;
     this.annotation_format = this.sceneMeta.boxtype; //xyz(24 number), csr(center, scale, rotation, 9 number)
 
@@ -43,7 +43,7 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
     }
     
     this.get_anno_path = function(){
-            if (this.annotation_format=="psr"){
+            if (this.annotation_format==="psr"){
                 return 'data/'+this.scene + "/label/" + this.frame + ".json";
             }
             else{
@@ -53,8 +53,8 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
         };
     
     this.anno_to_boxes = function(text){
-            var _self = this;
-            if (this.annotation_format == "psr"){
+            
+            if (this.annotation_format === "psr"){
 
                 var boxes = JSON.parse(text);
                 
@@ -102,18 +102,21 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
         };
 
     this.xyz_to_psr = function(ann_input){
-            var ann = [];
-            if (ann_input.length==24)
+            let ann = [];
+            if (ann_input.length===24)
+            {
                 ann = ann_input;
-            else
-                for (var i = 0; i<ann_input.length; i++){
-                    if ((i+1) % 4 != 0){
+            }
+            else {
+                for (let i = 0; i<ann_input.length; i++){
+                    if ((i+1) % 4 !== 0){
                         ann.push(ann_input[i]);
                     }
                 }
+            }
 
-            var pos={x:0,y:0,z:0};
-            for (var i=0; i<8; i++){
+            let pos={x:0,y:0,z:0};
+            for (let i=0; i<8; i++){
                 pos.x+=ann[i*3];
                 pos.y+=ann[i*3+1];
                 pos.z+=ann[i*3+2];
@@ -122,7 +125,7 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
             pos.y /=8;
             pos.z /=8;
 
-            var scale={
+            let scale={
                 x: Math.sqrt((ann[0]-ann[3])*(ann[0]-ann[3])+(ann[1]-ann[4])*(ann[1]-ann[4])),
                 y: Math.sqrt((ann[0]-ann[9])*(ann[0]-ann[9])+(ann[1]-ann[10])*(ann[1]-ann[10])),
                 z: ann[14]-ann[2],
@@ -269,6 +272,27 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         }
     };
 
+    this.resetCoordinateOffset = function(){
+
+        if (!this.savedCoordinatesOffset){
+            this.savedCoordinatesOffset = coordinatesOffset;
+            this.coordinatesOffset = [0,0,0];
+        }
+
+        if (this.preloaded())
+            this.calcTransformMatrix();
+    };
+
+    this.restoreCoordinateOffset = function(){
+        if (this.savedCoordinatesOffset)
+        {
+            this.coordinatesOffset = this.savedCoordinatesOffset;
+            this.savedCoordinatesOffset = null;
+        }
+
+        if (this.preloaded())
+            this.calcTransformMatrix();
+    };
 
     this.calcTransformMatrix = function()
     {
@@ -328,7 +352,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     
                 this.trans_lidar_utm = new THREE.Matrix4().multiplyMatrices(trans_ego_utm, trans_lidar_ego);
 
-                if (this.data.cfg.coordinateSystem == "utm")
+                if (this.data.cfg.coordinateSystem === "utm")
                     this.trans_lidar_scene = new THREE.Matrix4().multiplyMatrices(trans_utm_scene, this.trans_lidar_utm);
                 else
                     this.trans_lidar_scene = trans_utm_scene;  //only offset.
@@ -579,8 +603,6 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
 
     this.deleteAll = function(){
-        var _self= this;
-
         logger.log(`delete world ${this.frameInfo.scene},${this.frameInfo.frame}`);
 
         if (this.everythingDone){

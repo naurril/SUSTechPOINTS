@@ -96,50 +96,50 @@ function psr_to_xyz(p,s,r){
 
 
 
-function xyz_to_psr(vertices){
-    var ann = vertices;
-    var ROW=4;
-    var pos={x:0,y:0,z:0};
-    for (var i=0; i<8; i++){
-        pos.x+=ann[i*ROW];
-        pos.y+=ann[i*ROW+1];
-        pos.z+=ann[i*ROW+2];
-    }
-    pos.x /=8;
-    pos.y /=8;
-    pos.z /=8;
+// function xyz_to_psr(vertices){
+//     var ann = vertices;
+//     var ROW=4;
+//     var pos={x:0,y:0,z:0};
+//     for (var i=0; i<8; i++){
+//         pos.x+=ann[i*ROW];
+//         pos.y+=ann[i*ROW+1];
+//         pos.z+=ann[i*ROW+2];
+//     }
+//     pos.x /=8;
+//     pos.y /=8;
+//     pos.z /=8;
 
 
 
-    var scale={
-        x: Math.sqrt((ann[0]-ann[ROW])*(ann[0]-ann[ROW])+(ann[1]-ann[ROW+1])*(ann[1]-ann[ROW+1])),
-        y: Math.sqrt((ann[0]-ann[ROW*3])*(ann[0]-ann[ROW*3])+(ann[1]-ann[ROW*3+1])*(ann[1]-ann[ROW*3+1])),
-        z: ann[3*ROW+2]-ann[2],
-    };
+//     var scale={
+//         x: Math.sqrt((ann[0]-ann[ROW])*(ann[0]-ann[ROW])+(ann[1]-ann[ROW+1])*(ann[1]-ann[ROW+1])),
+//         y: Math.sqrt((ann[0]-ann[ROW*3])*(ann[0]-ann[ROW*3])+(ann[1]-ann[ROW*3+1])*(ann[1]-ann[ROW*3+1])),
+//         z: ann[3*ROW+2]-ann[2],
+//     };
     
-    /*
-    1. atan2(y,x), not x,y
-    2. point order in xy plane
-        0   1
-        3   2
-    */
+//     /*
+//     1. atan2(y,x), not x,y
+//     2. point order in xy plane
+//         0   1
+//         3   2
+//     */
 
-    var angle = Math.atan2(ann[1*ROW+1]+ann[5*ROW+1]-2*pos.y, ann[1*ROW]+ann[5*ROW]-2*pos.x);
+//     var angle = Math.atan2(ann[1*ROW+1]+ann[5*ROW+1]-2*pos.y, ann[1*ROW]+ann[5*ROW]-2*pos.x);
 
-    return {
-        position: pos,
-        scale:scale,
-        rotation:{x:0,y:0,z:angle},
-    }
+//     return {
+//         position: pos,
+//         scale:scale,
+//         rotation:{x:0,y:0,z:angle},
+//     }
     
-}
+// }
 
 
 function vector4to3(v)
 {
     var ret=[];
     for (var i=0; i<v.length; i++){
-        if ((i+1)% 4 != 0){
+        if ((i+1)% 4 !== 0){
             ret.push(v[i]);
         }
     }

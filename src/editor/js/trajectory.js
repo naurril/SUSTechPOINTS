@@ -96,7 +96,7 @@ class Trajectory extends PopupDialog{
 
         this.resizeObserver = new ResizeObserver(elements=>{
 
-            if (elements[0].contentRect.height == 0)
+            if (elements[0].contentRect.height === 0)
                 return;                
             this.redrawAll();
 
@@ -152,7 +152,7 @@ class Trajectory extends PopupDialog{
         let arrows = this.ui.querySelector("#svg-arrows").children;
         
         if (arrows.length>0){
-            for (var c=arrows.length-1; c >= 0; c--){
+            for (let c=arrows.length-1; c >= 0; c--){
                 arrows[c].remove();                    
             }
         }
@@ -161,7 +161,7 @@ class Trajectory extends PopupDialog{
         let scaler = this.ui.querySelector("#svg-scaler").children;
         
         if (scaler.length>0){
-            for (var c=scaler.length-1; c >= 0; c--){
+            for (let c=scaler.length-1; c >= 0; c--){
                 scaler[c].remove();                    
             }
         }
@@ -193,7 +193,7 @@ class Trajectory extends PopupDialog{
 
         let scale = Math.max(max_x - min_x, max_y - min_y);
         
-        if (scale == 0)
+        if (scale === 0)
             scale = 1;
         else
             scale = 800/scale; // svg view is 1000*1000
@@ -242,7 +242,7 @@ class Trajectory extends PopupDialog{
 
                 let r = 5 * this.objScale;
                 let d = 25 * this.objScale;
-                let a = 5 * this.objScale;
+                //let a = 5 * this.objScale;
 
                 //wrapper circle
                 let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');

@@ -96,6 +96,9 @@ class Data
         let [x,y,z] = this.allocateOffset();
         console.log("create world",x,y,z);
         let world = new World(this, sceneName, frame, [this.worldGap*x, this.worldGap*y, this.worldGap*z], on_preload_finished);        
+
+        this.activate_world(world, null, true);
+
         world.offsetIndex = [x,y,z];
         this.createWorldIndex++;
         this.worldList.push(world);

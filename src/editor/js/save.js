@@ -1,7 +1,7 @@
 
 
 
-import { Editor } from "./editor.js";
+
 import { checkScene } from "./error_check.js";
 import {logger} from "./log.js"
 
@@ -12,16 +12,16 @@ function reloadWorldList(worldList, done){
     var xhr = new XMLHttpRequest();
         // we defined the xhr
     xhr.onreadystatechange = function () {
-        if (this.readyState != 4) return;
+        if (this.readyState !== 4) return;
     
-        if (this.status == 200) {
+        if (this.status === 200) {
             let anns = JSON.parse(this.responseText);
         
             // load annotations
             anns.forEach(a=>{
                 let world = worldList.find(w=>{
-                    return (w.frameInfo.scene == a.scene && 
-                            w.frameInfo.frame == a.frame);
+                    return (w.frameInfo.scene === a.scene && 
+                            w.frameInfo.frame === a.frame);
                     });
                 if (world){
                     world.annotation.reapplyAnnotation(a.annotation);
@@ -118,9 +118,9 @@ function doSaveWorldList(worldList, done)
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onreadystatechange = function () {
-        if (this.readyState != 4) return;
+        if (this.readyState !== 4) return;
     
-        if (this.status == 200) {
+        if (this.status === 200) {
             
             worldList.forEach(w=>{
                 w.annotation.resetModified();

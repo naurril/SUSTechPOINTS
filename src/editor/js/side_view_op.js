@@ -1,12 +1,6 @@
 
 import {matmul2} from "./util.js"
 
-import {
-	Quaternion,
-	Vector3
-} from "three";
-
-
 class ProjectiveView{
     constructor(ui, 
         cfg,
@@ -146,7 +140,7 @@ class ProjectiveView{
         let theme = document.documentElement.className;
 
         let lineColor = "yellow";
-        if (theme == "theme-light")
+        if (theme === "theme-light")
             lineColor = "red";
 
         for (var l in this.lines){
@@ -164,7 +158,7 @@ class ProjectiveView{
         let theme = document.documentElement.className;
 
         let lineColor = "red";
-        if (theme == "theme-light")
+        if (theme === "theme-light")
             lineColor = "blue";
 
         line.style.stroke=lineColor;
@@ -173,7 +167,7 @@ class ProjectiveView{
 
     disable_handle_except(exclude){
         for (var h in this.handles){
-            if (this.handles[h] != exclude)
+            if (this.handles[h] !== exclude)
                 this.handles[h].style.display='none';
         }
     }
@@ -836,6 +830,7 @@ class ProjectiveView{
                     this.on_box_remove();
                     break;
                 }
+                // no break;
             case 'ArrowRight':
                 event.preventDefault();
                 event.stopPropagation();
@@ -853,7 +848,7 @@ class ProjectiveView{
     {
         let buttons = this.buttons;
         let ignore_left_mouse_down = (event)=>{
-            if (event.which == 1){
+            if (event.which === 1){
                 event.stopPropagation();
             }
         };
@@ -944,7 +939,7 @@ class ProjectiveViewOps{
 
             for (var axis in direction){
 
-                if (direction[axis] !=0){
+                if (direction[axis] !==0){
 
                     var end = "max";
                     if (direction[axis] === -1){
@@ -998,7 +993,7 @@ class ProjectiveViewOps{
 
             for (var axis in direction){
 
-                if (direction[axis] !=0){
+                if (direction[axis] !==0){
 
                     var end = "max";
                     if (direction[axis] === -1){
@@ -1146,7 +1141,7 @@ class ProjectiveViewOps{
             };
 
             for (var axis in ratio){
-                if (ratio[axis] != 0){
+                if (ratio[axis] !== 0){
                     scope.box.scale[axis] *= 1+ratio[axis];
                 }
             }
@@ -1179,7 +1174,7 @@ class ProjectiveViewOps{
 
         function on_z_auto_rotate(noscaling, rotate_method){
 
-            if (rotate_method == "moving-direction")
+            if (rotate_method === "moving-direction")
             {
                 let estimatedRot = scope.boxOp.estimate_rotation_by_moving_direciton(scope.box);
 
@@ -1264,11 +1259,11 @@ class ProjectiveViewOps{
                     z: direction.y,
                 }
 
-                if (direction.z != 0){
-                    var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
+                if (direction.z !== 0){
+                    let  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
                     auto_shrink(extreme, direction)
                 }else {
-                    var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
+                    let  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
                     auto_shrink(extreme, direction)
                 }
                 
@@ -1311,7 +1306,7 @@ class ProjectiveViewOps{
             };
 
             for (var axis in ratio){
-                if (ratio[axis] != 0){
+                if (ratio[axis] !== 0){
                     scope.box.scale[axis] *= 1+ratio[axis];
                 }
             }
@@ -1396,11 +1391,11 @@ class ProjectiveViewOps{
                     z: direction.y,
                 }
 
-                if (direction.z != 0){
-                    var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
+                if (direction.z !== 0){
+                    let  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, false);
                     auto_shrink(extreme, direction)
                 } else {
-                    var  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
+                    let  extreme = scope.box.world.lidar.get_points_dimmension_of_box(scope.box, true);
                     auto_shrink(extreme, direction)
                 }
             }
@@ -1441,7 +1436,7 @@ class ProjectiveViewOps{
             };
 
             for (var axis in ratio){
-                if (ratio[axis] != 0){
+                if (ratio[axis] !== 0){
                     scope.box.scale[axis] *= 1+ratio[axis];
                 }
             }

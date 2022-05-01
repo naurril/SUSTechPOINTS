@@ -347,7 +347,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         var svg = this.editorUi.querySelector("#grid-lines-wrapper");
 
-        for (var i=1; i<10; i++){
+        for (let i=1; i<10; i++){
             const line = document. createElementNS("http://www.w3.org/2000/svg", "line");
             line.setAttribute("x1", "0%");
             line.setAttribute("y1", String(i*10)+"%");
@@ -357,7 +357,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             svg.appendChild(line);
         }
 
-        for (var i=1; i<10; i++){
+        for (let i=1; i<10; i++){
             const line = document. createElementNS("http://www.w3.org/2000/svg", "line");
             line.setAttribute("y1", "0%");
             line.setAttribute("x1", String(i*10)+"%");
@@ -450,7 +450,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 self.view_state.lock_obj_in_highlight = false
             }
             else {
-                self.focusOnSelectedBox(self.selected_box);
+                self.focusOnBox(self.selected_box);
             }
             break;
 
@@ -486,7 +486,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.viewManager.mainView.orbit.reset();
     };
 
-    this.focusOnSelectedBox = function(box){
+    this.focusOnBox = function(box){
         if (this.editorCfg.disableMainView)
             return;
 
@@ -511,6 +511,30 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.view_state.lock_obj_in_highlight = true;
         }
     };
+
+    this.show4Dworm = function(box){
+
+        this.data.worldList.forEach(w=>{
+            let b = w.annotation.findBoxByTrackId(box.obj_track_id);
+            if (b){
+                w.resetCoordinateOffset();
+                w.lidar.highlight_box_points(b);
+            }
+        });
+
+        this.render();
+    };
+
+    this.cancel4Dworm = function(){
+
+        this.data.worldList.forEach(w=>{
+            w.restoreCoordinateOffset();
+            w.lidar.cancel_highlight();
+        });
+
+        this.render();
+    };
+
     
     this.showTrajectory = function(){
 
@@ -1619,7 +1643,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 this.selectBox(box);
 
                 if (self.view_state.lock_obj_in_highlight){
-                    this.focusOnSelectedBox(box);
+                    this.focusOnBox(box);
                 }
             }
         }
@@ -1753,7 +1777,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.boxOp.highlightBox(this.selected_box);
 
             if (in_highlight){
-                this.focusOnSelectedBox(this.selected_box);
+                this.focusOnBox(this.selected_box);
             }
             
             this.save_box_info(object); // this is needed since when a frame is loaded, all box haven't saved anything.
@@ -2674,7 +2698,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.onAnnotationUpdatedByOthers = function(scene, frames){
         this.data.onAnnotationUpdatedByOthers(scene, frames);
-    }
+    };
+
+
 
     this.init(editorUi);
 

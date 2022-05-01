@@ -44,7 +44,7 @@ class Config{
 
     moveStep = 0.01;  // ratio, percentage
     rotateStep = Math.PI/360;
-    speedUpForRepeatedOp = 5;
+    speedUpForRepeatedOp = 2;
     
     ignoreDistantObject = true;
     
