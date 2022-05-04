@@ -373,7 +373,7 @@ PCDLoader.prototype = {
 			
 				if ( offset.x !== undefined ) {
 				
-					if (size.x==4)
+					if (size.x==8)
 					{
 						position.push( dataview.getFloat64( ( PCDheader.points * offset.x ) + size.x * i, this.littleEndian ) );
 						position.push( dataview.getFloat64( ( PCDheader.points * offset.y ) + size.y * i, this.littleEndian ) );
