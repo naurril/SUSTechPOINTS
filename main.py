@@ -10,19 +10,19 @@ env = Environment(loader=FileSystemLoader('./'))
 import os
 import sys
 import scene_reader
-import tools.check_labels  as check
+from tools import check_labels  as check
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(BASE_DIR)
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(BASE_DIR)
 
-sys.path.append(os.path.join(BASE_DIR, './algos'))
+#sys.path.append(os.path.join(BASE_DIR, './algos'))
 #import algos.rotation as rotation
-import algos.pre_annotate as pre_annotate
+from algos import pre_annotate
 
 
 #sys.path.append(os.path.join(BASE_DIR, '../tracking'))
-import algos.trajectory as trajectory
+#import algos.trajectory as trajectory
 
 # extract_object_exe = "~/code/pcltest/build/extract_object"
 # registration_exe = "~/code/go_icp_pcl/build/test_go_icp"
@@ -127,12 +127,12 @@ class Root(object):
       return ck.messages
 
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def interpolate(self, scene, frame, obj_id):
-      # interpolate_num = trajectory.predict(scene, obj_id, frame, None)
-      # return interpolate_num
-      return 0
+    # @cherrypy.expose
+    # @cherrypy.tools.json_out()
+    # def interpolate(self, scene, frame, obj_id):
+    #   # interpolate_num = trajectory.predict(scene, obj_id, frame, None)
+    #   # return interpolate_num
+    #   return 0
 
     # data  N*3 numpy array
     @cherrypy.expose    
