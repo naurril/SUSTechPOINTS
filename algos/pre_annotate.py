@@ -2,11 +2,9 @@
 import os
 import tensorflow as tf
 
-
-
 import numpy as np
 
-import util
+from . import util
 import glob
 import math
 import json
