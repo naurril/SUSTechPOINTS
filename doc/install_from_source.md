@@ -15,23 +15,22 @@
      ```
      wget https://github.com/naurril/SUSTechPOINTS/releases/download/0.1/deep_annotation_inference.h5  -P algos/models
      ```
-3. install npm packages
+3. Install npm packages && build
    ```
    npm install
+   npm run build
    ```
 
-
-### Start backend
+### Start
 ```
 python main.py
 ```
+goto http://localhost:8081
 
-### Start frontend
+### Test frontend
 
-for local test
 ```
 npm run start
-
 ```
 goto http://localhost:3000
 

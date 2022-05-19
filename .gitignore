@@ -8,3 +8,6 @@ temp
 image_temp
 tools/pypcd
 temp*/
+node_modules
+package-lock.json
+build/
