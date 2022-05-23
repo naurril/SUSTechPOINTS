@@ -518,6 +518,8 @@ class ProjectiveView{
 
                 if (name)
                     name.split(",").forEach(n=> this.hightlight_line(lines[n]));
+                
+                this.ui.onmouseenter();
             }
 
 

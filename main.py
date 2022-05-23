@@ -123,7 +123,7 @@ class Root(object):
     def checkscene(self, scene):
       ck = check.LabelChecker(os.path.join("./data", scene))
       ck.check()
-      print(ck.messages)
+      #print(ck.messages)
       return ck.messages
 
 

@@ -17,6 +17,8 @@ class LabelChecker:
         "Unknown3","Unknown4","Unknown5",
         ]
 
+        self.max_rotation_delta = {'x': 10*np.pi/180, 'y': 10*np.pi/180, 'z': 30*np.pi/180}
+
         self.messages = []
     
     def clear_messages(self):
@@ -35,6 +37,7 @@ class LabelChecker:
     def load_frame_ids(self):
         lidar_files = os.listdir(os.path.join(self.path, 'lidar'))
         ids = list(map(lambda f: os.path.splitext(f)[0], lidar_files))
+        ids.sort()
         self.frame_ids = ids
 
     def load_labels(self):
@@ -45,7 +48,10 @@ class LabelChecker:
 
         files.sort()
         print(files)
-        for f in files:
+
+
+        for id in self.frame_ids:
+            f = id+".json"
             with open(os.path.join(label_folder, f),'r') as fp:
                 l = json.load(fp)
                 #print(l)
@@ -104,7 +110,7 @@ class LabelChecker:
 
         #print("object", obj_id, len(label_list), "instances")
 
-        if label_list[0][1]['obj_type'] == 'Pedestrian':
+        if label_list[0][1]['obj_type'] == 'Pedestrian' or label_list[0][1]['obj_type'] == 'Child':
             return
             
         mean = {}
@@ -127,6 +133,8 @@ class LabelChecker:
 
     def check_obj_direction(self, obj_id, label_list):
 
+
+        #print("check obj direction", obj_id)
         for i in range(1, len(label_list)):
             l = label_list[i]
             pl = label_list[i-1]
@@ -134,17 +142,17 @@ class LabelChecker:
             label = l[1]
             plabel = pl[1]
 
-            
+            #print("check obj direction", obj_id, frame_id)            
             for axis in ['x','y','z']:
                 rotation_delta = label['psr']['rotation'][axis] -  plabel['psr']['rotation'][axis]
-                pi = 3.141592543
-                if rotation_delta > pi:
-                    rotation_delta =  2*pi - rotation_delta
-                elif rotation_delta < -pi:
-                    rotation_delta =  2*pi + rotation_delta
+                
+                if rotation_delta > np.pi:
+                    rotation_delta =  2*np.pi - rotation_delta
+                elif rotation_delta < -np.pi:
+                    rotation_delta =  2*np.pi + rotation_delta
 
-                if rotation_delta > 30/180*pi or rotation_delta < - 30/180*pi:
-                    self.push_message(frame_id, obj_id, "rotation {} delta too large".format(axis))
+                if rotation_delta > self.max_rotation_delta[axis] or rotation_delta < - self.max_rotation_delta[axis]:
+                    self.push_message(frame_id, obj_id, "rotation {} delta too large: {}".format(axis, rotation_delta * 180/np.pi))
                     #return
 
     def check_obj_type_consistency(self, obj_id, label_list):

@@ -30,6 +30,8 @@ class Config{
     batchModeSubviewSize = {width: 130, height: 450};
 
 
+    maxEmptyBoxPoints = 10;
+
     // edit on one box, apply to all selected boxes.
     linkEditorsInBatchMode = false;
 
@@ -44,6 +46,7 @@ class Config{
 
     moveStep = 0.01;  // ratio, percentage
     rotateStep = Math.PI/360;
+
     speedUpForRepeatedOp = 2;
     
     ignoreDistantObject = true;

@@ -918,7 +918,18 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             break;
 
+        case 'cm-reset-obj-size':
+            {
+                let obj_type = this.selected_box.obj_type;
+                let obj_cfg = globalObjectCategory.get_obj_cfg_by_type(obj_type);
 
+                this.selected_box.scale.x = obj_cfg.size[0];
+                this.selected_box.scale.y = obj_cfg.size[1];
+                this.selected_box.scale.z = obj_cfg.size[2];
+                this.on_box_changed(this.selected_box);
+            }
+
+            break;
         default:
             console.log('unhandled', event.currentTarget.id, event.type);
         }

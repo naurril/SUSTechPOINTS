@@ -117,8 +117,8 @@ class Data
             return null;
     };
 
-    offsetList = [[0,0,0]];
-    lastSeedOffset = [0,0,0];
+    offsetList = [[0,1,0]];
+    lastSeedOffset = [0,1,0];
     offsetsAliveCount  = 0;
     allocateOffset()
     {
@@ -126,16 +126,16 @@ class Data
         // we need to make sure the first frame loaded in a scene 
         // got to locate in [0,0,0]
 
-        if (this.offsetsAliveCount == 0)
+        if (this.offsetsAliveCount === 0)
         {
             //reset offsets.
-            this.offsetList = [[0,0,0]];
-            this.lastSeedOffset = [0,0,0];
+            this.offsetList = [[0,1,0]];
+            this.lastSeedOffset = [0,1,0];
         }
 
 
 
-        if (this.offsetList.length == 0)
+        if (this.offsetList.length === 0)
         {
             let [x,y,z] = this.lastSeedOffset;
 
