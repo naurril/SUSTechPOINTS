@@ -495,6 +495,11 @@ dynamic set obj-type css has higher priority than this one.
 	background-color: var(--widget-background-color);
 }
 
+.cfg-menu-label {
+	display: inline-block;
+	width: 100%;
+}
+
 .cfg-widget-group {
 	display: inline-flex;
 	position: absolute;
