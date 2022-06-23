@@ -570,6 +570,28 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         );
     }
 
+    this.interpolateCurrentObject = async function()
+    {
+        let obj_id = this.view_state.lock_obj_track_id;
+
+        if (obj_id)
+        {
+
+            let worldList = this.data.worldList;
+            let boxList = this.data.worldList.map(w=>w.annotation.findBoxByTrackId(obj_id));
+            let applyIndList = this.data.worldList.map(w=> (w==this.data.world)?true:false);
+
+            await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
+
+            
+            this.select_locked_object();
+    
+            this.header.updateModifiedStatus();
+    
+            this.viewManager.render();
+        }
+
+    }
     // return true to close contextmenu
     // return false to keep contextmenu
     this.handleContextMenuEvent = function(event){
@@ -601,6 +623,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                         "noscaling");
                 }
             }
+            break;
+        case 'cm-interpolate-cur-obj':
+            this.interpolateCurrentObject();
+            break;
+        case 'cm-auto-annotate-cur-obj':
+            this.autoAnnotateCurrentObject();
             break;
         case 'cm-prev-frame':
             this.previous_frame();
@@ -857,20 +885,31 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         case "cm-delete-obj":
             {
-                //let saveList=[];
-                this.data.worldList.forEach(w=>{
-                    let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
-                    if (box && box !== this.selected_box){
-                        w.annotation.unload_box(box);
-                        w.annotation.remove_box(box);
-                        //saveList.push(w);
-                        w.annotation.setModified();
-                    }
-                });
+                this.infoBox.show(
+                    "Confirm",
+                    `Delete all instances of this object?`,
+                    ["yes", "no"],
+                    (btn)=>{
+                        if (btn == "yes")
+                        {
+    
+                            //let saveList=[];
+                            this.data.worldList.forEach(w=>{
+                                let box = w.annotation.boxes.find(b=>b.obj_track_id === this.selected_box.obj_track_id);
+                                if (box && box !== this.selected_box){
+                                    w.annotation.unload_box(box);
+                                    w.annotation.remove_box(box);
+                                    //saveList.push(w);
+                                    w.annotation.setModified();
+                                }
+                            });
 
-                //saveWorldList(saveList);
-                this.remove_selected_box();
-                this.header.updateModifiedStatus();
+                            //saveWorldList(saveList);
+                            this.remove_selected_box();
+                            this.header.updateModifiedStatus();
+                        }
+                    });
+                
             }
             break;
 
@@ -1283,6 +1322,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.floatLabelManager.set_object_track_id(this.selected_box.obj_local_id, this.selected_box.obj_track_id);
 
         this.view_state.lock_obj_track_id = id;
+        this.header.setCurrentObject(id);
 
         //this.header.mark_changed_flag();
         this.on_box_changed(this.selected_box);
@@ -1688,6 +1728,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
                         if (!keep_lock){
                             this.view_state.lock_obj_track_id = "";
+                            this.header.unsetCurrentObject();
                         }
 
                         this.imageContextManager.boxes_manager.onBoxUnselected(this.selected_box.obj_local_id, this.selected_box.obj_type);
@@ -1728,8 +1769,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
                 this.selected_box = null;
                 this.boxEditor.detach();
-                if (!keep_lock)
+                if (!keep_lock){
                     this.view_state.lock_obj_track_id = "";
+                    this.header.unsetCurrentObject();
+                }
             }
         }
 
@@ -1756,6 +1799,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             // select me, the first time
             this.selected_box = object;
 
+            
+
             // switch camera
             if (!this.editorCfg.disableMainImageContext){
                 var best_camera = this.imageContextManager.choose_best_camera_for_point(
@@ -1778,6 +1823,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             // highlight box
             // shold change this id if the current selected box changed id.
             this.view_state.lock_obj_track_id = object.obj_track_id;
+            this.header.setCurrentObject(object.obj_track_id);
 
             //this.floatLabelManager.select_box(this.selected_box.obj_local_id);
             

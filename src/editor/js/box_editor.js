@@ -1216,13 +1216,13 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
         this.activeEditorList().forEach(e=>{
             e.setSelected(false);
             e.resetTarget();
-            logger.log("batchedit, on subview reset.");
+            //logger.log("batchedit, on subview reset.");
         });
 
-        logger.log("batchedit, subviews reset.");
+        //logger.log("batchedit, subviews reset.");
         
         this.viewManager.mainView.clearView();
-        logger.log("batchedit, mainview cleared.");
+        //logger.log("batchedit, mainview cleared.");
         this.activeIndex = 0;
     };
 

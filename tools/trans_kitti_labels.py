@@ -68,7 +68,7 @@ def get_inv_matrix(file, v2c, rect):
         
         rect = np.concatenate((m, np.expand_dims(np.array([0,0,0,1]), 0)), axis=0)        
         
-        print(velo_to_cam, rect)    
+        #print(velo_to_cam, rect)    
         m = np.matmul(rect, velo_to_cam)
 
 
@@ -200,3 +200,5 @@ if __name__ == "__main__":
         else:
             print("args: <detection|tracking> src_label_path src_calib_path tgt_label_path")
 
+
+# for x in data-kitti-tracking/* ; do echo $x; export y=`echo $x|cut -d/ -f2`; echo $y; echo ~/anaconda3/bin/python tools/trans_kitti_labels.py  tracking ./kitti_tracking/data_tracking_label_2/training/label_02/$y.txt ./kitti_tracking/data_tracking_calib/training/calib/$y.txt data-kitti-tracking/$y/label; done

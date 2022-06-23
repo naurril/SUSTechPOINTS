@@ -302,10 +302,22 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 let refPose = this.data.getRefEgoPose(this.frameInfo.scene, thisPose);
                 
     
+                
+                //
+                // the azimuth ouput from novatel is clock-wise, as can be deduced from scene-000011
+                //    car heading north, 0 degree
+                //    car heading east,  90 degree
+                //    ...
+                // the novatel imu coordiante system: x goes right, y goes forward. (we use it as ego-car coordinate system)
+                //
+                // utm coordiante system: x axis goes east, y axis goes north.
+                //
+                // when ego car is heading north, the ego-car coordinate system is coincident with utm coordinate system.
+                // 
                 let thisRot = {
                     x: thisPose.pitch * Math.PI/180.0,
                     y: thisPose.roll * Math.PI/180.0,                
-                    z: - thisPose.azimuth * Math.PI/180.0
+                    z: - thisPose.azimuth * Math.PI/180.0,
                 };
     
                 let posDelta = {

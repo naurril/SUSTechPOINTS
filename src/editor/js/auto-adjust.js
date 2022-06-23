@@ -21,7 +21,7 @@ function AutoAdjust(boxOp, mouse, header){
     
             logger.log(`selected reference objcet ${this.marked_object}`);
     
-            this.header.set_ref_obj(this.marked_object);
+            this.header.setReferenceObject(this.marked_object);
         }
     };
     

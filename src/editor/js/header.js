@@ -9,6 +9,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     this.cfg = cfg;
     this.boxUi = ui.querySelector("#box");
     this.refObjUi = ui.querySelector("#ref-obj");
+    this.curObjUi = ui.querySelector("#cur-obj");
     this.sceneSelectorUi = ui.querySelector("#scene-selector");
     this.frameSelectorUi = ui.querySelector("#frame-selector");
     this.objectSelectorUi = ui.querySelector("#object-selector");
@@ -99,10 +100,16 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         }
     };
 
-    this.set_ref_obj = function(marked_object){
+    this.setReferenceObject = function(marked_object){
         this.refObjUi.innerHTML="| Ref: "+marked_object.scene+"/"+marked_object.frame+": "+marked_object.ann.obj_type+"-"+marked_object.ann.obj_id;
     };
 
+    this.setCurrentObject = function(id){
+        this.curObjUi.innerHTML="| Cur: "+id;
+    };
+    this.unsetCurrentObject = function(){
+        this.curObjUi.innerHTML="";
+    };
     this.set_frame_info =function(scene, frame, on_scene_changed){
         
         if (this.sceneSelectorUi.value != scene){

@@ -718,6 +718,8 @@ function Lidar(sceneMeta, world, frameInfo){
     };
 
     // given points and box, calculate new box scale
+    // if the box size is fixed, and if corner align for z-axis aligns top,
+    // we should filter ground points by the box bottom after aligned.
     this.get_dimension_of_points=function(indices, box){
         var p = this._get_points_of_box(this.points, box, 1, indices).position;                
         var extreme1 = vector_range(p, 3);
