@@ -116,7 +116,7 @@ function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, gl
         //scene.add( cameraOrthoHelper );
 
         view.render=function(){
-            console.log("render mainview.");
+            //console.log("render mainview.");
             if (this.active){
                 //this.switch_camera(false);
                 this.renderWithCamera(this.camera);
@@ -446,7 +446,7 @@ function BoxView(ui, mainViewContainer, scene, renderer, viewManager){
     };
 
     this.render = function(){
-        console.log("render one obj");
+//        console.log("render one obj");
         if (!this.hidden())
             this.views.forEach((v)=>v.render());
     }

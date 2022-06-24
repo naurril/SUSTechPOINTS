@@ -2,7 +2,7 @@
 import { CubeRefractionMapping } from "three";
 import {saveWorldList} from "./save.js"
 
-var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelected, onCameraChanged){
+var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelected){
 
     this.ui = ui;
     this.data =  data;
@@ -19,7 +19,6 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     this.onSceneChanged = onSceneChanged;
     this.onFrameChanged = onFrameChanged;
     this.onObjectSelected = onObjectSelected;
-    this.onCameraChanged = onCameraChanged;
 
 
     if (cfg.disableSceneSelector){
@@ -68,7 +67,6 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     this.sceneSelectorUi.onchange = (e)=>{this.onSceneChanged(e);};
     this.objectSelectorUi.onchange = (e)=>{this.onObjectSelected(e);};
     this.frameSelectorUi.onchange = (e)=>{this.onFrameChanged(e);};
-    this.cameraSelectorUi.onchange = (e)=>{this.onCameraChanged(e);};
 
     this.setObject = function(id)
     {

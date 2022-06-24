@@ -293,26 +293,45 @@ class ImageContext extends MovableView{
     all_lines=[];
     
     img_lidar_point_map = {};
+    lidar_pts = null;
+    lidar_pts_color = null;
 
-    point_color_by_distance(x,y)
+    distance_to_color(z)
     {
-        // x,y are image coordinates
-        let p = this.img_lidar_point_map[y*this.img.width+x];
 
-        let distance = Math.sqrt(p[1]*p[1] + p[2]*p[2] + p[3]*p[3] );
+        let distance = z;
 
         if (distance > 60.0)
             distance = 60.0;
         else if (distance < 10.0)
             distance = 10.0;
         
-        return [(distance-10)/50.0, 1- (distance-10)/50.0, 0].map(c=>{
+        let color = this.value_to_color((distance-10)/50.0);
+
+        color += '24'; //transparency
+        return color;
+
+    }
+
+    value_to_color(v)
+    {
+        let color =  [v, 1- v, (v < 0.5) ? (v * 2) : ((1-v)*2)];
+
+        let toHex = (c)=>{
             let hex = Math.floor(c*255).toString(16);
             if (hex.length == 1)
                 hex = "0"+hex;
             return hex;
-        }).reduce((a,b)=>a+b,"#"); 
+        };
 
+        return color.map(toHex).reduce((a,b)=>a+b,"#") ; 
+    }
+
+    intensity_to_color(intensity)
+    {
+        let color = this.value_to_color(intensity);
+        color += '24'; //transparency
+        return color;
     }
 
     to_polyline_attr(points){
@@ -518,7 +537,7 @@ class ImageContext extends MovableView{
     }
 
 
-    points_to_svg(points, trans_ratio, cssclass, radius=2){
+    points_to_svg(points, trans_ratio, cssclass, radius=2, points_color){
         var ptsFinal = points.map(function(x, i){
             if (i%2==0){
                 return Math.round(x * trans_ratio.x);
@@ -547,12 +566,12 @@ class ImageContext extends MovableView{
             p.setAttribute("stroke-width", "1");            
 
             if (! cssclass){
-                let image_x = points[i];
-                let image_y = points[i+1];
-                let color = this.point_color_by_distance(image_x, image_y);
-                color += "24"; //transparency
-                p.setAttribute("stroke", color);
-                p.setAttribute("fill", color);
+
+                if (points_color)
+                {
+                    p.setAttribute("stroke", points_color[i/2]);
+                    p.setAttribute("fill", points_color[i/2]);
+                }
             }
             
             svg.appendChild(p);
@@ -644,12 +663,50 @@ class ImageContext extends MovableView{
 
         // project lidar points onto camera image   
         if (this.cfg.projectLidarToImage){
-            let pts = this.world.lidar.get_all_points();
-            let ptsOnImg = points3d_to_image2d(pts, calib, true, this.img_lidar_point_map, img.width, img.height);
+            let lidar_pts = this.world.lidar.get_all_points();
+            let lidar_pts_color = this.world.lidar.get_all_colors();
+
+            let img_lidar_point_map = [];
+            let ptsOnImg = points3d_to_image2d(lidar_pts, calib, true, img_lidar_point_map, img.width, img.height);
+
+
+            // build color
+            let img_pts_color = [];
+
+            if (this.cfg.color_points=="intensity")
+            {
+                // by intensity
+                // by depth
+                for (let i = 0; i < ptsOnImg.length/2; i++)
+                {
+                    let x = ptsOnImg[i * 2];
+                    let y = ptsOnImg[i * 2 + 1];
+    
+                    let lidar_point_index = img_lidar_point_map[y*this.img.width+x][0];
+                    let intensity = lidar_pts_color[lidar_point_index*3];
+
+                    img_pts_color[i] = this.intensity_to_color(intensity);
+    
+                }
+
+            }
+            else
+            {
+                // by depth
+                for (let i = 0; i < ptsOnImg.length/2; i++)
+                {
+                    let x = ptsOnImg[i * 2];
+                    let y = ptsOnImg[i * 2 + 1];
+    
+                    img_pts_color[i] = this.distance_to_color(img_lidar_point_map[y*this.img.width+x][3]);
+    
+                }
+            }
+
 
             // there may be none after projecting
             if (ptsOnImg && ptsOnImg.length>0){
-                let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio);
+                let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio, null /*css*/, 2 /*size*/, img_pts_color);
                 svg.appendChild(pts_svg);
             }
         }
@@ -1089,6 +1146,7 @@ function box_to_2d_points(box, calib){
 // returns 2d row vectors
 function points3d_homo_to_image2d(points3d, calib, accept_partial=false,save_map, img_dx, img_dy){
     var imgpos = matmul(calib.extrinsic, points3d, 4);
+    let pos_in_camera_space = imgpos;
     
     //rect matrix shall be applied here, for kitti
     if (calib.rect){
@@ -1108,7 +1166,7 @@ function points3d_homo_to_image2d(points3d, calib, accept_partial=false,save_map
     let imgfinal_filterd = [];
      
     if (accept_partial){
-        let temppos=[];
+        
         let p = imgpos3;
         for (var i = 0; i<p.length/3; i++){
             if (p[i*3+2]>0){
@@ -1119,12 +1177,11 @@ function points3d_homo_to_image2d(points3d, calib, accept_partial=false,save_map
                 y = Math.round(y);
                 if (x > 0 && x < img_dx && y > 0 && y < img_dy){
                     if (save_map){
-                        save_map[img_dx*y+x] = [i, points3d[i*4+0], points3d[i*4+1], points3d[i*4+2]];  //save index? a little dangerous! //[points3d[i*4+0], points3d[i*4+1], points3d[i*4+2]];
+                        save_map[img_dx*y+x] = [i, pos_in_camera_space[i*4+0], pos_in_camera_space[i*4+1], pos_in_camera_space[i*4+2]];  //save index? a little dangerous! //[points3d[i*4+0], points3d[i*4+1], points3d[i*4+2]];
                     }
 
                     imgfinal_filterd.push(x);
                     imgfinal_filterd.push(y);
-
                 }
                 else{
                     // console.log("points outside of image",x,y);

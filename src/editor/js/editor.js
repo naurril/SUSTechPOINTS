@@ -86,8 +86,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 //event.currentTarget.blur();
             },        
             (e)=>{this.frame_changed(e)},
-            (e)=>{this.object_changed(e)},
-            (e)=>{this.camera_changed(e)}        
+            (e)=>{this.object_changed(e)}       
         );
 
 
@@ -1264,15 +1263,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         let obj = objIdManager.getObjById(objectTrackId);
 
         this.editBatch(sceneName, null, objectTrackId, obj.category);
-    };
-
-    this.camera_changed= function(event){
-        var camera_name = event.currentTarget.value;
-
-        this.data.set_active_image(camera_name);
-        this.imageContextManager.render_2d_image();
-
-        event.currentTarget.blur();
     };
 
     this.downloadWebglScreenShot = function(){

@@ -48,14 +48,14 @@ class ConfigUi{
         },
 
         "#cfg-show-calib":(event)=>{
-            this.editor.calib.save_calibration();
+            this.editor.calib.show_calibration();
             return true;
         },
 
-        // "#cfg-reset-calib":(event)=>{
-        //     this.editor.calib.reset_calibration();
-        //     return true;
-        // }
+        "#cfg-stop-calib":(event)=>{
+             this.editor.calib.stop_calibration();
+             return true;
+        },
 
         "#cfg-crop-scene": (event)=>{
             this.editor.cropScene.show();
