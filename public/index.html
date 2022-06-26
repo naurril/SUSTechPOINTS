@@ -782,7 +782,7 @@
 								</div>
 							</div>
 
-							<div class="menu-nonclickable-item" id="cfg-hide-circle-ruler">
+							<div class="menu-item" id="cfg-hide-circle-ruler">
 								
 								<label for="cfg-hide-circle-ruler-checkbox"><div class="cfg-menu-label">Hide circle ruler</div></label>
 								<div class="cfg-widget-group">
@@ -791,21 +791,21 @@
 							</div>
 
 
-							<div class="menu-nonclickable-item" id="cfg-hide-box">
+							<div class="menu-item" id="cfg-hide-box">
 								<label for="cfg-hide-box-checkbox"><div class="cfg-menu-label">Hide box</div></label>
 								<div class="cfg-widget-group">
 									<input type="checkbox" id="cfg-hide-box-checkbox" class="cfg-widget">							
 								</div>
 							</div>
 
-							<div class="menu-nonclickable-item" id="cfg-hide-id">
+							<div class="menu-item" id="cfg-hide-id">
 								<label for="cfg-hide-id-checkbox"><div class="cfg-menu-label">Hide ID</div></label>
 								<div class="cfg-widget-group">
 									<input type="checkbox" id="cfg-hide-id-checkbox" class="cfg-widget">
 								</div>
 							</div>
 
-							<div class="menu-nonclickable-item" id="cfg-hide-category">
+							<div class="menu-item" id="cfg-hide-category">
 								<label for="cfg-hide-category-checkbox"><div class="cfg-menu-label">Hide Category</div></label>								
 								<div class="cfg-widget-group">
 									<input type="checkbox" id="cfg-hide-category-checkbox" class="cfg-widget">
@@ -858,14 +858,14 @@
 								</div>
 							</div>
 
-							<div class="menu-nonclickable-item" id="cfg-auto-rotate-xy">
+							<div class="menu-item" id="cfg-auto-rotate-xy">
 								<label for="cfg-auto-rotate-xy-checkbox"><div class="cfg-menu-label">Auto rotate X/Y (roll/pitch)</div></label>
 								<div class="cfg-widget-group">
 									<input type="checkbox" id="cfg-auto-rotate-xy-checkbox" class="cfg-widget">
 								</div>
 							</div>
 
-							<div class="menu-nonclickable-item" id="cfg-auto-update-interpolated-boxes">
+							<div class="menu-item" id="cfg-auto-update-interpolated-boxes">
 								<label for="cfg-auto-update-interpolated-boxes-checkbox"><div class="cfg-menu-label">Auto update interploated boxes</div></label>
 								<div class="cfg-widget-group">
 									<input type="checkbox" id="cfg-auto-update-interpolated-boxes-checkbox" class="cfg-widget">
@@ -929,15 +929,8 @@
 								</div>
 
 								<div id="cfg-experimental-submenu">
-									<div class="menu-nonclickable-item" id="cfg-calib-camera-LiDAR">
+									<div class="menu-item" id="cfg-calib-camera-LiDAR">
 										<div class="menu-item-text">Camera-LiDAR calibration</div>
-										<div class='cfg-widget-group'>
-											<div id='cfg-start-calib' class='menu-button'>start</div>
-											<div id='cfg-show-calib'  class='menu-button'>result</div>
-											<div id='cfg-stop-calib'  class='menu-button'>stop</div>
-											<!-- <div id='cfg-reset-calib' class='menu-button'>reset</div> -->
-										</div>							
-
 									</div>
 									
 									<div class="menu-item" id="cfg-crop-scene">
@@ -1077,6 +1070,61 @@
 
 								<div id="log">
 
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="calib-wrapper" class="popup-window-wrapper">
+					<div id="view">
+						<div id="header">
+							<span id="title">Lidar-Camera Calibration</span>
+							<div id="buttons">
+								<div id="btn-exit" class="ui-button"  title="exit">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M4 4 L 20 20 M 20 4 L 4 20"></path>
+									</g></svg>
+								</div>
+							</div>
+						</div>
+						<div id="content">
+							<div>
+								<button id="btn-start">start</button>
+								<button id="btn-stop">stop</button>
+							</div>
+							<div>
+								<div id="camera"></div>
+								<div id="camera-to-lidar">
+									<span>camera to lidar</span><br>
+									<div id = "position">
+										<span>position:</span> 
+										<span>x:</span></span><input size="20" type="text" id="x"/>
+										<span>y:</span></span><input size="20" type="text" id="y"/>
+										<span>z:</span></span><input size="20" type="text" id="z"/>
+									</div>
+									<div id = "rotation">
+										<span>rotation:</span> 
+										<span>x:</span></span><input size="20" type="text" id="x"/>
+										<span>y:</span></span><input size="20" type="text" id="y"/>
+										<span>z:</span></span><input size="20" type="text" id="z"/>
+									</div>
+								</div>
+								<div id="lidar-to-camera">
+									<span>lidar to camera box (camera rotated, z goes upright, x goes forward)</span><br>
+									<div id = "position">
+										<span>position:</span> 
+										<span>x:</span></span><input size="20" type="text" id="x"/>
+										<span>y:</span></span><input size="20" type="text" id="y"/>
+										<span>z:</span></span><input size="20" type="text" id="z"/>
+									</div>
+									<div id = "rotation">
+										<span>rotation:</span> 
+										<span>x:</span></span><input size="20" type="text" id="x"/>
+										<span>y:</span></span><input size="20" type="text" id="y"/>
+										<span>z:</span></span><input size="20" type="text" id="z"/>
+									</div>
 								</div>
 							</div>
 						</div>

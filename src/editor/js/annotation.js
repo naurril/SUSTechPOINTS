@@ -131,7 +131,7 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
     this.toBoxAnnotations = function(){
-        let anns = this.boxes.map((b)=>{
+        let anns = this.boxes.filter(b=>!b.dontsave).map((b)=>{
             //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
             let ann = this.boxToAnn(b);
 

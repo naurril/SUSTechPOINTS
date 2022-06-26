@@ -1050,6 +1050,26 @@ td {
 }
 
 
+/* calib */
+#calib-wrapper {
+	width: 0%;
+	height: 0%;
+}
+
+#calib-wrapper #view {
+	left: 200px;
+	top: 200px;
+
+	height: 400px; /*60%;*/
+	width: 600px; /*60%; */
+}
+
+
+#calib-wrapper #content {
+	padding-left: 5px;
+}
+
+
 #log-wrapper {
 	width: 0%;
 	height: 0%;

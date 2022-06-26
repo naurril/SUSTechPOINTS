@@ -58,7 +58,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.lock_obj_in_highlight = focus;
         }
     };
-    this.calib = new Calib(this.data, this);
+    
 
     this.header = null;
     this.imageContextManager = null;
@@ -169,6 +169,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         this.cropScene = new CropScene(
             this.editorUi.querySelector("#crop-scene-wrapper"),
+            this
+        );
+
+        this.calib = new Calib(this.editorUi.querySelector("#calib-wrapper"), 
             this
         );
 
@@ -2547,10 +2551,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.header.update_box_info(box);
         //floatLabelManager.update_position(box, false);  don't update position, or the ui is annoying.
         
-        box.world.annotation.setModified();
+        if(!box.dontsave)
+            box.world.annotation.setModified();
         
-        
-
         this.updateBoxPointsColor(box);
         this.save_box_info(box);
         
@@ -2573,7 +2576,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             box.on_box_changed();
         }
 
+        
         this.header.updateModifiedStatus();
+
         this.render();
     };
 

@@ -42,24 +42,13 @@ class ConfigUi{
             return true;
         },
         
-        "#cfg-start-calib":(event)=>{
-            this.editor.calib.start_calibration();
+        "#cfg-calib-camera-LiDAR":(event)=>{
+            this.editor.calib.show();
             return true;
-        },
-
-        "#cfg-show-calib":(event)=>{
-            this.editor.calib.show_calibration();
-            return true;
-        },
-
-        "#cfg-stop-calib":(event)=>{
-             this.editor.calib.stop_calibration();
-             return true;
         },
 
         "#cfg-crop-scene": (event)=>{
             this.editor.cropScene.show();
-
             return true;
         },
         
@@ -222,7 +211,6 @@ class ConfigUi{
         "#cfg-color-object",
         "#cfg-menu-batch-mode-inst-number",
         "#cfg-hide-box",
-        "#cfg-calib-camera-LiDAR",
         "#cfg-experimental",
         "#cfg-data",
     ];
@@ -285,22 +273,44 @@ class ConfigUi{
 
         this.subMenus.forEach(item=>{
             this.menu.querySelector(item).onmouseenter = function(event){
-                if (this.timerId)
+                if (this.hideTimer)
                 {
-                    clearTimeout(this.timerId);
-                    this.timerId = null;
+                    clearTimeout(this.hideTimer);
+                    this.hideTimer = null;
                 }
-                
-                event.currentTarget.querySelector(item +"-submenu").style.display="inherit";
+
+                let currentTarget = event.currentTarget;
+
+                if (currentTarget.querySelector(item +"-submenu").style.display !== "")
+                {
+                    //shown now
+                }
+                else
+                {
+
+                    this.showTimer = setTimeout(()=>{
+                        currentTarget.querySelector(item +"-submenu").style.display="inherit";
+                        this.showTimer = null;
+                    }, 300);
+                }
             }
 
             this.menu.querySelector(item).onmouseleave = function(event){
-                let ui = event.currentTarget.querySelector(item +"-submenu");
-                this.timerId = setTimeout(()=>{
-                    ui.style.display="none";
-                    this.timerId = null;
-                },
-                200);
+
+                if (this.showTimer)
+                {
+                    clearTimeout(this.showTimer);
+                    this.showTimer = null;
+                }
+                else
+                {
+                    let ui = event.currentTarget.querySelector(item +"-submenu");
+                    this.hideTimer = setTimeout(()=>{
+                        ui.style.display="";
+                        this.hideTimer = null;
+                    },
+                    200);
+                }
             }
         });
 
