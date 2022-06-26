@@ -84,7 +84,7 @@ class Calib  extends PopupDialog{
         };
     }
 
-
+    
     showCalibBox(position, rotation){
 
         if (!this.calibBox)
@@ -150,6 +150,13 @@ class Calib  extends PopupDialog{
 
         ui = this.ui.querySelector("#lidar-to-camera").querySelector("#rotation");
         ['x','y','z'].forEach(a=> ui.querySelector("#"+a).value = rotation[a]*180/Math.PI);
+
+        let m = this.calib.extrinsic;
+        this.ui.querySelector("#calib-matrix").innerHTML = ""+
+           m.slice(0,4) + ",<br>" +
+           m.slice(4,8) + ",<br>" +
+           m.slice(8,12) + ",<br>" +
+           m.slice(12,16) + "<br>";
     }
 
 
