@@ -27,7 +27,7 @@ pcl::PointCloud<pcl::PointXYZ> transformLidar2CameraCord(pcl::PointCloud<pcl::Po
 }
 
 
-cv::Scalar dist_to_color(int z){
+cv::Vec3b dist_to_color(int z){
   z = z-5;
 
   if (z<0)
@@ -44,14 +44,17 @@ cv::Scalar dist_to_color(int z){
   g = uchar(color); 
 
 
-  return cv::Scalar(r,g,b);
+  return cv::Vec3b(r,g,b);
 }
-
 
 
 
 void draw_points(cv::Mat &image,pcl::PointCloud<pcl::PointXYZ> pointcloud,Eigen::Matrix3d camera_intrinsics_eigen)
 {
+
+  cv::Mat depth = cv::Mat::ones(image.rows, image.cols, CV_32F);
+  depth = depth * 10000.0;
+
   for (pcl::PointCloud<pcl::PointXYZ>::iterator pt = pointcloud.points.begin(); pt < pointcloud.points.end(); pt++)
   {
     Eigen::Vector3d p1(pt->x, pt->y, pt->z);
@@ -59,8 +62,27 @@ void draw_points(cv::Mat &image,pcl::PointCloud<pcl::PointXYZ> pointcloud,Eigen:
     px = px / px[2];
     if (pt->z > 0 && px[0] >= 0 && px[0] < image.cols && px[1] >= 0 && px[1] < image.rows)
     {
-      cv::Point center = cv::Point(px[0], px[1]);
-      cv::circle(image, center, 0, dist_to_color(pt->z), 1); //thickness is 1
+      //cv::Point center = cv::Point(px[0], px[1]);
+
+      auto c =  dist_to_color(pt->z);
+      int x = px[1];
+      int y = px[0]; 
+
+      int s = 1;  //size -1 of point.
+
+      for (int xi=x-s; xi <= x+s; xi++)
+      {
+        for (int yi=y-s; yi <= y+s; yi++)
+        {
+          if (depth.at<float>(xi, yi) > pt->z)
+          {
+            depth.at<float>(xi, yi) = pt->z;        
+            image.at<cv::Vec3b>(xi,yi) = c;
+          }
+        }
+      }
+      
+      //cv::circle(image, center, 0, dist_to_color(pt->z), 1); //thickness is 1
     }
   }
 }
@@ -116,8 +138,12 @@ int fuse_one_file(std::string lidar_file, std::string image_file,  Eigen::Matrix
     image.copyTo(image_tmp);
     draw_points(image_tmp,pos_transform,camera_intrinsics);
 
+    //mix
+    cv::Mat image_final;
+    cv::addWeighted(image, 0.7, image_tmp, 0.3, 0.0, image_final);
+
     std::cout << "saving " << output_file << std::endl;
-    cv::imwrite(output_file, image_tmp);
+    cv::imwrite(output_file, image_final);
 }
 
 int main(int argc, char **argv)
@@ -129,24 +155,34 @@ int main(int argc, char **argv)
     std::cout << "fuse a scene: " << argv[1] << std::endl;
 
     const std::filesystem::path scene_folder{argv[1]};
+    const std::filesystem::path target_folder{argv[2]};
+
+    
 
     std::vector<std::string> frames;
     auto lidar_files = std::filesystem::directory_iterator{scene_folder/"lidar"};
     std::transform(std::filesystem::begin(lidar_files), std::filesystem::end(lidar_files), std::back_inserter(frames), [](std::filesystem::directory_entry f){return f.path().stem();});
-    for (auto const & e: frames)
-    {
-      std::cout<<e<<std::endl;
-    }
+    std::cout<< frames.size() <<std::endl;
+    
 
-    auto camera_folder = std::filesystem::directory_iterator{scene_folder/"camera"};
+
     std::vector<std::string> cameras;
-    std::transform(std::filesystem::begin(camera_folder), std::filesystem::end(camera_folder), std::back_inserter(cameras), [](std::filesystem::directory_entry f){return f.path().filename();});
+
+    if (argc >=4 ){
+        std::string specified_camera = argv[3];
+        cameras.push_back(specified_camera);
+    }
+    else
+    {
+      auto camera_folder = std::filesystem::directory_iterator{scene_folder/"camera"};
+      std::transform(std::filesystem::begin(camera_folder), std::filesystem::end(camera_folder), std::back_inserter(cameras), [](std::filesystem::directory_entry f){return f.path().filename();});
+    }
     
     for (auto const & c: cameras)
     {
       std::cout<<c<<std::endl;
 
-      const std::filesystem::path target_folder{argv[2]};
+      
       std::filesystem::create_directories(target_folder/"camera"/c);
 
       std::string extrinsic_file{scene_folder/"calib"/"camera"/(c+".json")};
@@ -158,11 +194,16 @@ int main(int argc, char **argv)
 
       for (auto const & f: frames)
       {
-        fuse_one_file(scene_folder/"lidar"/(f+".pcd"), 
+        try{
+          fuse_one_file(scene_folder/"lidar"/(f+".pcd"), 
                       scene_folder/"camera"/c/(f+".jpg"), 
                       cam_to_lid_transform, 
                       camera_intrinsics, 
                       target_folder/"camera"/c/(f+".png"));
+        }
+        catch(...){
+          std::cout<< "error" << f << std::endl;
+        }
       }
 
     }

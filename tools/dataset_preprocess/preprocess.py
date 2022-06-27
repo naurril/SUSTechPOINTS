@@ -37,7 +37,7 @@ def prepare_dirs(path):
     if not os.path.exists(path):
             os.makedirs(path)
 
-def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
+def generate_dataset(extrinsic_calib_path, dataset_path, timeslots, lidar_type="restored"):
 
     
     prepare_dirs(dataset_path)
@@ -75,7 +75,7 @@ def generate_dataset(extrinsic_calib_path, dataset_path, timeslots):
     os.chdir(os.path.join(dataset_path, "lidar"))
 
     for slot in timeslots:
-        os.system("ln -s -f ../../intermediate/lidar/restored/*."+slot+".pcd ./")
+        os.system("ln -s -f ../../intermediate/lidar/" + lidar_type +"/*."+slot+".pcd ./")
     
     os.chdir(os.path.join(dataset_path, "ego_pose"))
 
@@ -273,7 +273,7 @@ if __name__ == "__main__":
             subfolders = os.listdir(raw_data_root_path)
             subfolders.sort()
         
-        if func=='all':
+        if True:# func=='all':
             for f in subfolders:
                 os.chdir(savecwd)
                 print(f)
@@ -282,6 +282,7 @@ if __name__ == "__main__":
                 if os.path.isdir(raw_data_path):
                     if f.endswith("_preprocessed"):
                         continue
+
                     if f.endswith("bagfile"):
                         continue
 
@@ -289,7 +290,6 @@ if __name__ == "__main__":
                     
                     if os.path.exists(output_path) and func=='all':
                         continue
-
 
                     if func == "rectify" or func=="all":
                         rectify_cameras(intrinsic_calib_path, raw_data_path, output_path)
@@ -314,14 +314,16 @@ if __name__ == "__main__":
                         timeslots = "?00" #"000,100,200,300,400,500,600,700,800,900"
                         generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
 
-                    if func == "generate_dataset_lidar_destorted":
-                        dataset_name = "dataset_lidar_destorted_2hz"
+                    if func == "generate_dataset_original_lidar" or func== 'all':
+                        dataset_name = "dataset_2hz_original_lidar"
                         timeslots = "000,500"
-                        generate_dataset_lidar_destorted(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(",") )
+                        generate_dataset(extrinsic_calib_path,  os.path.join(output_path, dataset_name), timeslots.split(","), 'aligned' )
+
         else: 
             if  func == "pcd_restore":
                 output_path = os.path.join(raw_data_root_path + "_preprocessed")
                 lidar_pcd_restore(output_path)
+
 
     else:
         print("func intrinsic_calib_path, extrinsic_calib_path, raw_data_path")
