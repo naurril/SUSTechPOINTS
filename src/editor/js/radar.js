@@ -11,8 +11,8 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     this.showPointsOnly = false;
     this.showRadarBoxFlag = false;
-    this.cssStyleSelector = this.sceneMeta.calib.radar[this.name].cssstyleselector;
-    this.color = this.sceneMeta.calib.radar[this.name].color;
+    this.cssStyleSelector = this.world.calib.radar[this.name].cssstyleselector;
+    this.color = this.world.calib.radar[this.name].color;
     this.velocityScale = 0.3;
 
     if (!this.color){
@@ -197,18 +197,18 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     };
 
     this.createRadarBox = function(){
-        if (this.sceneMeta.calib.radar && this.sceneMeta.calib.radar[this.name]){
+        if (this.world.calib.radar && this.world.calib.radar[this.name]){
             return this.world.annotation.createCuboid(
                 {
-                    x: this.sceneMeta.calib.radar[this.name].translation[0] + this.coordinatesOffset[0],
-                    y: this.sceneMeta.calib.radar[this.name].translation[1] + this.coordinatesOffset[1],
-                    z: this.sceneMeta.calib.radar[this.name].translation[2] + this.coordinatesOffset[2],
+                    x: this.world.calib.radar[this.name].translation[0] + this.coordinatesOffset[0],
+                    y: this.world.calib.radar[this.name].translation[1] + this.coordinatesOffset[1],
+                    z: this.world.calib.radar[this.name].translation[2] + this.coordinatesOffset[2],
                 }, 
                 {x:1,y:1, z:1}, 
                 {
-                    x: this.sceneMeta.calib.radar[this.name].rotation[0],
-                    y: this.sceneMeta.calib.radar[this.name].rotation[1],
-                    z: this.sceneMeta.calib.radar[this.name].rotation[2],
+                    x: this.world.calib.radar[this.name].rotation[0],
+                    y: this.world.calib.radar[this.name].rotation[1],
+                    z: this.world.calib.radar[this.name].rotation[2],
                 }, 
                 "radar", 
                 this.name);
@@ -247,7 +247,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         geometry.computeBoundingSphere();
         
         // build material
-        let pointSize = this.sceneMeta.calib.radar[this.name].point_size;
+        let pointSize = this.world.calib.radar[this.name].point_size;
         if (!pointSize)
             pointSize = 2;
 
@@ -352,8 +352,8 @@ function RadarManager(sceneMeta, world, frameInfo){
     if (world.data.cfg.enableRadar && sceneMeta.radar){
         let radars = [];
         
-        for (let r in sceneMeta.calib.radar){
-            if (!sceneMeta.calib.radar[r].disable)
+        for (let r in world.calib.radar){
+            if (!world.calib.radar[r].disable)
                 radars.push(r);
         }
 

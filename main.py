@@ -169,6 +169,11 @@ class Root(object):
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
+    def load_calib(self, scene, frame):
+      return scene_reader.read_calib(scene, frame)
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
     def loadworldlist(self):
       rawbody = cherrypy.request.body.readline().decode('UTF-8')
       worldlist = json.loads(rawbody)

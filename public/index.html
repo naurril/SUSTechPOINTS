@@ -885,34 +885,43 @@
 
 								<div id="cfg-data-submenu">
 
-									<div class="menu-nonclickable-item" id="cfg-data-preload">
+									<div class="menu-item" id="cfg-data-preload">
 										<label for="cfg-data-preload-checkbox">Preload</label>
+										<div class="cfg-widget-group">
 										<input type="checkbox" id="cfg-data-preload-checkbox" class="cfg-widget">
+										</div>
 										<!-- <div class="cfg-widget-group">
 										
 										</div> -->
 									</div>
 
-									<div class="menu-nonclickable-item" id="cfg-data-aux-lidar">
+									<div class="menu-item" id="cfg-data-aux-lidar">
 										<label for="cfg-data-aux-lidar-checkbox"><div class="cfg-menu-label">Auxiliary LiDAR</div></label>								
 										<div class="cfg-widget-group">
 											<input type="checkbox" id="cfg-data-aux-lidar-checkbox" class="cfg-widget">
 										</div>
 									</div>
 
-									<div class="menu-nonclickable-item" id="cfg-data-radar">
-										<label for="cfg-data-radar-checkbox"><div class="cfg-menu-label">Radar</div></label>										
+									<div class="menu-item" id="cfg-data-radar">
+										<label for="cfg-data-radar-checkbox">
+											<div class="cfg-menu-label">Radar</div></label>
 										<div class="cfg-widget-group">
 											<input type="checkbox" id="cfg-data-radar-checkbox" class="cfg-widget">
 										</div>
 									</div>
 
-									<div class="menu-nonclickable-item" id="cfg-data-filter-points">
-										<label for="cfg-data-filter-points-checkbox"><div class="cfg-menu-label">Hide points</div></label>										
+									<div class="menu-item" id="cfg-data-filter-points">
+										<label for="cfg-data-filter-points-checkbox">
+											<div class="cfg-menu-label">Hide high points</div>
+										</label>
 										<div class="cfg-widget-group">
 											<input type="checkbox" id="cfg-data-filter-points-checkbox" class="cfg-widget">
-											<span> z-threshold</span>
-											<input id="cfg-data-filter-points-z" class="cfg-widget">
+										</div>
+									</div>
+									<div  class="menu-nonclickable-item" id="cfg-z-threshold">
+										<span>z-threshold</span>
+										<div class="cfg-widget-group">
+											<input id="cfg-data-filter-points-z" size="30" type="number" class="cfg-widget">
 										</div>
 									</div>
 
@@ -1100,33 +1109,39 @@
 									<span>camera to lidar</span><br>
 									<div id = "position">
 										<span>position:</span> 
-										<span>x:</span></span><input size="20" type="text" id="x"/>
-										<span>y:</span></span><input size="20" type="text" id="y"/>
-										<span>z:</span></span><input size="20" type="text" id="z"/>
+										<span>x:</span><input size="20" type="text" id="x"/>
+										<span>y:</span><input size="20" type="text" id="y"/>
+										<span>z:</span><input size="20" type="text" id="z"/>
 									</div>
 									<div id = "rotation">
 										<span>rotation:</span> 
-										<span>x:</span></span><input size="20" type="text" id="x"/>
-										<span>y:</span></span><input size="20" type="text" id="y"/>
-										<span>z:</span></span><input size="20" type="text" id="z"/>
+										<span>x:</span><input size="20" type="text" id="x"/>
+										<span>y:</span><input size="20" type="text" id="y"/>
+										<span>z:</span><input size="20" type="text" id="z"/>
 									</div>
 								</div>
 								<div id="lidar-to-camera">
 									<span>lidar to camera box (camera rotated, z goes upright, x goes forward)</span><br>
 									<div id = "position">
 										<span>position:</span> 
-										<span>x:</span></span><input size="20" type="text" id="x"/>
-										<span>y:</span></span><input size="20" type="text" id="y"/>
-										<span>z:</span></span><input size="20" type="text" id="z"/>
+										<span>x:</span><input size="20" type="text" id="x"/>
+										<span>y:</span><input size="20" type="text" id="y"/>
+										<span>z:</span><input size="20" type="text" id="z"/>
 									</div>
 									<div id = "rotation">
 										<span>rotation:</span> 
-										<span>x:</span></span><input size="20" type="text" id="x"/>
-										<span>y:</span></span><input size="20" type="text" id="y"/>
-										<span>z:</span></span><input size="20" type="text" id="z"/>
+										<span>x:</span><input size="20" type="text" id="x"/>
+										<span>y:</span><input size="20" type="text" id="y"/>
+										<span>z:</span><input size="20" type="text" id="z"/>
 									</div>
 								</div>
 
+								<div>
+									<span>Adjustment Settings</span><button id="btn-apply-settings">Apply</button><br>
+									<span>translate step:</span><input size="20" type="text" id="translate-step"/><br>
+									<span>rotate step:</span><input size="20" type="text" id="rotate-step"/><br>
+									
+								</div>
 								<div> <span>calib matrix</span>
 								<div id="calib-matrix"></div>
 								</div>

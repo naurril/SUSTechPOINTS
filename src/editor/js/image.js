@@ -9,22 +9,22 @@ function BoxImageContext(ui){
     
     // draw highlighted box
     this.updateFocusedImageContext = function(box){
-        var scene_meta = box.world.frameInfo.sceneMeta;
+        var world = box.world;
 
 
         let bestImage = choose_best_camera_for_point(
-            scene_meta,
+            world,
             box.position);
 
         if (!bestImage){
             return;           
         }
 
-        if (!scene_meta.calib.camera){
+        if (!world.calib.calib.camera){
             return;
         }
         
-        var calib = scene_meta.calib.camera[bestImage]
+        var calib = world.calib.calib.camera[bestImage]
         if (!calib){
             return;
         }
@@ -487,14 +487,14 @@ class ImageContext extends MovableView{
 
 
     getCalib(){
-        var scene_meta = this.world.sceneMeta;
+        var scene_meta = this.world;
            
-        if (!scene_meta.calib.camera){
+        if (!this.world.calib.calib.camera){
             return null;
         }
 
         //var active_camera_name = this.world.cameras.active_name;
-        var calib = scene_meta.calib.camera[this.name];
+        var calib = this.world.calib.calib.camera[this.name];
 
         return calib;
     }
@@ -1229,15 +1229,15 @@ function all_points_in_image_range(p){
 }
 
 
-function  choose_best_camera_for_point(scene_meta, center){
+function  choose_best_camera_for_point(world, center){
         
-    if (!scene_meta.calib){
+    if (!world.calib.calib){
         return null;
     }
 
     var proj_pos = [];
-    for (var i in scene_meta.calib.camera){
-        var imgpos = matmul(scene_meta.calib.camera[i].extrinsic, [center.x,center.y,center.z,1], 4);
+    for (var i in world.calib.calib.camera){
+        var imgpos = matmul(world.calib.calib.camera[i].extrinsic, [center.x,center.y,center.z,1], 4);
         proj_pos.push({calib: i, pos: vector4to3(imgpos)});
     }
 

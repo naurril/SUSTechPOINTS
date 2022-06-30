@@ -482,7 +482,7 @@ dynamic set obj-type css has higher priority than this one.
 	width: 150px;
 }
 #config-menu{
-	width: 300px;
+	width: 250px;
 }
 
 #cfg-experimental-submenu, #cfg-data-submenu {
@@ -491,8 +491,12 @@ dynamic set obj-type css has higher priority than this one.
 	right:100%;
 	top: 0%;
 	padding-left: 3px;
-	min-width: 400px;
+	min-width: 200px;
 	background-color: var(--widget-background-color);
+}
+
+#cfg-data-submenu #cfg-data-filter-points-z {
+	width: 50px;
 }
 
 .cfg-menu-label {

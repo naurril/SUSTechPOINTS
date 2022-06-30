@@ -65,43 +65,44 @@ def get_one_scene(s):
             desc = json.load(f)
             scene["desc"] = desc
 
-    calib = {}
-    calib_camera={}
-    calib_radar={}
-    calib_aux_lidar = {}
-    if os.path.exists(os.path.join(scene_dir, "calib")):
-        if os.path.exists(os.path.join(scene_dir, "calib","camera")):
-            calibs = os.listdir(os.path.join(scene_dir, "calib", "camera"))
-            for c in calibs:
-                calib_file = os.path.join(scene_dir, "calib", "camera", c)
-                calib_name, ext = os.path.splitext(c)
-                if os.path.isfile(calib_file) and ext==".json":
-                    #print(calib_file)
-                    with open(calib_file)  as f:
-                        cal = json.load(f)
-                        calib_camera[calib_name] = cal
+    # calib will be read when frame is loaded. since each frame may have different calib.
+    # calib = {}
+    # calib_camera={}
+    # calib_radar={}
+    # calib_aux_lidar = {}
+    # if os.path.exists(os.path.join(scene_dir, "calib")):
+    #     if os.path.exists(os.path.join(scene_dir, "calib","camera")):
+    #         calibs = os.listdir(os.path.join(scene_dir, "calib", "camera"))
+    #         for c in calibs:
+    #             calib_file = os.path.join(scene_dir, "calib", "camera", c)
+    #             calib_name, ext = os.path.splitext(c)
+    #             if os.path.isfile(calib_file) and ext==".json":
+    #                 #print(calib_file)
+    #                 with open(calib_file)  as f:
+    #                     cal = json.load(f)
+    #                     calib_camera[calib_name] = cal
 
     
-        if os.path.exists(os.path.join(scene_dir, "calib", "radar")):
-            calibs = os.listdir(os.path.join(scene_dir, "calib", "radar"))
-            for c in calibs:
-                calib_file = os.path.join(scene_dir, "calib", "radar", c)
-                calib_name, _ = os.path.splitext(c)
-                if os.path.isfile(calib_file):
-                    #print(calib_file)
-                    with open(calib_file)  as f:
-                        cal = json.load(f)
-                        calib_radar[calib_name] = cal
-        if os.path.exists(os.path.join(scene_dir, "calib", "aux_lidar")):
-            calibs = os.listdir(os.path.join(scene_dir, "calib", "aux_lidar"))
-            for c in calibs:
-                calib_file = os.path.join(scene_dir, "calib", "aux_lidar", c)
-                calib_name, _ = os.path.splitext(c)
-                if os.path.isfile(calib_file):
-                    #print(calib_file)
-                    with open(calib_file)  as f:
-                        cal = json.load(f)
-                        calib_aux_lidar[calib_name] = cal
+    #     if os.path.exists(os.path.join(scene_dir, "calib", "radar")):
+    #         calibs = os.listdir(os.path.join(scene_dir, "calib", "radar"))
+    #         for c in calibs:
+    #             calib_file = os.path.join(scene_dir, "calib", "radar", c)
+    #             calib_name, _ = os.path.splitext(c)
+    #             if os.path.isfile(calib_file):
+    #                 #print(calib_file)
+    #                 with open(calib_file)  as f:
+    #                     cal = json.load(f)
+    #                     calib_radar[calib_name] = cal
+    #     if os.path.exists(os.path.join(scene_dir, "calib", "aux_lidar")):
+    #         calibs = os.listdir(os.path.join(scene_dir, "calib", "aux_lidar"))
+    #         for c in calibs:
+    #             calib_file = os.path.join(scene_dir, "calib", "aux_lidar", c)
+    #             calib_name, _ = os.path.splitext(c)
+    #             if os.path.isfile(calib_file):
+    #                 #print(calib_file)
+    #                 with open(calib_file)  as f:
+    #                     cal = json.load(f)
+    #                     calib_aux_lidar[calib_name] = cal
 
     # camera names
     camera = []
@@ -189,12 +190,12 @@ def get_one_scene(s):
             scene["radar"] = radar
         if aux_lidar:
             scene["aux_lidar"] = aux_lidar
-        if calib_camera:
-            calib["camera"] = calib_camera
-        if calib_radar:
-            calib["radar"] = calib_radar
-        if calib_aux_lidar:
-            calib["aux_lidar"] = calib_aux_lidar
+        # if calib_camera:
+        #     calib["camera"] = calib_camera
+        # if calib_radar:
+        #     calib["radar"] = calib_radar
+        # if calib_aux_lidar:
+        #     calib["aux_lidar"] = calib_aux_lidar
         # if ego_pose:
         #     scene["ego_pose"] = ego_pose
             
@@ -213,7 +214,7 @@ def get_one_scene(s):
     #     if calib_aux_lidar:
     #         calib["aux_lidar"] = calib_aux_lidar
 
-    scene["calib"] = calib
+    # scene["calib"] = calib
 
 
     return scene
@@ -237,6 +238,26 @@ def read_ego_pose(scene, frame):
         return p
     else:
       return None
+def read_calib(scene, frame):
+
+    calib_folder = os.path.join(root_dir, scene, "calib")
+    sensor_types = os.listdir(calib_folder)
+    calib = {}
+    for sensor_type in sensor_types:
+        calib[sensor_type] = {}
+        sensors = os.listdir(os.path.join(calib_folder, sensor_type))
+        for sensor in sensors:
+            sensor_file = os.path.join(calib_folder, sensor_type, sensor)
+            if os.path.isfile(sensor_file):
+                with open(sensor_file, "r") as f:
+                    p=json.load(f)
+                    calib[sensor_type][os.path.splitext(sensor)[0]] = p
+            else:
+                with open(os.path.join(calib_folder, sensor_type, sensor, frame+".json"), "r") as f:
+                    p=json.load(f)
+                    calib[sensor_type][sensor] = p
+    
+    return calib
 
 def save_annotations(scene, frame, anno):
     filename = os.path.join(root_dir, scene, "label", frame+".json")

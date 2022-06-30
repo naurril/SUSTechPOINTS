@@ -7,6 +7,7 @@ import {Lidar} from "./lidar.js"
 import {Annotation} from "./annotation.js"
 import {EgoPose} from "./ego_pose.js"
 import {logger} from "./log.js"
+import {Calib } from './calib.js';
 //import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 , mat} from './util.js';
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
@@ -233,6 +234,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.annotation = new Annotation(this.sceneMeta, this, this.frameInfo);
     this.aux_lidars = new AuxLidarManager(this.sceneMeta, this, this.frameInfo);
     this.egoPose = new EgoPose(this.sceneMeta, this, this.FrameInfo);
+    this.calib = new Calib(this.sceneMeta, this, this.FrameInfo);
 
     // todo: state of world could be put in  a variable
     // but still need mulitple flags.
@@ -247,7 +249,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                //this.cameras.loaded() &&
                this.aux_lidars.preloaded() && 
                this.radars.preloaded()&&
-               this.egoPose.preloaded;
+               this.egoPose.preloaded&&
+               this.calib.preloaded;
     };
 
     this.create_time = 0;
@@ -302,6 +305,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 let refPose = this.data.getRefEgoPose(this.frameInfo.scene, thisPose);
                 
     
+                // overview
+                // generally we render points on utm-coordinate system.
+                // since for each frame we have gps/position info which is based on utm frame.
+                // wo all we need to do is rotate the lidar to appropriate angles and done.
                 
                 //
                 // the azimuth ouput from novatel is clock-wise, as can be deduced from scene-000011
@@ -338,14 +345,18 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                 // this should be a calib matrix
                 //let trans_lidar_ego = euler_angle_to_rotate_matrix({x: 0, y: 0, z: Math.PI}, {x:0, y:0, z:0.4});
     
-                let trans_lidar_ego = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0,0,Math.PI, "ZYX"))
+                let trans_lidar_ego = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0,0,Math.PI, "ZXY"))   //lidar y goes backward, ego/imu y goes forward.
                                                          .setPosition(0, 0, 0.4);
     
     
+                // ego pose: positionis are already in utm frame
+                //           rotations are in local frame, in zxy order.
+                //
                 //let trans_ego_utm = euler_angle_to_rotate_matrix(thisRot, posDelta, "ZXY");
                 let trans_ego_utm = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(thisRot.x, thisRot.y, thisRot.z, "ZXY"))
                                                        .setPosition(posDelta.x, posDelta.y, posDelta.z);    
                 
+                // ref utm to scene
                 let trans_utm_scene = new THREE.Matrix4().identity().setPosition(this.coordinatesOffset[0], this.coordinatesOffset[1], this.coordinatesOffset[2]);
                 // let offset_ego = matmul(trans_utm_ego, [delta.position.x, delta.position.y, delta.position.z], 3);
                 // let offset_lidar =  matmul(trans_ego_lidar, offset_ego, 3);
@@ -502,7 +513,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         this.radars.preload(_preload_cb);
         this.cameras.load(_preload_cb, this.data.active_camera_name);
         this.aux_lidars.preload(_preload_cb);
-        this.egoPose.preload(_preload_cb);        
+        this.egoPose.preload(_preload_cb);    
+        this.calib.preload(_preload_cb);
     };
 
     this.scene = null;

@@ -64,7 +64,7 @@ class Config{
     //disableAxis = true;
     //disableMainViewKeyDown = true;
     //projectRadarToImage = true;
-    projectLidarToImage = true;   
+    projectLidarToImage = false;   
 
     constructor()
     {

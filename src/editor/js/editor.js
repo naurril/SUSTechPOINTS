@@ -15,7 +15,7 @@ import {PlayControl} from "./play.js";
 import {reloadWorldList, saveWorldList} from "./save.js";
 import {logger, create_logger} from "./log.js";
 import {autoAnnotate} from "./auto_annotate.js";
-import {Calib} from "./calib.js";
+import {CalibTool} from "./calib_tool";
 import {Trajectory} from "./trajectory.js";
 import { ContextMenu } from './context_menu.js';
 import { InfoBox } from './info_box.js';
@@ -172,9 +172,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this
         );
 
-        this.calib = new Calib(this.editorUi.querySelector("#calib-wrapper"), 
-            this
-        );
+        this.calib = new CalibTool(this.editorUi.querySelector("#calib-wrapper"), this);
 
         this.contextMenu = new ContextMenu(this.editorUi.querySelector("#context-menu-wrapper"));        
 
@@ -1798,7 +1796,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             // switch camera
             if (!this.editorCfg.disableMainImageContext){
                 var best_camera = this.imageContextManager.choose_best_camera_for_point(
-                    this.selected_box.world.frameInfo.sceneMeta,
+                    this.selected_box.world,
                     this.selected_box.position);
 
                 if (best_camera){

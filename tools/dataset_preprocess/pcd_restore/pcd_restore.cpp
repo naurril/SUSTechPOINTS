@@ -4,9 +4,9 @@
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-#include <pcl/registration/icp.h>
-#include <json/json.h>
-#include <Eigen/Dense>
+//#include <pcl/registration/icp.h>
+//#include <json/json.h>
+//#include <Eigen/Dense>
 #include <math.h>
 
 using namespace Eigen;
@@ -60,9 +60,10 @@ int main (int argc, char* argv[])
   double dy = std::atof(argv[5]);
   double dz = std::atof(argv[6]);
 
-  double drx = std::atof(argv[7]);
-  double dry = std::atof(argv[8]);
-  double drz = std::atof(argv[9]);
+  
+  double dry = std::atof(argv[7]); //roll
+  double drx = std::atof(argv[8]); //pitch
+  double drz = std::atof(argv[9]); //yaw
 
   char* order = argv[9];
 
