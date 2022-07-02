@@ -1,6 +1,7 @@
 
 
 
+import {matmul2} from "./util.js"
 
 class Calib
 {
@@ -18,11 +19,68 @@ class Calib
         this.load();
     };
 
-    getCalib(sensorType, sensorName){
+    getDefaultExtrinicCalib(sensorType, sensorName)
+    {
+        if (this.world.sceneMeta.calib[sensorType] && this.world.sceneMeta.calib[sensorType][sensorName])
+        {
+            let default_calib = this.world.sceneMeta.calib[sensorType][sensorName];
+
+            if (default_calib.extrinsic)
+                return default_calib.extrinsic;
+        
+            if (default_calib.lidar_to_camera)
+                return default_calib.lidar_to_camera;
+        }
+
+        return null;
+    }
+
+    getExtrinsicCalib(sensorType, sensorName){
+        
+        let default_extrinsic = this.getDefaultExtrinicCalib(sensorType, sensorName);
+
+
         if (this.calib[sensorType] && this.calib[sensorType][sensorName])
-            return this.calib[sensorType][sensorName]
-        if (this.world.sceneMeta.calib[sensorType])
-            return this.world.sceneMeta.calib[sensorType][sensorName];
+        {
+            let frame_calib = this.calib[sensorType][sensorName]
+
+            if (frame_calib.extrinsic)
+                return  frame_calib.extrinsic;
+
+            if (frame_calib.lidar_to_camera)
+                return frame_calib.lidar_to_camera;
+            
+            if (frame_calib.lidar_transform && default_extrinsic)
+                return matmul2(default_extrinsic, frame_calib.lidar_transform, 4);
+            
+        }
+        
+        return default_extrinsic;
+    }
+
+    getIntrinsicCalib(sensorType, sensorName){
+        if (this.calib[sensorType] && this.calib[sensorType][sensorName])
+        {
+            let frame_calib = this.calib[sensorType][sensorName]
+
+            if (frame_calib.intrinsic)
+                return  frame_calib.intrinsic;
+        }
+            
+        if (this.world.sceneMeta.calib[sensorType] && this.world.sceneMeta.calib[sensorType][sensorName])
+            return this.world.sceneMeta.calib[sensorType][sensorName].intrinsic;
+        
+        return null;
+    }
+
+    
+    
+    getCalib(sensorType, sensorName){
+        
+        let extrinsic = this.getExtrinsicCalib(sensorType, sensorName);
+        let intrinsic = this.getIntrinsicCalib(sensorType, sensorName);
+
+        return {extrinsic, intrinsic};
     }
     
     load(){

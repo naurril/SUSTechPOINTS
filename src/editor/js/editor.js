@@ -1639,16 +1639,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }
             else{
                 //select box /unselect box
-                if (!this.data.world || (!this.data.world.annotation.boxes && this.data.world.radars.radarList.length==0 && !this.calib.calib_box)){
+                if (!this.data.world || (!this.data.world.annotation.boxes && this.data.world.radars.radarList.length==0)){
                     return;
                 }
 
                 let all_boxes = this.data.world.annotation.boxes.concat(this.data.world.radars.getAllBoxes());
                 all_boxes = all_boxes.concat(this.data.world.aux_lidars.getAllBoxes());
-                
-                if (this.calib.calib_box){
-                    all_boxes.push(this.calib.calib_box);
-                }
                 
                 let intersects = this.mouse.getIntersects( this.mouse.onUpPosition, all_boxes);
 
