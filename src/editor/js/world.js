@@ -149,7 +149,7 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
         };
 }
 
-function Images(sceneMeta, sceneName, frame){
+function Images(sceneMeta, imageType, sceneName, frame){
     this.loaded = function(){
         for (var n in this.names){
             if (!this.loaded_flag[this.names[n]])
@@ -159,7 +159,7 @@ function Images(sceneMeta, sceneName, frame){
         return true;
     };
 
-    this.names = sceneMeta.camera; //["image","left","right"],
+    this.names = sceneMeta[imageType]; //["image","left","right"],
     this.loaded_flag = {};
     // this.active_name = "";
     // this.active_image = function(){
@@ -176,7 +176,7 @@ function Images(sceneMeta, sceneName, frame){
     this.content = {};
     this.on_all_loaded = null;
 
-    this.load = function(on_all_loaded, active_name){
+    this.load = function(on_all_loaded){
         this.on_all_loaded = on_all_loaded;
         
         // if global camera not set, use first camera as default.
@@ -199,7 +199,7 @@ function Images(sceneMeta, sceneName, frame){
                     _self.on_image_loaded();
                 };
 
-                _self.content[cam].src = 'data/'+sceneName+'/camera/' + cam + '/'+ frame + sceneMeta.camera_ext;
+                _self.content[cam].src = 'data/'+sceneName+'/'+imageType+'/' + cam + '/'+ frame + sceneMeta.camera_ext;
                 console.log("image set")
             });
         }
@@ -228,7 +228,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     }
     //points_backup: null, //for restore from highlight
         
-    this.cameras = new Images(this.sceneMeta, sceneName, frame);
+    // note the name must be same as sensortype.     
+    this.camera = new Images(this.sceneMeta, "camera", sceneName, frame);
+    this.aux_camera = new Images(this.sceneMeta, "aux_camera", sceneName, frame);
+    
     this.radars = new RadarManager(this.sceneMeta, this, this.frameInfo);
     this.lidar = new Lidar(this.sceneMeta, this, this.frameInfo);
     this.annotation = new Annotation(this.sceneMeta, this, this.frameInfo);
@@ -247,6 +250,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         return this.lidar.preloaded && 
                this.annotation.preloaded && 
                //this.cameras.loaded() &&
+               //this.auxCameras.loaded() &&
                this.aux_lidars.preloaded() && 
                this.radars.preloaded()&&
                this.egoPose.preloaded&&
@@ -511,7 +515,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         this.lidar.preload(_preload_cb);
         this.annotation.preload(_preload_cb)
         this.radars.preload(_preload_cb);
-        this.cameras.load(_preload_cb, this.data.active_camera_name);
+        this.camera.load(_preload_cb);
+        this.aux_camera.load(_preload_cb);
         this.aux_lidars.preload(_preload_cb);
         this.egoPose.preload(_preload_cb);    
         this.calib.preload(_preload_cb);

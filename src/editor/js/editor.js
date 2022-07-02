@@ -1039,7 +1039,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         
         if (meta.camera){
-            this.imageContextManager.updateCameraList(meta.camera);
+            let camera_list = meta.camera.map(x=>"camera:"+x).concat(meta.aux_camera.map(c=>"aux_camera:"+c));
+
+            this.imageContextManager.updateCameraList(camera_list);
         }
 
         //load_obj_ids_of_scene(sceneName);

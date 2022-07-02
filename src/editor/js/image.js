@@ -20,17 +20,14 @@ function BoxImageContext(ui){
             return;           
         }
 
-        if (!world.calib.calib.camera){
-            return;
-        }
-        
-        var calib = world.calib.calib.camera[bestImage]
+        let [cameraType, cameraName] = bestImage.split(":");
+        var calib = world.calib.getCalib(cameraType, cameraName)
         if (!calib){
             return;
         }
         
         if (calib){
-            var img = box.world.cameras.getImageByName(bestImage);
+            var img = box.world[cameraType].getImageByName(cameraName);
             if (img && (img.naturalWidth > 0)){
 
                 this.clear_canvas();
@@ -215,7 +212,11 @@ class ImageContext extends MovableView{
         this.cfg = cfg;
         this.on_img_click = on_img_click;
         this.autoSwitch = autoSwitch;
+
+        
         this.setImageName(name);
+        
+        
     }
     
     remove(){
@@ -225,6 +226,9 @@ class ImageContext extends MovableView{
 
     setImageName(name)
     {
+        let [cameraType, cameraName] = name.split(":");
+        this.cameraType = cameraType;
+        this.cameraName = cameraName;
         this.name = name;
         this.ui.querySelector("#header").innerText = (this.autoSwitch?"auto-":"")+name;
     }
@@ -308,7 +312,7 @@ class ImageContext extends MovableView{
         
         let color = this.value_to_color((distance-10)/50.0);
 
-        color += '24'; //transparency
+        color += '14'; //transparency
         return color;
 
     }
@@ -330,7 +334,7 @@ class ImageContext extends MovableView{
     intensity_to_color(intensity)
     {
         let color = this.value_to_color(intensity);
-        color += '24'; //transparency
+        color += '14'; //transparency
         return color;
     }
 
@@ -489,12 +493,10 @@ class ImageContext extends MovableView{
     getCalib(){
         var scene_meta = this.world;
            
-        if (!this.world.calib.calib.camera){
-            return null;
-        }
+        
 
         //var active_camera_name = this.world.cameras.active_name;
-        var calib = this.world.calib.calib.camera[this.name];
+        var calib = this.world.calib.getCalib(this.cameraType, this.cameraName);
 
         return calib;
     }
@@ -503,7 +505,7 @@ class ImageContext extends MovableView{
 
 
     get_trans_ratio(){
-        var img = this.world.cameras.getImageByName(this.name);       
+        var img = this.world[this.cameraType].getImageByName(this.cameraName);
 
         if (!img || img.width==0){
             return null;
@@ -526,7 +528,7 @@ class ImageContext extends MovableView{
         var svgimage = this.ui.querySelector("#svg-image");
 
         // active img is set by global, it's not set sometimes.
-        var img = this.world.cameras.getImageByName(this.name);
+        var img = this.world[this.cameraType].getImageByName(this.cameraName);
         if (img){
             svgimage.setAttribute("xlink:href", img.src);
         }
@@ -562,7 +564,7 @@ class ImageContext extends MovableView{
             let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
             p.setAttribute("cx", x);
             p.setAttribute("cy", y);
-            p.setAttribute("r", 2);
+            p.setAttribute("r", 1);
             p.setAttribute("stroke-width", "1");            
 
             if (! cssclass){
@@ -614,7 +616,7 @@ class ImageContext extends MovableView{
 
     draw_svg(){
         // draw picture
-        var img = this.world.cameras.getImageByName(this.name);
+        var img = this.world[this.cameraType].getImageByName(this.cameraName);
 
         if (!img || img.width==0){
             this.hide_canvas();
@@ -631,16 +633,18 @@ class ImageContext extends MovableView{
         }
 
         let svg = this.ui.querySelector("#svg-boxes");
+        if (this.cfg.projectBoxesToImage)
+        {
+            // draw boxes
+            this.world.annotation.boxes.forEach((box)=>{
+                var imgfinal = box_to_2d_points(box, calib);
+                if (imgfinal){
+                    var box_svg = this.box_to_svg (box, imgfinal, trans_ratio, this.get_selected_box() == box);
+                    svg.appendChild(box_svg);
+                }
 
-        // draw boxes
-        this.world.annotation.boxes.forEach((box)=>{
-            var imgfinal = box_to_2d_points(box, calib);
-            if (imgfinal){
-                var box_svg = this.box_to_svg (box, imgfinal, trans_ratio, this.get_selected_box() == box);
-                svg.appendChild(box_svg);
-            }
-
-        });
+            });
+        }
 
         svg = this.ui.querySelector("#svg-points");
 
@@ -936,7 +940,7 @@ class ImageContextManager {
         };
 
         this.selectorUi.querySelector("#camera-list").onclick = (event)=>{
-            let cameraName = event.target.innerText;
+            let cameraName = event.target.cameraName;
             
             if (cameraName == "auto"){
 
@@ -979,15 +983,23 @@ class ImageContextManager {
 
         let camera_selector_str = cameras.map(c=>{
 
+                let c_id = c.replace(":","-");
+
                 let existed = this.images.find(i=>i.name == c && !i.autoSwitch);
                 let className = existed?"camera-item camera-selected":"camera-item";
 
-                return `<div class="${className}" id="camera-item-${c}">${c}</div>`;
+                return `<div class="${className}" id="camera-item-${c_id}">${c}</div>`;
             }).reduce((x,y)=>x+y,  autoCamera);
 
         let ui = this.selectorUi.querySelector("#camera-list");
         ui.innerHTML = camera_selector_str;
         ui.style.display="none";
+
+        cameras.forEach(n=>{
+            ui.querySelector("#camera-item-"+n.replace(":","-")).cameraName = n;
+        });
+
+        ui.querySelector("#camera-item-auto").cameraName = "auto";
 
         this.setDefaultBestCamera(cameras[0]);
     }
@@ -1010,12 +1022,22 @@ class ImageContextManager {
     addImage(name, autoSwitch)
     {
 
+
+
         if (autoSwitch && this.bestCamera && !name)
+        {
             name = this.bestCamera;
-            
+        }
+        
         let image = new ImageContext(this.parentUi, name, autoSwitch, this.cfg, this.on_img_click);
 
         this.images.push(image);
+
+        let selectorName = autoSwitch?"auto":name;
+        let ui = this.selectorUi.querySelector("#camera-item-"+selectorName.replace(":","-"));
+        if (ui)
+            ui.className = "camera-item camera-selected";
+
 
         if (this.init_image_op_para){
             image.init_image_op(this.init_image_op_para);
@@ -1027,11 +1049,7 @@ class ImageContextManager {
         }
 
 
-        let selectorName = autoSwitch?"auto":name;
             
-        let ui = this.selectorUi.querySelector("#camera-item-"+selectorName);
-        if (ui)
-            ui.className = "camera-item camera-selected";
 
 
         return image;
@@ -1040,7 +1058,7 @@ class ImageContextManager {
     removeImage(image){
 
         let selectorName = image.autoSwitch?"auto":image.name;
-        this.selectorUi.querySelector("#camera-item-"+selectorName).className = "camera-item";
+        this.selectorUi.querySelector("#camera-item-"+selectorName.replace(":","-")).className = "camera-item";
         this.images = this.images.filter(x=>x!=image);
         image.remove();
 
@@ -1231,15 +1249,12 @@ function all_points_in_image_range(p){
 
 function  choose_best_camera_for_point(world, center){
         
-    if (!world.calib.calib){
-        return null;
-    }
-
+    //choose best camera only in main cameras. (dont consider aux_camera)
     var proj_pos = [];
-    for (var i in world.calib.calib.camera){
-        var imgpos = matmul(world.calib.calib.camera[i].extrinsic, [center.x,center.y,center.z,1], 4);
-        proj_pos.push({calib: i, pos: vector4to3(imgpos)});
-    }
+    world.sceneMeta.camera.forEach((cameraName)=>{
+        var imgpos = matmul(world.calib.getCalib('camera',cameraName).extrinsic, [center.x,center.y,center.z,1], 4);
+        proj_pos.push({camera: "camera:"+cameraName, pos: vector4to3(imgpos)});
+    });
 
     var valid_proj_pos = proj_pos.filter(function(p){
         return all_points_in_image_range(p.pos);
@@ -1256,7 +1271,7 @@ function  choose_best_camera_for_point(world, center){
     //console.log(valid_proj_pos);
 
     if (valid_proj_pos.length>0){
-        return valid_proj_pos[0].calib;
+        return valid_proj_pos[0].camera;
     }
 
     return null;

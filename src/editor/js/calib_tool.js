@@ -26,6 +26,18 @@ class CalibTool  extends PopupDialog{
             this.editor.editorCfg.rotateStep = rotateStep;
             this.editor.editorCfg.moveStep = translateStep;
         };
+        
+        this.ui.querySelector("#calib-proj-pts").onchange = (event)=>{
+            let v = event.currentTarget.checked;
+            this.editor.editorCfg.projectLidarToImage = v;
+            this.editor.imageContextManager.render_2d_image();
+        }
+
+        this.ui.querySelector("#calib-proj-boxes").onchange = (event)=>{
+            let v = event.currentTarget.checked;
+            this.editor.editorCfg.projectBoxesToImage = v;
+            this.editor.imageContextManager.render_2d_image();
+        }
 
         this.cam_to_box_m = new THREE.Matrix4().set(
             0,  0, 1, 0,
@@ -174,7 +186,7 @@ class CalibTool  extends PopupDialog{
 
         let targetName = this.editor.imageContextManager.images[0].name;
         this.targetCamera = targetName;
-        this.calib = this.data.world.calib.calib.camera[targetName];
+        this.calib = this.data.world.calib.getCalib('camera', targetName);
 
         let extrinsic = this.calib.extrinsic.map(function(x){return x*1.0;});
 

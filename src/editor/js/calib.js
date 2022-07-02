@@ -18,6 +18,12 @@ class Calib
         this.load();
     };
 
+    getCalib(sensorType, sensorName){
+        if (this.calib[sensorType] && this.calib[sensorType][sensorName])
+            return this.calib[sensorType][sensorName]
+        if (this.world.sceneMeta.calib[sensorType])
+            return this.world.sceneMeta.calib[sensorType][sensorName];
+    }
     
     load(){
 

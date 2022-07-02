@@ -886,7 +886,7 @@
 								<div id="cfg-data-submenu">
 
 									<div class="menu-item" id="cfg-data-preload">
-										<label for="cfg-data-preload-checkbox">Preload</label>
+										<label for="cfg-data-preload-checkbox"><div class="cfg-menu-label">Preload</div></label>
 										<div class="cfg-widget-group">
 										<input type="checkbox" id="cfg-data-preload-checkbox" class="cfg-widget">
 										</div>
@@ -901,6 +901,14 @@
 											<input type="checkbox" id="cfg-data-aux-lidar-checkbox" class="cfg-widget">
 										</div>
 									</div>
+
+									<div class="menu-item" id="cfg-data-aux-camera">
+										<label for="cfg-data-aux-camera-checkbox"><div class="cfg-menu-label">Auxiliary Camera</div></label>								
+										<div class="cfg-widget-group">
+											<input type="checkbox" id="cfg-data-aux-camera-checkbox" class="cfg-widget">
+										</div>
+									</div>
+
 
 									<div class="menu-item" id="cfg-data-radar">
 										<label for="cfg-data-radar-checkbox">
@@ -1139,8 +1147,13 @@
 								<div>
 									<span>Adjustment Settings</span><button id="btn-apply-settings">Apply</button><br>
 									<span>translate step:</span><input size="20" type="text" id="translate-step"/><br>
-									<span>rotate step:</span><input size="20" type="text" id="rotate-step"/><br>
-									
+									<span>rotate step:</span><input size="20" type="text" id="rotate-step"/><br>	
+								</div>
+								<div>
+									<label for="calib-proj-pts">project points to image</label><input type="checkbox" id="calib-proj-pts"/>
+								</div>
+								<div>
+									<label for="calib-proj-boxes">project boxes to image</label><input type="checkbox" id="calib-proj-boxes"/>
 								</div>
 								<div> <span>calib matrix</span>
 								<div id="calib-matrix"></div>
