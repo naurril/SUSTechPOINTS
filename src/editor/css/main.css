@@ -272,6 +272,9 @@ canvas {
 	padding: 0px;
 }
 
+#svg-points {
+	stroke-width: 2px;
+}
 .image-wrapper #move-handle{
 	position: absolute;
 	top: 0%;

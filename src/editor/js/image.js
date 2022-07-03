@@ -307,10 +307,8 @@ class ImageContext extends MovableView{
 
         if (distance > 60.0)
             distance = 60.0;
-        else if (distance < 10.0)
-            distance = 10.0;
         
-        let color = this.value_to_color((distance-10)/50.0);
+        let color = this.value_to_color(distance/60.0);
 
         color += '14'; //transparency
         return color;
@@ -319,7 +317,7 @@ class ImageContext extends MovableView{
 
     value_to_color(v)
     {
-        let color =  [v, 1- v, (v < 0.5) ? (v * 2) : ((1-v)*2)];
+        let color =  [1- v, v, (v < 0.5) ? (v * 2) : ((1-v)*2)];
 
         let toHex = (c)=>{
             let hex = Math.floor(c*255).toString(16);
@@ -565,16 +563,14 @@ class ImageContext extends MovableView{
             p.setAttribute("cx", x);
             p.setAttribute("cy", y);
             p.setAttribute("r", 1);
-            p.setAttribute("stroke-width", "1");            
+            //p.setAttribute("stroke-width", "1");
 
-            if (! cssclass){
-
-                if (points_color)
-                {
-                    p.setAttribute("stroke", points_color[i/2]);
-                    p.setAttribute("fill", points_color[i/2]);
-                }
+            if (points_color)
+            {
+                p.setAttribute("stroke", points_color[i/2]);
+                p.setAttribute("fill", points_color[i/2]);
             }
+        
             
             svg.appendChild(p);
         }
@@ -710,7 +706,7 @@ class ImageContext extends MovableView{
 
             // there may be none after projecting
             if (ptsOnImg && ptsOnImg.length>0){
-                let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio, null /*css*/, 2 /*size*/, img_pts_color);
+                let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio, "svg-points-lidar" /*css*/, 2 /*size*/, img_pts_color);
                 svg.appendChild(pts_svg);
             }
         }
