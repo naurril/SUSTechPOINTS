@@ -11,8 +11,8 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     this.showPointsOnly = false;
     this.showRadarBoxFlag = false;
-    this.cssStyleSelector = this.world.calib.radar[this.name].cssstyleselector;
-    this.color = this.world.calib.radar[this.name].color;
+    this.cssStyleSelector = this.sceneMeta.calib.radar[this.name].cssstyleselector;
+    this.color = this.sceneMeta.calib.radar[this.name].color;
     this.velocityScale = 0.3;
 
     if (!this.color){
@@ -34,13 +34,13 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
         if (this.preloaded){
             if (this.elements){
-                this.webglScene.add(this.elements.points);
+                this.webglGroup.add(this.elements.points);
 
                 if (!this.showPointsOnly)
-                    this.elements.arrows.forEach(a=>this.webglScene.add(a));
+                    this.elements.arrows.forEach(a=>this.webglGroup.add(a));
 
                 if (this.showRadarBoxFlag)
-                    this.webglScene.add(this.radar_box);
+                    this.webglGroup.add(this.radar_box);
             }
 
             this.loaded = true;
@@ -57,12 +57,12 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     this.showRadarBox = function(){
         this.showRadarBoxFlag = true;
-        this.webglScene.add(this.radar_box);
+        this.webglGroup.add(this.radar_box);
     };
 
     this.hideRadarBox = function(){
         this.showRadarBoxFlag = false;
-        this.webglScene.remove(this.radar_box);
+        this.webglGroup.remove(this.radar_box);
     };
 
     this.get_unoffset_radar_points = function(){
@@ -78,12 +78,12 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     // todo: what if it's not preloaded yet
     this.unload = function(keep_box){
         if (this.elements){
-            this.webglScene.remove(this.elements.points);
+            this.webglGroup.remove(this.elements.points);
             if (!this.showPointsOnly)
-                this.elements.arrows.forEach(a=>this.webglScene.remove(a));
+                this.elements.arrows.forEach(a=>this.webglGroup.remove(a));
             
             if (!keep_box)
-                this.webglScene.remove(this.radar_box);
+                this.webglGroup.remove(this.radar_box);
         }
         this.loaded = false;
     };
@@ -124,6 +124,19 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         }
     };
 
+    this.calcTransformMatrix = function()  {
+        
+        let translate = this.sceneMeta.calib.radar[this.name].translation;
+        let rotation = this.sceneMeta.calib.radar[this.name].rotation;
+
+        let m = new THREE.Matrix4();
+        m.makeRotationFromEuler(new THREE.Euler(rotation[0],rotation[1],rotation[2]));
+        m.setPosition(translate[0], translate[1], translate[2]);
+
+        this.webglGroup.matrix.copy(m);
+        this.webglGroup.matrixAutoUpdate = false;
+    };
+
 
     this.preload = function(on_preload_finished){
         var loader = new PCDLoader();
@@ -136,7 +149,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
                 //var velocity = pcd.velocity;
                 // velocity is a vector anchored at position, 
                 // we translate them into position of the vector head
-                var velocity = position.map((p,i)=>pcd.velocity[i]+pcd.position[i]);
+                var velocity = position.map((p,i)=>pcd.velocity[i]/5 + pcd.position[i]);
 
                 // scale velocity
                 // velocity = velocity.map(v=>v*_self.velocityScale);
@@ -155,11 +168,17 @@ function Radar(sceneMeta, world, frameInfo, radarName){
                 };
 
                 //position = _self.transformPointsByOffset(position);
-                position = _self.move_radar_points(_self.radar_box);
-                velocity = _self.move_radar_velocity(_self.radar_box);
+                // position = _self.move_radar_points(_self.radar_box);
+                // velocity = _self.move_radar_velocity(_self.radar_box);
+
                 let elements = _self.buildRadarGeometry(position, velocity);
-                
                 _self.elements = elements;
+
+                _self.webglGroup = new THREE.Group();
+                _self.webglGroup.name = "radar-" + _self.name;
+                _self.world.webglGroup.add(_self.webglGroup);
+                _self.calcTransformMatrix();
+
                 //_self.points_backup = mesh;
 
                 _self._afterPreload();
@@ -197,18 +216,18 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     };
 
     this.createRadarBox = function(){
-        if (this.world.calib.radar && this.world.calib.radar[this.name]){
+        if (this.sceneMeta.calib.radar && this.sceneMeta.calib.radar[this.name]){
             return this.world.annotation.createCuboid(
                 {
-                    x: this.world.calib.radar[this.name].translation[0] + this.coordinatesOffset[0],
-                    y: this.world.calib.radar[this.name].translation[1] + this.coordinatesOffset[1],
-                    z: this.world.calib.radar[this.name].translation[2] + this.coordinatesOffset[2],
+                    x: this.sceneMeta.calib.radar[this.name].translation[0] + this.coordinatesOffset[0],
+                    y: this.sceneMeta.calib.radar[this.name].translation[1] + this.coordinatesOffset[1],
+                    z: this.sceneMeta.calib.radar[this.name].translation[2] + this.coordinatesOffset[2],
                 }, 
                 {x:1,y:1, z:1}, 
                 {
-                    x: this.world.calib.radar[this.name].rotation[0],
-                    y: this.world.calib.radar[this.name].rotation[1],
-                    z: this.world.calib.radar[this.name].rotation[2],
+                    x: this.sceneMeta.calib.radar[this.name].rotation[0],
+                    y: this.sceneMeta.calib.radar[this.name].rotation[1],
+                    z: this.sceneMeta.calib.radar[this.name].rotation[2],
                 }, 
                 "radar", 
                 this.name);
@@ -230,7 +249,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         this.world.data.dbg.alloc();
         let geometry = new THREE.BufferGeometry();
         if ( position.length > 0 ) 
-            geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+            geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
         
         
         let pointColor = this.color;
@@ -242,12 +261,12 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             color.push(pointColor[2]);
         }
 
-        geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+        geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
 
         geometry.computeBoundingSphere();
         
         // build material
-        let pointSize = this.world.calib.radar[this.name].point_size;
+        let pointSize = this.sceneMeta.calib.radar[this.name].point_size;
         if (!pointSize)
             pointSize = 2;
 
@@ -263,8 +282,6 @@ function Radar(sceneMeta, world, frameInfo, radarName){
     };
 
     this.buildArrow = function(position, velocity){
-        var h = 0.5;
-        
         let p=position;
         let v=velocity;
 
@@ -276,7 +293,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
         this.world.data.dbg.alloc();
         var geo = new THREE.BufferGeometry();
-        geo.addAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
+        geo.setAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         
 
         let color = this.color.map(c=>Math.round(c*255)).reduce((a,b)=>a*256+b, 0);
@@ -339,9 +356,9 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         //_self.points_backup = mesh;
         if (this.go_cmd_received)  // this should be always true
         {
-            this.webglScene.add(this.elements.points);
+            this.webglGroup.add(this.elements.points);
             if (!this.showPointsOnly)
-                this.elements.arrows.forEach(a=>this.webglScene.add(a));
+                this.elements.arrows.forEach(a=>this.webglGroup.add(a));
         }
     };
 }
@@ -352,8 +369,8 @@ function RadarManager(sceneMeta, world, frameInfo){
     if (world.data.cfg.enableRadar && sceneMeta.radar){
         let radars = [];
         
-        for (let r in world.calib.radar){
-            if (!world.calib.radar[r].disable)
+        for (let r in sceneMeta.calib.radar){
+            if (!sceneMeta.calib.radar[r].disable)
                 radars.push(r);
         }
 

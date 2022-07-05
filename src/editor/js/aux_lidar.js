@@ -194,14 +194,14 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
                 
 
                 let elements = _self.buildGeometry(position);
-                
+                _self.elements = elements;
 
                 _self.webglGroup = new THREE.Group();
-                _self.webglGroup.name = auxLidarName;
+                _self.webglGroup.name = 'aux_lidar-' + _self.name;
                 _self.world.webglGroup.add(_self.webglGroup);
                 _self.calcTransformMatrix();
                 
-                _self.elements = elements;
+                
                 //_self.points_backup = mesh;
 
                 _self._afterPreload();
@@ -272,7 +272,7 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
         this.world.data.dbg.alloc();
         let geometry = new THREE.BufferGeometry();
         if ( position.length > 0 ) 
-            geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+            geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
         
         
         let pointColor = this.color;
@@ -284,7 +284,7 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
             color.push(pointColor[2]);
         }
 
-        geometry.addAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+        geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
 
         geometry.computeBoundingSphere();
         
