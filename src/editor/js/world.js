@@ -431,6 +431,13 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
          return tp;        
      }
 
+     this.utmPosToLidar = function(pos)
+     {
+        let tp = new THREE.Vector3(pos.x, pos.y, pos.z).applyMatrix4(this.trans_utm_lidar);
+ 
+         return tp;        
+     }
+     
      
 
     this.sceneRotToLidar = function(rotEuler)
