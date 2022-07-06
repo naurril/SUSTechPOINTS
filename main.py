@@ -11,7 +11,11 @@ import os
 #import sys
 import scene_reader
 from tools  import check_labels as check
+import argparse
 
+parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
+parser.add_argument('--save', type=str, choices=['yes','no'],default='yes', help="")
+args = parser.parse_args()
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(BASE_DIR)
@@ -70,17 +74,20 @@ class Root(object):
     @cherrypy.expose
     def saveworldlist(self):
 
-      # cl = cherrypy.request.headers['Content-Length']
-      rawbody = cherrypy.request.body.readline().decode('UTF-8')
-      data = json.loads(rawbody)
+      if args.save=='yes':
+        # cl = cherrypy.request.headers['Content-Length']
+        rawbody = cherrypy.request.body.readline().decode('UTF-8')
+        data = json.loads(rawbody)
 
-      for d in data:
-        scene = d["scene"]
-        frame = d["frame"]
-        ann = d["annotation"]
-        with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
-          json.dump(ann, f, indent=2, sort_keys=True)
-
+        for d in data:
+          scene = d["scene"]
+          frame = d["frame"]
+          ann = d["annotation"]
+          with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
+            json.dump(ann, f, indent=2, sort_keys=True)
+      else:
+        print("saving disabled.")
+        
       return "ok"
 
 

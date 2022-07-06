@@ -20,7 +20,12 @@ class MovableView
                 this.mouseDown = true;
                 this.mouseDownPos = {x: event.clientX, y:event.clientY};
 
-                movableUi.style.display="inherit";                
+                movableUi.style.display="inherit";        
+                
+                if (this.onDragableUiMounseDown)
+                {
+                    this.onDragableUiMounseDown();
+                }
             }
         });
 

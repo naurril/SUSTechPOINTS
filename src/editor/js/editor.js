@@ -118,7 +118,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
 
         this.imageContextManager = new ImageContextManager(
-                this.editorUi.querySelector("#content"), 
+                this.editorUi.querySelector("#images-wrapper"), //content"), 
                 this.editorUi.querySelector("#camera-selector"),
                 this.editorCfg,
                 (lidar_points)=>this.on_img_click(lidar_points));

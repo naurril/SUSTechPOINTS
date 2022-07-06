@@ -291,6 +291,10 @@ canvas {
 	padding-left: 5px;
 }
 
+.image-top {
+	z-index: 20;
+}
+
 /* line {
 	stroke-width: 2;
 } */
@@ -499,6 +503,10 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 #cfg-data-submenu #cfg-data-filter-points-z {
+	width: 50px;
+}
+
+#cfg-data-submenu #cfg-data-preload-frames {
 	width: 50px;
 }
 

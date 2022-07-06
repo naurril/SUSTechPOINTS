@@ -126,7 +126,7 @@ class FastToolBox{
     setAttrOptions(obj_type, obj_attr)
     {
        
-        let attrs = ["static"];
+        let attrs = ["static", "occluded"];
 
 
         if (globalObjectCategory.obj_type_map[obj_type] && globalObjectCategory.obj_type_map[obj_type].attr)

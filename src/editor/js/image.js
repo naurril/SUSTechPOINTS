@@ -195,7 +195,7 @@ function BoxImageContext(ui){
 
 class ImageContext extends MovableView{
 
-    constructor(parentUi, name, autoSwitch, cfg, on_img_click){
+    constructor(parentUi, manager, name, autoSwitch, cfg, on_img_click){
 
         // create ui
         let template = document.getElementById("image-wrapper-template");
@@ -205,20 +205,44 @@ class ImageContext extends MovableView{
 
         parentUi.appendChild(tool);
         let ui = parentUi.lastElementChild;
+
         let handle = ui.querySelector("#move-handle");
+        
         super(handle, ui);
 
         this.ui = ui;
         this.cfg = cfg;
         this.on_img_click = on_img_click;
         this.autoSwitch = autoSwitch;
+        this.manager = manager;
+        this.setImageName(name);
 
         
-        this.setImageName(name);
-        
-        
+    }
+
+    onDragableUiMounseDown()
+    {
+        this.manager.bringUpMe(this);
     }
     
+    addCssClass(className)
+    {
+        if (this.ui.className.split(" ").find(x=>x==className))
+        {
+
+        }
+        else
+        {
+            this.ui.className = this.ui.className + " " + className;
+        }
+
+    }
+
+    removeCssClass(className)
+    {
+        this.ui.className = this.ui.className.split(" ").filter(x=>x!=className);
+    }
+
     remove(){
         this.ui.remove();    
     }
@@ -1025,7 +1049,7 @@ class ImageContextManager {
             name = this.bestCamera;
         }
         
-        let image = new ImageContext(this.parentUi, name, autoSwitch, this.cfg, this.on_img_click);
+        let image = new ImageContext(this.parentUi, this, name, autoSwitch, this.cfg, this.on_img_click);
 
         this.images.push(image);
 
@@ -1044,11 +1068,12 @@ class ImageContextManager {
             image.render_2d_image();
         }
 
-
-            
-
-
         return image;
+    }
+
+    bringUpMe(image){
+        
+        this.parentUi.appendChild(image.ui);
     }
 
     removeImage(image){

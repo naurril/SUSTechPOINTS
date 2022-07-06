@@ -195,6 +195,12 @@ class ConfigUi{
             return false;
         },
 
+        '#cfg-data-preload-frames':(event)=>{
+            let n = event.currentTarget.value;
+
+            window.pointsGlobalConfig.setItem("maxWorldNumber", n);
+            return false;
+        },
 
         "#cfg-data-preload-checkbox": (event)=>{
             let checked = event.currentTarget.checked;
@@ -329,6 +335,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-batch-mode-inst-number").value = window.pointsGlobalConfig.batchModeInstNumber;
         this.menu.querySelector("#cfg-data-filter-points-checkbox").checked = window.pointsGlobalConfig.enableFilterPoints;
         this.menu.querySelector("#cfg-data-filter-points-z").value = window.pointsGlobalConfig.filterPointsZ;
+        this.menu.querySelector("#cfg-data-preload-frames").value = window.pointsGlobalConfig.maxWorldNumber;
         this.menu.querySelector("#cfg-hide-id-checkbox").value = window.pointsGlobalConfig.hideId;
         this.menu.querySelector("#cfg-hide-category-checkbox").value = window.pointsGlobalConfig.hideCategory;
         this.menu.querySelector("#cfg-data-preload-checkbox").checked = window.pointsGlobalConfig.enablePreload;

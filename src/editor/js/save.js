@@ -79,7 +79,9 @@ function saveWorldList(worldList){
         doSaveWorldList(pendingSaveList, ()=>{
             window.editor.header.updateModifiedStatus();
 
-            checkScene(scene);
+            if (window.editor.editorCfg.autoCheckScene){
+                checkScene(scene);
+            }
         });
 
         //reset
