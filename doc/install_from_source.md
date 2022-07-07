@@ -4,6 +4,8 @@
 0. clone the project
    ```
    git clone https://github.com/naurril/SUSTechPOINTS
+   cd SUSTechPOINTS
+   git checkout react-app
    ```
 1. Install packages
      ```
