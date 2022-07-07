@@ -29,7 +29,7 @@ class Config{
     batchModeInstNumber = 20;
     batchModeSubviewSize = {width: 130, height: 450};
 
-    maxWorldNumber=80;
+    maxWorldNumber=20;
 
     maxEmptyBoxPoints = 10;
 

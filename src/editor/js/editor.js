@@ -1098,7 +1098,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         let allLoaded = worldList.map(w=>w.preloaded()).reduce((a,b)=>a && b, true);
 
-        if ((worldList.length < meta.frames.length && worldList.length <= 60) || (!allLoaded))
+        if (!allLoaded)
         {
             this.data.forcePreloadScene(this.data.world.frameInfo.scene, this.data.world);
 

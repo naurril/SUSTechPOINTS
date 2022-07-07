@@ -217,7 +217,10 @@ class ImageContext extends MovableView{
         this.manager = manager;
         this.setImageName(name);
 
-        
+        this.ui.addEventListener("mouseup", (event)=>{
+            this.manager.bringUpMe(this);
+            return true;
+        });
     }
 
     onDragableUiMounseDown()
