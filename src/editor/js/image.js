@@ -337,7 +337,7 @@ class ImageContext extends MovableView{
         
         let color = this.value_to_color(distance/60.0);
 
-        color += '14'; //transparency
+        color += '40'; //transparency
         return color;
 
     }
@@ -359,7 +359,7 @@ class ImageContext extends MovableView{
     intensity_to_color(intensity)
     {
         let color = this.value_to_color(intensity);
-        color += '14'; //transparency
+        color += '40'; //transparency
         return color;
     }
 
