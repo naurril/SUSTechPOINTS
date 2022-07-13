@@ -1,6 +1,5 @@
 
-
-
+import * as THREE from 'three';
 import {matmul2} from "./util.js"
 
 class Calib
@@ -30,17 +29,25 @@ class Calib
         
             if (default_calib.lidar_to_camera)
                 return default_calib.lidar_to_camera;
+
+            if (default_calib.camera_to_lidar){
+                let ret = [];
+                new THREE.Matrix4().set(...default_calib.camera_to_lidar).invert().toArray(ret,0);
+                return ret;
+            }      
         }
 
         return null;
     }
+
+
 
     getExtrinsicCalib(sensorType, sensorName){
         
         let default_extrinsic = this.getDefaultExtrinicCalib(sensorType, sensorName);
 
 
-        if (this.calib[sensorType] && this.calib[sensorType][sensorName])
+        if (this.calib && this.calib[sensorType] && this.calib[sensorType][sensorName])
         {
             let frame_calib = this.calib[sensorType][sensorName]
 
@@ -49,6 +56,12 @@ class Calib
 
             if (frame_calib.lidar_to_camera)
                 return frame_calib.lidar_to_camera;
+
+            if (frame_calib.camera_to_lidar){
+                let ret = [];
+                new THREE.Matrix4().set(...frame_calib.camera_to_lidar).invert().toArray(ret,0);
+                return ret;
+            }           
             
             if (frame_calib.lidar_transform && default_extrinsic)
                 return matmul2(default_extrinsic, frame_calib.lidar_transform, 4);
@@ -59,7 +72,7 @@ class Calib
     }
 
     getIntrinsicCalib(sensorType, sensorName){
-        if (this.calib[sensorType] && this.calib[sensorType][sensorName])
+        if (this.calib && this.calib[sensorType] && this.calib[sensorType][sensorName])
         {
             let frame_calib = this.calib[sensorType][sensorName]
 

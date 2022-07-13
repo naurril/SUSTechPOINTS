@@ -235,9 +235,14 @@ def read_ego_pose(scene, frame):
       return None
 def read_calib(scene, frame):
 
+    calib = {}
+
+    if not os.path.exists(os.path.join(root_dir, scene, "calib")):
+        return calib
+
     calib_folder = os.path.join(root_dir, scene, "calib")
     sensor_types = os.listdir(calib_folder)
-    calib = {}
+    
     for sensor_type in sensor_types:
         this_type_calib = {}
         sensors = os.listdir(os.path.join(calib_folder, sensor_type))
