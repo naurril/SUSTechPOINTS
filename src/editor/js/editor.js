@@ -118,7 +118,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
 
         this.imageContextManager = new ImageContextManager(
-                this.editorUi.querySelector("#content"), 
+                this.editorUi.querySelector("#images-wrapper"), //content"), 
                 this.editorUi.querySelector("#camera-selector"),
                 this.editorCfg,
                 (lidar_points)=>this.on_img_click(lidar_points));
@@ -1098,7 +1098,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         let allLoaded = worldList.map(w=>w.preloaded()).reduce((a,b)=>a && b, true);
 
-        if ((worldList.length < meta.frames.length && worldList.length <= 60) || (!allLoaded))
+        if (!allLoaded)
         {
             this.data.forcePreloadScene(this.data.world.frameInfo.scene, this.data.world);
 
@@ -2048,12 +2048,25 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;
             
             case 'z_rotate_reverse':        
+                /*
                 if (this.selected_box.rotation.z > 0){
                     this.selected_box.rotation.z -= Math.PI;
                 }else{
                     this.selected_box.rotation.z += Math.PI;
-                }    
+                } 
+                */
+                {
+                    this.selected_box.rotation.z += Math.PI/2;
+                    this.selected_box.rotation.z %= Math.PI*2;
+
+                    let temp = this.selected_box.scale.x;
+                    this.selected_box.scale.x = this.selected_box.scale.y;
+                    this.selected_box.scale.y = temp;
+                }
+
                 break;
+
+
             case 'reset':
                 this.selected_box.rotation.x = 0;
                 this.selected_box.rotation.y = 0;

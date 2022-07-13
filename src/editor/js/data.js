@@ -63,7 +63,7 @@ class Data
 
     worldGap=1000.0;
     worldList=[];
-    MaxWorldNumber=80;
+    
     createWorldIndex = 0; // this index shall not repeat, so it increases permanently
 
     async getWorld(sceneName, frame, on_preload_finished){
@@ -182,7 +182,7 @@ class Data
         let currentWorldIndex = world.frameInfo.frame_index;
 
         let disposable = (w)=>{
-            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>this.MaxWorldNumber;
+            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>this.cfg.maxWorldNumber;
             let active  = w.everythingDone;
             if (w.annotation.modified)
             {
@@ -241,8 +241,8 @@ class Data
         let meta = currentWorld.sceneMeta;
 
         let currentWorldIndex = currentWorld.frameInfo.frame_index;
-        let startIndex = Math.max(0, currentWorldIndex - this.MaxWorldNumber/2);
-        let endIndex = Math.min(meta.frames.length, startIndex + this.MaxWorldNumber);
+        let startIndex = Math.max(0, currentWorldIndex - this.cfg.maxWorldNumber/2);
+        let endIndex = Math.min(meta.frames.length, startIndex + this.cfg.maxWorldNumber);
 
         this._doPreload(sceneName, startIndex, endIndex);       
         

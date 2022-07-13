@@ -29,6 +29,7 @@ class Config{
     batchModeInstNumber = 20;
     batchModeSubviewSize = {width: 130, height: 450};
 
+    maxWorldNumber=20;
 
     maxEmptyBoxPoints = 10;
 
@@ -67,6 +68,7 @@ class Config{
     projectLidarToImage = false;   
     
     projectBoxesToImage = true;
+    autoCheckScene = false;
 
     constructor()
     {
@@ -115,6 +117,7 @@ class Config{
         ["batchModeSubviewSize", JSON.parse],
         ["enableAutoRotateXY", this.toBool],
         ["autoUpdateInterpolatedBoxes", this.toBool],
+        ["maxWorldNumber",parseInt],
     ];
 
     load()
