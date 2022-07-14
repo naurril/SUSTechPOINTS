@@ -1,5 +1,4 @@
-data
-data/*
+data*
 data.bk/*
 .vscode
 temp
@@ -11,3 +10,5 @@ temp*/
 node_modules
 package-lock.json
 build/
+doc/anno-tutorial
+conf

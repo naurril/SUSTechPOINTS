@@ -36,7 +36,7 @@ def check_user_access(default=False):
     scene = cherrypy.request.params['scene']
     userid = cherrypy.request.login
     print("user auth", scene, userid)
-    if not scene in usercfg['scenes'][userid]:
+    if not scene in usercfg[userid]['scenes']:
       raise cherrypy.HTTPError(401)
 
 # Add a Tool to our new Toolbox.
@@ -48,7 +48,7 @@ def check_file_access(default=False):
     userid = cherrypy.request.login
 
     #print("file auth", cherrypy.request.base, cherrypy.request.path_info, scene, userid)
-    if not scene in usercfg['scenes'][userid]:
+    if not scene in usercfg[userid]['scenes']:
         raise cherrypy.HTTPError(401)
     
 
@@ -125,8 +125,12 @@ class Api(object):
           frame = d["frame"]
           ann = d["annotation"]
 
-          if not scene in usercfg['scenes'][userid]:
+          if not scene in usercfg[userid]['scenes']:
             raise cherrypy.HTTPError(401)
+          
+          if usercfg[userid]['readonly'] == 'yes':
+            print("saving disabled for", userid)
+            return {'result':"fail", 'cause':"saving disabled for current user"}
 
           with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
             json.dump(ann, f, indent=2, sort_keys=True)
@@ -291,7 +295,7 @@ class Api(object):
     def get_all_scene_desc(self):
       
       if args.auth == 'yes':
-        scenes = usercfg['scenes'][cherrypy.request.login].split(',')
+        scenes = usercfg[cherrypy.request.login]['scenes'].split(',')
       else:
         scenes = []
       return scene_reader.get_all_scene_desc(scenes)
@@ -340,10 +344,7 @@ class Api(object):
 
 
 
-cherrypy.config.update({
-  'server.socket_host': '0.0.0.0',
-  'server.socket_port': 8081
-})
+cherrypy.config.update("./conf/server.conf")
 
 cherrypy.config.update({
   'server.ssl_module': 'builtin',
