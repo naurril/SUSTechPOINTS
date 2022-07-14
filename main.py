@@ -75,6 +75,11 @@ class Root(object):
     def index(self, scene="", frame=""):
       tmpl = env.get_template('./build/index.html')
       return tmpl.render()
+# class Help(object):    
+#     @cherrypy.expose
+#     def index(self):
+#       tmpl = env.get_template('./help/help.html')
+#       return tmpl.render()
   
     # @cherrypy.expose
     # def icon(self):
@@ -367,6 +372,11 @@ root_config = {
   '/editor':{
     'tools.staticdir.on': True,
     'tools.staticdir.dir':"./build/editor",
+  },
+
+  '/help':{
+    'tools.staticdir.on': True,
+    'tools.staticdir.dir':"./help",
   }
 }
 
@@ -407,6 +417,7 @@ else:
 
 cherrypy.tree.mount(Root(), "/", root_config)
 cherrypy.tree.mount(Api(), "/api", api_config)
+# cherrypy.tree.mount(Help(), "/help")
 
 if hasattr(cherrypy.engine, 'block'):
     # 3.1 syntax
