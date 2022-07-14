@@ -51,6 +51,7 @@ class Config{
     speedUpForRepeatedOp = 2;
     
     ignoreDistantObject = true;
+    cameraGroupForContext = "camera";
     
     ///editorCfg
 
@@ -118,6 +119,7 @@ class Config{
         ["enableAutoRotateXY", this.toBool],
         ["autoUpdateInterpolatedBoxes", this.toBool],
         ["maxWorldNumber",parseInt],
+        ["cameraGroupForContext", null],
     ];
 
     load()

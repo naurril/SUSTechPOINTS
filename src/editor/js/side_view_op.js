@@ -788,7 +788,7 @@ class ProjectiveView{
             case 'g':
                 event.preventDefault();
                 event.stopPropagation();
-                this.on_direction_changed(Math.PI/2, true);
+                this.on_direction_changed(Math.PI, false);
                 break;
             case 'w':
             case 'ArrowUp':

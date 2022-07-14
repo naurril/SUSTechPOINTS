@@ -167,6 +167,11 @@ class ConfigUi{
             this.editor.render();
         },
 
+        "#cfg-camera-group-for-context-select": (event)=>{
+            let v = event.currentTarget.value;
+            window.pointsGlobalConfig.setItem("cameraGroupForContext", v);
+        },
+
         "#cfg-data-aux-lidar-checkbox": (event)=>{
             let checked = event.currentTarget.checked;
 
@@ -341,6 +346,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-data-preload-checkbox").checked = window.pointsGlobalConfig.enablePreload;
         this.menu.querySelector("#cfg-auto-rotate-xy-checkbox").checked = window.pointsGlobalConfig.enableAutoRotateXY;
         this.menu.querySelector("#cfg-auto-update-interpolated-boxes-checkbox").checked = window.pointsGlobalConfig.autoUpdateInterpolatedBoxes;
+        this.menu.querySelector("#cfg-camera-group-for-context-select").value = window.pointsGlobalConfig.cameraGroupForContext;
     }
 
 

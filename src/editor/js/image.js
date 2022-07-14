@@ -1274,13 +1274,14 @@ function all_points_in_image_range(p){
 function  choose_best_camera_for_point(world, center){
         
     //choose best camera only in main cameras. (dont consider aux_camera)
-    var proj_pos = [];
+    let proj_pos = [];
     world.sceneMeta.camera.forEach((cameraName)=>{
-        var imgpos = matmul(world.calib.getCalib('camera',cameraName).extrinsic, [center.x,center.y,center.z,1], 4);
-        proj_pos.push({camera: "camera:"+cameraName, pos: vector4to3(imgpos)});
+        let cameraGroup = world.data.cfg.cameraGroupForContext;
+        let imgpos = matmul(world.calib.getCalib(cameraGroup,cameraName).extrinsic, [center.x,center.y,center.z,1], 4);
+        proj_pos.push({camera: cameraGroup+":"+cameraName, pos: vector4to3(imgpos)});
     });
 
-    var valid_proj_pos = proj_pos.filter(function(p){
+    let valid_proj_pos = proj_pos.filter(function(p){
         return all_points_in_image_range(p.pos);
     });
     

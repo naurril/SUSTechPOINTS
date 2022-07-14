@@ -285,6 +285,13 @@ class Root(object):
       return [x for x in  all_objs.values()]
 
 if __name__ == '__main__':
+    cherrypy.config.update({
+      'server.ssl_module': 'builtin',
+      'server.ssl_certificate': './conf/cert/cert.crt',
+      'server.ssl_private_key': './conf/cert/cert.key',
+    })
+
     cherrypy.quickstart(Root(), '/', config="server.conf")
+
 else:
     application = cherrypy.Application(Root(), '/', config="server.conf")

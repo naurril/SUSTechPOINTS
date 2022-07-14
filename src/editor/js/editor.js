@@ -2048,21 +2048,21 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                 break;
             
             case 'z_rotate_reverse':        
-                /*
+                
                 if (this.selected_box.rotation.z > 0){
                     this.selected_box.rotation.z -= Math.PI;
                 }else{
                     this.selected_box.rotation.z += Math.PI;
                 } 
-                */
-                {
-                    this.selected_box.rotation.z += Math.PI/2;
-                    this.selected_box.rotation.z %= Math.PI*2;
+                
+                // {
+                //     this.selected_box.rotation.z += Math.PI/2;
+                //     this.selected_box.rotation.z %= Math.PI*2;
 
-                    let temp = this.selected_box.scale.x;
-                    this.selected_box.scale.x = this.selected_box.scale.y;
-                    this.selected_box.scale.y = temp;
-                }
+                //     let temp = this.selected_box.scale.x;
+                //     this.selected_box.scale.x = this.selected_box.scale.y;
+                //     this.selected_box.scale.y = temp;
+                // }
 
                 break;
 
