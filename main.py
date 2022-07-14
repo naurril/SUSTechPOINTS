@@ -13,43 +13,66 @@ import scene_reader
 from tools  import check_labels as check
 import argparse
 import configparser
-
+import jwt
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
 parser.add_argument('--save', type=str, choices=['yes','no'],default='yes', help="")
-parser.add_argument('--auth', type=str, choices=['yes','no'],default='no', help="")
 args = parser.parse_args()
 
 
 usercfg = configparser.ConfigParser()
 usercfg.read('conf/user.conf')
 
+authcfg = configparser.ConfigParser()
+authcfg.read('conf/auth.conf')
 
 
+def get_user_id():
+  if authcfg['global']['auth'] == 'yes':
+    if authcfg['global']['method'] == 'password':
+      return  cherrypy.request.login
+    
+    user_token = 'null'
+    if 'X-User-Token' in cherrypy.request.headers:
+      user_token = cherrypy.request.headers['X-User-Token']
+      
+    if 'token' in cherrypy.request.params:
+      user_token = cherrypy.request.params['token']
 
+    if user_token and user_token != 'null':
+      try:
+        secret = authcfg['token']['secret']
+        print(user_token, secret)
+        data = jwt.decode(user_token, secret, algorithms='HS256')
+        return data['i']
+      except:
+        return 'guest'
 
+    return 'guest'
+
+  return ''
 
 # Add a Tool to our new Toolbox.
 @cherrypy.tools.register('before_handler')
 def check_user_access(default=False):
-  if args.auth == 'yes' and 'scene' in cherrypy.request.params:
+  if authcfg['global']['auth'] == 'yes' and 'scene' in cherrypy.request.params:
     scene = cherrypy.request.params['scene']
-    userid = cherrypy.request.login
-    print("user auth", scene, userid)
+    userid = get_user_id()
+    print("user id", userid)
     if not scene in usercfg[userid]['scenes']:
-      raise cherrypy.HTTPError(401)
+      raise cherrypy.HTTPError(403)
 
 # Add a Tool to our new Toolbox.
 @cherrypy.tools.register('before_handler')
 def check_file_access(default=False):
-  if args.auth == 'yes':
+  if authcfg['global']['auth'] == 'yes':
     url = cherrypy.request.path_info
     scene = url.split("/")[2]
-    userid = cherrypy.request.login
+    userid = get_user_id()
 
-    #print("file auth", cherrypy.request.base, cherrypy.request.path_info, scene, userid)
+    print("file auth",  scene, userid)
     if not scene in usercfg[userid]['scenes']:
-        raise cherrypy.HTTPError(401)
+        raise cherrypy.HTTPError(403)
     
 
 
@@ -75,11 +98,6 @@ class Root(object):
     def index(self, scene="", frame=""):
       tmpl = env.get_template('./build/index.html')
       return tmpl.render()
-# class Help(object):    
-#     @cherrypy.expose
-#     def index(self):
-#       tmpl = env.get_template('./help/help.html')
-#       return tmpl.render()
   
     # @cherrypy.expose
     # def icon(self):
@@ -118,7 +136,7 @@ class Api(object):
 
       if args.save=='yes':
 
-        userid = cherrypy.request.login
+        userid = get_user_id()
         
           
         # cl = cherrypy.request.headers['Content-Length']
@@ -131,7 +149,7 @@ class Api(object):
           ann = d["annotation"]
 
           if not scene in usercfg[userid]['scenes']:
-            raise cherrypy.HTTPError(401)
+            raise cherrypy.HTTPError(403)
           
           if usercfg[userid]['readonly'] == 'yes':
             print("saving disabled for", userid)
@@ -299,8 +317,12 @@ class Api(object):
     @cherrypy.tools.json_out()
     def get_all_scene_desc(self):
       
-      if args.auth == 'yes':
-        scenes = usercfg[cherrypy.request.login]['scenes'].split(',')
+      
+      if authcfg['global']['auth'] == 'yes':
+        userid = get_user_id()
+          
+        print("user id", userid)
+        scenes = usercfg[userid]['scenes'].split(',')
       else:
         scenes = []
       return scene_reader.get_all_scene_desc(scenes)
@@ -380,44 +402,55 @@ root_config = {
   }
 }
 
-if args.auth=='yes':
-  root_config['/data'] = {
-      'tools.staticdir.on': True,
-      'tools.staticdir.dir': "./data",
-      'tools.auth_digest.on': True,
-      'tools.auth_digest.realm': 'localhost',
-      'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
-      'tools.auth_digest.key': 'a565c27146791cfb',
-      'tools.auth_digest.accept_charset': 'UTF-8',
-      'tools.check_file_access.on': True,
-      'tools.check_file_access.default': True,
-    }
-  
-    
 
-
-  api_config = {
-    '/':{
-      'tools.auth_digest.on': True,
-      'tools.auth_digest.realm': 'localhost',
-      'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
-      'tools.auth_digest.key': 'a565c27146791cfb',
-      'tools.auth_digest.accept_charset': 'UTF-8',
-      'tools.check_user_access.on': True,
-      'tools.check_user_access.default': True,
-    },
-  }
-
-else:
-  root_config['/data'] = {
+root_config['/data'] = {
       'tools.staticdir.on': True,
       'tools.staticdir.dir': "./data"
     }
-  api_config = {}
+api_config = {}
+
+if authcfg['global']['auth'] == 'yes':
+  if authcfg['global']['method'] == 'password':
+    root_config['/data'] = {
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': "./data",
+        'tools.auth_digest.on': True,
+        'tools.auth_digest.realm': 'localhost',
+        'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
+        'tools.auth_digest.key': authcfg['password']['key'],
+        'tools.auth_digest.accept_charset': 'UTF-8',
+        'tools.check_file_access.on': True,
+        'tools.check_file_access.default': True,
+      }
+  
+    api_config = {
+      '/':{
+        'tools.auth_digest.on': True,
+        'tools.auth_digest.realm': 'localhost',
+        'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
+        'tools.auth_digest.key': authcfg['password']['key'],
+        'tools.auth_digest.accept_charset': 'UTF-8',
+        'tools.check_user_access.on': True,
+        'tools.check_user_access.default': True,
+        },
+    }
+  else: #token
+    root_config['/data'] = {
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': "./data",
+        'tools.check_file_access.on': True,
+        'tools.check_file_access.default': True,
+      }
+  
+    api_config = {
+      '/':{
+        'tools.check_user_access.on': True,
+        'tools.check_user_access.default': True,
+        },
+    }
 
 cherrypy.tree.mount(Root(), "/", root_config)
 cherrypy.tree.mount(Api(), "/api", api_config)
-# cherrypy.tree.mount(Help(), "/help")
 
 if hasattr(cherrypy.engine, 'block'):
     # 3.1 syntax

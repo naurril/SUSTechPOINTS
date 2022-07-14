@@ -105,7 +105,7 @@ PCDLoader.prototype = {
 	},
 
 	parse: function(data, url){
-		var addr = url.split(".");
+		var addr = url.split('?')[0].split('.');
 		var file_ext = addr[addr.length-1];
 
 		if (file_ext === "pcd")

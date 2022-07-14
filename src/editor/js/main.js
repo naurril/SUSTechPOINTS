@@ -53,12 +53,23 @@ async function start(){
     console.log("webgl check faild.", warning);
   }
 
+
+  let url_string = window.location.href
+  let url = new URL(url_string);
+
+  let userToken = url.searchParams.get("token")
+
+  if (userToken){
+    window.localStorage.setItem('userToken', userToken);    
+  }
+
+  window.pointsGlobalConfig.userToken = window.localStorage.getItem('userToken');
+
+
  
   let mainEditor = await createMainEditor();
 
 
-  let url_string = window.location.href
-  let url = new URL(url_string);
   //language
   let scene = url.searchParams.get("scene");
   let frame = url.searchParams.get("frame");

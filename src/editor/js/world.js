@@ -34,13 +34,13 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
 
         
     this.get_pcd_path = function(){
-            return 'data/'+ this.scene + "/lidar/" + this.frame + this.sceneMeta.lidar_ext;
+            return 'data/'+ this.scene + "/lidar/" + this.frame + this.sceneMeta.lidar_ext +"?token="+window.pointsGlobalConfig.userToken;
         };
     this.get_radar_path = function(name){
-        return `data/${this.scene}/radar/${name}/${this.frame}${this.sceneMeta.radar_ext}`;
+        return `data/${this.scene}/radar/${name}/${this.frame}${this.sceneMeta.radar_ext}?token=${window.pointsGlobalConfig.userToken}`;
     };
     this.get_aux_lidar_path = function(name){
-        return `data/${this.scene}/aux_lidar/${name}/${this.frame}${this.sceneMeta.radar_ext}`;
+        return `data/${this.scene}/aux_lidar/${name}/${this.frame}${this.sceneMeta.radar_ext}?token=${window.pointsGlobalConfig.userToken}`;
     }
     
     this.get_anno_path = function(){
@@ -199,8 +199,8 @@ function Images(sceneMeta, imageType, sceneName, frame){
                     _self.on_image_loaded();
                 };
 
-                _self.content[cam].src = 'data/'+sceneName+'/'+imageType+'/' + cam + '/'+ frame + sceneMeta.camera_ext;
-                console.log("image set")
+                _self.content[cam].src = 'data/'+sceneName+'/'+imageType+'/' + cam + '/'+ frame + sceneMeta.camera_ext+"?token="+window.pointsGlobalConfig.userToken;
+                
             });
         }
     };
