@@ -32,7 +32,7 @@ usercfg.read('conf/user.conf')
 # Add a Tool to our new Toolbox.
 @cherrypy.tools.register('before_handler')
 def check_user_access(default=False):
-  if 'scene' in cherrypy.request.params:
+  if args.auth == 'yes' and 'scene' in cherrypy.request.params:
     scene = cherrypy.request.params['scene']
     userid = cherrypy.request.login
     print("user auth", scene, userid)
@@ -42,15 +42,15 @@ def check_user_access(default=False):
 # Add a Tool to our new Toolbox.
 @cherrypy.tools.register('before_handler')
 def check_file_access(default=False):
-  
-  url = cherrypy.request.path_info
-  scene = url.split("/")[2]
-  userid = cherrypy.request.login
+  if args.auth == 'yes':
+    url = cherrypy.request.path_info
+    scene = url.split("/")[2]
+    userid = cherrypy.request.login
 
-  #print("file auth", cherrypy.request.base, cherrypy.request.path_info, scene, userid)
-  if not scene in usercfg['scenes'][userid]:
-      raise cherrypy.HTTPError(401)
-  
+    #print("file auth", cherrypy.request.base, cherrypy.request.path_info, scene, userid)
+    if not scene in usercfg['scenes'][userid]:
+        raise cherrypy.HTTPError(401)
+    
 
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
