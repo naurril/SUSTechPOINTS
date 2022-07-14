@@ -95,7 +95,7 @@ from algos import pre_annotate as pre_annotate
 
 class Root(object):
     @cherrypy.expose
-    def index(self, scene="", frame=""):
+    def index(self, scene="", frame="", token=""):
       tmpl = env.get_template('./build/index.html')
       return tmpl.render()
   
