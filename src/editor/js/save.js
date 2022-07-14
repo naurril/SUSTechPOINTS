@@ -3,6 +3,7 @@
 
 
 import { checkScene } from "./error_check.js";
+import { jsonrpc } from "./jsonrpc.js";
 import {logger} from "./log.js"
 
 
@@ -37,7 +38,7 @@ function reloadWorldList(worldList, done){
         }
     };
     
-    xhr.open('POST', "/loadworldlist", true);
+    xhr.open('POST', "/api/loadworldlist", true);
 
     let para = worldList.map(w=>{
         return {
@@ -115,36 +116,22 @@ function doSaveWorldList(worldList, done)
         };
     })
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/saveworldlist", true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
+    jsonrpc("/api/saveworldlist", 'POST', ann).then(ret=>{
+        worldList.forEach(w=>{
+            w.annotation.resetModified();
+        })
 
-    xhr.onreadystatechange = function () {
-        if (this.readyState !== 4) return;
-    
-        if (this.status === 200) {
-            
-            worldList.forEach(w=>{
-                w.annotation.resetModified();
-            })
+        logger.log(`saved: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
 
-            logger.log(`saved: ${worldList[0].frameInfo.scene}: ${worldList.reduce((a,b)=>a+" "+b.frameInfo.frame, "")}`);
-
-            if(done){
-                done();
-            }
+        if(done){
+            done();
         }
-        else{
-            window.editor.infoBox.show("Error", `save failed, status : ${this.status}`);
-        }
-        
-    
-        // end of state change: it can be after some time (async)
-    };
 
-    var b = JSON.stringify(ann);
-    //console.log(b);
-    xhr.send(b);
+        return true;
+    }).catch(e=>{
+        window.editor.infoBox.show("Error", "save failed");
+    });
+    
 }
 
 // function saveWorld(world, done){

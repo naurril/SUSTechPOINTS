@@ -1,6 +1,6 @@
 
-
-
+import * as THREE from 'three';
+import { jsonrpc } from './jsonrpc.js';
 import {matmul2} from "./util.js"
 
 class Calib
@@ -30,17 +30,25 @@ class Calib
         
             if (default_calib.lidar_to_camera)
                 return default_calib.lidar_to_camera;
+
+            if (default_calib.camera_to_lidar){
+                let ret = [];
+                new THREE.Matrix4().set(...default_calib.camera_to_lidar).invert().toArray(ret,0);
+                return ret;
+            }      
         }
 
         return null;
     }
+
+
 
     getExtrinsicCalib(sensorType, sensorName){
         
         let default_extrinsic = this.getDefaultExtrinicCalib(sensorType, sensorName);
 
 
-        if (this.calib[sensorType] && this.calib[sensorType][sensorName])
+        if (this.calib && this.calib[sensorType] && this.calib[sensorType][sensorName])
         {
             let frame_calib = this.calib[sensorType][sensorName]
 
@@ -49,6 +57,12 @@ class Calib
 
             if (frame_calib.lidar_to_camera)
                 return frame_calib.lidar_to_camera;
+
+            if (frame_calib.camera_to_lidar){
+                let ret = [];
+                new THREE.Matrix4().set(...frame_calib.camera_to_lidar).invert().toArray(ret,0);
+                return ret;
+            }           
             
             if (frame_calib.lidar_transform && default_extrinsic)
                 return matmul2(default_extrinsic, frame_calib.lidar_transform, 4);
@@ -59,7 +73,7 @@ class Calib
     }
 
     getIntrinsicCalib(sensorType, sensorName){
-        if (this.calib[sensorType] && this.calib[sensorType][sensorName])
+        if (this.calib && this.calib[sensorType] && this.calib[sensorType][sensorName])
         {
             let frame_calib = this.calib[sensorType][sensorName]
 
@@ -84,33 +98,20 @@ class Calib
     }
     
     load(){
-
-        var xhr = new XMLHttpRequest();
-        // we defined the xhr
-        var _self = this;
-        xhr.onreadystatechange = function () {
-            if (this.readyState != 4) return;
+        jsonrpc("/api/load_calib"+"?scene="+this.world.frameInfo.scene+"&frame="+this.world.frameInfo.frame).then(ret=>{
+            
+            this.calib = ret;
         
-            if (this.status == 200) {
-                let calib = JSON.parse(this.responseText);
-                _self.calib = calib;
-            }
-        
-            console.log(_self.world.frameInfo.frame, "calib", "loaded");
-            _self.preloaded = true;
+            console.log(this.world.frameInfo.frame, "calib", "loaded");
+            this.preloaded = true;
 
-            if (_self.on_preload_finished){
-                _self.on_preload_finished();
+            if (this.on_preload_finished){
+                this.on_preload_finished();
             }                
-            if (_self.go_cmd_received){
-                _self.go(this.webglScene, this.on_go_finished);
+            if (this.go_cmd_received){
+                this.go(this.webglScene, this.on_go_finished);
             }
-
-            // end of state change: it can be after some time (async)
-        };
-        
-        xhr.open('GET', "/load_calib"+"?scene="+this.world.frameInfo.scene+"&frame="+this.world.frameInfo.frame, true);
-        xhr.send();
+        });
     };
 
 

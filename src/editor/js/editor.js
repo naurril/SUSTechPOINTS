@@ -643,24 +643,24 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         case 'cm-first-frame':
             this.first_frame();
             break;
-        case 'cm-go-to-10hz':
-            this.load_world(this.data.world.frameInfo.scene+"_10hz", this.data.world.frameInfo.frame)
+        // case 'cm-go-to-10hz':
+        //     this.load_world(this.data.world.frameInfo.scene+"_10hz", this.data.world.frameInfo.frame)
 
-            // {
-            //     let link = document.createElement("a");
-            //     //link.download=`${this.data.world.frameInfo.scene}-${this.data.world.frameInfo.frame}-webgl`;
-            //     link.href="http://localhost";
-            //     link.target="_blank";
-            //     link.click();
-            // }
-            break;
-        case 'cm-go-to-full-2hz':
-            this.load_world(this.data.world.frameInfo.scene+"_full_2hz", this.data.world.frameInfo.frame)
-            break;
+        //     // {
+        //     //     let link = document.createElement("a");
+        //     //     //link.download=`${this.data.world.frameInfo.scene}-${this.data.world.frameInfo.frame}-webgl`;
+        //     //     link.href="http://localhost";
+        //     //     link.target="_blank";
+        //     //     link.click();
+        //     // }
+        //     break;
+        // case 'cm-go-to-full-2hz':
+        //     this.load_world(this.data.world.frameInfo.scene+"_full_2hz", this.data.world.frameInfo.frame)
+        //     break;
 
-        case 'cm-go-to-2hz':
-            this.load_world(this.data.world.frameInfo.scene.split("_")[0], this.data.world.frameInfo.frame)
-            break;
+        // case 'cm-go-to-2hz':
+        //     this.load_world(this.data.world.frameInfo.scene.split("_")[0], this.data.world.frameInfo.frame)
+        //     break;
         
 
             

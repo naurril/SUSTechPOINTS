@@ -10,10 +10,11 @@ def get_all_scenes():
     print(all_scenes)
     return list(map(get_one_scene, all_scenes))
 
-def get_all_scene_desc():
-    names = get_scene_names()
+def get_all_scene_desc(scenes):
+    if len(scenes) == 0:
+        scenes = get_scene_names()
     descs = {}
-    for n in names:
+    for n in scenes:
         descs[n] = get_scene_desc(n)
     return descs
 
@@ -235,9 +236,14 @@ def read_ego_pose(scene, frame):
       return None
 def read_calib(scene, frame):
 
+    calib = {}
+
+    if not os.path.exists(os.path.join(root_dir, scene, "calib")):
+        return calib
+
     calib_folder = os.path.join(root_dir, scene, "calib")
     sensor_types = os.listdir(calib_folder)
-    calib = {}
+    
     for sensor_type in sensor_types:
         this_type_calib = {}
         sensors = os.listdir(os.path.join(calib_folder, sensor_type))

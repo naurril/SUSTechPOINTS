@@ -1,7 +1,7 @@
-import random
-import string
 
 import cherrypy
+from cherrypy.lib import auth_digest
+
 import os
 import json
 from jinja2 import Environment, FileSystemLoader
@@ -12,10 +12,46 @@ import os
 import scene_reader
 from tools  import check_labels as check
 import argparse
+import configparser
+
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
 parser.add_argument('--save', type=str, choices=['yes','no'],default='yes', help="")
+parser.add_argument('--auth', type=str, choices=['yes','no'],default='no', help="")
 args = parser.parse_args()
+
+
+usercfg = configparser.ConfigParser()
+usercfg.read('conf/user.conf')
+
+
+
+
+
+
+# Add a Tool to our new Toolbox.
+@cherrypy.tools.register('before_handler')
+def check_user_access(default=False):
+  if 'scene' in cherrypy.request.params:
+    scene = cherrypy.request.params['scene']
+    userid = cherrypy.request.login
+    print("user auth", scene, userid)
+    if not scene in usercfg['scenes'][userid]:
+      raise cherrypy.HTTPError(401)
+
+# Add a Tool to our new Toolbox.
+@cherrypy.tools.register('before_handler')
+def check_file_access(default=False):
+  
+  url = cherrypy.request.path_info
+  scene = url.split("/")[2]
+  userid = cherrypy.request.login
+
+  #print("file auth", cherrypy.request.base, cherrypy.request.path_info, scene, userid)
+  if not scene in usercfg['scenes'][userid]:
+      raise cherrypy.HTTPError(401)
+  
+
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(BASE_DIR)
@@ -40,25 +76,25 @@ class Root(object):
       tmpl = env.get_template('./build/index.html')
       return tmpl.render()
   
-    @cherrypy.expose
-    def icon(self):
-      tmpl = env.get_template('test_icon.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def icon(self):
+    #   tmpl = env.get_template('test_icon.html')
+    #   return tmpl.render()
 
-    @cherrypy.expose
-    def ml(self):
-      tmpl = env.get_template('test_ml.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def ml(self):
+    #   tmpl = env.get_template('test_ml.html')
+    #   return tmpl.render()
   
-    @cherrypy.expose
-    def reg(self):
-      tmpl = env.get_template('registration_demo.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def reg(self):
+    #   tmpl = env.get_template('registration_demo.html')
+    #   return tmpl.render()
 
-    @cherrypy.expose
-    def view(self, file):
-      tmpl = env.get_template('view.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def view(self, file):
+    #   tmpl = env.get_template('view.html')
+    #   return tmpl.render()
 
     # @cherrypy.expose
     # def saveworld(self, scene, frame):
@@ -70,11 +106,16 @@ class Root(object):
     #     f.write(rawbody)
       
     #   return "ok"
-
+class Api(object):
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def saveworldlist(self):
 
       if args.save=='yes':
+
+        userid = cherrypy.request.login
+        
+          
         # cl = cherrypy.request.headers['Content-Length']
         rawbody = cherrypy.request.body.readline().decode('UTF-8')
         data = json.loads(rawbody)
@@ -83,12 +124,19 @@ class Root(object):
           scene = d["scene"]
           frame = d["frame"]
           ann = d["annotation"]
+
+          if not scene in usercfg['scenes'][userid]:
+            raise cherrypy.HTTPError(401)
+
           with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
             json.dump(ann, f, indent=2, sort_keys=True)
+          
+          return {'result':"success"}
       else:
         print("saving disabled.")
+        return {'result':"fail", 'cause':"saving disabled"}
         
-      return "ok"
+      
 
 
     @cherrypy.expose
@@ -227,10 +275,10 @@ class Root(object):
 
     #   return {}
 
-    @cherrypy.expose    
-    @cherrypy.tools.json_out()
-    def datameta(self):
-      return scene_reader.get_all_scenes()
+    # @cherrypy.expose    
+    # @cherrypy.tools.json_out()
+    # def datameta(self):
+    #   return scene_reader.get_all_scenes()
     
 
     @cherrypy.expose    
@@ -241,7 +289,12 @@ class Root(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def get_all_scene_desc(self):
-      return scene_reader.get_all_scene_desc()
+      
+      if args.auth == 'yes':
+        scenes = usercfg['scenes'][cherrypy.request.login].split(',')
+      else:
+        scenes = []
+      return scene_reader.get_all_scene_desc(scenes)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
@@ -284,14 +337,82 @@ class Root(object):
 
       return [x for x in  all_objs.values()]
 
-if __name__ == '__main__':
-    cherrypy.config.update({
-      'server.ssl_module': 'builtin',
-      'server.ssl_certificate': './conf/cert/cert.crt',
-      'server.ssl_private_key': './conf/cert/cert.key',
-    })
 
-    cherrypy.quickstart(Root(), '/', config="server.conf")
+
+
+cherrypy.config.update({
+  'server.socket_host': '0.0.0.0',
+  'server.socket_port': 8081
+})
+
+cherrypy.config.update({
+  'server.ssl_module': 'builtin',
+  'server.ssl_certificate': './conf/cert/cert.crt',
+  'server.ssl_private_key': './conf/cert/cert.key',
+})
+
+
+root_config = {
+  '/':{
+  'tools.sessions.on': True,
+  'tools.staticdir.root': os.path.abspath(os.getcwd()),
+  },
+
+  '/static':{
+    'tools.staticdir.on': True,
+    'tools.staticdir.dir': './build/static',
+  },
+
+  '/editor':{
+    'tools.staticdir.on': True,
+    'tools.staticdir.dir':"./build/editor",
+  }
+}
+
+if args.auth=='yes':
+  root_config['/data'] = {
+      'tools.staticdir.on': True,
+      'tools.staticdir.dir': "./data",
+      'tools.auth_digest.on': True,
+      'tools.auth_digest.realm': 'localhost',
+      'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
+      'tools.auth_digest.key': 'a565c27146791cfb',
+      'tools.auth_digest.accept_charset': 'UTF-8',
+      'tools.check_file_access.on': True,
+      'tools.check_file_access.default': True,
+    }
+  
+    
+
+
+  api_config = {
+    '/':{
+      'tools.auth_digest.on': True,
+      'tools.auth_digest.realm': 'localhost',
+      'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
+      'tools.auth_digest.key': 'a565c27146791cfb',
+      'tools.auth_digest.accept_charset': 'UTF-8',
+      'tools.check_user_access.on': True,
+      'tools.check_user_access.default': True,
+    },
+  }
 
 else:
-    application = cherrypy.Application(Root(), '/', config="server.conf")
+  root_config['/data'] = {
+      'tools.staticdir.on': True,
+      'tools.staticdir.dir': "./data"
+    }
+  api_config = {}
+
+cherrypy.tree.mount(Root(), "/", root_config)
+cherrypy.tree.mount(Api(), "/api", api_config)
+
+if hasattr(cherrypy.engine, 'block'):
+    # 3.1 syntax
+    cherrypy.engine.start()
+    cherrypy.engine.block()
+else:
+    # 3.0 syntax
+    cherrypy.server.quickstart()
+    cherrypy.engine.start()
+

@@ -3,7 +3,7 @@ import { logger } from "./log.js";
 
 function checkScene(scene)
 {
-    const req = new Request(`/checkscene?scene=${scene}`);
+    const req = new Request(`/api/checkscene?scene=${scene}`);
     let init = {
         method: 'GET',
         //body: JSON.stringify({"points": data})

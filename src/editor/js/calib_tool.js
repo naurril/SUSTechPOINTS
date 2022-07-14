@@ -189,10 +189,11 @@ class CalibTool  extends PopupDialog{
         this.targetCamera = targetName;
 
         // adjust only the defalt extrinsic matrix 
+        let extrinsic = this.data.world.calib.getDefaultExtrinicCalib(cameraType, cameraName); //sceneMeta.calib[cameraType][cameraName];
         this.calib = this.data.world.sceneMeta.calib[cameraType][cameraName];
-        
-        let extrinsic = this.calib.extrinsic.map(function(x){return x*1.0;});
-
+        if (!this.calib.extrinsic)
+            this.calib.extrinsic = extrinsic;
+            
         let {position, rotation} = this.calcCalibBox(extrinsic);
         
         this.showCalibBox(position, rotation);       

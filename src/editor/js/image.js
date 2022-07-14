@@ -552,6 +552,9 @@ class ImageContext extends MovableView{
     show_image(){
         var svgimage = this.ui.querySelector("#svg-image");
 
+        if (!this.world[this.cameraType])
+            return;
+            
         // active img is set by global, it's not set sometimes.
         var img = this.world[this.cameraType].getImageByName(this.cameraName);
         if (img){
@@ -639,6 +642,9 @@ class ImageContext extends MovableView{
 
     draw_svg(){
         // draw picture
+        if (!this.world[this.cameraType])
+            return;
+
         var img = this.world[this.cameraType].getImageByName(this.cameraName);
 
         if (!img || img.width==0){
@@ -818,7 +824,7 @@ class ImageContext extends MovableView{
 
         add_box: (box)=>{
             var calib = this.getCalib();
-            if (!calib){
+            if (!calib || !calib.extrinsic || !calib.intrinsic){
                 return;
             }
             var trans_ratio = this.get_trans_ratio();
@@ -936,7 +942,7 @@ class ImageContextManager {
         this.cfg = cfg;
         this.on_img_click = on_img_click;
 
-        this.addImage("", true);
+        //this.addImage("", true);
 
 
         this.selectorUi.onmouseenter=function(event){
@@ -997,6 +1003,7 @@ class ImageContextManager {
     }
 
     updateCameraList(cameras){
+
 
         let autoCamera = '<div class="camera-item" id="camera-item-auto">auto</div>';
 
