@@ -7,7 +7,6 @@ root_dir = os.path.join(this_dir, "data")
 
 def get_all_scenes():
     all_scenes = get_scene_names()
-    print(all_scenes)
     return list(map(get_one_scene, all_scenes))
 
 def get_all_scene_desc(scenes):
