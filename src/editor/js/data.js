@@ -3,6 +3,7 @@
 import {World} from "./world.js";
 import {Debug} from "./debug.js";
 import {logger} from "./log.js"
+import { jsonrpc } from "./jsonrpc.js";
 
 class Data
 {
@@ -15,35 +16,7 @@ class Data
 
     async readSceneList()
     {
-        const req = new Request(this.cfg.baseUrl+"/get_all_scene_desc");
-        let init = {
-            method: 'GET',
-            
-            mode: 'cors', // no-cors, *cors, same-origin
-            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: 'same-origin', // include, *same-origin, omit
-            headers: {
-              'Content-Type': 'application/json'
-              // 'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            redirect: 'follow', // manual, *follow, error
-            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          
-            
-            //body: JSON.stringify({"points": data})
-          };
-        // we defined the xhr
-        
-        return fetch(req, init)
-        .then(response=>{
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }else{
-                return response.json();
-            }
-        })
-        .then(ret=>
-        {
+        return jsonrpc("/api/get_all_scene_desc").then(ret=>{
             console.log(ret);
             this.sceneDescList = ret;
             return ret;
@@ -456,24 +429,9 @@ class Data
 
     readSceneMetaData(sceneName)
     {
-        let self =this;
-        return new Promise(function(resolve, reject){
-            let xhr = new XMLHttpRequest();
-            
-            xhr.onreadystatechange = function () {
-                if (this.readyState != 4) 
-                    return;
-            
-                if (this.status == 200) {
-                    let sceneMeta = JSON.parse(this.responseText);
-                    self.meta[sceneName] = sceneMeta;
-                    resolve(sceneMeta);
-                }
-
-            };
-            
-            xhr.open('GET', `/scenemeta?scene=${sceneName}`, true);
-            xhr.send();
+        return jsonrpc(`/api/scenemeta?scene=${sceneName}`).then(ret=>{
+            this.meta[sceneName] = ret;
+            return ret;
         });
     }
 };

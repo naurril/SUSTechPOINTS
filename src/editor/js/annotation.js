@@ -1,6 +1,7 @@
 
 
 import * as THREE from 'three';
+import { jsonrpc } from './jsonrpc.js';
 import {globalObjectCategory} from './obj_cfg.js';
 import {saveWorldList} from "./save.js"
 import { intersect } from './util.js';
@@ -430,22 +431,9 @@ function Annotation(sceneMeta, world, frameInfo){
         if (this.data.cfg.disableLabels){
             on_load([]);
         }else {
-            var xhr = new XMLHttpRequest();
-            // we defined the xhr
-            var _self = this;
-            xhr.onreadystatechange = function () {
-                if (this.readyState != 4) return;
-            
-                if (this.status == 200) {
-                    let ann = _self.frameInfo.anno_to_boxes(this.responseText);
-                    on_load(ann);
-                }
-            
-                // end of state change: it can be after some time (async)
-            };
-            
-            xhr.open('GET', "/load_annotation"+"?scene="+this.frameInfo.scene+"&frame="+this.frameInfo.frame, true);
-            xhr.send();
+            jsonrpc("/api/load_annotation"+"?scene="+this.frameInfo.scene+"&frame="+this.frameInfo.frame).then(ret=>{
+                on_load(ret);
+            });
         }
     };
 

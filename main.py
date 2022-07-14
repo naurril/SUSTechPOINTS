@@ -1,7 +1,7 @@
-import random
-import string
 
 import cherrypy
+from cherrypy.lib import auth_digest
+
 import os
 import json
 from jinja2 import Environment, FileSystemLoader
@@ -40,25 +40,25 @@ class Root(object):
       tmpl = env.get_template('./build/index.html')
       return tmpl.render()
   
-    @cherrypy.expose
-    def icon(self):
-      tmpl = env.get_template('test_icon.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def icon(self):
+    #   tmpl = env.get_template('test_icon.html')
+    #   return tmpl.render()
 
-    @cherrypy.expose
-    def ml(self):
-      tmpl = env.get_template('test_ml.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def ml(self):
+    #   tmpl = env.get_template('test_ml.html')
+    #   return tmpl.render()
   
-    @cherrypy.expose
-    def reg(self):
-      tmpl = env.get_template('registration_demo.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def reg(self):
+    #   tmpl = env.get_template('registration_demo.html')
+    #   return tmpl.render()
 
-    @cherrypy.expose
-    def view(self, file):
-      tmpl = env.get_template('view.html')
-      return tmpl.render()
+    # @cherrypy.expose
+    # def view(self, file):
+    #   tmpl = env.get_template('view.html')
+    #   return tmpl.render()
 
     # @cherrypy.expose
     # def saveworld(self, scene, frame):
@@ -70,7 +70,7 @@ class Root(object):
     #     f.write(rawbody)
       
     #   return "ok"
-
+class Api(object):
     @cherrypy.expose
     def saveworldlist(self):
 
@@ -284,7 +284,67 @@ class Root(object):
 
       return [x for x in  all_objs.values()]
 
-if __name__ == '__main__':
-    cherrypy.quickstart(Root(), '/', config="server.conf")
+
+
+
+USERS = {'lie': '22'}
+
+cherrypy.config.update({
+  'server.socket_host': '0.0.0.0',
+  'server.socket_port': 8081})
+
+config = {
+  '/':{
+  'tools.sessions.on': True,
+  'tools.staticdir.root': os.path.abspath(os.getcwd()),
+  },
+
+  '/static':{
+    'tools.staticdir.on': True,
+    'tools.staticdir.dir': './build/static',
+  },
+
+  '/editor':{
+    'tools.staticdir.on': True,
+    'tools.staticdir.dir':"./build/editor",
+  },
+
+  '/data':{
+    'tools.staticdir.on': True,
+    'tools.staticdir.dir': "./data",
+    'tools.auth_digest.on': True,
+    'tools.auth_digest.realm': 'localhost',
+    'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(USERS),
+    'tools.auth_digest.key': 'a565c27146791cfb',
+    'tools.auth_digest.accept_charset': 'UTF-8',
+  },
+}
+api_config = {
+  '/':{
+    'tools.auth_digest.on': True,
+    'tools.auth_digest.realm': 'localhost',
+    'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(USERS),
+    'tools.auth_digest.key': 'a565c27146791cfb',
+    'tools.auth_digest.accept_charset': 'UTF-8',
+  },
+}
+
+
+cherrypy.tree.mount(Root(), "/", config)
+
+cherrypy.tree.mount(Api(), "/api", api_config)
+
+if hasattr(cherrypy.engine, 'block'):
+    # 3.1 syntax
+    cherrypy.engine.start()
+    cherrypy.engine.block()
 else:
-    application = cherrypy.Application(Root(), '/', config="server.conf")
+    # 3.0 syntax
+    cherrypy.server.quickstart()
+    cherrypy.engine.start()
+
+
+# if __name__ == '__main__':
+#     cherrypy.quickstart(Root(), '/', config)
+# else:
+#     application = cherrypy.Application(Root(), '/', config="server.conf")

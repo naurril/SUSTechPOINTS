@@ -1,5 +1,6 @@
 
 import * as THREE from 'three';
+import { jsonrpc } from './jsonrpc.js';
 import {matmul2} from "./util.js"
 
 class Calib
@@ -97,33 +98,20 @@ class Calib
     }
     
     load(){
-
-        var xhr = new XMLHttpRequest();
-        // we defined the xhr
-        var _self = this;
-        xhr.onreadystatechange = function () {
-            if (this.readyState != 4) return;
+        jsonrpc("/api/load_calib"+"?scene="+this.world.frameInfo.scene+"&frame="+this.world.frameInfo.frame).then(ret=>{
+            
+            this.calib = ret;
         
-            if (this.status == 200) {
-                let calib = JSON.parse(this.responseText);
-                _self.calib = calib;
-            }
-        
-            console.log(_self.world.frameInfo.frame, "calib", "loaded");
-            _self.preloaded = true;
+            console.log(this.world.frameInfo.frame, "calib", "loaded");
+            this.preloaded = true;
 
-            if (_self.on_preload_finished){
-                _self.on_preload_finished();
+            if (this.on_preload_finished){
+                this.on_preload_finished();
             }                
-            if (_self.go_cmd_received){
-                _self.go(this.webglScene, this.on_go_finished);
+            if (this.go_cmd_received){
+                this.go(this.webglScene, this.on_go_finished);
             }
-
-            // end of state change: it can be after some time (async)
-        };
-        
-        xhr.open('GET', "/load_calib"+"?scene="+this.world.frameInfo.scene+"&frame="+this.world.frameInfo.frame, true);
-        xhr.send();
+        });
     };
 
 
