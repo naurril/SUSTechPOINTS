@@ -1,3 +1,4 @@
+import { jsonrpc } from "./jsonrpc";
 
 
 
@@ -73,34 +74,18 @@ class ObjectIdManager
     }
 
     load_obj_ids_of_scene(scene, done){
+        jsonrpc("/api/objs_of_scene?scene="+scene).then(ret=>{
+            this.objectList = ret;
+            this.sortObjIdList();
+            this.maxId = Math.max(...ret.map(function(x){return x.id;}));
+            if (this.maxId < 0) // this is -infinity if there is no ids.
+                this.maxId = 0;
 
-        var xhr = new XMLHttpRequest();
-        // we defined the xhr
-        let self =this;
+            this.setObjdIdListOptions();
 
-        xhr.onreadystatechange = function() {
-            if (this.readyState != 4) 
-                return;
-        
-            if (this.status == 200) {
-                var ret = JSON.parse(this.responseText);
-
-                self.objectList = ret;
-                self.sortObjIdList();
-                self.maxId = Math.max(...ret.map(function(x){return x.id;}));
-                if (self.maxId < 0) // this is -infinity if there is no ids.
-                    self.maxId = 0;
-
-                self.setObjdIdListOptions();
-    
-                if (done)
-                    done(ret)
-            }
-    
-        };
-        
-        xhr.open('GET', "/api/objs_of_scene?scene="+scene, true);
-        xhr.send();
+            if (done)
+                done(ret)
+        });
     }
     
 

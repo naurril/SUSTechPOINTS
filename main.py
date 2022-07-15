@@ -14,17 +14,40 @@ from tools  import check_labels as check
 import argparse
 import configparser
 import jwt
+from cherrypy.process.plugins import Monitor
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
 parser.add_argument('--save', type=str, choices=['yes','no'],default='yes', help="")
 args = parser.parse_args()
 
-
+usercfg_file = 'conf/user.conf'
 usercfg = configparser.ConfigParser()
-usercfg.read('conf/user.conf')
+usercfg.read(usercfg_file)
 
 authcfg = configparser.ConfigParser()
 authcfg.read('conf/auth.conf')
+
+
+
+
+class CfgUpdator():
+  def __init__(self, cfg, file):
+    self.usercfg = cfg
+    self.usercfg_file = file
+
+    
+    self.old_time = os.stat(usercfg_file).st_mtime
+
+  def __call__(self):
+    mtime = os.stat(usercfg_file).st_mtime
+    if mtime > self.old_time:
+        self.old_time = mtime
+        print('user cfg file changed')
+        self.usercfg.read(self.usercfg_file)
+    
+cfg_updator = CfgUpdator(usercfg, usercfg_file)
+Monitor(cherrypy.engine, cfg_updator, frequency=3).subscribe()
+
 
 
 def get_user_id():
@@ -42,7 +65,6 @@ def get_user_id():
     if user_token and user_token != 'null':
       try:
         secret = authcfg['token']['secret']
-        print(user_token, secret)
         data = jwt.decode(user_token, secret, algorithms='HS256')
         return data['i']
       except:
@@ -259,6 +281,14 @@ class Api(object):
     def loadworldlist(self):
       rawbody = cherrypy.request.body.readline().decode('UTF-8')
       worldlist = json.loads(rawbody)
+
+      # auth
+      userid = get_user_id()
+      for w in worldlist:
+          scene = w["scene"]          
+          if not scene in usercfg[userid]['scenes']:
+            raise cherrypy.HTTPError(403)          
+          
 
       anns = list(map(lambda w:{
                       "scene": w["scene"],

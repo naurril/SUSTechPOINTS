@@ -2434,10 +2434,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         var self=this;
         //stop if current world is not ready!
-        if (this.data.world && !this.data.world.preloaded()){
-            console.error("current world is still loading.");
-            return;
-        }
+        // if (this.data.world && !this.data.world.preloaded()){
+        //     console.error("current world is still loading.");
+        //     return;
+        // }
 
         if (this.selected_box && this.selected_box.in_highlight){
             this.cancelFocus(this.selected_box);
@@ -2453,14 +2453,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         if (world)
         {
-            this.data.activate_world(
+            this.data.activateWorld(
                 world, 
                 function(){
                     self.on_load_world_finished(world);
                     if (onFinished)
                         onFinished();
                     
-                }
+                },
+                true
             );
         }
 

@@ -70,7 +70,7 @@ class Data
         console.log("create world",x,y,z);
         let world = new World(this, sceneName, frame, [this.worldGap*x, this.worldGap*y, this.worldGap*z], on_preload_finished);        
 
-        this.activate_world(world, null);
+        this.activateWorld(world, null, false);
 
         world.offsetIndex = [x,y,z];
         this.createWorldIndex++;
@@ -395,10 +395,11 @@ class Data
     //     this.worldList.push(world);
     // };
 
-    activate_world= function(world, on_finished){
-        this.world = world;  // swich when everything is ready. otherwise data.world is half-baked, causing mysterious problems.
+    activateWorld= function(world, on_finished, show){
         world.activate(this.webglScene, on_finished);
 
+        if (show)
+            this.world = world;
     };
 
 

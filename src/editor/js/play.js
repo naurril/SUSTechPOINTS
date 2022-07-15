@@ -64,7 +64,7 @@ function PlayControl(data){
 
                 if (world.preloaded())  //found, data ready
                 {
-                    scope.data.activate_world(
+                    scope.data.activateWorld(
                         world, 
                         function(){//on load finished
                             //views[0].detach_control();
@@ -85,7 +85,7 @@ function PlayControl(data){
                                 scope.stop_play();
                             }
                         
-                    });
+                    }, true);
             
                 }
                 else{

@@ -618,7 +618,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                 editor.setSelected(true);
             }
 
-            data.activate_world(world, 
+            data.activateWorld(world, 
                 ()=>{
                     //editor.tryAttach();
 
@@ -626,7 +626,8 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     
                     //
                     //this.viewManager.render();
-                });
+                }, 
+                false);
         });
 
         
