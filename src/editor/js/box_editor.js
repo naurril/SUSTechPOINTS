@@ -626,8 +626,7 @@ function BoxEditorManager(parentUi, viewManager, objectTrackView,
                     
                     //
                     //this.viewManager.render();
-                },
-                true);
+                });
         });
 
         

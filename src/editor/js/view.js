@@ -3,16 +3,15 @@ import { OrbitControls } from './lib/OrbitControls.js';
 import { TransformControls } from './lib/TransformControls.js';
 
 
-function ViewManager(mainViewContainer, webglScene, webglMainScene, renderer, globalRenderFunc, on_box_changed, cfg){
+function ViewManager(mainViewContainer, webglScene, renderer, globalRenderFunc, on_box_changed, cfg){
 
     this.mainViewContainer = mainViewContainer;
     this.globalRenderFunc  = globalRenderFunc;
     this.webglScene = webglScene;
-    this.webglMainScene = webglMainScene;
     this.renderer = renderer;
 
     
-    this.mainView = cfg.disableMainView?null:create_main_view(webglMainScene,  renderer, this.globalRenderFunc, this.mainViewContainer, on_box_changed);
+    this.mainView = cfg.disableMainView?null:create_main_view(webglScene,  renderer, this.globalRenderFunc, this.mainViewContainer, on_box_changed);
     
     this.boxViewList = [];
     

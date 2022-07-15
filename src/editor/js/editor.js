@@ -96,9 +96,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         // if we use two seperate scenes. can we solve this problem?
         //
         this.scene = new THREE.Scene();
-        this.mainScene = this.scene; //new THREE.Scene();
         
-        this.data.set_webglScene(this.scene, this.mainScene);
+        this.data.set_webglScene(this.scene);
 
         
 
@@ -111,7 +110,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
 
         this.boxOp = new BoxOp(this.data);
-        this.viewManager = new ViewManager(this.container, this.scene, this.mainScene, this.renderer, 
+        this.viewManager = new ViewManager(this.container, this.scene, this.renderer, 
             function(){self.render();}, 
             function(box){self.on_box_changed(box)},
             this.editorCfg);

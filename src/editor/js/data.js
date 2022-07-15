@@ -70,7 +70,7 @@ class Data
         console.log("create world",x,y,z);
         let world = new World(this, sceneName, frame, [this.worldGap*x, this.worldGap*y, this.worldGap*z], on_preload_finished);        
 
-        this.activate_world(world, null, true);
+        this.activate_world(world, null);
 
         world.offsetIndex = [x,y,z];
         this.createWorldIndex++;
@@ -278,10 +278,9 @@ class Data
     };
 
     webglScene = null;
-    set_webglScene=function(scene, mainScene){
+    set_webglScene(scene){
             this.webglScene = scene;
-            this.webglMainScene = mainScene;
-        };
+    };
 
     scale_point_size(v){
         this.cfg.point_size *= v;
@@ -396,22 +395,10 @@ class Data
     //     this.worldList.push(world);
     // };
 
-    activate_world= function(world, on_finished, dontDestroyOldWorld){
+    activate_world= function(world, on_finished){
+        this.world = world;  // swich when everything is ready. otherwise data.world is half-baked, causing mysterious problems.
+        world.activate(this.webglScene, on_finished);
 
-        if (dontDestroyOldWorld){
-            world.activate(this.webglScene, null, on_finished);            
-        }
-        else{
-            var old_world = this.world;   // current world, should we get current world later?
-            this.world = world;  // swich when everything is ready. otherwise data.world is half-baked, causing mysterious problems.
-
-            world.activate(this.webglMainScene, 
-                function(){
-                    if (old_world)
-                        old_world.unload();
-                },
-                on_finished);
-        }
     };
 
 

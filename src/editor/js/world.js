@@ -530,12 +530,10 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     };
 
     this.scene = null;
-    this.destroy_old_world = null; //todo, this can be a boolean
     this.on_finished = null;
-    this.activate=function(scene, destroy_old_world, on_finished){
+    this.activate=function(scene, on_finished){
         this.scene = scene;
         this.active = true;
-        this.destroy_old_world = destroy_old_world;
         this.on_finished = on_finished;
         if (this.preloaded()){
             this.go();
@@ -561,10 +559,6 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
             //this.points.material.size = data.cfg.point_size;
             
-            if (this.destroy_old_world){
-                this.destroy_old_world();
-            }
-
             if (this.destroyed){
                 console.log("go after destroyed.");
                 this.unload();
