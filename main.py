@@ -14,6 +14,7 @@ from tools  import check_labels as check
 import argparse
 import configparser
 import jwt
+import re
 from cherrypy.process.plugins import Monitor
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
@@ -81,8 +82,9 @@ def check_user_access(default=False):
     scene = cherrypy.request.params['scene']
     userid = get_user_id()
     print("user id", userid)
-    if not scene in usercfg[userid]['scenes']:
+    if not re.fullmatch(usercfg[userid]['scenes'], scene):
       raise cherrypy.HTTPError(403)
+
 
 # Add a Tool to our new Toolbox.
 @cherrypy.tools.register('before_handler')
@@ -93,7 +95,7 @@ def check_file_access(default=False):
     userid = get_user_id()
 
     print("file auth",  scene, userid)
-    if not scene in usercfg[userid]['scenes']:
+    if not re.fullmatch(usercfg[userid]['scenes'], scene):
         raise cherrypy.HTTPError(403)
     
 
@@ -170,7 +172,7 @@ class Api(object):
           frame = d["frame"]
           ann = d["annotation"]
 
-          if not scene in usercfg[userid]['scenes']:
+          if not re.fullmatch(usercfg[userid]['scenes'], scene):
             raise cherrypy.HTTPError(403)
           
           if usercfg[userid]['readonly'] == 'yes':
@@ -286,7 +288,7 @@ class Api(object):
       userid = get_user_id()
       for w in worldlist:
           scene = w["scene"]          
-          if not scene in usercfg[userid]['scenes']:
+          if not re.fullmatch(usercfg[userid]['scenes'], scene):
             raise cherrypy.HTTPError(403)          
           
 
@@ -352,7 +354,7 @@ class Api(object):
         userid = get_user_id()
           
         print("user id", userid)
-        scenes = usercfg[userid]['scenes'].split(',')
+        scenes = usercfg[userid]['scenes']
       else:
         scenes = []
       return scene_reader.get_all_scene_desc(scenes)

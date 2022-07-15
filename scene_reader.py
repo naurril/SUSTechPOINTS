@@ -1,6 +1,7 @@
 
 import os
 import json
+import re
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(this_dir, "data")
@@ -9,12 +10,15 @@ def get_all_scenes():
     all_scenes = get_scene_names()
     return list(map(get_one_scene, all_scenes))
 
-def get_all_scene_desc(scenes):
-    if len(scenes) == 0:
-        scenes = get_scene_names()
+def get_all_scene_desc(scene_pattern):
+    
+    scenes = get_scene_names()
+    
     descs = {}
+
     for n in scenes:
-        descs[n] = get_scene_desc(n)
+        if re.fullmatch(scene_pattern, n):
+            descs[n] = get_scene_desc(n)
     return descs
 
 def get_scene_names():
