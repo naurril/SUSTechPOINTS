@@ -1067,6 +1067,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.ensureBoxTrackIdExist = function()
     {
+        if (!this.selected_box)
+        {
+            return false;
+        }
+
         if (!this.selected_box.obj_track_id)
         {
             this.infoBox.show("Error", "Please assign object track ID.");

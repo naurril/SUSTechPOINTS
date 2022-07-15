@@ -7,17 +7,23 @@ import { jsonrpc } from "./jsonrpc.js";
 import {logger} from "./log.js"
 
 
+var saveDelayTimer = null;
+var pendingSaveList = [];
 
 
 function reloadWorldList(worldList, done){
-    var xhr = new XMLHttpRequest();
-        // we defined the xhr
-    xhr.onreadystatechange = function () {
-        if (this.readyState !== 4) return;
-    
-        if (this.status === 200) {
-            let anns = JSON.parse(this.responseText);
-        
+
+    // delay 500ms, since saving may be in progress.
+    setTimeout(()=>{
+
+        let para = worldList.map(w=>{
+            return {
+                //todo: we could add an id, so as to associate world easily
+                scene: w.frameInfo.scene, 
+                frame: w.frameInfo.frame,
+            };
+        });    
+        jsonrpc("/api/loadworldlist", 'POST', para).then(anns=>{
             // load annotations
             anns.forEach(a=>{
                 let world = worldList.find(w=>{
@@ -35,25 +41,14 @@ function reloadWorldList(worldList, done){
 
             if (done)
                 done();
-        }
-    };
-    
-    xhr.open('POST', "/api/loadworldlist", true);
+        });
+    }, 
 
-    let para = worldList.map(w=>{
-        return {
-            //todo: we could add an id, so as to associate world easily
-            scene: w.frameInfo.scene, 
-            frame: w.frameInfo.frame,
-        };
-    });
+    500);
 
-    xhr.send(JSON.stringify(para));
 }
 
 
-var saveDelayTimer = null;
-var pendingSaveList = [];
 
 function saveWorldList(worldList){
 
@@ -133,46 +128,6 @@ function doSaveWorldList(worldList, done)
     });
     
 }
-
-// function saveWorld(world, done){
-//     if (world.data.cfg.disableLabels){
-//         logger.log("labels not loaded, save action is prohibitted.")
-//         return;
-//     }
-
-//     console.log(world.annotation.boxes.length, "boxes");
-//     let bbox_annotations = world.annotation.toBoxAnnotations();
-
-//     var xhr = new XMLHttpRequest();
-//     xhr.open("POST", "/saveworld" +"?scene="+world.frameInfo.scene+"&frame="+world.frameInfo.frame, true);
-//     xhr.setRequestHeader('Content-Type', 'application/json');
-
-//     xhr.onreadystatechange = function () {
-//         if (this.readyState != 4) return;
-    
-//         if (this.status == 200) {
-//             logger.log(`saved: ${world}`);
-//             world.annotation.resetModified();
-
-//             //reload obj-ids of the scene
-//             //todo: this shall be moved to done
-//             //load_obj_ids_of_scene(world.frameInfo.scene);
-
-//             if(done){
-//                 done();
-//             }
-
-            
-            
-//         }
-    
-//         // end of state change: it can be after some time (async)
-//     };
-
-//     var b = JSON.stringify(bbox_annotations);
-//     //console.log(b);
-//     xhr.send(b);
-// }
 
 
 export {saveWorldList, reloadWorldList}

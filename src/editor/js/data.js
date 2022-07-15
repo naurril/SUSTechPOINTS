@@ -396,10 +396,9 @@ class Data
     // };
 
     activateWorld= function(world, on_finished, show){
-        world.activate(this.webglScene, on_finished);
-
         if (show)
             this.world = world;
+        world.activate(this.webglScene, on_finished);        
     };
 
 
