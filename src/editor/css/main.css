@@ -1098,7 +1098,11 @@ td {
 	width: 600px; /*60%; */
 }
 
-#log-wrapper #content-logs,#content-errors {
+#log-wrapper #content{
+	height: 100%;
+	width: 100%;
+}
+#log-wrapper #content #content-logs,#content-errors {
 	height: 100%;
 	width: 100%;
 	line-height: 1.5;

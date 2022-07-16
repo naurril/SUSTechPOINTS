@@ -15,7 +15,8 @@ class LogWindow extends PopupDialog{
         
         this.btn = btn;
         this.svg = btn.querySelector("#log-svg");
-
+        this.contentUi =  this.ui.querySelector("#content");
+        this.viewUi =  this.ui.querySelector("#view");
         this.logsContentUi = this.ui.querySelector("#content-logs");
         this.errorsContentUi = this.ui.querySelector("#content-errors");
         this.clearBtn = this.ui.querySelector("#btn-clear");
@@ -41,6 +42,18 @@ class LogWindow extends PopupDialog{
             this.logsContentUi.style.display = 'none';
             this.errorsContentUi.style.display = 'inherit';
         }
+
+        this.resizeObserver = new ResizeObserver(elements=>{
+
+            if (elements[0].contentRect.height === 0)
+                return;                
+            this.adjustSize();
+
+        });
+
+        this.resizeObserver.observe(ui.querySelector("#view"));
+
+        this.adjustSize();
     }
 
     setErrorsContent(errors)
@@ -67,6 +80,12 @@ class LogWindow extends PopupDialog{
     show()
     {
         super.show();
+        this.adjustSize();
+    }
+
+    adjustSize()
+    {
+        this.contentUi.style.height = (this.viewUi.clientHeight - this.contentUi.offsetTop) + "px";
     }
 
     gettime() {
