@@ -1,4 +1,4 @@
-import { jsonrpc } from "./jsonrpc";
+import { loadjson } from "./jsonrpc";
 
 
 
@@ -21,7 +21,8 @@ class EgoPose
 
     
     load_ego_pose(){       
-        jsonrpc("/api/load_ego_pose"+"?scene="+this.world.frameInfo.scene+"&frame="+this.world.frameInfo.frame).then(ret=>{
+        let path = this.world.frameInfo.get_egopose_path();
+        loadjson(path).then(ret=>{
             let egoPose = ret;
             this.egoPose = egoPose;
 

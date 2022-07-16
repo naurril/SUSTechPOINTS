@@ -1068,7 +1068,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.ensureBoxTrackIdExist = function()
     {
         if (!this.selected_box)
-        {
+        {        
             return false;
         }
 

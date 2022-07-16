@@ -6,6 +6,8 @@ import {globalObjectCategory} from './obj_cfg.js';
 
 
 import {settings} from "./settings.js"
+import { loadfile } from './jsonrpc.js';
+import { pointcloudReader } from './pointcloud_reader.js';
 
 function Lidar(sceneMeta, world, frameInfo){
     this.world = world;
@@ -56,20 +58,8 @@ function Lidar(sceneMeta, world, frameInfo){
     };
 
     
-
-    this.preload=function(on_preload_finished){
-        this.on_preload_finished = on_preload_finished;
-
-        var loader = new PCDLoader();
-
-        var _self = this;
-        loader.load( this.frameInfo.get_pcd_path(), 
-            //ok
-            function ( pcd ) {
-                
-                
-                
-
+    this.processPcd = function(pcd){
+               let _self = this;
                 _self.points_parse_time = new Date().getTime();
                 console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
 
@@ -187,12 +177,35 @@ function Lidar(sceneMeta, world, frameInfo){
                 console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "loaded pionts ", _self.points_load_time - _self.create_time, "ms");
 
                 _self._afterPreload();
+    }
+
+    this.preload = function(on_preload_finished){
+        this.on_preload_finished = on_preload_finished;
+
+        let url = this.frameInfo.get_pcd_path();
+        loadfile(url).then(buffer=>{
+            let pcd = pointcloudReader.parse(buffer, url);
+            this.processPcd(pcd);
+        });
+    };
+
+
+    this.preload_loader=function(on_preload_finished){
+        this.on_preload_finished = on_preload_finished;
+
+        var loader = new PCDLoader();
+
+        var _self = this;
+        loader.load( this.frameInfo.get_pcd_path(), 
+            //ok
+            function ( pcd ) {
+                
+                _self.processPcd(pcd);
+                
             },
 
             // on progress,
-            function(){
-
-            },
+            function(){},
 
             // on error
             function(){

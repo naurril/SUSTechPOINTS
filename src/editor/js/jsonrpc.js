@@ -32,5 +32,43 @@ function jsonrpc(url, method="GET", param){
     });
 }
 
+function loadjson(url){
+    const req = new Request(url);
+    let init = {
+        headers: {
+          "x-user-token": window.pointsGlobalConfig.userToken,
+        },
+    };
+   
+    
+    return fetch(req, init).then(response=>{
+        if (!response.ok) {
+            //throw new Error(`HTTP error! status: ${response.status}`);
+            return null;
+        }else{
+            return response.json();
+        }
+    });
+}
 
-export{jsonrpc}
+
+function loadfile(url){
+    const req = new Request(url);
+    let init = {
+        headers: {
+          "x-user-token": window.pointsGlobalConfig.userToken,
+        },
+    };
+   
+    
+    return fetch(req, init).then(response=>{
+        if (!response.ok) {
+            //throw new Error(`HTTP error! status: ${response.status}`);
+            return null;
+        }else{
+            return response.arrayBuffer();
+        }
+    });
+}
+
+export{jsonrpc, loadjson, loadfile}

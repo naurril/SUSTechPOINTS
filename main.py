@@ -14,6 +14,7 @@ from tools  import check_labels as check
 import argparse
 import configparser
 import jwt
+import re
 from cherrypy.process.plugins import Monitor
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
@@ -81,8 +82,9 @@ def check_user_access(default=False):
     scene = cherrypy.request.params['scene']
     userid = get_user_id()
     print("user id", userid)
-    if not scene in usercfg[userid]['scenes']:
+    if not re.fullmatch(usercfg[userid]['scenes'], scene):
       raise cherrypy.HTTPError(403)
+
 
 # Add a Tool to our new Toolbox.
 @cherrypy.tools.register('before_handler')
@@ -93,7 +95,7 @@ def check_file_access(default=False):
     userid = get_user_id()
 
     print("file auth",  scene, userid)
-    if not scene in usercfg[userid]['scenes']:
+    if not re.fullmatch(usercfg[userid]['scenes'], scene):
         raise cherrypy.HTTPError(403)
     
 
@@ -170,7 +172,7 @@ class Api(object):
           frame = d["frame"]
           ann = d["annotation"]
 
-          if not scene in usercfg[userid]['scenes']:
+          if not re.fullmatch(usercfg[userid]['scenes'], scene):
             raise cherrypy.HTTPError(403)
           
           if usercfg[userid]['readonly'] == 'yes':
@@ -265,10 +267,10 @@ class Api(object):
       return scene_reader.read_annotations(scene, frame)
 
 
-    @cherrypy.expose    
-    @cherrypy.tools.json_out()
-    def load_ego_pose(self, scene, frame):
-      return scene_reader.read_ego_pose(scene, frame)
+    # @cherrypy.expose    
+    # @cherrypy.tools.json_out()
+    # def load_ego_pose(self, scene, frame):
+    #   return scene_reader.read_ego_pose(scene, frame)
 
 
     @cherrypy.expose    
@@ -286,7 +288,7 @@ class Api(object):
       userid = get_user_id()
       for w in worldlist:
           scene = w["scene"]          
-          if not scene in usercfg[userid]['scenes']:
+          if not re.fullmatch(usercfg[userid]['scenes'], scene):
             raise cherrypy.HTTPError(403)          
           
 
@@ -352,7 +354,7 @@ class Api(object):
         userid = get_user_id()
           
         print("user id", userid)
-        scenes = usercfg[userid]['scenes'].split(',')
+        scenes = usercfg[userid]['scenes']
       else:
         scenes = []
       return scene_reader.get_all_scene_desc(scenes)
@@ -444,13 +446,18 @@ if authcfg['global']['auth'] == 'yes':
     root_config['/data'] = {
         'tools.staticdir.on': True,
         'tools.staticdir.dir': "./data",
+        'tools.caching.on': True,
+        'tools.caching.delay': 3600,
+
         'tools.auth_digest.on': True,
         'tools.auth_digest.realm': 'localhost',
         'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
         'tools.auth_digest.key': authcfg['password']['key'],
         'tools.auth_digest.accept_charset': 'UTF-8',
+        
         'tools.check_file_access.on': True,
         'tools.check_file_access.default': True,
+        
       }
   
     api_config = {
@@ -468,6 +475,12 @@ if authcfg['global']['auth'] == 'yes':
     root_config['/data'] = {
         'tools.staticdir.on': True,
         'tools.staticdir.dir': "./data",
+        'tools.caching.on': True,
+        'tools.caching.delay': 3600,
+        # 'tools.response_headers.on': True,
+        # 'tools.response_headers.headers': [
+        #         ('cache-control', 'max-age=86400, public')
+        #     ],
         'tools.check_file_access.on': True,
         'tools.check_file_access.default': True,
       }
