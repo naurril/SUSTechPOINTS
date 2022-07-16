@@ -99,6 +99,20 @@ function BoxOp(){
             return true;
         }
 
+    this.subsamplePoints = function(points, num)
+    {
+        if (points.length < num)
+            return points;
+        
+        let ret = [];
+        for (let i = 0; i<num; i++)
+        {
+            let index = Math.round(Math.random()*(num-1));
+            ret.push(points[index]);
+        }
+
+        return ret;
+    }
 
     this.auto_rotate_xyz= async function(box, callback, apply_mask, on_box_changed, noscaling, rotate_method){
 
@@ -288,7 +302,13 @@ function BoxOp(){
 
             points = points.filter(function(p){
                 return p[2] > - box.scale.z/2 + 0.3;
-            })
+            });
+
+            // do sub sampling to reduce network usage
+            if (points.length > 2000)
+            {
+                points = this.subsamplePoints(points, 2000);
+            }
             
             let retBox = await ml.predict_rotation(points)
              .then(applyRotation)
