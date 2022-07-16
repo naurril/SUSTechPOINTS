@@ -47,6 +47,11 @@ function FrameInfo(data, sceneMeta, sceneName, frame){
         return `data/${this.scene}/ego_pose/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
     };
 
+
+    this.get_calib_path = function(sensortype, sensorname){
+        return `data/${this.scene}/calib/${sensortype}/${sensorname}/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
+    };
+
     this.get_anno_path = function(){
             if (this.annotation_format==="psr"){
                 return 'data/'+this.scene + "/label/" + this.frame + ".json";
