@@ -267,10 +267,10 @@ class Api(object):
       return scene_reader.read_annotations(scene, frame)
 
 
-    @cherrypy.expose    
-    @cherrypy.tools.json_out()
-    def load_ego_pose(self, scene, frame):
-      return scene_reader.read_ego_pose(scene, frame)
+    # @cherrypy.expose    
+    # @cherrypy.tools.json_out()
+    # def load_ego_pose(self, scene, frame):
+    #   return scene_reader.read_ego_pose(scene, frame)
 
 
     @cherrypy.expose    
@@ -446,13 +446,18 @@ if authcfg['global']['auth'] == 'yes':
     root_config['/data'] = {
         'tools.staticdir.on': True,
         'tools.staticdir.dir': "./data",
+        'tools.caching.on': True,
+        'tools.caching.delay': 3600,
+
         'tools.auth_digest.on': True,
         'tools.auth_digest.realm': 'localhost',
         'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
         'tools.auth_digest.key': authcfg['password']['key'],
         'tools.auth_digest.accept_charset': 'UTF-8',
+        
         'tools.check_file_access.on': True,
         'tools.check_file_access.default': True,
+        
       }
   
     api_config = {
@@ -470,6 +475,12 @@ if authcfg['global']['auth'] == 'yes':
     root_config['/data'] = {
         'tools.staticdir.on': True,
         'tools.staticdir.dir': "./data",
+        'tools.caching.on': True,
+        'tools.caching.delay': 3600,
+        # 'tools.response_headers.on': True,
+        # 'tools.response_headers.headers': [
+        #         ('cache-control', 'max-age=86400, public')
+        #     ],
         'tools.check_file_access.on': True,
         'tools.check_file_access.default': True,
       }
