@@ -59,124 +59,123 @@ function Lidar(sceneMeta, world, frameInfo){
 
     
     this.processPcd = function(pcd){
-               let _self = this;
-                _self.points_parse_time = new Date().getTime();
-                console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
+        this.points_parse_time = new Date().getTime();
+        console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "parse pionts ", this.points_parse_time - this.create_time, "ms");
 
-                // if (_self.frameInfo.transform_matrix){
+        // if (this.frameInfo.transform_matrix){
 
-                //     var arr = position;
-                //     var num = position.length;
-                //     var ni = 3;
+        //     var arr = position;
+        //     var num = position.length;
+        //     var ni = 3;
 
-                //     for (var i=0; i<num/ni; i++){
-                //         var np = _self.frameInfo.transform_point(_self.frameInfo.transform_matrix, arr[i*ni+0], arr[i*ni+1], arr[i*ni+2]);
-                //         arr[i*ni+0]=np[0];
-                //         arr[i*ni+1]=np[1];
-                //         arr[i*ni+2]=np[2];
-                //     }
+        //     for (var i=0; i<num/ni; i++){
+        //         var np = this.frameInfo.transform_point(this.frameInfo.transform_matrix, arr[i*ni+0], arr[i*ni+1], arr[i*ni+2]);
+        //         arr[i*ni+0]=np[0];
+        //         arr[i*ni+1]=np[1];
+        //         arr[i*ni+2]=np[2];
+        //     }
 
-                //     //points.geometry.computeBoundingSphere();
-                // }
+        //     //points.geometry.computeBoundingSphere();
+        // }
 
-                
-                if (_self.data.cfg.enableFilterPoints)// do some filtering work here
-                {
-                    pcd = _self.remove_high_ponts(pcd, _self.data.cfg.filterPointsZ);
+        
+        if (this.data.cfg.enableFilterPoints)// do some filtering work here
+        {
+            pcd = this.remove_high_ponts(pcd, this.data.cfg.filterPointsZ);
+        }
+
+        
+
+        
+        
+        let position = pcd.position;
+
+
+        // build geometry
+        this.world.data.dbg.alloc();
+        var geometry = new THREE.BufferGeometry();
+        if ( position.length > 0 ) 
+            geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+
+        let normal = pcd.normal;
+        // normal and colore are note used in av scenes.
+        if ( normal.length > 0 ) 
+            geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
+        
+        let color = pcd.color;
+        if ( color.length == 0 ) {
+            color = []
+
+            // by default we set all points to same color
+            for (let i =0; i< position.length; ++i){                                
+                color.push(this.data.cfg.point_brightness);                                
+            }
+
+
+            // if enabled intensity we color points by intensity.
+            if (this.data.cfg.color_points=="intensity" && pcd.intensity.length>0){
+                // map intensity to color
+                for (var i =0; i< pcd.intensity.length; ++i){
+                    let intensity = pcd.intensity[i];
+                    intensity *= 8;
+                    
+                    if (intensity > 1)
+                        intensity = 1.0;
+                    
+                    
+                    //color.push( 2 * Math.abs(0.5-intensity));
+                    
+                    color[i*3] =  intensity;
+                    color[i*3+1] = intensity;
+                    color[i*3+2] = 1 - intensity; 
                 }
+            }
 
-                
+            // save color, in case color needs to be restored.
+            pcd.color = color;
+        }
 
-                
-                
-                let position = pcd.position;
+        geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
 
+        geometry.computeBoundingSphere();
+        // build material
 
-                // build geometry
-                _self.world.data.dbg.alloc();
-                var geometry = new THREE.BufferGeometry();
-                if ( position.length > 0 ) 
-                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
+        var material = new THREE.PointsMaterial( { size: this.data.cfg.point_size, vertexColors: THREE.VertexColors } );
 
-                let normal = pcd.normal;
-                // normal and colore are note used in av scenes.
-                if ( normal.length > 0 ) 
-                    geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
-                
-                let color = pcd.color;
-                if ( color.length == 0 ) {
-                    color = []
+        /*
+        
+        if ( color.length > 0 ) {
+            material.vertexColors = color;
+        } else {
+            //material.color.setHex(0xffffff);
+            material.color.r = 0.6;
+            material.color.g = 0.6;
+            material.color.b = 0.6;
+        }
+        */
 
-                    // by default we set all points to same color
-                    for (let i =0; i< position.length; ++i){                                
-                        color.push(_self.data.cfg.point_brightness);                                
-                    }
+        //material.size = 2;
+        material.sizeAttenuation = false;
 
+        // build mesh
 
-                    // if enabled intensity we color points by intensity.
-                    if (_self.data.cfg.color_points=="intensity" && pcd.intensity.length>0){
-                        // map intensity to color
-                        for (var i =0; i< pcd.intensity.length; ++i){
-                            let intensity = pcd.intensity[i];
-                            intensity *= 8;
-                            
-                            if (intensity > 1)
-                                intensity = 1.0;
-                            
-                            
-                            //color.push( 2 * Math.abs(0.5-intensity));
-                            
-                            color[i*3] =  intensity;
-                            color[i*3+1] = intensity;
-                            color[i*3+2] = 1 - intensity; 
-                        }
-                    }
+        var mesh = new THREE.Points( geometry, material );                        
+        mesh.name = "pcd";
 
-                    // save color, in case color needs to be restored.
-                    pcd.color = color;
-                }
+        //return mesh;
+        // add to parent.
+        this.world.webglGroup.add(mesh);
+        
+        this.points = mesh;
+        this.pcd = pcd;
+        //this.points_backup = mesh;
 
-                geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+        this.build_points_index();
+        this.points_load_time = new Date().getTime();
 
-                geometry.computeBoundingSphere();
-                // build material
+        console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded pionts ", this.points_load_time - this.create_time, "ms");
 
-                var material = new THREE.PointsMaterial( { size: _self.data.cfg.point_size, vertexColors: THREE.VertexColors } );
-
-                /*
-                
-                if ( color.length > 0 ) {
-                    material.vertexColors = color;
-                } else {
-                    //material.color.setHex(0xffffff);
-                    material.color.r = 0.6;
-                    material.color.g = 0.6;
-                    material.color.b = 0.6;
-                }
-                */
-
-                //material.size = 2;
-                material.sizeAttenuation = false;
-
-                // build mesh
-
-                var mesh = new THREE.Points( geometry, material );                        
-                mesh.name = "pcd";
-
-                //return mesh;
-                // add to parent.
-                _self.world.webglGroup.add(mesh);
-                
-                _self.points = mesh;
-                _self.pcd = pcd;
-                //_self.points_backup = mesh;
-
-                _self.build_points_index();
-                _self.points_load_time = new Date().getTime();
-
-                console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "loaded pionts ", _self.points_load_time - _self.create_time, "ms");
-
-                _self._afterPreload();
+        this._afterPreload();
     }
 
     this.preload = function(on_preload_finished){
@@ -190,7 +189,7 @@ function Lidar(sceneMeta, world, frameInfo){
     };
 
 
-    this.preload_loader=function(on_preload_finished){
+    this.preload_pcdloader=function(on_preload_finished){
         this.on_preload_finished = on_preload_finished;
 
         var loader = new PCDLoader();

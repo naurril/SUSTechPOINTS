@@ -937,6 +937,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                     if (box && box !== this.selected_box){
                         box.obj_type = this.selected_box.obj_type;
                         box.obj_attr = this.selected_box.obj_attr;
+                        box.world.lidar.set_box_points_color(box);
+                        box.world.lidar.update_points_color();
+                        box.world.annotation.color_box(box);
                         //saveList.push(w);
                         w.annotation.setModified();
                     }                
@@ -960,7 +963,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
                         box.scale.y = this.selected_box.scale.y;
                         box.scale.z = this.selected_box.scale.z;
                         //saveList.push(w);
-
+                        //this.data.world.lidar.set_box_points_color(box);
                         w.annotation.setModified();
                     }                
                     
