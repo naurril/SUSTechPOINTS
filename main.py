@@ -1,4 +1,5 @@
 
+from collections import UserDict
 import cherrypy
 from cherrypy.lib import auth_digest
 
@@ -182,7 +183,7 @@ class Api(object):
           with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
             json.dump(ann, f, indent=2, sort_keys=True)
           
-          return {'result':"success"}
+        return {'result':"success"}
       else:
         print("saving disabled.")
         return {'result':"fail", 'cause':"saving disabled"}
@@ -342,8 +343,24 @@ class Api(object):
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
+    def get_user_info(self):
+      
+      userid = get_user_id()       
+      readonly = False
+
+      if usercfg[userid]['readonly'] == 'yes':
+        readonly = True
+
+      return {
+        'annotator': userid,
+        'readonly': readonly
+      }
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
     def scenemeta(self, scene):
-      return scene_reader.get_one_scene(scene)
+      meta = scene_reader.get_one_scene(scene)
+      return meta
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
