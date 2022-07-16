@@ -36,6 +36,10 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     // update scene selector ui
     
 
+    this.setUserInfo = function(info)
+    {
+        ui.querySelector("#user-info").innerText = info.annotator + (info.readonly?" : readonly":"");
+    }
     
 
     this.updateSceneList = function(sceneDescList){

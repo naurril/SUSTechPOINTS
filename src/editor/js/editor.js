@@ -25,6 +25,7 @@ import { MovableView } from './popup_dialog.js';
 import {globalKeyDownManager} from './keydown_manager.js';
 import {vector_range} from "./util.js"
 import { checkScene } from './error_check.js';
+import { jsonrpc } from './jsonrpc.js';
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
@@ -245,10 +246,23 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             //return;
         };
 
+
+        this.updateUserInfo();
+
         this.onWindowResize();
+
+
+
     };
 
 
+    this.updateUserInfo = function()
+    {
+        jsonrpc("/api/get_user_info").then(ret=>{
+            logger.log(ret);
+            this.header.setUserInfo(ret);
+        })
+    }
 
     this.run = function(){
         //this.animate();
