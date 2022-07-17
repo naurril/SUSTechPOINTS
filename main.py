@@ -464,7 +464,6 @@ if authcfg['global']['auth'] == 'yes':
         'tools.staticdir.on': True,
         'tools.staticdir.dir': "./data",
         'tools.caching.on': True,
-        'tools.caching.delay': 3600,
 
         'tools.auth_digest.on': True,
         'tools.auth_digest.realm': 'localhost',
@@ -493,11 +492,13 @@ if authcfg['global']['auth'] == 'yes':
         'tools.staticdir.on': True,
         'tools.staticdir.dir': "./data",
         'tools.caching.on': True,
-        'tools.caching.delay': 3600,
-        # 'tools.response_headers.on': True,
-        # 'tools.response_headers.headers': [
-        #         ('cache-control', 'max-age=86400, public')
-        #     ],
+        'tools.gzip.on': True,
+        'tools.etags.on': True,
+        'tools.etags.autotags': True,
+        'tools.response_headers.on': True,
+        'tools.response_headers.headers': [
+                 ('cache-control', 'public, max-age=604800')
+             ],
         'tools.check_file_access.on': True,
         'tools.check_file_access.default': True,
       }
