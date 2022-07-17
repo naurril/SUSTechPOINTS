@@ -81,6 +81,41 @@ class PointCloudReader
     };
   }
 
+
+  extractPcdHeader(data)
+  {
+    let arr = new Uint8Array( data );
+    
+    let target = [0x0a, 0x44, 0x41, 0x54, 0x41, 0x20]; //\nDATA xxxx
+
+    
+    let s = 0;
+    let i = 0;
+    let match = false;
+    for (i = 0; i < arr.length; i++)
+    {   
+        if (arr[i] == target[s]) 
+            s = s + 1; 
+        else if (arr[i] != 0 && arr[i] < 0x7f)
+            s = 0;
+        else
+            //failed
+            break;
+        
+        if (s == target.length){
+            // match
+            match = true;
+            break;
+        }
+    }
+    
+    if (match)
+        return arr.slice(0, i+20);
+    else
+        return "";
+
+  }
+
   parsePcd( data, url) {
 
     function parseHeader( data ) {
@@ -192,7 +227,8 @@ class PointCloudReader
 
     }
 
-    var textData = new TextDecoder().decode( new Uint8Array( data ) );
+    let header = this.extractPcdHeader(data);
+    let textData = new TextDecoder().decode(header);
 
     // parse header (always ascii format)
 
