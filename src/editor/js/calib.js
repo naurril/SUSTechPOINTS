@@ -33,7 +33,13 @@ class Calib
 
             if (default_calib.camera_to_lidar){
                 let ret = [];
-                new THREE.Matrix4().set(...default_calib.camera_to_lidar).invert().toArray(ret,0);
+                let m = new THREE.Matrix4().set(...default_calib.camera_to_lidar);
+                m.toArray(ret,0);
+                console.log(ret);
+
+                // m.invert();
+                // m.toArray(ret,0);
+                // console.log(ret);
                 return ret;
             }      
         }

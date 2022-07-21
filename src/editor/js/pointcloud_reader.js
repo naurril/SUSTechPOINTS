@@ -257,6 +257,8 @@ class PointCloudReader
 
     if ( PCDheader.data === 'ascii' || PCDheader.data === 'ascill') {
 
+        textData = new TextDecoder().decode(data);
+
         var offset = PCDheader.offset;
         var pcdData = textData.substr( PCDheader.headerLen );
         var lines = pcdData.split( '\n' );
