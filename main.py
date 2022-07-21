@@ -422,11 +422,13 @@ class Api(object):
 
 cherrypy.config.update("./conf/server.conf")
 
-cherrypy.config.update({
-  'server.ssl_module': 'builtin',
-  'server.ssl_certificate': './conf/cert/cert.crt',
-  'server.ssl_private_key': './conf/cert/cert.key',
-})
+
+if authcfg['global']['auth'] == 'yes':
+  cherrypy.config.update({
+    'server.ssl_module': 'builtin',
+    'server.ssl_certificate': './conf/cert/cert.crt',
+    'server.ssl_private_key': './conf/cert/cert.key',
+  })
 
 
 root_config = {
