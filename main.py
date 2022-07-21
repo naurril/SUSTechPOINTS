@@ -373,7 +373,7 @@ class Api(object):
         print("user id", userid)
         scenes = usercfg[userid]['scenes']
       else:
-        scenes = []
+        scenes = ".*"
       return scene_reader.get_all_scene_desc(scenes)
 
     @cherrypy.expose    
