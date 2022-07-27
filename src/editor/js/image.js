@@ -942,7 +942,7 @@ class ImageContextManager {
         this.cfg = cfg;
         this.on_img_click = on_img_click;
 
-        //this.addImage("", true);
+        this.addImage("", true);
 
 
         this.selectorUi.onmouseenter=function(event){
