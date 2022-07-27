@@ -64,7 +64,12 @@ def get_user_id():
     if 'token' in cherrypy.request.params:
       user_token = cherrypy.request.params['token']
 
+
     if user_token and user_token != 'null':
+      if 'tokens' in authcfg:
+        if user_token in authcfg['tokens']:
+          return authcfg['tokens'][user_token]
+
       try:
         secret = authcfg['token']['secret']
         data = jwt.decode(user_token, secret, algorithms='HS256')
