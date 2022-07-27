@@ -162,7 +162,7 @@ class Api(object):
       if args.save=='yes':
 
         userid = get_user_id()
-        
+        print('save', userid)
           
         # cl = cherrypy.request.headers['Content-Length']
         rawbody = cherrypy.request.body.readline().decode('UTF-8')
