@@ -5,24 +5,48 @@ import numpy as np
 import math
 import cv2
 import pypcd.pypcd as pypcd
+import argparse
+import re
 
+parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
+parser.add_argument('data_folder', type=str, default='./data', help="")
+parser.add_argument('scene', type=str, default='', help="")
+parser.add_argument('camera_type', type=str, default='', help="")
+parser.add_argument('camera', type=str, default='', help="")
+parser.add_argument('output_folder', type=str, default='', help="")
+parser.add_argument('--line_width', type=int, default=1, help="")
+parser.add_argument('--radar', type=str, choices=['yes','no'],default='no', help="")
+parser.add_argument('--obj_type_filter', type=str, default='.*')
+parser.add_argument('--frame_filter', type=str, default='.*')
+parser.add_argument('--overwrite_file', type=str,  choices=['yes','no'], default='no')
+
+args = parser.parse_args()
 
 
 ###############################
 # config 
 
-rootdir = "../data/20200411-2hz"
-camera = "front"
-linewidth = 1  #box line width
+rootdir = os.path.join(args.data_folder, args.scene)
+camera_type = args.camera_type
+camera = args.camera
+linewidth = args.line_width  #box line width
+obj_type_filter = args.obj_type_filter
 
-targetdir = "../image_temp/camera_2radars"
+targetdir = args.output_folder
+frame_filter = args.frame_filter
+
+
+target_folder =os.path.join(targetdir, args.scene, camera_type, camera)
+if not os.path.exists(target_folder):
+    os.makedirs(target_folder)
+
 radar_name_list = ["front_tracks", "front_points"]
 radar_point_size = 8
 
 
 ############################################################################################3
 # implementation
-imgfolder  = os.path.join(rootdir, "camera", camera)
+imgfolder  = os.path.join(rootdir, camera_type, camera)
 lidarfolder = os.path.join(rootdir, "lidar")
 labelfolder = os.path.join(rootdir, "label")
 radarfolder = os.path.join(rootdir, "radar")
@@ -33,7 +57,7 @@ frames.sort()
 image_ext = os.path.splitext(images[0])[1]
 
 
-with open(os.path.join(rootdir,"calib","camera", camera+".json")) as f:
+with open(os.path.join(rootdir,"calib",camera_type, camera+".json")) as f:
     calib = json.load(f)
 
 extrinsic = np.array(calib["extrinsic"])
@@ -114,7 +138,7 @@ def get_color(obj_id):
         colormap[obj_id] = color
         return color
 
-def euler_angle_to_rotate_matrix(eu, t):
+def euler_angle_to_rotate_matrix(eu, t):  # ZYX order.
     theta = eu
     #Calculate rotation about x axis
     R_x = np.array([
@@ -203,18 +227,36 @@ def box_to_2d_points(box):
     
 
 
+print('frames', frame_filter)
 
 for f in frames:
     #f = frames[20]
-    print(f)
+
+    
+
+    
     frameid = os.path.splitext(f)[0]
     imgfile = frameid+image_ext
     labelfile = frameid+".json"
     
-    with open(os.path.join(labelfolder, labelfile)) as tempfile:
-        labels  = json.load(tempfile)
+    if not re.fullmatch(frame_filter, frameid):
+        continue
 
-    imgfile_path = os.path.join(rootdir, "camera", camera, imgfile)
+    print(frameid)
+
+    labels = []
+    json_file = os.path.join(labelfolder, labelfile)
+    if os.path.exists(json_file):
+        with open(json_file) as tempfile:
+            labels  = json.load(tempfile)
+    else:
+        print("label doen't exists")
+
+    
+    imgfile_path = os.path.join(rootdir, camera_type, camera, imgfile)
+    if not os.path.exists(imgfile_path):
+        print("image file doesnt exist", imgfile_path)
+        continue
     img = cv2.imread(imgfile_path, cv2.IMREAD_UNCHANGED)
 
 
@@ -234,9 +276,18 @@ for f in frames:
     #imgcanvas = np.concatenate([img, alpha_channel], axis=2)
     imgcanvas = np.zeros(img.shape, dtype=img.dtype)
     imgcanvas_headplane = np.zeros(img.shape, dtype=img.dtype)
+    color_index = 0
     for l in labels:
         #color = get_color(l["obj_id"])
-        color = get_obj_color(l["obj_type"])
+        obj_type = l['obj_type']
+        if not re.fullmatch(args.obj_type_filter, obj_type):
+            continue
+
+        #color = get_obj_color(l["obj_type"])
+
+        color = colorlist[color_index]
+        color_index = (color_index+1) % len(colorlist)
+        
         box_array = box_to_nparray(l["psr"])
         points_in_image = box_to_2d_points(box_array)
         if points_in_image is not None:
@@ -257,6 +308,7 @@ for f in frames:
             cv2.line(imgcanvas,tuple(pts[2]),tuple(pts[6]),color,linewidth)
             cv2.line(imgcanvas,tuple(pts[3]),tuple(pts[7]),color,linewidth)
 
+            cv2.putText(imgcanvas, l['obj_id'], tuple(pts[3]), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
     final_img = img
     final_img[imgcanvas!=0] = 0.2 * final_img[imgcanvas!=0]
@@ -268,39 +320,40 @@ for f in frames:
 
     # draw radar points
 
-    imgcanvas_radar = np.zeros(img.shape, dtype=img.dtype)
-    for radar_name in radar_name_list:
-        radar_calib_file = os.path.join(rootdir, "calib", "radar", radar_name+".json")
-        with open(radar_calib_file) as tempf:
-            radar_calib = json.load(tempf)
+    if args.radar == 'yes':
+        imgcanvas_radar = np.zeros(img.shape, dtype=img.dtype)
+        for radar_name in radar_name_list:
+            radar_calib_file = os.path.join(rootdir, "calib", "radar", radar_name+".json")
+            with open(radar_calib_file) as tempf:
+                radar_calib = json.load(tempf)
 
-        c = radar_calib["color"]
-        color = [c[2]*255, c[1]*255, c[0]*255]
+            c = radar_calib["color"]
+            color = [c[2]*255, c[1]*255, c[0]*255]
 
-        #color = np.int8(np.array(color)*255)
-        print(color)
-        radar_file = os.path.join(radarfolder, radar_name, f)
+            #color = np.int8(np.array(color)*255)
+            print(color)
+            radar_file = os.path.join(radarfolder, radar_name, f)
 
 
-        if os.path.exists(radar_file):
-            pc = pypcd.PointCloud.from_path(radar_file)
-            position =  np.stack([pc.pc_data['x'], pc.pc_data['y'], pc.pc_data['z']])
-            position = np.concatenate([position, np.ones((1,position.shape[1]))])
-            #print(position)
+            if os.path.exists(radar_file):
+                pc = pypcd.PointCloud.from_path(radar_file)
+                position =  np.stack([pc.pc_data['x'], pc.pc_data['y'], pc.pc_data['z']])
+                position = np.concatenate([position, np.ones((1,position.shape[1]))])
+                #print(position)
 
-            #
-            trans = euler_angle_to_rotate_matrix(np.array(radar_calib["rotation"]), np.array(radar_calib["translation"]))
-            translated_position = np.matmul(trans, position)
-            #translated_position = translated_position[0:3,:]
+                #
+                trans = euler_angle_to_rotate_matrix(np.array(radar_calib["rotation"]), np.array(radar_calib["translation"]))
+                translated_position = np.matmul(trans, position)
+                #translated_position = translated_position[0:3,:]
 
-            img_pts = np.int32(proj_pts3d_to_img(translated_position))
+                img_pts = np.int32(proj_pts3d_to_img(translated_position))
 
-            for p in img_pts.T:
-                cv2.circle(imgcanvas_radar, tuple(p), radar_point_size, color, radar_point_size+2)
+                for p in img_pts.T:
+                    cv2.circle(imgcanvas_radar, tuple(p), radar_point_size, color, radar_point_size+2)
 
-            #combine
-            final_img[imgcanvas_radar!=0] = 0.1 * final_img[imgcanvas_radar!=0]
-            final_img = final_img + imgcanvas_radar*0.9
+                #combine
+                final_img[imgcanvas_radar!=0] = 0.1 * final_img[imgcanvas_radar!=0]
+                final_img = final_img + imgcanvas_radar*0.9
     
 
 
@@ -309,7 +362,17 @@ for f in frames:
 
 
     #cv2.imwrite(os.path.join(targetdir, "{0:s}.jpg".format(frameid)), final_img)
-    cv2.imwrite(os.path.join(targetdir, "{0:s}.jpg".format(frameid)), final_img)
+
+    
+
+    target_file = os.path.join(target_folder, "{0:s}.jpg".format(frameid))
+    if os.path.exists(target_file) and args.overwrite_file == 'no':
+        print('file exists', target_file)
+        continue
+    else:
+        ret = cv2.imwrite(target_file, final_img)
+        if not ret:
+            print("save file failed:", target_file)
     #print("{0:s} written".format(frameid))
 
 
