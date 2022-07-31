@@ -1,21 +1,30 @@
 
-from collections import UserDict
-import cherrypy
-from cherrypy.lib import auth_digest
 
-import os
-import json
-from jinja2 import Environment, FileSystemLoader
-env = Environment(loader=FileSystemLoader('./'))
 
-import os
-#import sys
-import scene_reader
-from tools  import check_labels as check
+import logging
+
+logging.basicConfig(filename='./logs/sustechpoints.log',
+  format='%(asctime)s %(message)s', 
+  datefmt='%m:%d:%Y:%I:%M:%S %p',
+  level=logging.DEBUG)
+
+
 import argparse
 import configparser
 import jwt
 import re
+import os
+import json
+
+
+import cherrypy
+from cherrypy.lib import auth_digest
+
+from jinja2 import Environment, FileSystemLoader
+env = Environment(loader=FileSystemLoader('./'))
+
+import scene_reader
+from tools  import check_labels as check
 from cherrypy.process.plugins import Monitor
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
@@ -79,7 +88,7 @@ def get_user_id():
 
     return 'guest'
 
-  return ''
+  return 'guest'
 
 # Add a Tool to our new Toolbox.
 @cherrypy.tools.register('before_handler')
@@ -167,12 +176,12 @@ class Api(object):
       if args.save=='yes':
 
         userid = get_user_id()
-        print('save', userid)
           
         # cl = cherrypy.request.headers['Content-Length']
         rawbody = cherrypy.request.body.readline().decode('UTF-8')
         data = json.loads(rawbody)
-
+        print('save', userid, data[0]['scene'])
+        
         for d in data:
           scene = d["scene"]
           frame = d["frame"]
@@ -182,15 +191,16 @@ class Api(object):
             raise cherrypy.HTTPError(403)
           
           if usercfg[userid]['readonly'] == 'yes':
-            print("saving disabled for", userid)
+            logging.info("saving disabled for", userid)
             return {'result':"fail", 'cause':"saving disabled for current user"}
 
+          logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
           with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
             json.dump(ann, f, indent=2, sort_keys=True)
           
         return {'result':"success"}
       else:
-        print("saving disabled.")
+        logging.info("saving disabled.")
         return {'result':"fail", 'cause':"saving disabled"}
         
       
