@@ -8,7 +8,7 @@
  *
  */
 
-import {
+ import {
 	DefaultLoadingManager,
 	FileLoader,	
 	LoaderUtils,	
@@ -335,6 +335,16 @@ PCDLoader.prototype = {
 
 				}
 
+				if ( offset.vx !== undefined ) {
+					var vx,vy;
+					vx = parseFloat( line[ offset.vx ] );
+					vy = parseFloat( line[ offset.vy ] );
+
+					velocity.push(vx);
+					velocity.push(vy);
+					velocity.push(0);
+				}
+
 
 				if (offset.intensity !== undefined) {
 					intensity.push( parseInt( line[ offset.intensity ] ));
@@ -384,6 +394,23 @@ PCDLoader.prototype = {
 						position.push( dataview.getFloat32( ( PCDheader.points * offset.x ) + size.x * i, this.littleEndian ) );
 						position.push( dataview.getFloat32( ( PCDheader.points * offset.y ) + size.y * i, this.littleEndian ) );
 						position.push( dataview.getFloat32( ( PCDheader.points * offset.z ) + size.z * i, this.littleEndian ) );
+					}
+					
+				}
+
+				if ( offset.vx !== undefined ) {
+				
+					if (size.vx==8)
+					{
+						velocity.push( dataview.getFloat64( ( PCDheader.points * offset.vx ) + size.vx * i, this.littleEndian ) );
+						velocity.push( dataview.getFloat64( ( PCDheader.points * offset.vy ) + size.vy * i, this.littleEndian ) );
+						velocity.push( 0 );
+					}
+					else
+					{
+						velocity.push( dataview.getFloat32( ( PCDheader.points * offset.vx ) + size.vx * i, this.littleEndian ) );
+						velocity.push( dataview.getFloat32( ( PCDheader.points * offset.vy ) + size.vy * i, this.littleEndian ) );
+						velocity.push( 0 );
 					}
 					
 				}
