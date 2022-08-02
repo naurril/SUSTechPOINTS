@@ -32,11 +32,17 @@ async function createMainEditor(){
   let dataCfg = pointsGlobalConfig;
   
   let data = new Data(dataCfg);
-  await data.init();
-
+  
   let editor = new Editor(maindiv.lastElementChild, maindiv, editorCfg, data, "main-editor")
+  editor.hide(); //hide by default
   window.editor = editor;
+
+  // don't do async things before here.
+
+  await data.init();
+  editor.init();
   editor.run();
+  
   return editor;
 } 
 

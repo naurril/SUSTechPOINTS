@@ -138,6 +138,9 @@ class Root(object):
       tmpl = env.get_template('./build/index.html')
       return tmpl.render()
   
+    def user(self, token=""):
+      tmpl = env.get_template('./build/index.html')
+      return tmpl.render()
     # @cherrypy.expose
     # def icon(self):
     #   tmpl = env.get_template('test_icon.html')

@@ -31,8 +31,8 @@
     
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="main-editor"></div>
+    	<noscript>You need to enable JavaScript to run this app.</noscript>
+    	<div id="main-editor"></div>
 		<!-- div id="batch-editor"-->
 		</div>
 		<template id="editor-template"><div id="main-ui" class="editor-ui">
@@ -78,7 +78,7 @@
 						</div>
 
 						<div id="static-buttons">
-							<div id="user-info"></div>
+							<a><div id="user-info"></div></a>
 							<div id="changed-mark" class="ui-button">
 								<div id='save-button'>
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
@@ -1456,7 +1456,10 @@
 			</div>
 		</template>
 
-    <div id="root"></div>
+		<div id='react-app-wrapper'>
+			<div id="root"></div>
+		</div>
+		
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

@@ -250,6 +250,10 @@ canvas {
     top: 0;
 }
 
+#header #user-info {
+	cursor: pointer;
+}
+
 #config-button {
     width: 20px;
     height: 20px;
@@ -1124,4 +1128,9 @@ td {
 	height: 100%;
 	width: 100%;
 	z-index: 10;	
+}
+
+
+#react-app-wrapper {
+	display: none;
 }

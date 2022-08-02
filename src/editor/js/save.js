@@ -66,8 +66,6 @@ function saveWorldList(worldList){
     
     saveDelayTimer = setTimeout(()=>{
             
-        logger.log("save delay expired.");
-
         //pandingSaveList will be cleared soon.
         let scene = pendingSaveList[0].frameInfo.scene;
         

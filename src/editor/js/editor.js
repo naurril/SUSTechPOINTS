@@ -69,14 +69,23 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.currentMainEditor = this;  // who is on focus, this or batch-editor-manager?
 
-    this.init = function(editorUi) {
+    this.hide = function()
+    {
+        this.editorUi.style.display = 'none';
+    }
+
+    this.show = function()
+    {
+        this.editorUi.style.display = '';
+    }
     
+
+    this.init = function() {
+    
+        let editorUi = this.editorUi;
+
         let self = this;
-        this.editorUi = editorUi;
-    
-        
-
-
+       
         this.playControl = new PlayControl(this.data);
 
         this.configUi = new ConfigUi(editorUi.querySelector("#config-button"), editorUi.querySelector("#config-wrapper"), this);
@@ -2782,10 +2791,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.onAnnotationUpdatedByOthers = function(scene, frames){
         this.data.onAnnotationUpdatedByOthers(scene, frames);
     };
-
-
-
-    this.init(editorUi);
 
 };
 

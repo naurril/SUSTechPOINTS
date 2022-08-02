@@ -16,6 +16,8 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
     this.cameraSelectorUi = ui.querySelector("#camera-selector");
     this.changedMarkUi = ui.querySelector("#changed-mark");
 
+    this.userInfoUi = this.ui.querySelector("#user-info");
+
     this.onSceneChanged = onSceneChanged;
     this.onFrameChanged = onFrameChanged;
     this.onObjectSelected = onObjectSelected;
@@ -35,10 +37,14 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
 
     // update scene selector ui
     
+    this.userInfoUi.onclick = ()=>{
+        window.editor.hide()
+        document.getElementById('react-app-wrapper').style.display = 'block';
+    }
 
     this.setUserInfo = function(info)
     {
-        ui.querySelector("#user-info").innerText = info.annotator + (info.readonly?" : readonly":"");
+        this.userInfoUi.innerText = info.annotator + (info.readonly?" : readonly":"");
     }
     
 
@@ -46,8 +52,10 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         let scene_selector_str = "<option>--scene--</option>";
         for (let scene in sceneDescList)
         {
-            if (data.sceneDescList[scene])
-                scene_selector_str += "<option value="+scene +">"+scene + " - " +data.sceneDescList[scene].scene + "</option>";
+            if (data.sceneDescList[scene]){
+                let d = data.sceneDescList[scene];
+                scene_selector_str += "<option value="+scene +">"+scene + " - " +d.scene + ` (${d.label_files}/${d.frames})` + "</option>";
+            }
             else
                 scene_selector_str += "<option value="+scene +">"+scene+ "</option>";
         }

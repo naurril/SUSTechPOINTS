@@ -30,11 +30,16 @@ def get_scene_names():
 
 def get_scene_desc(s):
     scene_dir = os.path.join(root_dir, s)
+    desc = {}
     if os.path.exists(os.path.join(scene_dir, "desc.json")):
         with open(os.path.join(scene_dir, "desc.json")) as f:
             desc = json.load(f)
-            return desc
-    return None
+    
+    desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'lidar')))
+    desc['label_files'] = len(os.listdir(os.path.join(scene_dir, 'label')))
+
+    return desc
+    
 
 def get_one_scene(s):
     scene = {
