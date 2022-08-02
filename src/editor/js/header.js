@@ -54,7 +54,7 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         {
             if (data.sceneDescList[scene]){
                 let d = data.sceneDescList[scene];
-                scene_selector_str += "<option value="+scene +">"+scene + " - " +d.scene + ` (${d.label_files}/${d.frames})` + "</option>";
+                scene_selector_str += "<option value="+scene +">"+scene + " - " + (d.scene ? d.scene : '') + ` (${d.label_files}/${d.frames})` + "</option>";
             }
             else
                 scene_selector_str += "<option value="+scene +">"+scene+ "</option>";
