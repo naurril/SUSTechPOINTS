@@ -67,6 +67,34 @@ class MovableView
 }
 
 
+class ResizableMoveableView extends MovableView{
+    constructor(ui)
+    {
+        
+        super(ui.querySelector("#header"), ui.querySelector("#view"))
+        this.ui = ui;
+        this.contentUi =  ui.querySelector("#content");
+        this.viewUi =  ui.querySelector("#view");
+
+        this.resizeObserver = new ResizeObserver(elements=>{
+
+            if (elements[0].contentRect.height === 0)
+                return;                
+            this.adjustSize();
+
+        });
+
+        this.resizeObserver.observe(ui.querySelector("#view"));
+
+        this.adjustSize();
+   }
+
+   adjustSize()
+   {
+       this.contentUi.style.height = (this.viewUi.clientHeight - this.contentUi.offsetTop) + "px";
+   }
+}
+
 class PopupDialog extends MovableView
 {
     constructor(ui)
@@ -187,4 +215,4 @@ class PopupDialog extends MovableView
 }
 
 
-export {PopupDialog, MovableView}
+export {PopupDialog, ResizableMoveableView, MovableView}

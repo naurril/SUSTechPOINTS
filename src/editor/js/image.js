@@ -1,7 +1,7 @@
 
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {globalObjectCategory, } from './obj_cfg.js';
-import { MovableView, PopupDialog } from "./popup_dialog.js";
+import { MovableView, PopupDialog, ResizableMoveableView } from "./popup_dialog.js";
 
 function BoxImageContext(ui){
 
@@ -193,7 +193,7 @@ function BoxImageContext(ui){
 
 
 
-class ImageContext extends MovableView{
+class ImageContext extends ResizableMoveableView{
 
     constructor(parentUi, manager, name, autoSwitch, cfg, on_img_click){
 
@@ -205,8 +205,9 @@ class ImageContext extends MovableView{
 
         parentUi.appendChild(tool);
         let ui = parentUi.lastElementChild;
+        
 
-        super(ui.querySelector("#header"), ui.querySelector("#view"));
+        super(ui);
         this.ui = ui;
         this.cfg = cfg;
         this.on_img_click = on_img_click;
@@ -221,6 +222,10 @@ class ImageContext extends MovableView{
 
         this.canvas = this.ui.querySelector("#maincanvas-svg");
         this.canvas.addEventListener("wheel", this.onWheel.bind(this));
+        this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
+        this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
+        this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
+        this.ui.addEventListener("contextmenu", e => e. preventDefault());
 
         this.viewBox = {
             x: 0,
@@ -232,27 +237,70 @@ class ImageContext extends MovableView{
 
     point = {};
     scale = 1.0;
-    
+    origin = {x: 0, y: 0};
+
+    WIDTH= 2048;
+    HEIGHT = 1536;
     onWheel(e){
         
-        this.point = {
-            x: e.offsetX/e.currentTarget.clientWidth*2048,
-            y: e.offsetY/e.currentTarget.clientHeight*1536
-        };
+        let point = this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
         
-        this.scale *= (e.wheelDelta < 0)?1.1:0.9;
-
-        this.scale = Math.max(0.2, Math.min(this.scale, 3.0));
-
-        this.viewBox.height = 2048*this.scale;
-        this.viewBox.width = 1536*this.scale;
+        let delta = (e.wheelDelta < 0)? 0.1: -0.1;
         
+        
+        this.viewBox.x += e.offsetX /this.canvas.clientWidth * (this.viewBox.width-this.WIDTH*this.scale*(1+delta));
+        this.viewBox.y += e.offsetY /this.canvas.clientHeight * (this.viewBox.height-this.HEIGHT*this.scale*(1+delta));
 
+        // after x/y adj
+        this.scale *= (delta + 1);
+
+        // this.scale = Math.max(0.2, Math.min(this.scale, 3.0));
+
+        this.viewBox.width = this.WIDTH * this.scale;
+        this.viewBox.height  = this.HEIGHT * this.scale;
+
+
+        this.updateViewBox();
+
+        console.log(e.wheelDelta, point.x, point.y, e.offsetX, e.offsetY);
+
+    }
+
+    updateViewBox()
+    {
         this.canvas.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+    }
 
-        console.log(e.wheelDelta, this.point.x, this.point.y, e.offsetX, e.offsetY);
+    uiPointToSvgPoint(p)
+    {
+        return    {
+            x: p.x/this.canvas.clientWidth*this.viewBox.width + this.viewBox.x,
+            y: p.y/this.canvas.clientHeight*this.viewBox.height + this.viewBox.y
+        };
+    }
+    mouseDownPoint = {};
+    mouseDownViewBox = {};
+    mouseDown = false;
+    onMouseDown(e){
+        this.mouseDownPoint = {x: e.offsetX, y: e.offsetY};//this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
+        this.mouseDown = true;
+        this.mouseDownViewBox = {...this.viewBox};
+        console.log(this.mouseDownPoint.x, this.mouseDownPoint.y);
+        e.preventDefault();
+    }
+    onMouseUp(e){
+        this.mouseDown = false;
+        e.preventDefault();
+    }
+    onMouseMove(e){
 
-        
+        if (this.mouseDown)
+        {
+            //let point = this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
+            this.viewBox.x = this.mouseDownViewBox.x - (e.offsetX - this.mouseDownPoint.x)/this.canvas.clientWidth*this.viewBox.width;
+            this.viewBox.y = this.mouseDownViewBox.y - (e.offsetY - this.mouseDownPoint.y)/this.canvas.clientHeight*this.viewBox.height;
+            this.updateViewBox();
+        }
 
     }
 
@@ -298,7 +346,7 @@ class ImageContext extends MovableView{
 
 
     init_image_op(func_get_selected_box){
-        this.ui.onclick = (e)=>this.on_click(e);
+        //this.ui.onclick = (e)=>this.on_click(e);
         this.get_selected_box = func_get_selected_box;
         // var h = parentUi.querySelector("#resize-handle");
         // h.onmousedown = resize_mouse_down;
