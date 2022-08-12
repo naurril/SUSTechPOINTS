@@ -194,7 +194,7 @@ class Api(object):
             raise cherrypy.HTTPError(403)
           
           if usercfg[userid]['readonly'] == 'yes':
-            logging.info("saving disabled for", userid)
+            logging.info("saving disabled for " + userid)
             return {'result':"fail", 'cause':"saving disabled for current user"}
 
           logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
