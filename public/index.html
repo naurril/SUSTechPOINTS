@@ -1442,19 +1442,45 @@
 			</div>
 		</template>
 		<template id="image-wrapper-template">
-			<div class="image-wrapper">
-				<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
-					<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
-					xlink:href=""
-					/>
-					<g id="svg-boxes"></g>
-					<g id="svg-points"></g>
-				</svg>
-				<div id="move-handle">
+			
+
+			<div id="image-wrapper" class="popup-window-wrapper" tabindex="-1">
+				<div id="view" class="non-selectable image-view">
+					<div id="header">
+						<span id="title">Image</span>						
+						<div id="buttons">
+							<div id="btn-restore" class="ui-button"  title="restore">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<rect x = 6 y = 6 width=12 height=12></rect>
+								</g></svg>
+							</div>
+							<div id="btn-maximize" class="ui-button"  title="maximize">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<rect x = 4 y = 4 width=16 height=16></rect>
+								</g></svg>
+							</div>
+							<div id="btn-exit" class="ui-button"  title="exit">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<path d="M4 4 L 20 20 M 20 4 L 4 20"></path>
+								</g></svg>
+							</div>
+						</div>
+					</div>
+					
+					<div id="content">				
+						<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
+							<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
+							xlink:href=""
+							/>
+							<g id="svg-boxes"></g>
+							<g id="svg-points"></g>
+						</svg>
+					</div>
+
 				</div>
-				<header id="header"></header>
 			</div>
 		</template>
+		
 
 		<div id='react-app-wrapper'>
 			<div id="root"></div>

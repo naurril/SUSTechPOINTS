@@ -1,7 +1,7 @@
 
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {globalObjectCategory, } from './obj_cfg.js';
-import { MovableView } from "./popup_dialog.js";
+import { MovableView, PopupDialog } from "./popup_dialog.js";
 
 function BoxImageContext(ui){
 
@@ -206,10 +206,7 @@ class ImageContext extends MovableView{
         parentUi.appendChild(tool);
         let ui = parentUi.lastElementChild;
 
-        let handle = ui.querySelector("#move-handle");
-        
-        super(handle, ui);
-
+        super(ui.querySelector("#header"), ui.querySelector("#view"));
         this.ui = ui;
         this.cfg = cfg;
         this.on_img_click = on_img_click;
@@ -221,6 +218,42 @@ class ImageContext extends MovableView{
             this.manager.bringUpMe(this);
             return true;
         });
+
+        this.canvas = this.ui.querySelector("#maincanvas-svg");
+        this.canvas.addEventListener("wheel", this.onWheel.bind(this));
+
+        this.viewBox = {
+            x: 0,
+            y: 0,
+            width: 2048,
+            height: 1536
+        };
+    }
+
+    point = {};
+    scale = 1.0;
+    
+    onWheel(e){
+        
+        this.point = {
+            x: e.offsetX/e.currentTarget.clientWidth*2048,
+            y: e.offsetY/e.currentTarget.clientHeight*1536
+        };
+        
+        this.scale *= (e.wheelDelta < 0)?1.1:0.9;
+
+        this.scale = Math.max(0.2, Math.min(this.scale, 3.0));
+
+        this.viewBox.height = 2048*this.scale;
+        this.viewBox.width = 1536*this.scale;
+        
+
+        this.canvas.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+
+        console.log(e.wheelDelta, this.point.x, this.point.y, e.offsetX, e.offsetY);
+
+        
+
     }
 
     onDragableUiMounseDown()
@@ -254,10 +287,10 @@ class ImageContext extends MovableView{
     setImageName(name)
     {
         let [cameraType, cameraName] = name.split(":");
-        this.cameraType = cameraType;
+    this.cameraType = cameraType;
         this.cameraName = cameraName;
         this.name = name;
-        this.ui.querySelector("#header").innerText = (this.autoSwitch?"auto-":"")+name;
+        this.ui.querySelector("#title").innerText = (this.autoSwitch?"auto-":"")+name;
     }
 
     
