@@ -225,6 +225,7 @@ class ImageContext extends ResizableMoveableView{
         this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
         this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
         this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
+        this.canvas.addEventListener("mouseleave", this.onMouseUp.bind(this));
         this.ui.addEventListener("contextmenu", e => e. preventDefault());
 
         this.viewBox = {
@@ -233,6 +234,8 @@ class ImageContext extends ResizableMoveableView{
             width: 2048,
             height: 1536
         };
+
+        this.rects = this.ui.querySelector("#svg-rectangles");
     }
 
     point = {};
@@ -278,29 +281,98 @@ class ImageContext extends ResizableMoveableView{
             y: p.y/this.canvas.clientHeight*this.viewBox.height + this.viewBox.y
         };
     }
-    mouseDownPoint = {};
+    mouseDownPointUi = {};
+    mouseDownPointSvg = {};
     mouseDownViewBox = {};
     mouseDown = false;
+
+    editingRectangle = {x1:0, y1:0, x2:0,y2:0};
+    editingRectangleSVg = null;
+
     onMouseDown(e){
-        this.mouseDownPoint = {x: e.offsetX, y: e.offsetY};//this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
+        e.preventDefault();
+        this.mouseDownPointUi = {x: e.offsetX, y: e.offsetY};//this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
+
+        let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
+        this.mouseDownPointSvg = p; //this.uiPointToSvgPoint(this.mouseDownPointUi);
+
         this.mouseDown = true;
         this.mouseDownViewBox = {...this.viewBox};
-        console.log(this.mouseDownPoint.x, this.mouseDownPoint.y);
-        e.preventDefault();
+        console.log(this.mouseDownPointUi.x, this.mouseDownPointUi.y);
+
+        
+        if (e.buttons == 1) //left
+        {
+            if (!this.editingRectangleSvg){
+                this.editingRectangle = {
+                    x1: this.mouseDownPointSvg.x,
+                    y1: this.mouseDownPointSvg.y,
+                    x2: this.mouseDownPointSvg.x,
+                    y2: this.mouseDownPointSvg.y,
+                }
+
+                this.editingRectangleSvg = this.createRectangle(this.editingRectangle);
+                this.rects.appendChild(this.editingRectangleSvg);
+            }
+            else
+            {
+                this.editingRectangle.x2 = p.x;
+                this.editingRectangle.y2 = p.y;
+                
+                if ((Math.abs(p.x - this.editingRectangle.x1) > 8) && (Math.abs(p.y - this.editingRectangle.y1) > 8))
+                {
+                    this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);
+                    this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);                  
+                }
+                else
+                {
+                    this.editingRectangleSvg.remove();
+                }
+
+                this.editingRectangleSvg = null;
+            }
+        }
     }
+
+
     onMouseUp(e){
         this.mouseDown = false;
         e.preventDefault();
+
+
+        if (this.editingRectangleSvg){
+            let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
+            
+            this.editingRectangle.x2 = p.x;
+            this.editingRectangle.y2 = p.y;
+
+            if ((Math.abs(p.x - this.editingRectangle.x1) > 8) && (Math.abs(p.y - this.editingRectangle.y1) > 8))
+            {
+                this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);                
+                this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);   
+                this.editingRectangleSvg = null;
+            }
+        }
     }
+
+
     onMouseMove(e){
 
-        if (this.mouseDown)
+        if (this.mouseDown && e.buttons == 2) //right button
         {
             //let point = this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
-            this.viewBox.x = this.mouseDownViewBox.x - (e.offsetX - this.mouseDownPoint.x)/this.canvas.clientWidth*this.viewBox.width;
-            this.viewBox.y = this.mouseDownViewBox.y - (e.offsetY - this.mouseDownPoint.y)/this.canvas.clientHeight*this.viewBox.height;
-            this.updateViewBox();
+            this.viewBox.x = this.mouseDownViewBox.x - (e.offsetX - this.mouseDownPointUi.x)/this.canvas.clientWidth*this.viewBox.width;
+            this.viewBox.y = this.mouseDownViewBox.y - (e.offsetY - this.mouseDownPointUi.y)/this.canvas.clientHeight*this.viewBox.height;
+            this.updateViewBox();            
         }
+        else if (this.editingRectangleSvg){
+            let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
+            this.editingRectangle.x2 = p.x;
+            this.editingRectangle.y2 = p.y;
+            this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);
+        }
+
+
 
     }
 
@@ -308,7 +380,44 @@ class ImageContext extends ResizableMoveableView{
     {
         this.manager.bringUpMe(this);
     }
-    
+
+    createRectangle(r)
+    {
+        var rect =  document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+        rect.setAttribute("class", "box-svg box-svg-selected");
+
+        this.modifyRectangle(rect, r);
+
+        return rect;
+    }
+
+    modifyRectangle(rect, r)
+    {
+        let x1 = Math.min(r.x1, r.x2);
+        let y1 = Math.min(r.y1, r.y2);
+        let x2 = Math.max(r.x1, r.x2);
+        let y2 = Math.max(r.y1, r.y2);
+        
+        rect.setAttribute("x", x1);
+        rect.setAttribute("y", y1);
+        rect.setAttribute("width", x2-x1);
+        rect.setAttribute("height", y2-y1);
+
+    }
+    endRectangle(svg, rect){
+        svg.addEventListener("mouseenter", (e)=>{
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("enter rect");
+        });
+
+        svg.addEventListener("mouseleave", (e)=>{
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("leave rect");
+        });
+    }
+
     addCssClass(className)
     {
         if (this.ui.className.split(" ").find(x=>x==className))
