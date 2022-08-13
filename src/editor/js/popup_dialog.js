@@ -92,6 +92,10 @@ class ResizableMoveableView extends MovableView{
    adjustSize()
    {
        this.contentUi.style.height = (this.viewUi.clientHeight - this.contentUi.offsetTop) + "px";
+       if (this.onResize)
+       {
+         this.onResize();
+       }
    }
 }
 

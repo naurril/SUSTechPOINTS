@@ -2,6 +2,7 @@
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {globalObjectCategory, } from './obj_cfg.js';
 import { MovableView, PopupDialog, ResizableMoveableView } from "./popup_dialog.js";
+import { RectEditor } from "./image_rect_editor.js";
 
 function BoxImageContext(ui){
 
@@ -220,158 +221,13 @@ class ImageContext extends ResizableMoveableView{
             return true;
         });
 
-        this.canvas = this.ui.querySelector("#maincanvas-svg");
-        this.canvas.addEventListener("wheel", this.onWheel.bind(this));
-        this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
-        this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
-        this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
-        this.canvas.addEventListener("mouseleave", this.onMouseUp.bind(this));
+
         this.ui.addEventListener("contextmenu", e => e. preventDefault());
+        this.canvas = this.ui.querySelector("#maincanvas-svg");
 
-        this.viewBox = {
-            x: 0,
-            y: 0,
-            width: 2048,
-            height: 1536
-        };
+        this.rectEditor = new RectEditor(this.canvas);
 
-        this.rects = this.ui.querySelector("#svg-rectangles");
-    }
-
-    point = {};
-    scale = 1.0;
-    origin = {x: 0, y: 0};
-
-    WIDTH= 2048;
-    HEIGHT = 1536;
-    onWheel(e){
-        
-        let point = this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
-        
-        let delta = (e.wheelDelta < 0)? 0.1: -0.1;
-        
-        
-        this.viewBox.x += e.offsetX /this.canvas.clientWidth * (this.viewBox.width-this.WIDTH*this.scale*(1+delta));
-        this.viewBox.y += e.offsetY /this.canvas.clientHeight * (this.viewBox.height-this.HEIGHT*this.scale*(1+delta));
-
-        // after x/y adj
-        this.scale *= (delta + 1);
-
-        // this.scale = Math.max(0.2, Math.min(this.scale, 3.0));
-
-        this.viewBox.width = this.WIDTH * this.scale;
-        this.viewBox.height  = this.HEIGHT * this.scale;
-
-
-        this.updateViewBox();
-
-        console.log(e.wheelDelta, point.x, point.y, e.offsetX, e.offsetY);
-
-    }
-
-    updateViewBox()
-    {
-        this.canvas.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
-    }
-
-    uiPointToSvgPoint(p)
-    {
-        return    {
-            x: p.x/this.canvas.clientWidth*this.viewBox.width + this.viewBox.x,
-            y: p.y/this.canvas.clientHeight*this.viewBox.height + this.viewBox.y
-        };
-    }
-    mouseDownPointUi = {};
-    mouseDownPointSvg = {};
-    mouseDownViewBox = {};
-    mouseDown = false;
-
-    editingRectangle = {x1:0, y1:0, x2:0,y2:0};
-    editingRectangleSVg = null;
-
-    onMouseDown(e){
-        e.preventDefault();
-        this.mouseDownPointUi = {x: e.offsetX, y: e.offsetY};//this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
-
-        let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
-        this.mouseDownPointSvg = p; //this.uiPointToSvgPoint(this.mouseDownPointUi);
-
-        this.mouseDown = true;
-        this.mouseDownViewBox = {...this.viewBox};
-        console.log(this.mouseDownPointUi.x, this.mouseDownPointUi.y);
-
-        
-        if (e.buttons == 1) //left
-        {
-            if (!this.editingRectangleSvg){
-                this.editingRectangle = {
-                    x1: this.mouseDownPointSvg.x,
-                    y1: this.mouseDownPointSvg.y,
-                    x2: this.mouseDownPointSvg.x,
-                    y2: this.mouseDownPointSvg.y,
-                }
-
-                this.editingRectangleSvg = this.createRectangle(this.editingRectangle);
-                this.rects.appendChild(this.editingRectangleSvg);
-            }
-            else
-            {
-                this.editingRectangle.x2 = p.x;
-                this.editingRectangle.y2 = p.y;
-                
-                if ((Math.abs(p.x - this.editingRectangle.x1) > 8) && (Math.abs(p.y - this.editingRectangle.y1) > 8))
-                {
-                    this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);
-                    this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);                  
-                }
-                else
-                {
-                    this.editingRectangleSvg.remove();
-                }
-
-                this.editingRectangleSvg = null;
-            }
-        }
-    }
-
-
-    onMouseUp(e){
-        this.mouseDown = false;
-        e.preventDefault();
-
-
-        if (this.editingRectangleSvg){
-            let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
-            
-            this.editingRectangle.x2 = p.x;
-            this.editingRectangle.y2 = p.y;
-
-            if ((Math.abs(p.x - this.editingRectangle.x1) > 8) && (Math.abs(p.y - this.editingRectangle.y1) > 8))
-            {
-                this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);                
-                this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);   
-                this.editingRectangleSvg = null;
-            }
-        }
-    }
-
-
-    onMouseMove(e){
-
-        if (this.mouseDown && e.buttons == 2) //right button
-        {
-            //let point = this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
-            this.viewBox.x = this.mouseDownViewBox.x - (e.offsetX - this.mouseDownPointUi.x)/this.canvas.clientWidth*this.viewBox.width;
-            this.viewBox.y = this.mouseDownViewBox.y - (e.offsetY - this.mouseDownPointUi.y)/this.canvas.clientHeight*this.viewBox.height;
-            this.updateViewBox();            
-        }
-        else if (this.editingRectangleSvg){
-            let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
-            this.editingRectangle.x2 = p.x;
-            this.editingRectangle.y2 = p.y;
-            this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);
-        }
-
+        this.onResize = ()=>this.rectEditor.onResize();
 
 
     }
@@ -381,42 +237,6 @@ class ImageContext extends ResizableMoveableView{
         this.manager.bringUpMe(this);
     }
 
-    createRectangle(r)
-    {
-        var rect =  document.createElementNS("http://www.w3.org/2000/svg", 'rect');
-        rect.setAttribute("class", "box-svg box-svg-selected");
-
-        this.modifyRectangle(rect, r);
-
-        return rect;
-    }
-
-    modifyRectangle(rect, r)
-    {
-        let x1 = Math.min(r.x1, r.x2);
-        let y1 = Math.min(r.y1, r.y2);
-        let x2 = Math.max(r.x1, r.x2);
-        let y2 = Math.max(r.y1, r.y2);
-        
-        rect.setAttribute("x", x1);
-        rect.setAttribute("y", y1);
-        rect.setAttribute("width", x2-x1);
-        rect.setAttribute("height", y2-y1);
-
-    }
-    endRectangle(svg, rect){
-        svg.addEventListener("mouseenter", (e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("enter rect");
-        });
-
-        svg.addEventListener("mouseleave", (e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("leave rect");
-        });
-    }
 
     addCssClass(className)
     {

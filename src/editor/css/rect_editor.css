@@ -1,0 +1,33 @@
+.rect-label {
+	width: 150px;
+	height: 28px;	
+}
+
+
+
+.rect-editor-svg-line{
+	stroke-dasharray: 3,3;
+	stroke: red;
+	stroke-width: 1px;
+	stroke-opacity: 0.6;
+}
+
+
+
+.rect-svg{
+	stroke-width: 1px;
+	stroke: #0000ffaa;
+	fill: #00880022;
+}
+
+
+.rect-svg-selected{
+	stroke: #ff00ff88;
+	fill: #ff00ff22;
+	stroke-width: 2px;
+}
+
+
+.rect-ctrl-handle{
+    fill: #0000ff88
+}
