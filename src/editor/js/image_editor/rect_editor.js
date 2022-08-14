@@ -1,223 +1,24 @@
+import { RectCtrl } from "./rect_ctrl";
 
 
-class RectCtrl{
 
-    constructor(ui, canvas, editor)
+class EditorCfg{
+    constructor(cfgUi, editor)
     {
         this.editor = editor;
-        this.handles = {
-            topleft: ui.querySelector("#topleft"),
-            topright: ui.querySelector("#topright"),
-            bottomleft: ui.querySelector("#bottomleft"),
-            bottomright: ui.querySelector("#bottomright"),
-        }
+        this.ui = cfgUi;
 
-        Object.keys(this.handles).forEach(k=>{
-            let h  = this.handles[k];
-            h.addEventListener("mousedown", e=>this.onDragMouseDown(e, k, 
-                this.cornerBeginOperation.bind(this),
-                this.cornerOnOperation.bind(this),
-                this.cornerEndOperation.bind(this),
-                ));
-        });
+        this.ui.querySelector("#show-3d-box").onchange = (e)=>{
+            let checked = e.currentTarget.checked;
 
-        this.ui = ui;
-        this.canvas = canvas;
-    }
-
-    onScaleChanged(scale)
-    {
-        Object.keys(this.handles).forEach(k=>{
-            let h  = this.handles[k];
-            h.setAttribute('r', 5/scale.x);
-        });
-    }
-
-
-    show(){
-        this.ui.style.display = 'inherit';
-    }
-
-    hide(){
-        this.ui.style.display = 'none';
-    }
-
-    attachRect(g)
-    {
-        if (g == this.g)
-            return;
-
-        this.g = g;
-        this.moveHandle(g.data.rect);
-        this.show();
-
-        this.g.addEventListener('mousedown', this.onRectDragMouseDown);
-
-    };
-
-    onRectDragMouseDown = e=>this.onDragMouseDown(e,'rect', 
-                                this.rectDragBeginOperation.bind(this),
-                                this.rectDragOnOperation.bind(this),
-                                this.rectDragEndOperation.bind(this));
-
-
-    detach(g)
-    {
-        this.hide();
-        if (this.g)
-            this.g.removeEventListener('mousedown', this.onRectDragMouseDown);
-        this.g = null;
-    }
-
-    moveHandle(rect)
-    {
-        this.handles.topleft.setAttribute("cx", rect.x1);
-        this.handles.topleft.setAttribute("cy", rect.y1);
-
-        this.handles.topright.setAttribute("cx", rect.x2);
-        this.handles.topright.setAttribute("cy", rect.y1);
-
-        this.handles.bottomleft.setAttribute("cx", rect.x1);
-        this.handles.bottomleft.setAttribute("cy", rect.y2);
-
-        this.handles.bottomright.setAttribute("cx", rect.x2);
-        this.handles.bottomright.setAttribute("cy", rect.y2);
-    }
-
-    rectDragBeginOperation()
-    {
-        this.g.data.editingRect = {
-            ...this.g.data.rect
+            editor.cfgChanged('show-3d-box', checked);
         };
-    }
-
-    rectDragOnOperation(delta)
-    {
-        let p = this.editor.uiVectorToSvgVector(delta);
-        this.g.data.editingRect.x1 = this.g.data.rect.x1 + p.x;
-        this.g.data.editingRect.y1 = this.g.data.rect.y1 + p.y;
-        this.g.data.editingRect.x2 = this.g.data.rect.x2 + p.x;
-        this.g.data.editingRect.y2 = this.g.data.rect.y2 + p.y;
-
-        this.editor.modifyRectangle(this.g, this.g.data.editingRect);
-            
-        this.moveHandle(this.g.data.editingRect);
-
-    }
-
-    rectDragEndOperation(delta)
-    {
-        this.rectDragOnOperation(delta);
-        this.g.data.rect = this.g.data.editingRect;
-        this.editor.updateRectangle(this.g, this.g.data.editingRect);
-    }
-
-    cornerBeginOperation(handleName){
-        this.g.data.editingRect = {
-            ...this.g.data.rect
-        };
-    }
-
-    cornerEndOperation(delta, handleName)
-    {
-        this.cornerOnOperation(delta, handleName);
-        
-        this.editor.updateRectangle(this.g, this.g.data.editingRect);
-    }
-
-    cornerOnOperation(delta, handleName)
-    {
-        if (handleName === 'topleft')
-        {
-            let p = this.editor.uiVectorToSvgVector(delta);
-
-            this.g.data.editingRect.x1 = this.g.data.rect.x1 + p.x;
-            this.g.data.editingRect.y1 = this.g.data.rect.y1 + p.y;
-
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
-            
-            this.moveHandle(this.g.data.editingRect);
-        }
-        else if (handleName === 'topright')
-        {
-            let p = this.editor.uiVectorToSvgVector(delta);
-
-            this.g.data.editingRect.x2 = this.g.data.rect.x2 + p.x;
-            this.g.data.editingRect.y1 = this.g.data.rect.y1 + p.y;
-
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
-            
-            this.moveHandle(this.g.data.editingRect);
-        }
-        else if (handleName === 'bottomleft')
-        {
-            let p = this.editor.uiVectorToSvgVector(delta);
-
-            this.g.data.editingRect.x1 = this.g.data.rect.x1 + p.x;
-            this.g.data.editingRect.y2 = this.g.data.rect.y2 + p.y;
-
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
-            
-            this.moveHandle(this.g.data.editingRect);
-        }
-        else if (handleName === 'bottomright')
-        {
-            let p = this.editor.uiVectorToSvgVector(delta);
-
-            this.g.data.editingRect.x2 = this.g.data.rect.x2 + p.x;
-            this.g.data.editingRect.y2 = this.g.data.rect.y2 + p.y;
-
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
-            
-            this.moveHandle(this.g.data.editingRect);
-        }
-    }
-
-    onDragMouseDown(e, para, beginOp, onOp, endOp)
-    {
-        if (e.which != 1){
-            return;
-        }
-
-        let p = {
-            x: e.clientX,
-            y: e.clientY
-        };
-
-        beginOp(para);
-
-        const onMouseUp =  e=>{
-            let delta = {
-                x: e.clientX - p.x,
-                y: e.clientY - p.y,
-            }
-
-            endOp(delta, para);
-
-            this.canvas.removeEventListener('mouseup', onMouseUp);
-            this.canvas.removeEventListener('mousemove', onMouseMove);
-
-        };
-
-        const onMouseMove = e=>{
-            let delta = {
-                x: e.clientX - p.x,
-                y: e.clientY - p.y,
-            }
-            onOp(delta, para);
-        };
-
-
-        this.canvas.addEventListener('mouseup', onMouseUp);
-        this.canvas.addEventListener('mousemove', onMouseMove);
-
-        e.stopPropagation();
-        e.preventDefault();
     }
 }
 
+
 class RectEditor{
-    constructor(canvas, toolboxUi)
+    constructor(canvas, toolBoxUi, cfgUi)
     {
 
     
@@ -245,11 +46,36 @@ class RectEditor{
             y: this.canvas.querySelector("#guide-line-y")
         };
 
-        this.ctrl = new RectCtrl(this.canvas.querySelector("#svg-rect-ctrl"), this.canvas, this);
+        this.ctrl = new RectCtrl(this.canvas.querySelector("#svg-rect-ctrl"), 
+            toolBoxUi,
+            this.canvas, this);
 
 
-        this.toolboxUi = toolboxUi;
-        this.toolboxUi.querySelector("#tb-del").onclick = ()=>this.onDel();
+       
+        this.cfg = {
+            show3dBox: true,
+        };
+
+        this.cfgUi = cfgUi;
+        this.cfgUi = new EditorCfg(this.cfgUi, this);
+
+    }
+
+    cfgChanged(name, value)
+    {
+        switch(name){
+            case 'show-3d-box':
+                this.cfg.show3dBox = value;
+                if (value)
+                    this.show3dBox();
+                else
+                    this.hide3dBox();
+                    
+                break;
+
+            default:
+                console.log("unknown cfg item.");
+        }
     }
 
     onDel()
@@ -260,6 +86,15 @@ class RectEditor{
             this.cancelSelection();
             r.remove();
         }
+    }
+
+    hide3dBox()
+    {
+        this.canvas.querySelector("#svg-boxes").style.display = 'none';
+    }
+    show3dBox()
+    {
+        this.canvas.querySelector("#svg-boxes").style.display = 'inherit';
     }
 
     resetImage(width, height)
@@ -341,10 +176,7 @@ class RectEditor{
     {
         this.canvas.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
 
-        if (this.selectedRect)
-        {
-            this.updateFloatingToolBox();
-        }
+        this.ctrl.viewUpdated();
     }
 
     uiPointToSvgPoint(p)
@@ -519,10 +351,10 @@ class RectEditor{
     }
 
 
-    addRect(r)
+    addRect(r, data)
     {
         let g = this.createRectangle(r);
-        this.endRectangle(g, r);
+        this.endRectangle(g, r, data);
     }
 
     createRectangle(r)
@@ -564,18 +396,9 @@ class RectEditor{
     updateRectangle(svg, r)
     {
         svg.data.rect = r;
-        if (svg === this.selectedRect)
-        {
-            this.updateFloatingToolBox();
-        }
-
     }
 
-    updateFloatingToolBox(){
-        // let p = this.svgPointToUiPoint({x: this.selectedRect.data.rect.x1, y: this.selectedRect.data.rect.y1});
-        // this.toolboxUi.style.left = p.x+"px";
-        // this.toolboxUi.style.top = p.y - this.toolboxUi.clientHeight + "px";
-    }
+
 
 
     normalizeRect(rect)
@@ -592,7 +415,7 @@ class RectEditor{
         r.y2 = y2;
     }
 
-    endRectangle(svg, rect){
+    endRectangle(svg, rect, data){
 
         this.normalizeRect(rect);
 
@@ -615,8 +438,7 @@ class RectEditor{
 
         svg.data = {
             rect,
-            obj_type: 'car',
-            obj_id: 0,
+            ...data,
         };
 
         svg.addEventListener("mouseenter", (e)=>{
@@ -633,16 +455,19 @@ class RectEditor{
 
         svg.addEventListener("mousedown", (e)=>{
 
-            if (e.which == 1 && e.ctrlKey === false)
+            if (e.which == 1)
             {
-                console.log("mousedown on rect", e.which);
-
-                this.selectRect(svg);
-
-                e.preventDefault();
-                e.stopPropagation();
+                if (e.ctrlKey === false)
+                {
+                    this.selectRect(svg);
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                else
+                {
+                    this.cancelSelection();
+                }
             }
-            
         });
     }
 
@@ -665,7 +490,7 @@ class RectEditor{
             // if (e)
             //     this.ctrl.onRectDragMouseDown(e);
             
-            this.updateFloatingToolBox();
+            
         }
     }
 

@@ -76,7 +76,32 @@ dynamic set obj-type css has higher priority than this one.
 #rect-editor-floating-toolbox {
 	position: absolute;
 	top: 0%;
-	left: 0%;
+	right: 0%;
 	width: fit-content;
 	height: fit-content;
+	display: none;
+
+	background-color:var(--widget-background-color); 
+	font-size: inherit;
+	padding: 0px;
+	box-sizing: border-box;
+	text-align: left;
+}
+
+#rect-editor-cfg {
+	position: absolute;
+	display: inline-flex;	
+	background-color: var(--widget-background-color);
+	position: absolute;
+	top: 0%;
+	right: 0%;
+	width: fit-content;
+	height: fit-content;	
+}
+.rect-editor-item {
+	margin-left: 5px;
+	display: inline-flex;
+}
+.rect-editor-widget-group {
+	display: inline-flex;	
 }

@@ -386,7 +386,7 @@ canvas {
 	line-height: 1.5;
 }
 
-#context-menu, #object-context-menu, #box-editor-context-menu, #box-editor-manager-context-menu, #config-menu {
+#context-menu, #object-context-menu, #box-editor-context-menu, #box-editor-manager-context-menu, #config-menu{
 	position: absolute;
 	display: block;	
 	background-color: var(--widget-background-color);

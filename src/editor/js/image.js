@@ -2,7 +2,7 @@
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {globalObjectCategory, } from './obj_cfg.js';
 import { MovableView, PopupDialog, ResizableMoveableView } from "./popup_dialog.js";
-import { RectEditor } from "./image_rect_editor.js";
+import { RectEditor } from "./image_editor/rect_editor";
 
 function BoxImageContext(ui){
 
@@ -225,7 +225,10 @@ class ImageContext extends ResizableMoveableView{
         this.ui.addEventListener("contextmenu", e => e. preventDefault());
         this.canvas = this.ui.querySelector("#maincanvas-svg");
 
-        this.rectEditor = new RectEditor(this.canvas, this.ui.querySelector("#rect-editor-floating-toolbox"));
+        this.rectEditor = new RectEditor(this.canvas, 
+            this.ui.querySelector("#rect-editor-floating-toolbox"),
+            this.ui.querySelector("#rect-editor-cfg"),
+            );
 
         this.onResize = ()=>this.rectEditor.onResize();
 
@@ -690,15 +693,7 @@ class ImageContext extends ResizableMoveableView{
             minx, miny, maxx, maxy
         };
     }
-    draw_2d_rect(pts)
-    {
-        
-        let {minx, miny, maxx, maxy} = this.find2dPointsRange(pts);
-        this.rectEditor.addRect({
-            x1: minx, y1: miny, x2: maxx, y2: maxy
-        });
 
-    }
 
     draw_svg(){
         // draw picture
@@ -748,9 +743,14 @@ class ImageContext extends ResizableMoveableView{
 
                 let range = this.find2dPointsRange(ptsOnImg);
 
-               this.rectEditor.addRect({
-                    x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy
-                });
+               this.rectEditor.addRect({x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+                    {
+                        box3d: {
+                            obj_track_id: box.obj_track_id,
+                            obj_type: box.obj_type,
+                            obj_attr: box.obj_attr,
+                        },
+                    });
 
             });
         }
