@@ -773,6 +773,19 @@ function Lidar(sceneMeta, world, frameInfo){
         return this._get_points_of_box(this.points, box, scale_ratio);
     };
 
+    this.get_points_of_box_word_coordinates = function(box, scale_ratio)
+    {
+        var pos_array = this.points.geometry.getAttribute("position").array;
+        let indices = this._get_points_of_box(this.points, box, scale_ratio).index;
+        let pts = [];
+        indices.forEach(i=>{
+            pts.push(pos_array[i*3]);
+            pts.push(pos_array[i*3+1]);
+            pts.push(pos_array[i*3+2]);
+        });
+
+        return pts;
+    };
 
     this.get_points_relative_coordinates_of_box=function(box, scale_ratio){
         var ret = this._get_points_of_box(this.points, box, scale_ratio);

@@ -595,8 +595,6 @@ class ImageContext extends ResizableMoveableView{
             }
             svgimage.setAttribute("xlink:href", img.src);            
         }
-        
-
     }
 
 
@@ -671,7 +669,8 @@ class ImageContext extends ResizableMoveableView{
         this.ui.style.display="inline";
     }
 
-    draw_2d_rect(pts)
+
+    find2dPointsRange(pts)
     {
         let minx = pts[0], miny=pts[1], maxx=pts[0], maxy=pts[1];
 
@@ -686,7 +685,15 @@ class ImageContext extends ResizableMoveableView{
                 if (p < miny) miny = p;
             }
         });
+
+        return {
+            minx, miny, maxx, maxy
+        };
+    }
+    draw_2d_rect(pts)
+    {
         
+        let {minx, miny, maxx, maxy} = this.find2dPointsRange(pts);
         this.rectEditor.addRect({
             x1: minx, y1: miny, x2: maxx, y2: maxy
         });
@@ -714,27 +721,45 @@ class ImageContext extends ResizableMoveableView{
             return;
         }
 
-        let svg = this.ui.querySelector("#svg-boxes");
+        
         if (this.cfg.projectBoxesToImage)
         {
             // draw boxes
+            let svg = this.ui.querySelector("#svg-boxes");
             this.world.annotation.boxes.forEach((box)=>{
                 var imgfinal = box_to_2d_points(box, calib);
                 if (imgfinal){
                     var box_svg = this.box_to_svg (box, imgfinal, trans_ratio, this.get_selected_box() == box);
                     svg.appendChild(box_svg);
-
-                    this.draw_2d_rect(imgfinal);
                 }
+            });
+        }
+
+
+        if (this.cfg.projectBoxesToImage)
+        {
+            // draw rects
+            
+            this.world.annotation.boxes.forEach((box)=>{
+
+                let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
+
+                let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
+
+                let range = this.find2dPointsRange(ptsOnImg);
+
+               this.rectEditor.addRect({
+                    x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy
+                });
 
             });
         }
 
-        svg = this.ui.querySelector("#svg-points");
 
         // draw radar points
         if (this.cfg.projectRadarToImage)
         {
+            let svg = this.ui.querySelector("#svg-points");
             this.world.radars.radarList.forEach(radar=>{
                 let pts = radar.get_unoffset_radar_points();
                 let ptsOnImg = points3d_to_image2d(pts, calib);
@@ -751,6 +776,8 @@ class ImageContext extends ResizableMoveableView{
 
         // project lidar points onto camera image   
         if (this.cfg.projectLidarToImage){
+            let svg = this.ui.querySelector("#svg-points");
+            
             let lidar_pts = this.world.lidar.get_all_points();
             let lidar_pts_color = this.world.lidar.get_all_colors();
 
@@ -1267,6 +1294,11 @@ class ImageContextManager {
     }
 }
 
+
+function box_to_tight_rect(box, calib){
+
+}
+
 function box_to_2d_points(box, calib){
     var scale = box.scale;
     var pos = box.position;
@@ -1282,7 +1314,7 @@ function box_to_2d_points(box, calib){
 
 // points3d is length 4 row vector, homogeneous coordinates
 // returns 2d row vectors
-function points3d_homo_to_image2d(points3d, calib, accept_partial=false,save_map, img_dx, img_dy){
+function points3d_homo_to_image2d(points3d, calib, accept_partial=false, save_map, img_dx, img_dy){
     var imgpos = matmul(calib.extrinsic, points3d, 4);
     let pos_in_camera_space = imgpos;
     
@@ -1313,7 +1345,7 @@ function points3d_homo_to_image2d(points3d, calib, accept_partial=false,save_map
                 
                 x = Math.round(x);
                 y = Math.round(y);
-                if (x > 0 && x < img_dx && y > 0 && y < img_dy){
+                if (x >= 0 && x < img_dx && y >= 0 && y < img_dy){
                     if (save_map){
                         save_map[img_dx*y+x] = [i, pos_in_camera_space[i*4+0], pos_in_camera_space[i*4+1], pos_in_camera_space[i*4+2]];  //save index? a little dangerous! //[points3d[i*4+0], points3d[i*4+1], points3d[i*4+2]];
                     }
