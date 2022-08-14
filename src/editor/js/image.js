@@ -216,23 +216,28 @@ class ImageContext extends ResizableMoveableView{
         this.manager = manager;
         this.setImageName(name);
 
-        this.ui.addEventListener("mouseup", (event)=>{
-            this.manager.bringUpMe(this);
-            return true;
-        });
+        // this.ui.addEventListener("mouseup", (event)=>{
+        //     this.manager.bringUpMe(this);
+        //     //return true;
+        // });
 
 
         this.ui.addEventListener("contextmenu", e => e. preventDefault());
         this.canvas = this.ui.querySelector("#maincanvas-svg");
 
-        this.rectEditor = new RectEditor(this.canvas);
+        this.rectEditor = new RectEditor(this.canvas, this.ui.querySelector("#rect-editor-floating-toolbox"));
 
         this.onResize = ()=>this.rectEditor.onResize();
 
 
+
+        this.ui.querySelector("#btn-exit").onclick = (event)=>{
+            this.manager.removeImage(this);
+        }
+
     }
 
-    onDragableUiMounseDown()
+    onDragableUiMouseDown()
     {
         this.manager.bringUpMe(this);
     }
@@ -384,8 +389,8 @@ class ImageContext extends ResizableMoveableView{
     to_viewbox_coord(x,y){
         var div = this.ui.querySelector("#maincanvas-svg");
         
-        x = Math.round(x*2048/div.clientWidth);
-        y = Math.round(y*1536/div.clientHeight);
+        x = Math.round(x*this.WIDTH/div.clientWidth);
+        y = Math.round(y*this.HEIGHT/div.clientHeight);
         return [x,y];
 
     }
@@ -548,8 +553,8 @@ class ImageContext extends ResizableMoveableView{
 
         var clientWidth, clientHeight;
 
-        clientWidth = 2048;
-        clientHeight = 1536;
+        clientWidth = this.WIDTH;
+        clientHeight = this.HEIGHT;
 
         var trans_ratio ={
             x: clientWidth/img.naturalWidth,
@@ -559,20 +564,38 @@ class ImageContext extends ResizableMoveableView{
         return trans_ratio;
     }
 
+    onImageLoaded()
+    {
+        let img = this.world[this.cameraType].getImageByName(this.cameraName);
+        
+        this.canvas.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+        this.WIDTH = img.naturalWidth;
+        this.HEIGHT = img.naturalHeight;
+        this.rectEditor.resetImage(this.WIDTH, this.HEIGHT);
+
+        this.draw_svg();
+
+        
+    }
+
     show_image(){
         var svgimage = this.ui.querySelector("#svg-image");
 
         if (!this.world[this.cameraType])
             return;
-            
+        
+        this.rectEditor.resetImage(this.WIDTH, this.HEIGHT);
+
         // active img is set by global, it's not set sometimes.
         var img = this.world[this.cameraType].getImageByName(this.cameraName);
         if (img){
-            svgimage.setAttribute("xlink:href", img.src);
+            this.img = img;
+            svgimage.onload = ()=>{
+                this.onImageLoaded();
+            }
+            svgimage.setAttribute("xlink:href", img.src);            
         }
-
-        this.img = img;
-
+        
 
     }
 
@@ -636,7 +659,6 @@ class ImageContext extends ResizableMoveableView{
         this.clear_main_canvas();
 
         this.show_image();
-        this.draw_svg();
     }
 
 
@@ -649,6 +671,27 @@ class ImageContext extends ResizableMoveableView{
         this.ui.style.display="inline";
     }
 
+    draw_2d_rect(pts)
+    {
+        let minx = pts[0], miny=pts[1], maxx=pts[0], maxy=pts[1];
+
+        pts.forEach((p,i)=>{
+            if (i % 2== 0){
+                if (p > maxx) maxx = p;
+                if (p < minx) minx = p;
+            }
+            else
+            {
+                if (p > maxy) maxy = p;
+                if (p < miny) miny = p;
+            }
+        });
+        
+        this.rectEditor.addRect({
+            x1: minx, y1: miny, x2: maxx, y2: maxy
+        });
+
+    }
 
     draw_svg(){
         // draw picture
@@ -680,6 +723,8 @@ class ImageContext extends ResizableMoveableView{
                 if (imgfinal){
                     var box_svg = this.box_to_svg (box, imgfinal, trans_ratio, this.get_selected_box() == box);
                     svg.appendChild(box_svg);
+
+                    this.draw_2d_rect(imgfinal);
                 }
 
             });
@@ -1186,6 +1231,40 @@ class ImageContextManager {
     }
     
 
+    buildCssStyle()
+    {
+        console.log(window.document.styleSheets.length, 'sheets');
+        let sheet = window.document.styleSheets[1];
+
+        let obj_type_map = globalObjectCategory.obj_type_map;
+
+        for (let o in obj_type_map){
+            let rule = '.'+o+ '{color:'+obj_type_map[o].color+';'+ 
+                                'stroke:' +obj_type_map[o].color+ ';'+
+                                'fill:' +obj_type_map[o].color+ '22' + ';'+
+                                '}';
+            sheet.insertRule(rule, sheet.cssRules.length);
+        }
+
+        function color_str(v){
+            let c =  Math.round(v*255);
+            if (c < 16)
+                return "0" + c.toString(16);
+            else
+                return c.toString(16);
+        }
+
+        for (let idx=0; idx<=32; idx++){
+            let c = globalObjectCategory.get_color_by_id(idx);
+            let color = "#" + color_str(c.x) + color_str(c.y) + color_str(c.z);
+
+            var rule = '.color-'+idx+ '{color:'+color+';'+ 
+                                'stroke:' +color+ ';'+
+                                'fill:' +color+ '22' + ';'+
+                                '}';
+            sheet.insertRule(rule, sheet.cssRules.length);
+        }
+    }
 }
 
 function box_to_2d_points(box, calib){

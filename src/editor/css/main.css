@@ -259,57 +259,12 @@ canvas {
     height: 20px;
 }
 
-/* .header-button {
-	height: 20px;
-	width: 20px;
-	padding: 2px;
-} */
-
-
-
-#maincanvas-svg {
-	/* position: absolute; */
-	top: 0%;
-	width: 100%;
-	height:100%;
-	border: 0px;
-	padding: 0px;
-}
-
-#svg-points {
-	stroke-width: 2px;
-}
-
 
 .image-top {
 	z-index: 20;
 }
 
-/* line {
-	stroke-width: 2;
-} */
 
-/* .box-svg :hover{
-	stroke-width: 5px;
-} */
-
-
-.box-svg{
-	stroke-width: 1px;
-	/* stroke: #0000ffaa;
-	fill: #00880022; */
-}
-
-/* 
-this css can be moved to dynamic css in main.js, after obj-type css being set 
-for now when a box is selected, its objtype class in css is removed so the color is set by selected state.
-dynamic set obj-type css has higher priority than this one.
-*/
-.box-svg-selected{
-	stroke: #ff00ff88;
-	fill: #ff00ff22;
-	stroke-width: 2px;
-}
 
 .maincanvas-line{
 	stroke: #00ff0088;
@@ -792,12 +747,6 @@ dynamic set obj-type css has higher priority than this one.
 	align-content: left;
 	z-index: 1; /* TODO Solve this in HTML */
 }
-
-#view-manipulator:hover{
-	/* border-color: yellow; */
-	
-}
-
 
 .ew-handle:hover{
 	cursor: ew-resize;

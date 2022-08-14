@@ -1444,21 +1444,11 @@
 		<template id="image-wrapper-template">
 			
 
-			<div id="image-wrapper" class="popup-window-wrapper" tabindex="-1">
+			<div id="image-wrapper" class="popup-window-wrapper">
 				<div id="view" class="non-selectable image-view">
 					<div id="header">
 						<span id="title">Image</span>						
 						<div id="buttons">
-							<div id="btn-restore" class="ui-button"  title="restore">
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<rect x = 6 y = 6 width=12 height=12></rect>
-								</g></svg>
-							</div>
-							<div id="btn-maximize" class="ui-button"  title="maximize">
-								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-									<rect x = 4 y = 4 width=16 height=16></rect>
-								</g></svg>
-							</div>
 							<div id="btn-exit" class="ui-button"  title="exit">
 								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
 									<path d="M4 4 L 20 20 M 20 4 L 4 20"></path>
@@ -1469,16 +1459,16 @@
 					
 					<div id="content">				
 						<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
-							<image id="svg-image" x="0" y="0"  width="2048" height="1536"  preserveAspectRatio="none"
+							<image id="svg-image" x="0" y="0"  preserveAspectRatio="none"
 							xlink:href=""
 							/>
 							<g id="svg-boxes"></g>
 							<g id="svg-points"></g>
 
 
-							<g id="svg-rect-guide-lines">
-								<line class='rect-editor-svg-line' id="guide-line-x" x1="0%" y1="0%" x2="100%" y2="0%"></line>
-								<line class='rect-editor-svg-line' id="guide-line-y" x1="0%" y1="0%" x2="0%" y2="100%"></line>
+							<g id="rect-editor-guide-lines">
+								<line class='rect-editor-guide-line' id="guide-line-x" x1="0%" y1="0%" x2="100%" y2="0%"></line>
+								<line class='rect-editor-guide-line' id="guide-line-y" x1="0%" y1="0%" x2="0%" y2="100%"></line>
 							</g>
 							<g id="svg-rects"></g>
 							<g id="svg-rect-ctrl">
@@ -1487,9 +1477,16 @@
 								<circle id="bottomleft" class='rect-ctrl-handle'  cx="0" cy="0" r="10"></circle>
 								<circle id="bottomright" class='rect-ctrl-handle'  cx="0" cy="0" r="10"></circle>
 							</g>
-							
-
 						</svg>
+						<div id="rect-editor-floating-toolbox">
+							<!-- <button>generate by 3d box</button> -->
+							<div id="tb-del" class="ui-button"  title="delete">
+								<!-- <span class="ui-icon ui-icon-trash"></span> -->
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+									<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
+								</g></svg>
+							</div>
+						</div>
 					</div>
 
 				</div>

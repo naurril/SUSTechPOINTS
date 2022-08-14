@@ -25,6 +25,15 @@ class RectCtrl{
         this.canvas = canvas;
     }
 
+    onScaleChanged(scale)
+    {
+        Object.keys(this.handles).forEach(k=>{
+            let h  = this.handles[k];
+            h.setAttribute('r', 5/scale.x);
+        });
+    }
+
+
     show(){
         this.ui.style.display = 'inherit';
     }
@@ -100,6 +109,7 @@ class RectCtrl{
     {
         this.rectDragOnOperation(delta);
         this.g.data.rect = this.g.data.editingRect;
+        this.editor.updateRectangle(this.g, this.g.data.editingRect);
     }
 
     cornerBeginOperation(handleName){
@@ -111,7 +121,8 @@ class RectCtrl{
     cornerEndOperation(delta, handleName)
     {
         this.cornerOnOperation(delta, handleName);
-        this.g.data.rect = this.g.data.editingRect;
+        
+        this.editor.updateRectangle(this.g, this.g.data.editingRect);
     }
 
     cornerOnOperation(delta, handleName)
@@ -206,21 +217,26 @@ class RectCtrl{
 }
 
 class RectEditor{
-    constructor(ui)
+    constructor(canvas, toolboxUi)
     {
-        this.canvas = ui;
+
+    
+        this.canvas = canvas;
+        
         this.canvas.addEventListener("wheel", this.onWheel.bind(this));
         this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
         this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
         this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
         this.canvas.addEventListener("mouseleave", this.onMouseUp.bind(this));
 
-        this.viewBox = {
-            x: 0,
-            y: 0,
-            width: 2048,
-            height: 1536
-        };
+        // this.WIDTH = width;
+        // this.HEIGHT = height;
+        // this.viewBox = {
+        //     x: 0,
+        //     y: 0,
+        //     width: this.WIDTH,
+        //     height: this.HEIGHT
+        // };
 
         this.rects = this.canvas.querySelector("#svg-rects");
         this.handles = this.canvas.querySelector("#svg-rect-handles");
@@ -230,10 +246,47 @@ class RectEditor{
         };
 
         this.ctrl = new RectCtrl(this.canvas.querySelector("#svg-rect-ctrl"), this.canvas, this);
+
+
+        this.toolboxUi = toolboxUi;
+        this.toolboxUi.querySelector("#tb-del").onclick = ()=>this.onDel();
     }
 
+    onDel()
+    {
+        if (this.selectedRect)
+        {
+            let r = this.selectedRect;
+            this.cancelSelection();
+            r.remove();
+        }
+    }
 
-    onResize()
+    resetImage(width, height)
+    {
+        this.WIDTH = width;
+        this.HEIGHT = height;
+
+        this.viewBox = {
+            x: 0,
+            y: 0,
+            width: this.WIDTH,
+            height: this.HEIGHT
+        };
+
+  
+        var rects = this.rects.children;
+        
+        if (rects.length>0){
+            for (var c=rects.length-1; c >= 0; c--){
+                rects[c].remove();                    
+            }
+        }
+
+        this.ctrl.hide();        
+    }
+
+    updateViewScale()
     {
         let xscale = this.canvas.clientWidth/this.viewBox.width;
         let yscale = this.canvas.clientHeight/this.viewBox.height;
@@ -242,18 +295,26 @@ class RectEditor{
             x: xscale,
             y: yscale,
         };
+    }
 
+    onResize(){
+        this.onRescale();
+    }
+
+    onRescale()
+    {
+        this.updateViewScale();
+        this.ctrl.onScaleChanged(this.viewScale);
+        this.canvas.style['stroke-width'] = 1/this.viewScale.x+"px";
     }
 
     point = {};
     scale = 1.0;
     origin = {x: 0, y: 0};
 
-    WIDTH= 2048;
-    HEIGHT = 1536;
     onWheel(e){
         
-        let point = this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
+        let point = this.getSvgPoint(e);
         
         let delta = (e.wheelDelta < 0)? 0.1: -0.1;
         
@@ -269,8 +330,8 @@ class RectEditor{
         this.viewBox.width = this.WIDTH * this.scale;
         this.viewBox.height  = this.HEIGHT * this.scale;
 
-
         this.updateViewBox();
+        this.onRescale();
 
         console.log(e.wheelDelta, point.x, point.y, e.offsetX, e.offsetY);
 
@@ -279,6 +340,11 @@ class RectEditor{
     updateViewBox()
     {
         this.canvas.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
+
+        if (this.selectedRect)
+        {
+            this.updateFloatingToolBox();
+        }
     }
 
     uiPointToSvgPoint(p)
@@ -286,6 +352,14 @@ class RectEditor{
         return    {
             x: p.x/this.canvas.clientWidth*this.viewBox.width + this.viewBox.x,
             y: p.y/this.canvas.clientHeight*this.viewBox.height + this.viewBox.y
+        };
+    }
+
+    svgPointToUiPoint(p)
+    {
+        return    {
+            x: (p.x - this.viewBox.x)*this.canvas.clientWidth/this.viewBox.width,
+            y: (p.y - this.viewBox.y)*this.canvas.clientHeight/this.viewBox.height,
         };
     }
 
@@ -314,9 +388,9 @@ class RectEditor{
             this.cancelSelection();
         }
 
-        this.mouseDownPointUi = {x: e.offsetX, y: e.offsetY};//this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
+        this.mouseDownPointUi = {x: e.clientX, y: e.clientY};//this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
 
-        let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
+        let p = this.getSvgPoint(e);
         this.mouseDownPointSvg = p; //this.uiPointToSvgPoint(this.mouseDownPointUi);
 
         this.mouseDown = true;
@@ -326,7 +400,7 @@ class RectEditor{
         
         if (e.which == 1) //left
         {
-            if (!this.editingRectangleSvg && e.ctrlKey== true){
+            if (!this.editingRectangleSvg){
                 this.editingRectangle = {
                     x1: this.mouseDownPointSvg.x,
                     y1: this.mouseDownPointSvg.y,
@@ -335,25 +409,25 @@ class RectEditor{
                 }
 
                 this.editingRectangleSvg = this.createRectangle(this.editingRectangle);
-                this.rects.appendChild(this.editingRectangleSvg);
-            }
-            else if (this.editingRectangleSvg)
-            {
-                this.editingRectangle.x2 = p.x;
-                this.editingRectangle.y2 = p.y;
                 
-                if ((Math.abs(p.x - this.editingRectangle.x1) > 8) && (Math.abs(p.y - this.editingRectangle.y1) > 8))
-                {
-                    this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);
-                    this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);                  
-                }
-                else
-                {
-                    this.editingRectangleSvg.remove();
-                }
-
-                this.editingRectangleSvg = null;
             }
+            // else if (this.editingRectangleSvg)
+            // {
+            //     this.editingRectangle.x2 = p.x;
+            //     this.editingRectangle.y2 = p.y;
+                
+            //     if ((Math.abs(p.x - this.editingRectangle.x1) > 8) && (Math.abs(p.y - this.editingRectangle.y1) > 8))
+            //     {
+            //         this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);
+            //         this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);                  
+            //     }
+            //     else
+            //     {
+            //         this.editingRectangleSvg.remove();
+            //     }
+
+            //     this.editingRectangleSvg = null;
+            // }
         }
     }
 
@@ -368,24 +442,43 @@ class RectEditor{
 
 
         if (this.editingRectangleSvg){
-            let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
+            let p = this.getSvgPoint(e);
             
             this.editingRectangle.x2 = p.x;
             this.editingRectangle.y2 = p.y;
 
-            if ((Math.abs(p.x - this.editingRectangle.x1) > 8) && (Math.abs(p.y - this.editingRectangle.y1) > 8))
+            if ((Math.abs(p.x - this.editingRectangle.x1) > 4) && (Math.abs(p.y - this.editingRectangle.y1) > 4))
             {
                 this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);                
                 this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);   
+                this.selectRect(this.editingRectangleSvg);
+                this.editingRectangleSvg = null;
+                
+            }
+            else
+            {
+                this.editingRectangleSvg.remove();                
                 this.editingRectangleSvg = null;
             }
         }
     }
 
 
+    getSvgPoint(e)
+    {
+        let canvasRect = this.canvas.getClientRects()[0];
+        
+        let p = this.uiPointToSvgPoint({x:e.clientX-canvasRect.x, y:e.clientY - canvasRect.y});
+
+        p.x = Math.min(Math.max(p.x, 0), this.WIDTH);
+        p.y = Math.min(Math.max(p.y, 0), this.HEIGHT);
+
+        return p;
+    }
     adjustGuideLines(e)
     {
-        let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
+        let p = this.getSvgPoint(e);
+
         this.lines.x.setAttribute('y1', p.y);
         this.lines.x.setAttribute('y2', p.y);
         this.lines.x.setAttribute('x2', this.WIDTH);
@@ -401,13 +494,19 @@ class RectEditor{
         if (this.mouseDown && e.which == 3) //right button
         {
             //let point = this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
-            this.viewBox.x = this.mouseDownViewBox.x - (e.offsetX - this.mouseDownPointUi.x)/this.canvas.clientWidth*this.viewBox.width;
-            this.viewBox.y = this.mouseDownViewBox.y - (e.offsetY - this.mouseDownPointUi.y)/this.canvas.clientHeight*this.viewBox.height;
+            let vectorUi = {
+                x: e.clientX - this.mouseDownPointUi.x,
+                y: e.clientY - this.mouseDownPointUi.y,
+            };
+
+            let v = this.uiVectorToSvgVector(vectorUi);
+            this.viewBox.x = this.mouseDownViewBox.x - v.x;
+            this.viewBox.y = this.mouseDownViewBox.y - v.y;
             this.updateViewBox();            
         }
         else if (this.editingRectangleSvg){
             //drawing rect
-            let p = this.uiPointToSvgPoint({x:e.offsetX, y:e.offsetY});
+            let p = this.getSvgPoint(e);
             this.editingRectangle.x2 = p.x;
             this.editingRectangle.y2 = p.y;
             this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);
@@ -420,6 +519,12 @@ class RectEditor{
     }
 
 
+    addRect(r)
+    {
+        let g = this.createRectangle(r);
+        this.endRectangle(g, r);
+    }
+
     createRectangle(r)
     {
         let g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
@@ -428,7 +533,10 @@ class RectEditor{
         g.setAttribute("id",    "rect");
         g.appendChild(rect);
 
+        this.rects.appendChild(g);
+
         this.modifyRectangle(g, r);        
+
         return g;
     }
 
@@ -451,8 +559,24 @@ class RectEditor{
             label.setAttribute('x', x1);
             label.setAttribute('y', y1);
         }
+    }
+
+    updateRectangle(svg, r)
+    {
+        svg.data.rect = r;
+        if (svg === this.selectedRect)
+        {
+            this.updateFloatingToolBox();
+        }
 
     }
+
+    updateFloatingToolBox(){
+        // let p = this.svgPointToUiPoint({x: this.selectedRect.data.rect.x1, y: this.selectedRect.data.rect.y1});
+        // this.toolboxUi.style.left = p.x+"px";
+        // this.toolboxUi.style.top = p.y - this.toolboxUi.clientHeight + "px";
+    }
+
 
     normalizeRect(rect)
     {
@@ -475,19 +599,19 @@ class RectEditor{
         let x = rect.x1;
         let y = rect.y1;
 
-        let p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
-        p.setAttribute('id', 'label');
-        p.setAttribute("x", x);
-        p.setAttribute("y", y);
-        // p.setAttribute("width", 200 * this.scale);
-        p.setAttribute("font-size", 10+"px");
-        p.setAttribute("class",'rect-label');
+        // let p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
+        // p.setAttribute('id', 'label');
+        // p.setAttribute("x", x);
+        // p.setAttribute("y", y);
+        // // p.setAttribute("width", 200 * this.scale);
+        // p.setAttribute("font-size", 10+"px");
+        // p.setAttribute("class",'rect-label');
 
-        let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
-        text.textContent = 'object';
-        p.appendChild(text);
+        // let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
+        // text.textContent = 'object';
+        // p.appendChild(text);
 
-        svg.appendChild(p);
+        // svg.appendChild(p);
 
         svg.data = {
             rect,
@@ -509,24 +633,20 @@ class RectEditor{
 
         svg.addEventListener("mousedown", (e)=>{
 
-            if (e.which == 1)
+            if (e.which == 1 && e.ctrlKey === false)
             {
                 console.log("mousedown on rect", e.which);
 
-                this.selectRect(svg, e);
+                this.selectRect(svg);
 
                 e.preventDefault();
                 e.stopPropagation();
             }
             
         });
-
-
-        this.selectRect(svg);
-
     }
 
-    selectRect(rect, e)
+    selectRect(rect)
     {
         if (this.selectedRect != rect)
         {
@@ -542,8 +662,10 @@ class RectEditor{
 
             this.ctrl.attachRect(rect);
             
-            if (e)
-                this.ctrl.onRectDragMouseDown(e);
+            // if (e)
+            //     this.ctrl.onRectDragMouseDown(e);
+            
+            this.updateFloatingToolBox();
         }
     }
 

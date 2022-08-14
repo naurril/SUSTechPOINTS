@@ -22,9 +22,9 @@ class MovableView
 
                 movableUi.style.display="inherit";        
                 
-                if (this.onDragableUiMounseDown)
+                if (this.onDragableUiMouseDown)
                 {
-                    this.onDragableUiMounseDown();
+                    this.onDragableUiMouseDown();
                 }
             }
         });

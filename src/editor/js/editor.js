@@ -2686,36 +2686,10 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.add_global_obj_type= function(){
 
         var self = this;
-        var sheet = window.document.styleSheets[1];
+
+        this.imageContextManager.buildCssStyle();
 
         let obj_type_map = globalObjectCategory.obj_type_map;
-
-        for (var o in obj_type_map){
-            var rule = '.'+o+ '{color:'+obj_type_map[o].color+';'+ 
-                                'stroke:' +obj_type_map[o].color+ ';'+
-                                'fill:' +obj_type_map[o].color+ '22' + ';'+
-                                '}';
-            sheet.insertRule(rule, sheet.cssRules.length);
-        }
-
-        function color_str(v){
-            let c =  Math.round(v*255);
-            if (c < 16)
-                return "0" + c.toString(16);
-            else
-                return c.toString(16);
-        }
-
-        for (let idx=0; idx<=32; idx++){
-            let c = globalObjectCategory.get_color_by_id(idx);
-            let color = "#" + color_str(c.x) + color_str(c.y) + color_str(c.z);
-
-            var rule = '.color-'+idx+ '{color:'+color+';'+ 
-                                'stroke:' +color+ ';'+
-                                'fill:' +color+ '22' + ';'+
-                                '}';
-            sheet.insertRule(rule, sheet.cssRules.length);
-        }
 
         // obj type selector
         var options = "";

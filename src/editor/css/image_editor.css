@@ -1,0 +1,82 @@
+
+
+
+
+#maincanvas-svg {
+	/* position: absolute; */
+	top: 0%;
+	width: 100%;
+	height:100%;
+	border: 0px;
+	padding: 0px;
+}
+
+#svg-points {
+	stroke-width: 2px;
+}
+
+
+
+
+
+.box-svg{
+	/* stroke-width: 1px; */
+	/* stroke: #0000ffaa;
+	fill: #00880022; */
+}
+
+/* 
+this css can be moved to dynamic css in main.js, after obj-type css being set 
+for now when a box is selected, its objtype class in css is removed so the color is set by selected state.
+dynamic set obj-type css has higher priority than this one.
+*/
+.box-svg-selected{
+	stroke: #ff00ff88;
+	fill: #ff00ff22;
+	/* stroke-width: 2px; */
+}
+
+
+
+.rect-label {
+	width: 150px;
+	height: 28px;	
+}
+
+
+
+.rect-editor-guide-line{
+	stroke-dasharray: 1,1;
+	stroke: red;
+	/* stroke-width: 1px; */
+	stroke-opacity: 0.6;
+}
+
+
+
+.rect-svg{
+	/* stroke-width: 1px; */
+	stroke: #0000ffaa;
+	fill: #00880022;
+}
+
+
+.rect-svg-selected{
+	stroke: #ff00ff88;
+	fill: #ff00ff22;
+	/* stroke-width: 2px; */
+}
+
+
+.rect-ctrl-handle{
+    fill: #FF00ff44
+}
+
+
+#rect-editor-floating-toolbox {
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	width: fit-content;
+	height: fit-content;
+}
