@@ -1,4 +1,4 @@
-import { PopupDialog } from "./popup_dialog.js";
+import { PopupDialog } from "./common/popup_dialog.js";
 
 
 

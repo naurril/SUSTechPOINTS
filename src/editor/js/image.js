@@ -1,7 +1,7 @@
 
 import {vector4to3, vector3_nomalize, psr_to_xyz, matmul} from "./util.js"
 import {globalObjectCategory, } from './obj_cfg.js';
-import { MovableView, PopupDialog, ResizableMoveableView } from "./popup_dialog.js";
+import { MovableView, PopupDialog, ResizableMoveableView } from "./common/popup_dialog.js";
 import { RectEditor } from "./image_editor/rect_editor";
 
 function BoxImageContext(ui){
@@ -226,6 +226,7 @@ class ImageContext extends ResizableMoveableView{
         this.canvas = this.ui.querySelector("#maincanvas-svg");
 
         this.rectEditor = new RectEditor(this.canvas, 
+            this.ui.querySelector("#rect-editor-floating-labels"),
             this.contentUi,
             this.ui.querySelector("#rect-editor-floating-toolbox"),
             this.ui.querySelector("#rect-editor-cfg"),
@@ -886,7 +887,7 @@ class ImageContext extends ResizableMoveableView{
         svg.setAttribute("id", "svg-box-local-"+box.obj_local_id);
 
         if (selected){
-            svg.setAttribute("class", box.obj_type+" box-svg box-svg-selected");
+            svg.setAttribute("class", box.obj_type+" box-svg svg-selected");
         } else{
             if (box.world.data.cfg.color_obj == "id")
             {
@@ -974,7 +975,7 @@ class ImageContext extends ResizableMoveableView{
         onBoxSelected: (box_obj_local_id, obj_type)=>{
             var b = this.ui.querySelector("#svg-box-local-"+box_obj_local_id);
             if (b){
-                b.setAttribute("class", "box-svg-selected");
+                b.setAttribute("class", "svg-selected");
             }
         },
 
@@ -1333,6 +1334,8 @@ class ImageContextManager {
                                 '}';
             sheet.insertRule(rule, sheet.cssRules.length);
         }
+
+        sheet.insertRule('.svg-selected {stroke: #ff00ff88; fill: #ff00ff22;}', sheet.cssRules.length)
     }
 }
 

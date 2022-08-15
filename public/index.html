@@ -1038,38 +1038,7 @@
 					</div>
 				</div>
 
-				<div id="info-wrapper" class="popup-window-wrapper" tabindex='-1'>
-					<div id="view">
-						<div id="header">
-							<span id="title">Info</span>
-							<div id="buttons">
-								<div id="btn-restore" class="ui-button"  title="restore">
-									<!-- <span class="ui-icon ui-icon-trash"></span> -->
-									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-										<rect x = 6 y = 6 width=12 height=12></rect>
-									</g></svg>
-								</div>
-								<div id="btn-maximize" class="ui-button"  title="maximize">
-									<!-- <span class="ui-icon ui-icon-trash"></span> -->
-									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-										<rect x = 4 y = 4 width=16 height=16></rect>
-									</g></svg>
-								</div>
-								<div id="btn-exit" class="ui-button"  title="exit">
-									<!-- <span class="ui-icon ui-icon-trash"></span> -->
-									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-										<path d="M4 4 L 20 20 M 20 4 L 4 20"></path>
-									</g></svg>
-								</div>
-							</div>
-						</div>
-						<div id="info-content"></div>
-						<div id="info-bottom-buttons">
-							<button id="btn-no">No</button>
-							<button id="btn-yes">Yes</button>							
-						</div>
-					</div>
-				</div>
+
 
 				<div id="crop-scene-wrapper" class="popup-window-wrapper" tabindex='-1'>
 					<div id="view">
@@ -1230,7 +1199,39 @@
 				<div id="move-handle-wrapper">
 				</div>
 				
-
+				<div id="info-wrapper" class="popup-window-wrapper" tabindex='-1'>
+					<div id="view">
+						<div id="header">
+							<span id="title">Info</span>
+							<div id="buttons">
+								<div id="btn-restore" class="ui-button"  title="restore">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x = 6 y = 6 width=12 height=12></rect>
+									</g></svg>
+								</div>
+								<div id="btn-maximize" class="ui-button"  title="maximize">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x = 4 y = 4 width=16 height=16></rect>
+									</g></svg>
+								</div>
+								<div id="btn-exit" class="ui-button"  title="exit">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M4 4 L 20 20 M 20 4 L 4 20"></path>
+									</g></svg>
+								</div>
+							</div>
+						</div>
+						<div id="info-content"></div>
+						<div id="info-bottom-buttons">
+							<button id="btn-no">No</button>
+							<button id="btn-yes">Yes</button>							
+						</div>
+					</div>
+				</div>
+				
 		</template>
 		<template id="box-editor-ui-template"><div id="sub-views">
 				<div class="box-info non-selectable" id="box-info"></div>
@@ -1443,7 +1444,6 @@
 		</template>
 		<template id="image-wrapper-template">
 			
-
 			<div id="image-wrapper" class="popup-window-wrapper">
 				<div id="view" class="non-selectable image-view">
 					<div id="header">
@@ -1459,9 +1459,7 @@
 					
 					<div id="content">				
 						<svg id = "maincanvas-svg" viewbox="0 0 2048 1536" preserveAspectRatio="none">
-							<image id="svg-image" x="0" y="0"  preserveAspectRatio="none"
-							xlink:href=""
-							/>
+							<image id="svg-image" x="0" y="0"  preserveAspectRatio="none" xlink:href=""/>
 							<g id="svg-boxes"></g>
 							<g id="svg-points"></g>
 
@@ -1479,8 +1477,11 @@
 									<circle id="bottomright" class='rect-ctrl-handle'  cx="0" cy="0" r="10"></circle>
 								</g>
 							</g>
+							
 						</svg>
+						<div id="rect-editor-floating-labels"></div>
 
+						</div>
 						<div id="rect-editor-cfg" class="non-selectable">
 							<div id="rect-editor-cfg-btn" class="ui-button">
 								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">

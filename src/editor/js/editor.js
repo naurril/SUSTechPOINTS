@@ -21,7 +21,7 @@ import { ContextMenu } from './context_menu.js';
 import { InfoBox } from './info_box.js';
 import {CropScene} from './crop_scene.js';
 import { ConfigUi } from './config_ui.js';
-import { MovableView } from './popup_dialog.js';
+import { MovableView } from './common/popup_dialog.js';
 import {globalKeyDownManager} from './keydown_manager.js';
 import {vector_range} from "./util.js"
 import { checkScene } from './error_check.js';

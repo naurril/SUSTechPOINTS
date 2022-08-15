@@ -1,7 +1,5 @@
 
 
-
-
 #maincanvas-svg {
 	/* position: absolute; */
 	top: 0%;
@@ -30,7 +28,7 @@ this css can be moved to dynamic css in main.js, after obj-type css being set
 for now when a box is selected, its objtype class in css is removed so the color is set by selected state.
 dynamic set obj-type css has higher priority than this one.
 */
-.box-svg-selected{
+.svg-selected{
 	stroke: #ff00ff88;
 	fill: #ff00ff22;
 	/* stroke-width: 2px; */
@@ -61,7 +59,7 @@ dynamic set obj-type css has higher priority than this one.
 }
 
 
-.rect-svg-selected{
+.svg-selected{
 	stroke: #ff00ff88;
 	fill: #ff00ff00;
 	/* stroke-width: 2px; */
@@ -104,4 +102,20 @@ dynamic set obj-type css has higher priority than this one.
 }
 .rect-editor-widget-group {
 	display: inline-flex;	
+}
+
+
+#bottomright,#topleft:hover{
+	cursor: nw-resize;
+}
+
+#topright,#bottomleft:hover{
+	cursor: ne-resize;
+}
+
+
+#rect-editor-floating-labels{
+	position: absolute;
+	top: 0%;
+	left: 0%;
 }

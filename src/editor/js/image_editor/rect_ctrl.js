@@ -37,13 +37,13 @@ class RectCtrl{
         this.toolBoxUi.querySelector("#object-category-selector").onchange = (e)=>{
             let category = e.currentTarget.value;
             this.g.data.obj_type = category;
-            this.editor.save();
+            this.editor.rectUpdated(this.g);
         }
 
         this.toolBoxUi.querySelector("#attr-input").onchange = (e)=>{
             let category = e.currentTarget.value;
             this.g.data.obj_attr = category;
-            this.editor.save();
+            this.editor.rectUpdated(this.g);
         }
     }
 
@@ -72,8 +72,8 @@ class RectCtrl{
 
         if (this.g)
         {
-            let p = this.editor.svgPointToUiPoint({x: this.g.data.rect.x2, y: this.g.data.rect.y1});
-            this.toolBoxUi.style.left = p.x+"px";
+            let p = this.editor.svgPointToUiPoint({x: this.g.data.rect.x1, y: this.g.data.rect.y1});
+            this.toolBoxUi.style.left = p.x + 5 +"px";
             this.toolBoxUi.style.top = p.y - this.toolBoxUi.clientHeight - 5 + "px";
         }
         
@@ -221,11 +221,15 @@ class RectCtrl{
 
     rectDragEndOperation(delta)
     {
-        this.rectDragOnOperation(delta);        
-        this.editor.updateRectangle(this.g, this.editingRect);
+        if (delta.x != 0 || delta.y != 0)
+        {
+            this.rectDragOnOperation(delta);        
+            this.g.data.rect = this.editingRect;
+            this.editor.rectUpdated(this.g);
+            this.updateFloatingToobBoxPos();
+        }
 
-        this.showFloatingToolBox();
-        this.updateFloatingToobBoxPos();
+        this.showFloatingToolBox();        
         this.editor.showGuideLines();
     }
 
@@ -240,12 +244,16 @@ class RectCtrl{
 
     cornerEndOperation(delta, handleName)
     {
-        this.cornerOnOperation(delta, handleName);
+        if (delta.x != 0 || delta.y != 0)
+        {
+            this.cornerOnOperation(delta, handleName);
         
-        this.editor.updateRectangle(this.g, this.editingRect);
-        this.showFloatingToolBox();
-        this.updateFloatingToobBoxPos();
+            this.g.data.rect = this.editingRect;
+            this.editor.rectUpdated(this.g);
+            this.updateFloatingToobBoxPos();
+        }
 
+        this.showFloatingToolBox();
         this.editor.showGuideLines();
     }
 
@@ -316,6 +324,7 @@ class RectCtrl{
                 y: e.clientY - p.y,
             }
 
+            
             endOp(delta, para);
 
             this.canvas.removeEventListener('mouseup', onMouseUp);
@@ -328,6 +337,7 @@ class RectCtrl{
                 x: e.clientX - p.x,
                 y: e.clientY - p.y,
             }
+            
             onOp(delta, para);
         };
 

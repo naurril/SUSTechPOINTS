@@ -518,6 +518,10 @@ canvas {
 	display:inline-flex;
 }
 
+.float-label:hover {
+	color: var(--highlight-color);
+	background-color: var(--highlight-background-color);
+}
 
 .non-selectable {
 	-webkit-user-select: none; /* Safari */        
@@ -533,11 +537,6 @@ canvas {
 .label-out-view {
 	display: none;
 }
-
-
-
-
-
 
 #batch-editor-tools-wrapper{
 	width:auto;
@@ -860,7 +859,7 @@ td {
 	border-color: gray;
 	resize: both;
     overflow: hidden;
-	z-index: 4;
+	/* z-index: 4; */
 }
 
 

@@ -1,5 +1,8 @@
 class DropdownMenu{
  
+
+    // parent Ui is where menu is shown in.
+    // if absent, window is used.
     constructor(button, menu, parentUi)
     {
         this.button = button;
@@ -29,8 +32,8 @@ class DropdownMenu{
             if (this.parentUi)
             {
                 let r = this.parentUi.getClientRects()[0];
-                maxHeight = r.height;
-                maxWidth = r.width;
+                maxHeight = r.bottom;
+                maxWidth = r.right;
             }
 
             if (maxHeight < rect.y+rect.height)
