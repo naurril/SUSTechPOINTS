@@ -578,6 +578,16 @@ class RectEditor{
         Array.from(this.rects.children).forEach(svg=>this.updateDivLabel(svg));
     }
 
+    hideFloatingLabels()
+    {
+        this.floatingLabelsUi.style.display = 'none';
+    }
+
+    showFloatingLabels()
+    {
+        this.floatingLabelsUi.style.display = 'inherit';
+    }
+
     updateDivLabel(svg)
     {
         svg.divLabel.className = "float-label "+ svg.data.obj_type;
@@ -588,7 +598,7 @@ class RectEditor{
 
         let height = svg.divLabel.getClientRects()[0].height;
         svg.divLabel.style.left = p.x + 5 + "px"
-        svg.divLabel.style.top = p.y - height - 5 +"px"
+        svg.divLabel.style.top = p.y - height +"px"
     }
 
     endRectangle(svg, rect, data){
@@ -619,30 +629,35 @@ class RectEditor{
 
         svg.divLabel = document.createElement('div');
         svg.divLabel.svg = svg;
-        svg.divLabel.onclick = (e)=>this.onFloatingLabelClicked(e);
+        svg.divLabel.onclick = (e)=>this.selectRect(e.currentTarget.svg);
+        svg.divLabel.onmouseenter = (e)=>e.currentTarget.svg.classList.add("svg-select-pending");
+        svg.divLabel.onmouseleave = (e)=>e.currentTarget.svg.classList.remove("svg-select-pending");
+
         this.floatingLabelsUi.appendChild(svg.divLabel);
         this.updateDivLabel(svg);
         
 
         svg.addEventListener("mouseenter", (e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            
+            e.currentTarget.divLabel.classList.add('label-select-pending');
+            e.currentTarget.classList.add('svg-select-pending');
+            // e.preventDefault();
+            // e.stopPropagation();            
         });
 
         svg.addEventListener("mouseleave", (e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            
+            e.currentTarget.divLabel.classList.remove('label-select-pending');
+            e.currentTarget.classList.remove('svg-select-pending');
+            // e.preventDefault();
+            // e.stopPropagation();            
         });
 
-        svg.addEventListener("mousedown", (e)=>{
+        svg.onclick = (e)=>{
 
             if (e.which == 1)
             {
                 if (e.ctrlKey === false)
                 {
-                    this.selectRect(svg);
+                    this.selectRect(e.currentTarget);
                     e.preventDefault();
                     e.stopPropagation();
                 }
@@ -651,13 +666,9 @@ class RectEditor{
                     this.cancelSelection();
                 }
             }
-        });
+        };
     }
 
-    onFloatingLabelClicked(e)
-    {
-        this.selectRect(e.currentTarget.svg);
-    }
 
     selectRect(rect)
     {

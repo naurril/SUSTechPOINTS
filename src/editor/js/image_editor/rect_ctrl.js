@@ -176,6 +176,7 @@ class RectCtrl{
 
         this.hideFloatingToolBox();
         this.editor.hideGuideLines();
+        this.editor.hideFloatingLabels();
     }
 
 
@@ -223,7 +224,7 @@ class RectCtrl{
     {
         this.showFloatingToolBox();        
         this.editor.showGuideLines();
-
+        this.editor.showFloatingLabels();
         if (delta.x != 0 || delta.y != 0)
         {
             this.rectDragOnOperation(delta);        
@@ -242,13 +243,15 @@ class RectCtrl{
 
         this.hideFloatingToolBox();
         this.editor.hideGuideLines();
+        this.editor.hideFloatingLabels();
     }
 
     cornerEndOperation(delta, handleName)
     {
         this.showFloatingToolBox();
         this.editor.showGuideLines();
-        
+        this.editor.showFloatingLabels();
+
         if (delta.x != 0 || delta.y != 0)
         {
             this.cornerOnOperation(delta, handleName);

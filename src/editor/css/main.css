@@ -516,11 +516,13 @@ canvas {
 	color: #0000ff;
 	position: absolute;
 	display:inline-flex;
+	padding-left: 3px;
+	padding-right: 3px;
 }
 
 .float-label:hover {
-	color: var(--highlight-color);
-	background-color: var(--highlight-background-color);
+	color: #0000ff;
+	background-color: lightgray;
 }
 
 .non-selectable {

@@ -55,9 +55,8 @@ dynamic set obj-type css has higher priority than this one.
 .rect-svg{
 	/* stroke-width: 1px; */
 	stroke: #0000ffaa;
-	fill: #00880022;
+	fill: #0000ff22;
 }
-
 
 .svg-selected{
 	stroke: #ff00ff88;
@@ -119,3 +118,4 @@ dynamic set obj-type css has higher priority than this one.
 	top: 0%;
 	left: 0%;
 }
+
