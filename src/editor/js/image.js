@@ -274,11 +274,20 @@ class ImageContext extends ResizableMoveableView{
 
     setImageName(name)
     {
+        
         let [cameraType, cameraName] = name.split(":");
-    this.cameraType = cameraType;
-        this.cameraName = cameraName;
-        this.name = name;
-        this.ui.querySelector("#title").innerText = (this.autoSwitch?"auto-":"")+name;
+
+        if (this.name !== name)
+        {
+            this.cameraType = cameraType;
+            this.cameraName = cameraName;
+
+            this.name = name;
+            this.ui.querySelector("#title").innerText = (this.autoSwitch?"auto-":"")+name;
+            return true;
+        }
+
+        return false;
     }
 
     
@@ -1224,8 +1233,9 @@ class ImageContextManager {
     setBestCamera(camera)
     {
         this.images.filter(i=>i.autoSwitch).forEach(i=>{
-            i.setImageName(camera);
-            i.boxes_manager.display_image();
+            let changedCamera = i.setImageName(camera);
+            if (changedCamera)
+                i.boxes_manager.display_image();
         });
 
         this.bestCamera = camera;

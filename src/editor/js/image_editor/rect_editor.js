@@ -45,6 +45,7 @@ class RectEditor{
        
         this.cfg = {
             show3dBox: true,
+            selectInLidar: true,
         };
 
 
@@ -655,7 +656,6 @@ class RectEditor{
 
     onFloatingLabelClicked(e)
     {
-        this.cancelSelection();
         this.selectRect(e.currentTarget.svg);
     }
 
@@ -678,6 +678,10 @@ class RectEditor{
             // if (e)
             //     this.ctrl.onRectDragMouseDown(e);
             
+            if (this.cfg.selectInLidar && rect.data.obj_track_id)
+            {
+                window.editor.makeVisible(rect.data.obj_track_id);
+            }
             
         }
     }

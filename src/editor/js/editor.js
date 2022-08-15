@@ -1802,7 +1802,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     };
 
-
+    
 
     this.selectBox = function(object){
 

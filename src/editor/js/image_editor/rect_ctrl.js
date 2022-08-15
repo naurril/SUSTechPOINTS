@@ -221,16 +221,18 @@ class RectCtrl{
 
     rectDragEndOperation(delta)
     {
+        this.showFloatingToolBox();        
+        this.editor.showGuideLines();
+
         if (delta.x != 0 || delta.y != 0)
         {
             this.rectDragOnOperation(delta);        
-            this.g.data.rect = this.editingRect;
+            this.g.data.rect = this.editor.normalizeRect(this.editingRect);
             this.editor.rectUpdated(this.g);
             this.updateFloatingToobBoxPos();
         }
 
-        this.showFloatingToolBox();        
-        this.editor.showGuideLines();
+
     }
 
     cornerBeginOperation(handleName){
@@ -244,17 +246,19 @@ class RectCtrl{
 
     cornerEndOperation(delta, handleName)
     {
+        this.showFloatingToolBox();
+        this.editor.showGuideLines();
+        
         if (delta.x != 0 || delta.y != 0)
         {
             this.cornerOnOperation(delta, handleName);
         
-            this.g.data.rect = this.editingRect;
+            this.g.data.rect = this.editor.normalizeRect(this.editingRect);
             this.editor.rectUpdated(this.g);
             this.updateFloatingToobBoxPos();
         }
 
-        this.showFloatingToolBox();
-        this.editor.showGuideLines();
+
     }
 
     cornerOnOperation(delta, handleName)
