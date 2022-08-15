@@ -52,9 +52,12 @@ class RectCtrl{
         if (this.toolBoxUi.style.display === 'none')
             return;
 
-        let p = this.editor.svgPointToUiPoint({x: this.g.data.rect.x2, y: this.g.data.rect.y1});
-        this.toolBoxUi.style.left = p.x+"px";
-        this.toolBoxUi.style.top = p.y - this.toolBoxUi.clientHeight - 5 + "px";
+        if (this.g)
+        {
+            let p = this.editor.svgPointToUiPoint({x: this.g.data.rect.x2, y: this.g.data.rect.y1});
+            this.toolBoxUi.style.left = p.x+"px";
+            this.toolBoxUi.style.top = p.y - this.toolBoxUi.clientHeight - 5 + "px";
+        }
         
     }
 
@@ -111,12 +114,6 @@ class RectCtrl{
 
     };
 
-    onRectDragMouseDown = e=>this.onDragMouseDown(e,'rect', 
-                                this.rectDragBeginOperation.bind(this),
-                                this.rectDragOnOperation.bind(this),
-                                this.rectDragEndOperation.bind(this));
-
-
     detach(g)
     {
         this.hide();
@@ -125,6 +122,14 @@ class RectCtrl{
         this.g = null;
         this.hideFloatingToolBox();
     }
+    
+    onRectDragMouseDown = e=>this.onDragMouseDown(e,'rect', 
+                                this.rectDragBeginOperation.bind(this),
+                                this.rectDragOnOperation.bind(this),
+                                this.rectDragEndOperation.bind(this));
+
+
+
 
     moveHandle(rect)
     {

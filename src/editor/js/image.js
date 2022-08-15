@@ -226,6 +226,7 @@ class ImageContext extends ResizableMoveableView{
         this.canvas = this.ui.querySelector("#maincanvas-svg");
 
         this.rectEditor = new RectEditor(this.canvas, 
+            this.contentUi,
             this.ui.querySelector("#rect-editor-floating-toolbox"),
             this.ui.querySelector("#rect-editor-cfg"),
             );
@@ -571,7 +572,7 @@ class ImageContext extends ResizableMoveableView{
     {
         let img = this.world[this.cameraType].getImageByName(this.cameraName);
         
-        this.canvas.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+        //this.canvas.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
         this.WIDTH = img.naturalWidth;
         this.HEIGHT = img.naturalHeight;
         this.rectEditor.resetImage(this.WIDTH, this.HEIGHT);
@@ -587,7 +588,7 @@ class ImageContext extends ResizableMoveableView{
         if (!this.world[this.cameraType])
             return;
         
-        this.rectEditor.resetImage(this.WIDTH, this.HEIGHT);
+        this.rectEditor.clear(0);
 
         // active img is set by global, it's not set sometimes.
         var img = this.world[this.cameraType].getImageByName(this.cameraName);

@@ -11,24 +11,34 @@ class EditorCfg{
         this.ui.querySelector("#show-3d-box").onchange = (e)=>{
             let checked = e.currentTarget.checked;
 
-            editor.cfgChanged('show-3d-box', checked);
+            this.editor.cfg.show3dBox = checked;
+            if (checked)
+                this.editor.show3dBox();
+            else
+                this.editor.hide3dBox();
+        };
+
+        this.ui.querySelector("#reset-view").onclick = (e)=>{
+            this.editor.resetView();
         };
     }
 }
 
 
 class RectEditor{
-    constructor(canvas, toolBoxUi, cfgUi)
+    constructor(canvas, parentUi, toolBoxUi, cfgUi)
     {
 
     
         this.canvas = canvas;
+        this.parentUi = parentUi;
         
         this.canvas.addEventListener("wheel", this.onWheel.bind(this));
         this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
         this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
         this.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
-        this.canvas.addEventListener("mouseleave", this.onMouseUp.bind(this));
+        this.canvas.addEventListener("mouseleave", this.onMouseLeave.bind(this));
+        this.canvas.addEventListener("mouseenter", this.onMouseEnter.bind(this));
 
         // this.WIDTH = width;
         // this.HEIGHT = height;
@@ -65,11 +75,7 @@ class RectEditor{
     {
         switch(name){
             case 'show-3d-box':
-                this.cfg.show3dBox = value;
-                if (value)
-                    this.show3dBox();
-                else
-                    this.hide3dBox();
+                
                     
                 break;
 
@@ -99,17 +105,26 @@ class RectEditor{
 
     resetImage(width, height)
     {
-        this.WIDTH = width;
-        this.HEIGHT = height;
+        if (this.WIDTH != width || this.HEIGHT != height)
+        {
+            this.WIDTH = width;
+            this.HEIGHT = height;
 
-        this.viewBox = {
-            x: 0,
-            y: 0,
-            width: this.WIDTH,
-            height: this.HEIGHT
-        };
+            this.viewBox = {
+                x: 0,
+                y: 0,
+                width: this.WIDTH,
+                height: this.HEIGHT
+            };
 
-  
+            this.updateViewBox();
+        }
+        
+        this.clear();
+    }
+
+    clear()
+    {
         var rects = this.rects.children;
         
         if (rects.length>0){
@@ -131,10 +146,13 @@ class RectEditor{
             y: yscale,
         };
     }
+    updateViewBox()
+    {
+        this.canvas.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
 
-    onResize(){
-        this.onRescale();
+        this.ctrl.viewUpdated();
     }
+
 
     onRescale()
     {
@@ -142,6 +160,28 @@ class RectEditor{
         this.ctrl.onScaleChanged(this.viewScale);
         this.canvas.style['stroke-width'] = 1/this.viewScale.x+"px";
     }
+
+    onResize(){
+
+        // canvas height/width
+        let contentRect = this.parentUi.getClientRects()[0];
+        if (contentRect.width/this.WIDTH < contentRect.height/this.HEIGHT)
+        {
+            //
+            let height = contentRect.height;
+            this.canvas.style.height = height + 'px';
+            this.canvas.style.width = height*this.WIDTH/this.HEIGHT + 'px';
+        }
+        else
+        {
+            let width = contentRect.width;
+            this.canvas.style.width = width + 'px';
+            this.canvas.style.height = width*this.HEIGHT/this.WIDTH + 'px';
+        }
+
+        this.onRescale();
+    }
+
 
     point = {};
     scale = 1.0;
@@ -172,11 +212,15 @@ class RectEditor{
 
     }
 
-    updateViewBox()
+    resetView()
     {
-        this.canvas.setAttribute('viewBox', `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.width} ${this.viewBox.height}`);
-
-        this.ctrl.viewUpdated();
+        this.scale = 1;
+        this.viewBox.x = 0;
+        this.viewBox.y = 0;
+        this.viewBox.width = this.WIDTH;
+        this.viewBox.height  = this.HEIGHT;
+        this.updateViewBox();
+        this.onRescale();
     }
 
     uiPointToSvgPoint(p)
@@ -295,6 +339,13 @@ class RectEditor{
         }
     }
 
+    onMouseLeave(e){
+        this.hideGuildeLines();
+    }
+
+    onMouseEnter(e){
+        this.showGuideLines();
+    }
 
     getSvgPoint(e)
     {
@@ -320,6 +371,14 @@ class RectEditor{
         this.lines.y.setAttribute('y2', this.HEIGHT);
     }
 
+    showGuideLines()
+    {
+        this.canvas.querySelector("#rect-editor-guide-lines").style.display = 'inherit';
+    }
+    hideGuildeLines()
+    {
+        this.canvas.querySelector("#rect-editor-guide-lines").style.display = 'none';
+    }
 
     onMouseMove(e){
 
