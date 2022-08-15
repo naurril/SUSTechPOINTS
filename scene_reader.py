@@ -225,14 +225,30 @@ def get_one_scene(s):
 
 
 def read_annotations(scene, frame):
-    filename = os.path.join(root_dir, scene, "label", frame+".json")
-    if (os.path.isfile(filename)):
-      with open(filename,"r") as f:
-        ann=json.load(f)
-        #print(ann)          
-        return ann
-    else:
-      return []
+    "read 3d boxes"
+    if not os.path.exists(os.path.join(root_dir, scene, 'label')):
+        return []
+    
+    filename = os.path.join(root_dir, scene, "label", frame+".json")   # backward compatible
+    
+    if os.path.exists(filename):
+        if (os.path.isfile(filename)):
+            with open(filename,"r") as f:
+                ann=json.load(f)
+                #print(ann)          
+                return ann
+    return {'objs': []}
+
+
+def read_image_annotations(scene, frame, camera_type, camera_name):
+    filename = os.path.join(root_dir, scene, "label_fusion", camera_type, camera_name, frame+".json")   # backward compatible
+    if os.path.exists(filename):
+        if (os.path.isfile(filename)):
+            with open(filename,"r") as f:
+                ann=json.load(f)
+                #print(ann)          
+                return ann
+    return {'objs': []}
 
 def read_ego_pose(scene, frame):
     filename = os.path.join(root_dir, scene, "ego_pose", frame+".json")

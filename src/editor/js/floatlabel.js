@@ -2,7 +2,10 @@
 
 import {psr_to_xyz} from "./util.js"
 import * as THREE from 'three';
-import { globalObjectCategory } from "./obj_cfg.js";
+
+import { AttrEditor } from "./common/attr_editor.js";
+import { DropdownMenu } from "./common/sensible_dropdown_menu.js";
+import { ObjTypeEditor } from "./common/obj_type_editor.js";
 class FastToolBox{
     constructor(ui, eventHandler)
     {
@@ -12,66 +15,13 @@ class FastToolBox{
 
         this.installEventHandler();
 
-        this.ui.querySelector("#attr-editor").onmouseenter=function(event){
-            if (this.timerId)
-            {
-                clearTimeout(this.timerId);
-                this.timerId = null;
-            }
-            
-            event.target.querySelector("#attr-selector").style.display="";
+        this.attrEditor = new AttrEditor(this.ui.querySelector("#attr-editor"), eventHandler);
 
-        };
+        this.objTypeEditor = new ObjTypeEditor(this.ui.querySelector("#object-category-selector"));
 
-
-        this.ui.querySelector("#attr-editor").onmouseleave=function(event){
-            let ui = event.target.querySelector("#attr-selector");
-
-            this.timerId = setTimeout(()=>{
-                ui.style.display="none";
-                this.timerId = null;
-            },
-            200);           
-
-        };
+        this.dropdownMenu = new DropdownMenu(this.ui.querySelector("#label-more"),
+            this.ui.querySelector("#object-dropdown-menu"));
         
-        this.ui.querySelector("#label-more").onmouseenter=function(event){
-            if (this.timerId)
-            {
-                clearTimeout(this.timerId);
-                this.timerId = null;
-            }
-            let ui = event.target.querySelector("#object-dropdown-menu");
-            ui.style.display="inherit";
-            ui.style.top = "100%";
-            ui.style.left = "0%";
-            ui.style.right = null;
-            ui.style.bottom = null;
-
-            let rect = ui.getClientRects()[0];
-            if (window.innerHeight < rect.y+rect.height)
-            {
-                ui.style.top = null;
-                ui.style.bottom = "100%";
-            }
-
-            if (window.innerWidth < rect.x+rect.width)
-            {
-                ui.style.left = null;
-                ui.style.right = "0%";
-            }
-            
-        };
-
-        this.ui.querySelector("#label-more").onmouseleave=function(event){
-            let ui = event.target.querySelector("#object-dropdown-menu");
-            this.timerId = setTimeout(()=>{
-                ui.style.display="none";
-                this.timerId = null;
-            },
-            200);           
-        };
-
 
         let dropdownMenu = this.ui.querySelector("#object-dropdown-menu");
         for (let i = 0; i < dropdownMenu.children.length; i++)
@@ -86,6 +36,8 @@ class FastToolBox{
                 this.ui.querySelector("#object-dropdown-menu").style.display="none";                
             }                   
         }
+
+        
     }
 
     hide()
@@ -101,16 +53,12 @@ class FastToolBox{
 
 
     setValue(obj_type, obj_track_id, obj_attr){
-        this.ui.querySelector("#object-category-selector").value = obj_type;
+        
+        this.objTypeEditor.setValue(obj_type);
 
-        this.setAttrOptions(obj_type, obj_attr);
+        this.attrEditor.setAttrOptions(obj_type, obj_attr);
 
         this.ui.querySelector("#object-track-id-editor").value = obj_track_id;
-
-        if (obj_attr)
-            this.ui.querySelector("#attr-input").value = obj_attr;
-        else
-            this.ui.querySelector("#attr-input").value = "";
         
     }
 
@@ -123,84 +71,7 @@ class FastToolBox{
         }
     }
 
-    setAttrOptions(obj_type, obj_attr)
-    {
-       
-        let attrs = ["static", "occluded"];
 
-
-        if (globalObjectCategory.obj_type_map[obj_type] && globalObjectCategory.obj_type_map[obj_type].attr)
-            attrs = attrs.concat(globalObjectCategory.obj_type_map[obj_type].attr);
-        
-        // merge attrs
-        let objAttrs = [];
-
-        if (obj_attr){
-            objAttrs = obj_attr.split(",").map(a=>a.trim());
-            objAttrs.forEach(a=>{
-                if (!attrs.find(x=>x==a))
-                {
-                    attrs.push(a);
-                }
-            })
-        }
-
-
-        let items = ``;
-
-        
-        attrs.forEach(a=>{
-            if (objAttrs.find(x=>x==a)){
-                items+= `<div class='attr-item attr-selected'>${a}</div>`
-            }
-            else {
-                items+= `<div class='attr-item'>${a}</div>`
-            }
-        });
-        
-            
-        this.ui.querySelector("#attr-selector").innerHTML = items;
-
-        this.ui.querySelector("#attr-selector").onclick = (event)=>{
-
-            let attrs = this.ui.querySelector("#attr-input").value;
-
-            let objCurrentAttrs = [];
-            if (attrs)
-                objCurrentAttrs = attrs.split(",").map(a=>a.trim());
-            
-
-            let clickedAttr = event.target.innerText;
-
-            if (objCurrentAttrs.find(x=>x==clickedAttr))
-            {
-                objCurrentAttrs = objCurrentAttrs.filter(x => x!= clickedAttr);
-                event.target.className = 'attr-item';
-            }
-            else
-            {
-                objCurrentAttrs.push(clickedAttr);
-                event.target.className = 'attr-item attr-selected';
-            }
-
-            attrs = "";
-            if (objCurrentAttrs.length > 0)
-            {
-                attrs = objCurrentAttrs.reduce((a,b)=>a+ (a?",":"") + b);
-            }
-
-            this.ui.querySelector("#attr-input").value = attrs;
-
-            this.eventHandler({
-                currentTarget:{
-                    id: "attr-input",
-                    value: attrs
-                }
-            });
-            
-        }
-        
-    }
 
     installEventHandler(){
 
@@ -225,7 +96,7 @@ class FastToolBox{
         this.ui.querySelector("#object-category-selector").onchange =  event=>{
             
             //this.ui.querySelector("#attr-input").value="";
-            this.setAttrOptions(event.currentTarget.value, this.ui.querySelector("#attr-input").value);
+            this.attrEditor.setAttrOptions(event.currentTarget.value, this.ui.querySelector("#attr-input").value);
             this.eventHandler(event);
         };
 
@@ -237,12 +108,12 @@ class FastToolBox{
             this.eventHandler(event);
         });
         
-        this.ui.querySelector("#attr-input").onchange =    event=>this.eventHandler(event);
-        this.ui.querySelector("#attr-input").addEventListener("keydown", e=>e.stopPropagation());
-        this.ui.querySelector("#attr-input").addEventListener("keyup", event=>{
-            event.stopPropagation();
-            this.eventHandler(event);
-        });
+        // this.ui.querySelector("#attr-input").onchange =    event=>this.eventHandler(event);
+        // this.ui.querySelector("#attr-input").addEventListener("keydown", e=>e.stopPropagation());
+        // this.ui.querySelector("#attr-input").addEventListener("keyup", event=>{
+        //     event.stopPropagation();
+        //     this.eventHandler(event);
+        // });
     }
 }
 

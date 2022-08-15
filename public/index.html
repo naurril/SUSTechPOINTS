@@ -1480,20 +1480,36 @@
 								</g>
 							</g>
 						</svg>
-						<div id="rect-editor-cfg" class="non-selectable">
-							<div class="rect-editor-item">
-								<label for="show-3d-box"><div class="cfg-menu-label">show 3d boxes</div></label>
-								<div class="rect-editor-widget-group">
-									<input type="checkbox" id="show-3d-box">
-								</div>
-							</div>
-							<div class="rect-editor-item">
-								<div id='reset-view' class="rect-editor-widget-group">
-									reset view
-								</div>
-							</div>
 
+						<div id="rect-editor-cfg" class="non-selectable">
+							<div id="rect-editor-cfg-btn" class="ui-button">
+								<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button">
+									<g>
+										<circle cx = 12 cy=7 r=1 />
+										<circle cx = 12 cy=12 r=1 />
+										<circle cx = 12 cy=17 r=1 />							
+									</g>
+								</svg>
+
+								<div id = 'object-dropdown-menu'>
+									<div class="menu-item">
+										<label for="show-3d-box"><div class="cfg-menu-label">show 3d boxes</div></label>
+										<div class="cfg-widget-group">
+											<input type="checkbox" id="show-3d-box">
+										</div>
+									</div>
+									
+									<div id='reset-view' class="menu-item">										
+											reset view										
+									</div>
+									
+									<div id='generate-by-3d-boxes' class="menu-item">										
+										generate by 3d boxes
+									</div>
+								</div>
+							</div>
 						</div>
+
 						<div id="rect-editor-floating-toolbox">
 							<!-- <button>generate by 3d box</button> -->
 							<!-- <div id="tb-del" class="ui-button"  title="delete">
@@ -1502,13 +1518,22 @@
 								</g></svg>
 							</div> -->
 							<div class="obj-editor-row">
-								<select title="category"  id="object-category-selector"></select>
-
-								<div id="attr-editor">
-									<input title="attribute" id="attr-input" type="text" size="10" placeholder="attribute">
-									<div id="attr-selector">									
-									</div>
+								<div id="label-del" class="ui-button"  title="delete (Del)">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
+									</g></svg>
 								</div>
+								<div id="label-reset-by-3dbox" class="ui-button"  title="delete (Del)">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<circle  cx=12 cy=12 r=8 />
+										<circle  cx=12 cy=12 r=1 />
+									</g></svg>
+								</div>
+							</div>
+							<div class="obj-editor-row">
+								<select title="category"  id="object-category-selector"></select>							
 
 								<input title="tracking id" list="obj-ids-of-scene" id="object-track-id-editor" type="text" size="5" placeholder="track id"></input>
 								<datalist id="obj-ids-of-scene"></datalist>
@@ -1518,13 +1543,13 @@
 										<!-- <rect x="4" y="4" width="12" height="12"/> -->
 										<rect x="6" y="6" width="12" height="12"/>								
 									</g></svg>
-								</div>
-								
-								<div id="label-del" class="ui-button"  title="delete (Del)">
-									<!-- <span class="ui-icon ui-icon-trash"></span> -->
-									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
-										<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
-									</g></svg>
+								</div>								
+							</div>
+							<div class="obj-editor-row">								
+								<div id="attr-editor">
+									<input title="attribute" id="attr-input" type="text" size="10" placeholder="attribute">
+									<div id="attr-selector">									
+									</div>
 								</div>
 							</div>
 

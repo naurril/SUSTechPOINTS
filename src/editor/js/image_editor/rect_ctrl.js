@@ -1,6 +1,7 @@
 
-import { globalObjectCategory } from "../obj_cfg";
 
+import { AttrEditor } from "../common/attr_editor";
+import { ObjTypeEditor } from "../common/obj_type_editor";
 
 class RectCtrl{
 
@@ -30,18 +31,35 @@ class RectCtrl{
         
         this.toolBoxUi.querySelector("#label-del").onclick = ()=>this.editor.onDel();
 
+        this.objTypeEditor = new ObjTypeEditor(this.toolBoxUi.querySelector("#object-category-selector"));
+        this.attrEditor = new AttrEditor(this.toolBoxUi.querySelector("#attr-editor"), this.eventHandler.bind(this));
 
-        let obj_type_map = globalObjectCategory.obj_type_map;
-
-        // obj type selector
-        var options = "";
-        for (var o in obj_type_map){
-            options += '<option value="'+o+'" class="' +o+ '">'+o+ '</option>';        
+        this.toolBoxUi.querySelector("#object-category-selector").onchange = (e)=>{
+            let category = e.currentTarget.value;
+            this.g.data.obj_type = category;
+            this.editor.save();
         }
 
-        this.toolBoxUi.querySelector("#object-category-selector").innerHTML = options;
-
+        this.toolBoxUi.querySelector("#attr-input").onchange = (e)=>{
+            let category = e.currentTarget.value;
+            this.g.data.obj_attr = category;
+            this.editor.save();
+        }
     }
+
+    eventHandler(e)
+    {
+        switch (e.currentTarget.id)
+        {
+            case 'attr-input':
+                this.g.data.obj_attr = e.currentTarget.value;
+                this.editor.save();
+                break;
+            default:
+                break;
+        }
+    }
+
 
     viewUpdated()
     {
@@ -62,12 +80,15 @@ class RectCtrl{
     }
 
     updateFloatingToolBoxContent(){
-        if (this.g.data.box3d)
-        {
-            this.toolBoxUi.querySelector("#object-category-selector").value = this.g.data.box3d.obj_type;
-            this.toolBoxUi.querySelector("#object-track-id-editor").value = this.g.data.box3d.obj_track_id;
-            this.toolBoxUi.querySelector("#attr-input").value = this.g.data.box3d.obj_attr;
-        }
+       
+        
+            let b = this.g.data;
+            this.toolBoxUi.querySelector("#object-category-selector").value = b.obj_type;
+            this.toolBoxUi.querySelector("#object-track-id-editor").value = b.obj_track_id;
+            //this.toolBoxUi.querySelector("#attr-input").value = this.g.data.box3d.obj_attr;
+
+            this.attrEditor.setAttrOptions(b.obj_type, b.obj_attr);
+        
     }
 
     showFloatingToolBox(){
@@ -77,12 +98,13 @@ class RectCtrl{
         this.toolBoxUi.style.display = 'none';
     }
 
+    HANDLESIZE = 8;
 
     onScaleChanged(scale)
     {
         Object.keys(this.handles).forEach(k=>{
             let h  = this.handles[k];
-            h.setAttribute('r', 5/scale.x);
+            h.setAttribute('r', this.HANDLESIZE/scale.x);
         });
     }
 
@@ -148,51 +170,83 @@ class RectCtrl{
 
     rectDragBeginOperation()
     {
-        this.g.data.editingRect = {
+        this.editingRect = {
             ...this.g.data.rect
         };
 
         this.hideFloatingToolBox();
+        this.editor.hideGuideLines();
     }
+
 
     rectDragOnOperation(delta)
     {
-        let p = this.editor.uiVectorToSvgVector(delta);
-        this.g.data.editingRect.x1 = this.g.data.rect.x1 + p.x;
-        this.g.data.editingRect.y1 = this.g.data.rect.y1 + p.y;
-        this.g.data.editingRect.x2 = this.g.data.rect.x2 + p.x;
-        this.g.data.editingRect.y2 = this.g.data.rect.y2 + p.y;
+        
+        let r =this.g.data.rect;
+        let v = this.editor.uiVectorToSvgVector(delta);
 
-        this.editor.modifyRectangle(this.g, this.g.data.editingRect);
+        if ((this.editor.cutX(r.x1+v.x) - r.x1) != v.x)
+        {
+            v.x =  this.editor.cutX(r.x1+v.x) - r.x1;
+        }
+
+        if ((this.editor.cutX(r.x2+v.x) - r.x2) != v.x)
+        {
+            v.x =  this.editor.cutX(r.x2+v.x) - r.x2;
+        }
+
+
+        if ((this.editor.cutY(r.y1+v.y) - r.y1) != v.y)
+        {
+            v.y =  this.editor.cutY(r.y1+v.y) - r.y1;
+        }
+
+        if ((this.editor.cutY(r.y2+v.y) - r.y2) != v.y)
+        {
+            v.y =  this.editor.cutY(r.y2+v.y) - r.y2;
+        }
+
+
+        
+        this.editingRect.x1 = this.g.data.rect.x1 + v.x;
+        this.editingRect.y1 = this.g.data.rect.y1 + v.y;
+        this.editingRect.x2 = this.g.data.rect.x2 + v.x;
+        this.editingRect.y2 = this.g.data.rect.y2 + v.y;
+
+        this.editor.modifyRectangle(this.g, this.editingRect);
             
-        this.moveHandle(this.g.data.editingRect);
+        this.moveHandle(this.editingRect);
 
     }
 
     rectDragEndOperation(delta)
     {
-        this.rectDragOnOperation(delta);
-        this.g.data.rect = this.g.data.editingRect;
-        this.editor.updateRectangle(this.g, this.g.data.editingRect);
+        this.rectDragOnOperation(delta);        
+        this.editor.updateRectangle(this.g, this.editingRect);
+
         this.showFloatingToolBox();
         this.updateFloatingToobBoxPos();
+        this.editor.showGuideLines();
     }
 
     cornerBeginOperation(handleName){
-        this.g.data.editingRect = {
+        this.editingRect = {
             ...this.g.data.rect
         };
 
         this.hideFloatingToolBox();
+        this.editor.hideGuideLines();
     }
 
     cornerEndOperation(delta, handleName)
     {
         this.cornerOnOperation(delta, handleName);
         
-        this.editor.updateRectangle(this.g, this.g.data.editingRect);
+        this.editor.updateRectangle(this.g, this.editingRect);
         this.showFloatingToolBox();
         this.updateFloatingToobBoxPos();
+
+        this.editor.showGuideLines();
     }
 
     cornerOnOperation(delta, handleName)
@@ -201,45 +255,45 @@ class RectCtrl{
         {
             let p = this.editor.uiVectorToSvgVector(delta);
 
-            this.g.data.editingRect.x1 = this.g.data.rect.x1 + p.x;
-            this.g.data.editingRect.y1 = this.g.data.rect.y1 + p.y;
+            this.editingRect.x1 = this.editor.cutX(this.g.data.rect.x1 + p.x);
+            this.editingRect.y1 = this.editor.cutY(this.g.data.rect.y1 + p.y);
 
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
+            this.editor.modifyRectangle(this.g, this.editingRect);
             
-            this.moveHandle(this.g.data.editingRect);
+            this.moveHandle(this.editingRect);
         }
         else if (handleName === 'topright')
         {
             let p = this.editor.uiVectorToSvgVector(delta);
 
-            this.g.data.editingRect.x2 = this.g.data.rect.x2 + p.x;
-            this.g.data.editingRect.y1 = this.g.data.rect.y1 + p.y;
+            this.editingRect.x2 = this.editor.cutX(this.g.data.rect.x2 + p.x);
+            this.editingRect.y1 = this.editor.cutY(this.g.data.rect.y1 + p.y);
 
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
+            this.editor.modifyRectangle(this.g, this.editingRect);
             
-            this.moveHandle(this.g.data.editingRect);
+            this.moveHandle(this.editingRect);
         }
         else if (handleName === 'bottomleft')
         {
             let p = this.editor.uiVectorToSvgVector(delta);
 
-            this.g.data.editingRect.x1 = this.g.data.rect.x1 + p.x;
-            this.g.data.editingRect.y2 = this.g.data.rect.y2 + p.y;
+            this.editingRect.x1 = this.editor.cutX(this.g.data.rect.x1 + p.x);
+            this.editingRect.y2 = this.editor.cutY(this.g.data.rect.y2 + p.y);
 
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
+            this.editor.modifyRectangle(this.g, this.editingRect);
             
-            this.moveHandle(this.g.data.editingRect);
+            this.moveHandle(this.editingRect);
         }
         else if (handleName === 'bottomright')
         {
             let p = this.editor.uiVectorToSvgVector(delta);
 
-            this.g.data.editingRect.x2 = this.g.data.rect.x2 + p.x;
-            this.g.data.editingRect.y2 = this.g.data.rect.y2 + p.y;
+            this.editingRect.x2 = this.editor.cutX(this.g.data.rect.x2 + p.x);
+            this.editingRect.y2 = this.editor.cutY(this.g.data.rect.y2 + p.y);
 
-            this.editor.modifyRectangle(this.g, this.g.data.editingRect);
+            this.editor.modifyRectangle(this.g, this.editingRect);
             
-            this.moveHandle(this.g.data.editingRect);
+            this.moveHandle(this.editingRect);
         }
     }
 

@@ -31,7 +31,8 @@ function reloadWorldList(worldList, done){
                             w.frameInfo.frame === a.frame);
                     });
                 if (world){
-                    world.annotation.reapplyAnnotation(a.annotation);
+
+                    world.annotation.reapplyAnnotation(a.annotation.objs?a.annotation.objs:a.annotation);
                 }
                 else{
                     console.error("bug?");
@@ -105,7 +106,7 @@ function doSaveWorldList(worldList, done)
         return {
             scene: w.frameInfo.scene,
             frame: w.frameInfo.frame,
-            annotation: w.annotation.toBoxAnnotations(),
+            objs: w.annotation.toBoxAnnotations(),
         };
     })
 

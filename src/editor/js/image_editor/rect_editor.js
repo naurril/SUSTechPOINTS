@@ -1,38 +1,19 @@
+import { DropdownMenu } from "../common/sensible_dropdown_menu";
+import { jsonrpc } from "../jsonrpc";
 import { RectCtrl } from "./rect_ctrl";
 
 
 
-class EditorCfg{
-    constructor(cfgUi, editor)
-    {
-        this.editor = editor;
-        this.ui = cfgUi;
-
-        this.ui.querySelector("#show-3d-box").onchange = (e)=>{
-            let checked = e.currentTarget.checked;
-
-            this.editor.cfg.show3dBox = checked;
-            if (checked)
-                this.editor.show3dBox();
-            else
-                this.editor.hide3dBox();
-        };
-
-        this.ui.querySelector("#reset-view").onclick = (e)=>{
-            this.editor.resetView();
-        };
-    }
-}
-
-
 class RectEditor{
-    constructor(canvas, parentUi, toolBoxUi, cfgUi)
+    constructor(canvas, parentUi, toolBoxUi, cfgUi, image)
     {
 
-    
+        
+        this.cfgUi = cfgUi;
+        this.ui = canvas;
         this.canvas = canvas;
         this.parentUi = parentUi;
-        
+        this.image = image;
         this.canvas.addEventListener("wheel", this.onWheel.bind(this));
         this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
         this.canvas.addEventListener("mousemove", this.onMouseMove.bind(this));
@@ -66,9 +47,52 @@ class RectEditor{
             show3dBox: true,
         };
 
-        this.cfgUi = cfgUi;
-        this.cfgUi = new EditorCfg(this.cfgUi, this);
 
+        
+        this.dropdownMenu = new DropdownMenu(this.cfgUi.querySelector("#rect-editor-cfg-btn"),
+            this.cfgUi.querySelector("#object-dropdown-menu"), 
+            this.canvas);
+            
+        this.cfgUi.querySelector("#show-3d-box").onchange = (e)=>{
+            let checked = e.currentTarget.checked;
+
+            this.cfg.show3dBox = checked;
+            if (checked)
+                this.show3dBox();
+            else
+                this.hide3dBox();
+        };
+
+        this.cfgUi.querySelector("#reset-view").onclick = (e)=>{
+            this.resetView();
+        };
+
+        this.cfgUi.querySelector("#generate-by-3d-boxes").onclick = (e)=>{
+            let rects = this.image.generate2dRects();
+            rects.forEach(r=>{
+
+                let existedRect = this.findRectById(r.obj_track_id);
+
+                if (!existedRect || existedRect.annotator==='3dbox')
+                {
+                    this.addRect(r.rect,
+                        {
+                            obj_track_id: r.obj_track_id,
+                            obj_type: r.obj_type,
+                            obj_attr: r.obj_attr,
+                            annotator: '3dbox'
+                        });
+                }
+            });
+
+            this.save();
+        };        
+
+    }
+
+    findRectById(id)
+    {
+        return Array.from(this.rects.children).find(x=>x.data.obj_track_id == id);
     }
 
     cfgChanged(name, value)
@@ -91,6 +115,8 @@ class RectEditor{
             let r = this.selectedRect;
             this.cancelSelection();
             r.remove();
+
+            this.save();
         }
     }
 
@@ -103,8 +129,14 @@ class RectEditor{
         this.canvas.querySelector("#svg-boxes").style.display = 'inherit';
     }
 
-    resetImage(width, height)
+    resetImage(width, height, scene, frame, cameraType, cameraName)
     {
+        this.scene = scene;
+        this.frame = frame;
+        this.cameraType = cameraType;
+        this.cameraName = cameraName;
+
+
         if (this.WIDTH != width || this.HEIGHT != height)
         {
             this.WIDTH = width;
@@ -121,6 +153,8 @@ class RectEditor{
         }
         
         this.clear();
+
+        this.load();
     }
 
     clear()
@@ -327,6 +361,7 @@ class RectEditor{
             {
                 this.modifyRectangle(this.editingRectangleSvg, this.editingRectangle);                
                 this.endRectangle(this.editingRectangleSvg,  this.editingRectangle);   
+                this.save();
                 this.selectRect(this.editingRectangleSvg);
                 this.editingRectangleSvg = null;
                 
@@ -340,11 +375,21 @@ class RectEditor{
     }
 
     onMouseLeave(e){
-        this.hideGuildeLines();
+        this.hideGuideLines();
     }
 
     onMouseEnter(e){
         this.showGuideLines();
+    }
+
+    cutX(x)
+    {
+        return Math.min(Math.max(x, 0), this.WIDTH);
+    }
+
+    cutY(y)
+    {
+        return Math.min(Math.max(y, 0), this.HEIGHT);
     }
 
     getSvgPoint(e)
@@ -353,8 +398,8 @@ class RectEditor{
         
         let p = this.uiPointToSvgPoint({x:e.clientX-canvasRect.x, y:e.clientY - canvasRect.y});
 
-        p.x = Math.min(Math.max(p.x, 0), this.WIDTH);
-        p.y = Math.min(Math.max(p.y, 0), this.HEIGHT);
+        p.x = this.cutX(p.x);
+        p.y = this.cutY(p.y);
 
         return p;
     }
@@ -375,7 +420,7 @@ class RectEditor{
     {
         this.canvas.querySelector("#rect-editor-guide-lines").style.display = 'inherit';
     }
-    hideGuildeLines()
+    hideGuideLines()
     {
         this.canvas.querySelector("#rect-editor-guide-lines").style.display = 'none';
     }
@@ -416,6 +461,42 @@ class RectEditor{
         this.endRectangle(g, r, data);
     }
 
+    save()
+    {
+        let data={
+            scene: this.scene,
+            frame: this.frame,
+            cameraType: this.cameraType, 
+            cameraName: this.cameraName,
+        };
+
+        data.objs = Array.from(this.rects.children).map(svg=>svg.data);
+        
+        jsonrpc('/api/save_image_annotation', 'POST', data).then(ret=>{
+            console.log("saved", ret);
+        }).catch(e=>{
+            window.editor.infoBox.show("Error", "save failed");
+        });
+        
+    }
+
+    load()
+    {
+        jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${this.cameraType}&camera_name=${this.cameraName}`).then(ret=>{
+           ret.objs.forEach(r=>{
+                this.addRect(r.rect,
+                    {
+                        obj_track_id: r.obj_track_id,
+                        obj_type: r.obj_type,
+                        obj_attr: r.obj_attr,
+                        annotator: r.annotator,
+                    });
+           })
+        }).catch(e=>{
+            window.editor.infoBox.show("Error", "load failed");
+        });
+    }
+
     createRectangle(r)
     {
         let g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
@@ -434,49 +515,45 @@ class RectEditor{
     modifyRectangle(svg, r)
     {
         let rect = svg.children[0];
-        let x1 = Math.min(r.x1, r.x2);
-        let y1 = Math.min(r.y1, r.y2);
-        let x2 = Math.max(r.x1, r.x2);
-        let y2 = Math.max(r.y1, r.y2);
 
-        rect.setAttribute("x", x1);
-        rect.setAttribute("y", y1);
-        rect.setAttribute("width", x2-x1);
-        rect.setAttribute("height", y2-y1);
+        r = this.normalizeRect(r);
 
-        let label = svg.querySelector("#label");
-        if (label)
-        {
-            label.setAttribute('x', x1);
-            label.setAttribute('y', y1);
-        }
+        rect.setAttribute("x", r.x1);
+        rect.setAttribute("y", r.y1);
+        rect.setAttribute("width", r.x2-r.x1);
+        rect.setAttribute("height", r.y2-r.y1);
+
+        // let label = svg.querySelector("#label");
+        // if (label)
+        // {
+        //     label.setAttribute('x', x1);
+        //     label.setAttribute('y', y1);
+        // }
     }
 
     updateRectangle(svg, r)
     {
         svg.data.rect = r;
+        delete svg.data.annotator;
+        this.save();
     }
 
 
 
 
-    normalizeRect(rect)
+    normalizeRect(r)
     {
-        let r =rect;
         let x1 = Math.min(r.x1, r.x2);
         let y1 = Math.min(r.y1, r.y2);
         let x2 = Math.max(r.x1, r.x2);
         let y2 = Math.max(r.y1, r.y2);
 
-        r.x1 = x1;
-        r.x2 = x2;
-        r.y1 = y1;
-        r.y2 = y2;
+        return {x1, y1, x2, y2};
     }
 
     endRectangle(svg, rect, data){
 
-        this.normalizeRect(rect);
+        rect = this.normalizeRect(rect);
 
         let x = rect.x1;
         let y = rect.y1;
@@ -496,9 +573,11 @@ class RectEditor{
         // svg.appendChild(p);
 
         svg.data = {
-            rect,
+            rect: rect,
             ...data,
         };
+
+        
 
         svg.addEventListener("mouseenter", (e)=>{
             e.preventDefault();

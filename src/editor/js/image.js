@@ -229,6 +229,7 @@ class ImageContext extends ResizableMoveableView{
             this.contentUi,
             this.ui.querySelector("#rect-editor-floating-toolbox"),
             this.ui.querySelector("#rect-editor-cfg"),
+            this
             );
 
         this.onResize = ()=>this.rectEditor.onResize();
@@ -568,18 +569,16 @@ class ImageContext extends ResizableMoveableView{
         return trans_ratio;
     }
 
-    onImageLoaded()
+    onImageLoaded(scene, frame, cameraType, cameraname)
     {
         let img = this.world[this.cameraType].getImageByName(this.cameraName);
         
         //this.canvas.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
         this.WIDTH = img.naturalWidth;
         this.HEIGHT = img.naturalHeight;
-        this.rectEditor.resetImage(this.WIDTH, this.HEIGHT);
+        this.rectEditor.resetImage(this.WIDTH, this.HEIGHT, scene, frame, cameraType, cameraname);
 
         this.draw_svg();
-
-        
     }
 
     show_image(){
@@ -595,7 +594,11 @@ class ImageContext extends ResizableMoveableView{
         if (img){
             this.img = img;
             svgimage.onload = ()=>{
-                this.onImageLoaded();
+                this.onImageLoaded(
+
+                    this.world.frameInfo.scene, this.world.frameInfo.frame, 
+                    this.cameraType, this.cameraName
+                );
             }
             svgimage.setAttribute("xlink:href", img.src);            
         }
@@ -696,6 +699,44 @@ class ImageContext extends ResizableMoveableView{
     }
 
 
+    generate2dRects()
+    {
+        var calib = this.getCalib();
+        if (!calib){
+            return [];
+        }
+
+        var img = this.world[this.cameraType].getImageByName(this.cameraName);
+
+        if (!img || img.width==0){
+            return [];
+        }
+
+
+        return this.world.annotation.boxes.map((box)=>{
+            let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
+
+            let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
+
+            if (ptsOnImg && ptsOnImg.length > 3)
+            {
+                let range = this.find2dPointsRange(ptsOnImg);
+
+                return {
+                    rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+                        obj_track_id: box.obj_track_id,
+                        obj_type: box.obj_type,
+                        obj_attr: box.obj_attr,
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }).filter(x=>!!x);
+    }
+
+
     draw_svg(){
         // draw picture
         if (!this.world[this.cameraType])
@@ -732,29 +773,29 @@ class ImageContext extends ResizableMoveableView{
         }
 
 
-        if (this.cfg.projectBoxesToImage)
-        {
-            // draw rects
+        // if (this.cfg.projectBoxesToImage)
+        // {
+        //     // draw rects
             
-            this.world.annotation.boxes.forEach((box)=>{
+        //     this.world.annotation.boxes.forEach((box)=>{
 
-                let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
+        //         let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
 
-                let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
+        //         let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
 
-                let range = this.find2dPointsRange(ptsOnImg);
+        //         let range = this.find2dPointsRange(ptsOnImg);
 
-               this.rectEditor.addRect({x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
-                    {
-                        box3d: {
-                            obj_track_id: box.obj_track_id,
-                            obj_type: box.obj_type,
-                            obj_attr: box.obj_attr,
-                        },
-                    });
+        //        this.rectEditor.addRect({x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+        //             {
+        //                 box3d: {
+        //                     obj_track_id: box.obj_track_id,
+        //                     obj_type: box.obj_type,
+        //                     obj_attr: box.obj_attr,
+        //                 },
+        //             });
 
-            });
-        }
+        //     });
+        // }
 
 
         // draw radar points

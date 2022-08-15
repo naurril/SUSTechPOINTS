@@ -432,7 +432,11 @@ function Annotation(sceneMeta, world, frameInfo){
             on_load([]);
         }else {
             jsonrpc("/api/load_annotation"+"?scene="+this.frameInfo.scene+"&frame="+this.frameInfo.frame).then(ret=>{
-                on_load(ret);
+
+                if (ret.objs)
+                    on_load(ret.objs);
+                else
+                    on_load(ret)
             });
         }
     };

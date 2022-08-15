@@ -188,7 +188,7 @@ class Api(object):
         for d in data:
           scene = d["scene"]
           frame = d["frame"]
-          ann = d["annotation"]
+          ann = d["objs"]
 
           if not re.fullmatch(usercfg[userid]['scenes'], scene):
             raise cherrypy.HTTPError(403)
@@ -199,7 +199,7 @@ class Api(object):
 
           logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
           with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
-            json.dump(ann, f, indent=2, sort_keys=True)
+            json.dump(d, f, indent=2, sort_keys=True)
           
         return {'result':"success"}
       else:
@@ -285,6 +285,45 @@ class Api(object):
     def load_annotation(self, scene, frame):
       return scene_reader.read_annotations(scene, frame)
 
+
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def load_image_annotation(self, scene, frame, camera_type, camera_name):
+      return scene_reader.read_image_annotations(scene, frame, camera_type, camera_name)
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def save_image_annotation(self):
+      if args.save=='yes':
+
+        userid = get_user_id()
+          
+        # cl = cherrypy.request.headers['Content-Length']
+        rawbody = cherrypy.request.body.readline().decode('UTF-8')
+        data = json.loads(rawbody)
+        print('save', userid, data['scene'], data['frame'], data['cameraType'], data['cameraName'])
+        
+        d = data
+        scene = d["scene"]
+        frame = d["frame"]
+        ann = d["objs"]
+
+        if not re.fullmatch(usercfg[userid]['scenes'], scene):
+          raise cherrypy.HTTPError(403)
+        
+        if usercfg[userid]['readonly'] == 'yes':
+          logging.info("saving disabled for " + userid)
+          return {'result':"fail", 'cause':"saving disabled for current user"}
+
+        logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
+        with open(os.path.join(".", 'data', scene, "label_fusion", d['cameraType'], d['cameraName'], frame+".json"),'w') as f:
+          json.dump(d, f, indent=2, sort_keys=True)
+          
+        return {'result':"success"}
+      else:
+        logging.info("saving disabled.")
+        return {'result':"fail", 'cause':"saving disabled"}
 
     # @cherrypy.expose    
     # @cherrypy.tools.json_out()
@@ -411,7 +450,11 @@ class Api(object):
 
       def file_2_objs(f):
           with open(f) as fd:
-              boxes = json.load(fd)
+              ann = json.load(fd)
+              if 'objs' in ann:
+                boxes = ann['objs']
+              else:
+                boxes = ann
               objs = [x for x in map(lambda b: {"category":b["obj_type"], "id": b["obj_id"]}, boxes)]
               return objs
 

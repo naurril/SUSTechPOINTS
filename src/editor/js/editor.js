@@ -2691,15 +2691,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         let obj_type_map = globalObjectCategory.obj_type_map;
 
-        // obj type selector
-        var options = "";
-        for (var o in obj_type_map){
-            options += '<option value="'+o+'" class="' +o+ '">'+o+ '</option>';        
-        }
-
-        this.editorUi.querySelector("#floating-things #object-category-selector").innerHTML = options;
-        //this.editorUi.querySelector("#batch-editor-tools-wrapper #object-category-selector").innerHTML = options;
-
         // submenu of new
         var items = "";
         for (var o in obj_type_map){
@@ -2723,29 +2714,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             }, noscaling);
             return true;
         });
-
-        // // install click actions
-        // for (var o in obj_type_map){        
-        //     this.editorUi.querySelector("#cm-new-"+o).onclick = (event)=>{
-
-        //         // hide context men
-        //         // let context menu object handle this.
-        //         // this.editorUi.querySelector("#context-menu-wrapper").style.display="none";
-
-        //         // process event
-        //         var obj_type = event.currentTarget.getAttribute("uservalue");
-        //         let box = self.add_box_on_mouse_pos(obj_type);
-        //         //switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
-        //         //self.boxOp.grow_box(box, 0.2, {x:2, y:2, z:3});
-        //         //self.auto_shrink_box(box);
-        //         //self.on_box_changed(box);
-
-        //         self.boxOp.auto_rotate_xyz(box, null, null, function(b){
-        //             self.on_box_changed(b);
-        //         });
-                
-        //     }
-        // }
 
     };
 
