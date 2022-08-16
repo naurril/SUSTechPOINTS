@@ -49,6 +49,7 @@ class RectEditor{
         };
 
 
+        this.ready = false;
         
         this.dropdownMenu = new DropdownMenu(this.cfgUi.querySelector("#rect-editor-cfg-btn"),
             this.cfgUi.querySelector("#object-dropdown-menu"), 
@@ -153,6 +154,7 @@ class RectEditor{
 
     resetImage(width, height, scene, frame, cameraType, cameraName)
     {
+        this.ready = false;
         this.scene = scene;
         this.frame = frame;
         this.cameraType = cameraType;
@@ -321,6 +323,9 @@ class RectEditor{
     onMouseDown(e){
         e.preventDefault();
 
+
+        if (!this.ready)
+            return;
 
         // cancel selection
         if (e.which == 1){
@@ -534,7 +539,9 @@ class RectEditor{
                         obj_attr: r.obj_attr,
                         annotator: r.annotator,
                     });
-           })
+           });
+
+           this.ready = true;
         }).catch(e=>{
             window.editor.infoBox.show("Error", "load failed");
         });

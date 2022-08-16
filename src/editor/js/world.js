@@ -8,6 +8,7 @@ import {Annotation} from "./annotation.js"
 import {EgoPose} from "./ego_pose.js"
 import {logger} from "./log.js"
 import {Calib } from './calib.js';
+import { ImageRectAnnotation } from './image_rect_annotation.js';
 //import { euler_angle_to_rotate_matrix, euler_angle_to_rotate_matrix_3by3, matmul, matmul2 , mat} from './util.js';
 
 function FrameInfo(data, sceneMeta, sceneName, frame){
@@ -248,6 +249,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.radars = new RadarManager(this.sceneMeta, this, this.frameInfo);
     this.lidar = new Lidar(this.sceneMeta, this, this.frameInfo);
     this.annotation = new Annotation(this.sceneMeta, this, this.frameInfo);
+    this.imageRectAnnotation = new ImageRectAnnotation(this.sceneMeta, this.frameInfo);
     this.aux_lidars = new AuxLidarManager(this.sceneMeta, this, this.frameInfo);
     this.egoPose = new EgoPose(this.sceneMeta, this, this.FrameInfo);
     this.calib = new Calib(this.sceneMeta, this, this.FrameInfo);
@@ -267,6 +269,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
                this.aux_lidars.preloaded() && 
                this.radars.preloaded()&&
                this.egoPose.preloaded&&
+               this.imageRectAnnotation.preloaded&&
                this.calib.preloaded;
     };
 
@@ -533,7 +536,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         let _preload_cb = ()=>this.on_subitem_preload_finished(on_preload_finished);
 
         this.lidar.preload(_preload_cb);
-        this.annotation.preload(_preload_cb)
+        this.annotation.preload(_preload_cb);
+        this.imageRectAnnotation.preload(_preload_cb);
         this.radars.preload(_preload_cb);
         this.camera.load(_preload_cb);
         this.aux_camera.load(_preload_cb);

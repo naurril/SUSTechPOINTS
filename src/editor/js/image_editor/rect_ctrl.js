@@ -83,9 +83,9 @@ class RectCtrl{
 
         if (this.g)
         {
-            let p = this.editor.svgPointToUiPoint({x: this.g.data.rect.x1, y: this.g.data.rect.y1});
+            let p = this.editor.svgPointToUiPoint({x: this.g.data.rect.x2, y: this.g.data.rect.y1});
             this.toolBoxUi.style.left = p.x + 5 +"px";
-            this.toolBoxUi.style.top = p.y - this.toolBoxUi.clientHeight - 5 + "px";
+            this.toolBoxUi.style.top = p.y + "px";
         }
         
     }
