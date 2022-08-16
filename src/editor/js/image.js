@@ -1346,17 +1346,15 @@ class ImageContextManager {
         }
 
         //sheet.insertRule('.rect-svg:hover {stroke: #0000ffaa; fill: #0000ff22;}', sheet.cssRules.length)
-        sheet.insertRule('.svg-select-pending {stroke: #0000ffaa; fill: #0000ff22;}', sheet.cssRules.length)
+        sheet.insertRule('.svg-select-pending {stroke: #0000ffaa; fill: #0000ff11;}', sheet.cssRules.length)
         sheet.insertRule('.svg-selected {stroke: #ff00ff88; fill: #ff00ff22;}', sheet.cssRules.length)
+        sheet.insertRule('.svg-rect-selected {stroke: #ff00ff88; fill: #00000000;}', sheet.cssRules.length)        
         //sheet.insertRule('.svg-selected:hover {stroke: #ff00ff88; fill: #ff00ff22;}', sheet.cssRules.length)
-        sheet.insertRule('.label-select-pending {color: #0000ff; background-color: lightgray;}', sheet.cssRules.length)
+        sheet.insertRule('.label-select-pending {color: var(--font-color);text-shadow: 0px 0px 5px var(--background-color);}', sheet.cssRules.length)              
+        sheet.insertRule('.nofill {fill:#00000000}', sheet.cssRules.length)              
     }
 }
 
-
-function box_to_tight_rect(box, calib){
-
-}
 
 function box_to_2d_points(box, calib){
     var scale = box.scale;

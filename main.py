@@ -132,6 +132,11 @@ from algos import pre_annotate as pre_annotate
 # sys.path.append(os.path.join(BASE_DIR, './tools'))
 # import tools.dataset_preprocess.crop_scene as crop_scene
 
+def prepare_dirs(path):
+    if not os.path.exists(path):
+            os.makedirs(path)
+
+            
 class Root(object):
     @cherrypy.expose
     def index(self, scene="", frame="", token=""):
@@ -317,6 +322,7 @@ class Api(object):
           return {'result':"fail", 'cause':"saving disabled for current user"}
 
         logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
+        prepare_dirs(os.path.join(".", 'data', scene, "label_fusion", d['cameraType'], d['cameraName']))
         with open(os.path.join(".", 'data', scene, "label_fusion", d['cameraType'], d['cameraName'], frame+".json"),'w') as f:
           json.dump(d, f, indent=2, sort_keys=True)
           

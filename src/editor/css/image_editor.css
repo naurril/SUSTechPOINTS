@@ -52,15 +52,15 @@ dynamic set obj-type css has higher priority than this one.
 
 
 
-.rect-svg{
+.svg-rect{
 	/* stroke-width: 1px; */
 	stroke: #0000ffaa;
-	fill: #0000ff22;
+	fill: #0000ff11;
 }
 
 .svg-selected{
 	stroke: #ff00ff88;
-	fill: #ff00ff00;
+	fill: #00000000;
 	/* stroke-width: 2px; */
 }
 

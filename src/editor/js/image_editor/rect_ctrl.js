@@ -28,8 +28,19 @@ class RectCtrl{
         this.toolBoxUi = toolBoxUi;
         this.canvas = canvas;
 
+        this.toolBoxUi.addEventListener("mousedown", (e)=>{
+            e.stopPropagation();
+        });
+
+        // this.toolBoxUi.addEventListener("mousedown", (e)=>{
+        //     e.stopPropagation();
+        //     e.preventDefault();
+        // });
         
-        this.toolBoxUi.querySelector("#label-del").onclick = ()=>this.editor.onDel();
+
+        this.toolBoxUi.querySelector("#label-del").onclick = (e)=>{
+            this.editor.onDel();
+        };
 
         this.objTypeEditor = new ObjTypeEditor(this.toolBoxUi.querySelector("#object-category-selector"));
         this.attrEditor = new AttrEditor(this.toolBoxUi.querySelector("#attr-editor"), this.eventHandler.bind(this));
