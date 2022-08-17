@@ -5,7 +5,7 @@ import { RectCtrl } from "./rect_ctrl";
 
 
 class RectEditor{
-    constructor(canvas, floatingLabelsUi, parentUi, toolBoxUi, cfgUi, image)
+    constructor(canvas, floatingLabelsUi, parentUi, toolBoxUi, cfgUi, image )
     {
 
         //parentUi is content
@@ -49,8 +49,6 @@ class RectEditor{
         };
 
 
-        this.ready = false;
-        
         this.dropdownMenu = new DropdownMenu(this.cfgUi.querySelector("#rect-editor-cfg-btn"),
             this.cfgUi.querySelector("#object-dropdown-menu"), 
             this.parentUi);
@@ -104,6 +102,7 @@ class RectEditor{
 
     }
 
+    
     findRectById(id)
     {
         return Array.from(this.rects.children).find(x=>x.data.obj_track_id == id);
@@ -143,6 +142,24 @@ class RectEditor{
         }
     }
 
+    onResetBy3DBox()
+    {
+        if (this.selectedRect)
+        {
+            let rect = this.image.generate2dRectById(this.selectedRect.data.obj_track_id);
+            if (rect)
+            {
+                this.modifyRectangle(this.selectedRect, rect.rect);
+                this.selectedRect.data.rect = rect.rect;
+                this.selectedRect.data.obj_track_id = rect.obj_track_id;
+                this.selectedRect.data.obj_type = rect.obj_type;
+                this.selectedRect.data.obj_attr = rect.obj_attr;
+                this.ctrl.rectUpdated();
+
+            }
+        }
+    }
+
     hide3dBox()
     {
         this.canvas.querySelector("#svg-boxes").style.display = 'none';
@@ -152,15 +169,8 @@ class RectEditor{
         this.canvas.querySelector("#svg-boxes").style.display = 'inherit';
     }
 
-    resetImage(width, height, scene, frame, cameraType, cameraName)
+    resetImageSize(width, height)
     {
-        this.ready = false;
-        this.scene = scene;
-        this.frame = frame;
-        this.cameraType = cameraType;
-        this.cameraName = cameraName;
-
-
         if (this.WIDTH != width || this.HEIGHT != height)
         {
             this.WIDTH = width;
@@ -175,9 +185,18 @@ class RectEditor{
 
             this.updateViewBox();
         }
-        
-        this.clear();
+    }
 
+    resetImage(width, height, scene, frame, cameraType, cameraName, store)
+    {
+        this.scene = scene;
+        this.frame = frame;
+        this.cameraType = cameraType;
+        this.cameraName = cameraName;
+
+        this.store = store;
+        this.clear();
+        this.resetImageSize(width, height);
         this.load();
     }
 
@@ -322,10 +341,6 @@ class RectEditor{
 
     onMouseDown(e){
         e.preventDefault();
-
-
-        if (!this.ready)
-            return;
 
         // cancel selection
         if (e.which == 1){
@@ -511,27 +526,26 @@ class RectEditor{
             cameraName: this.cameraName,
         };
 
-        data.objs = Array.from(this.rects.children).map(svg=>svg.data);
-        
-        jsonrpc('/api/save_image_annotation', 'POST', data).then(ret=>{
-            console.log("saved", ret);
-        }).catch(e=>{
-            window.editor.infoBox.show("Error", "save failed");
-        });
-        
+        let objs = Array.from(this.rects.children).map(svg=>svg.data);
+        data.objs = objs;
+
+        //jsonrpc('/api/save_image_annotation', 'POST', data).then(ret=>{
+        let ret = this.store.save(data);
+        console.log("saved", ret);
     }
 
     load()
     {
-        jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${this.cameraType}&camera_name=${this.cameraName}`).then(ret=>{
+        //jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${this.cameraType}&camera_name=${this.cameraName}`).then(ret=>{
+        let ret = this.store.load()
 
-           if (ret.scene != this.scene || ret.frame != this.frame || ret.cameraType != this.cameraType || ret.cameraName != this.cameraName)
-           {
-             console.log("lagged data. ignored.");
-             return;
-           }
+        if (ret.scene != this.scene || ret.frame != this.frame || ret.cameraType != this.cameraType || ret.cameraName != this.cameraName)
+        {
+            console.log("lagged data. ignored.");
+            return;
+        }
 
-           ret.objs.forEach(r=>{
+        ret.objs.forEach(r=>{
                 this.addRect(r.rect,
                     {
                         obj_track_id: r.obj_track_id,
@@ -539,12 +553,8 @@ class RectEditor{
                         obj_attr: r.obj_attr,
                         annotator: r.annotator,
                     });
-           });
-
-           this.ready = true;
-        }).catch(e=>{
-            window.editor.infoBox.show("Error", "load failed");
         });
+
     }
 
     createRectangle(r)

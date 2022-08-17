@@ -19,9 +19,25 @@ class ImageRectAnnotation
     preload(on_preload_finished)
     {
         this.on_preload_finished = on_preload_finished;
-        this.load();
+        this.loadAll();
     };
 
+
+    // 
+    load(cameraType, cameraName){
+        return this.anns[cameraType][cameraName];
+    }
+
+    save(cameraType, cameraName, data){
+        this.anns[cameraType][cameraName] = data;
+        jsonrpc('/api/save_image_annotation', 'POST', data).then(ret=>{
+            console.log("saved", ret);
+        }).catch(e=>{
+            window.editor.infoBox.show("Error", "save failed");
+        });
+    }
+
+    ////////////////////
     
     anns = {
         camera: {},
@@ -32,7 +48,7 @@ class ImageRectAnnotation
     {
         return jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${cameraType}&camera_name=${cameraName}`)
     }
-    load(){    
+    loadAll(){    
 
         let annsAsync = [];   
         if (this.sceneMeta.aux_camera)

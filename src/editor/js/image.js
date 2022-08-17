@@ -230,7 +230,7 @@ class ImageContext extends ResizableMoveableView{
             this.contentUi,
             this.ui.querySelector("#rect-editor-floating-toolbox"),
             this.ui.querySelector("#rect-editor-cfg"),
-            this
+            this,            
             );
 
         this.onResize = ()=>this.rectEditor.onResize();
@@ -579,14 +579,18 @@ class ImageContext extends ResizableMoveableView{
         return trans_ratio;
     }
 
-    onImageLoaded(scene, frame, cameraType, cameraname)
+    WIDTH=2048;
+    HEIGHT=1536;
+
+    onImageLoaded(scene, frame, cameraType, cameraName)
     {
-        let img = this.world[this.cameraType].getImageByName(this.cameraName);
+        let img = this.world[cameraType].getImageByName(cameraName);
         
         //this.canvas.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
         this.WIDTH = img.naturalWidth;
         this.HEIGHT = img.naturalHeight;
-        this.rectEditor.resetImage(this.WIDTH, this.HEIGHT, scene, frame, cameraType, cameraname);
+       
+        this.rectEditor.resetImageSize(this.WIDTH, this.HEIGHT);
 
         this.draw_svg();
     }
@@ -604,13 +608,19 @@ class ImageContext extends ResizableMoveableView{
         if (img){
             this.img = img;
             svgimage.onload = ()=>{
-                this.onImageLoaded(
-
-                    this.world.frameInfo.scene, this.world.frameInfo.frame, 
-                    this.cameraType, this.cameraName
+                this.onImageLoaded(this.world.frameInfo.scene, 
+                    this.world.frameInfo.frame, 
+                    this.cameraType, 
+                    this.cameraName
                 );
             }
             svgimage.setAttribute("xlink:href", img.src);            
+            this.rectEditor.resetImage(this.WIDTH, this.HEIGHT, this.world.frameInfo.scene, this.world.frameInfo.frame, 
+                this.cameraType, this.cameraName,
+                {
+                    save: (data)=>this.world.imageRectAnnotation.save(this.cameraType, this.cameraName, data),
+                    load: ()=>this.world.imageRectAnnotation.load(this.cameraType, this.cameraName),
+                });
         }
     }
 
@@ -746,6 +756,43 @@ class ImageContext extends ResizableMoveableView{
         }).filter(x=>!!x);
     }
 
+    generate2dRectById(id){
+        var calib = this.getCalib();
+        if (!calib){
+            return [];
+        }
+
+        var img = this.world[this.cameraType].getImageByName(this.cameraName);
+
+        if (!img || img.width==0){
+            return [];
+        }
+
+
+        let box = this.world.annotation.boxes.find(b=>b.obj_track_id == id);
+        
+        if (box)
+        {
+            let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
+
+            let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
+
+            if (ptsOnImg && ptsOnImg.length > 3)
+            {
+                let range = this.find2dPointsRange(ptsOnImg);
+
+                return {
+                    rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+                        obj_track_id: box.obj_track_id,
+                        obj_type: box.obj_type,
+                        obj_attr: box.obj_attr,
+                }
+            }
+        }
+
+        return null;
+    }
+    
 
     draw_svg(){
         // draw picture

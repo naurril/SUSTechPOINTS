@@ -42,6 +42,10 @@ class RectCtrl{
             this.editor.onDel();
         };
 
+        this.toolBoxUi.querySelector("#label-reset-by-3dbox").onclick = (e)=>{
+            this.editor.onResetBy3DBox();
+        };
+
         this.objTypeEditor = new ObjTypeEditor(this.toolBoxUi.querySelector("#object-category-selector"));
         this.attrEditor = new AttrEditor(this.toolBoxUi.querySelector("#attr-editor"), this.eventHandler.bind(this));
 
@@ -133,19 +137,24 @@ class RectCtrl{
         if (g == this.g)
             return;
 
-        this.g = g;
-        this.moveHandle(g.data.rect);
         this.show();
-
+        this.g = g;        
         this.g.addEventListener('mousedown', this.onRectDragMouseDown);
 
+
+        this.moveHandle(g.data.rect);
         this.showFloatingToolBox();
-
         this.updateFloatingToobBoxPos();
-
         this.updateFloatingToolBoxContent();
 
     };
+
+    rectUpdated()
+    {
+        this.moveHandle(this.g.data.rect);
+        this.updateFloatingToobBoxPos();
+        this.updateFloatingToolBoxContent();
+    }
 
     detach(g)
     {
