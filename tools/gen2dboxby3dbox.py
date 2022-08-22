@@ -8,7 +8,6 @@ import os
 import json
 import numpy as np
 import math
-import cv2
 import pypcd.pypcd as pypcd
 import argparse
 import re
@@ -16,9 +15,9 @@ import re
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
 parser.add_argument('data_folder', type=str, default='./data', help="")
-parser.add_argument('scenes', type=str, default='', help="")
-parser.add_argument('camera_types', type=str, default='', help="")
-parser.add_argument('camera_names', type=str, default='', help="")
+parser.add_argument('--scenes', type=str, default='.*', help="")
+parser.add_argument('--camera_types', type=str, default='aux_camera', help="")
+parser.add_argument('--camera_names', type=str, default='front', help="")
 parser.add_argument('--image_width', type=int, default=640, help="")
 parser.add_argument('--image_height', type=int, default=480, help="")
 
