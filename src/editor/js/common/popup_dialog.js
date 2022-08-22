@@ -86,7 +86,7 @@ class ResizableMoveableView extends MovableView{
 
         this.resizeObserver.observe(ui.querySelector("#view"));
 
-        this.adjustSize();
+        //this.adjustSize();
    }
 
    adjustSize()

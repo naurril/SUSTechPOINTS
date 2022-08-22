@@ -64,6 +64,19 @@ class RectEditor{
                 this.hide3dBox();
         };
 
+
+        this.cfgUi.querySelector("#show-2d-box").checked = true;
+        this.cfgUi.querySelector("#show-2d-box").onchange = (e)=>{
+            let checked = e.currentTarget.checked;
+
+            this.cfg.show2dBox = checked;
+            if (checked)
+                this.show2dBox();
+            else
+                this.hide2dBox();
+        };
+
+
         this.cfgUi.querySelector("#reset-view").onclick = (e)=>{
             this.resetView();
         };
@@ -72,13 +85,13 @@ class RectEditor{
             let rects = this.image.generate2dRects();
             rects.forEach(r=>{
 
-                let existedRect = this.findRectById(r.obj_track_id);
+                let existedRect = this.findRectById(r.obj_id);
 
                 if (!existedRect)
                 {
                     this.addRect(r.rect,
                         {
-                            obj_track_id: r.obj_track_id,
+                            obj_id: r.obj_id,
                             obj_type: r.obj_type,
                             obj_attr: r.obj_attr,
                             annotator: '3dbox'
@@ -89,7 +102,7 @@ class RectEditor{
                     this.removeRect(existedRect);
                     this.addRect(r.rect,
                         {
-                            obj_track_id: r.obj_track_id,
+                            obj_id: r.obj_id,
                             obj_type: r.obj_type,
                             obj_attr: r.obj_attr,
                             annotator: '3dbox'
@@ -100,12 +113,14 @@ class RectEditor{
             this.save();
         };        
 
+        console.log("image created.");
+
     }
 
     
     findRectById(id)
     {
-        return Array.from(this.rects.children).find(x=>x.data.obj_track_id == id);
+        return Array.from(this.rects.children).find(x=>x.data.obj_id == id);
     }
 
     cfgChanged(name, value)
@@ -146,12 +161,12 @@ class RectEditor{
     {
         if (this.selectedRect)
         {
-            let rect = this.image.generate2dRectById(this.selectedRect.data.obj_track_id);
+            let rect = this.image.generate2dRectById(this.selectedRect.data.obj_id);
             if (rect)
             {
                 this.modifyRectangle(this.selectedRect, rect.rect);
                 this.selectedRect.data.rect = rect.rect;
-                this.selectedRect.data.obj_track_id = rect.obj_track_id;
+                this.selectedRect.data.obj_id = rect.obj_id;
                 this.selectedRect.data.obj_type = rect.obj_type;
                 this.selectedRect.data.obj_attr = rect.obj_attr;
                 this.ctrl.rectUpdated();
@@ -169,10 +184,22 @@ class RectEditor{
         this.canvas.querySelector("#svg-boxes").style.display = 'inherit';
     }
 
+    hide2dBox()
+    {
+        this.canvas.querySelector("#svg-rects").style.display = 'none';
+        this.hideFloatingLabels();
+    }
+    show2dBox()
+    {
+        this.canvas.querySelector("#svg-rects").style.display = 'inherit';
+        this.showFloatingLabels();
+    }
+
     resetImageSize(width, height)
     {
         if (this.WIDTH != width || this.HEIGHT != height)
         {
+            console.log("image size reset");
             this.WIDTH = width;
             this.HEIGHT = height;
 
@@ -194,6 +221,7 @@ class RectEditor{
         this.cameraType = cameraType;
         this.cameraName = cameraName;
 
+        console.log("image reset");
         this.store = store;
         this.clear();
         this.resetImageSize(width, height);
@@ -248,17 +276,17 @@ class RectEditor{
     onResize(){
 
         // canvas height/width
-        let contentRect = this.parentUi.getClientRects()[0];
+        let contentRect = this.parentUi;
         if (contentRect.width/this.WIDTH < contentRect.height/this.HEIGHT)
         {
             //
-            let height = contentRect.height;
+            let height = contentRect.clientHeight;
             this.canvas.style.height = height + 'px';
             this.canvas.style.width = height*this.WIDTH/this.HEIGHT + 'px';
         }
         else
         {
-            let width = contentRect.width;
+            let width = contentRect.clientWidth;
             this.canvas.style.width = width + 'px';
             this.canvas.style.height = width*this.HEIGHT/this.WIDTH + 'px';
         }
@@ -342,10 +370,7 @@ class RectEditor{
     onMouseDown(e){
         e.preventDefault();
 
-        // cancel selection
-        if (e.which == 1){
-            this.cancelSelection();
-        }
+
 
         this.mouseDownPointUi = {x: e.clientX, y: e.clientY};//this.uiPointToSvgPoint({x: e.offsetX, y:e.offsetY});
 
@@ -357,6 +382,12 @@ class RectEditor{
         
         if (e.which == 1) //left
         {
+            if (this.selectedRect)
+            {
+                this.cancelSelection();
+                return;
+            }
+
             if (!this.editingRectangleSvg){
                 this.editingRectangle = {
                     x1: this.mouseDownPointSvg.x,
@@ -548,7 +579,7 @@ class RectEditor{
         ret.objs.forEach(r=>{
                 this.addRect(r.rect,
                     {
-                        obj_track_id: r.obj_track_id,
+                        obj_id: r.obj_id,
                         obj_type: r.obj_type,
                         obj_attr: r.obj_attr,
                         annotator: r.annotator,
@@ -631,13 +662,13 @@ class RectEditor{
     {
         svg.divLabel.className = "float-label "+ svg.data.obj_type;
         svg.divLabel.innerText = svg.data.obj_type+(svg.data.obj_attr?(","+svg.data.obj_attr):"")+
-            (svg.data.obj_track_id?(","+svg.data.obj_track_id):'');
+            (svg.data.obj_id?(","+svg.data.obj_id):'');
 
-        let p = this.svgPointToUiPoint({x: svg.data.rect.x2, y: svg.data.rect.y1});
+        let p = this.svgPointToUiPoint({x: svg.data.rect.x1, y: svg.data.rect.y1});
 
-        //let height = svg.divLabel.getClientRects()[0].height;
+        let height = svg.divLabel.clientHeight;
         svg.divLabel.style.left = p.x + 1 + "px"
-        svg.divLabel.style.top = p.y +"px"
+        svg.divLabel.style.top = p.y - height - 1 +"px"
     }
 
     endRectangle(svg, rect, data){
@@ -728,9 +759,9 @@ class RectEditor{
             // if (e)
             //     this.ctrl.onRectDragMouseDown(e);
             
-            if (this.cfg.selectInLidar && rect.data.obj_track_id)
+            if (this.cfg.selectInLidar && rect.data.obj_id)
             {
-                window.editor.makeVisible(rect.data.obj_track_id);
+                window.editor.makeVisible(rect.data.obj_id);
             }
             
         }

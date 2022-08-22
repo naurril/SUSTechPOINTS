@@ -10,7 +10,8 @@
 }
 
 #svg-points {
-	stroke-width: 2px;
+	stroke-width: 1px;
+	opacity: 0.2;
 }
 
 

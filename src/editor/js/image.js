@@ -593,6 +593,14 @@ class ImageContext extends ResizableMoveableView{
         this.rectEditor.resetImageSize(this.WIDTH, this.HEIGHT);
 
         this.draw_svg();
+
+                
+        this.rectEditor.resetImage(this.WIDTH, this.HEIGHT, scene, frame, 
+            cameraType, cameraName,
+            {
+                save: (data)=>this.world.imageRectAnnotation.save(cameraType, cameraName, data),
+                load: ()=>this.world.imageRectAnnotation.load(cameraType, cameraName),
+            });
     }
 
     show_image(){
@@ -614,13 +622,7 @@ class ImageContext extends ResizableMoveableView{
                     this.cameraName
                 );
             }
-            svgimage.setAttribute("xlink:href", img.src);            
-            this.rectEditor.resetImage(this.WIDTH, this.HEIGHT, this.world.frameInfo.scene, this.world.frameInfo.frame, 
-                this.cameraType, this.cameraName,
-                {
-                    save: (data)=>this.world.imageRectAnnotation.save(this.cameraType, this.cameraName, data),
-                    load: ()=>this.world.imageRectAnnotation.load(this.cameraType, this.cameraName),
-                });
+            svgimage.setAttribute("xlink:href", img.src);    
         }
     }
 
@@ -744,7 +746,7 @@ class ImageContext extends ResizableMoveableView{
 
                 return {
                     rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
-                        obj_track_id: box.obj_track_id,
+                        obj_id: box.obj_track_id,
                         obj_type: box.obj_type,
                         obj_attr: box.obj_attr,
                 }
@@ -783,7 +785,7 @@ class ImageContext extends ResizableMoveableView{
 
                 return {
                     rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
-                        obj_track_id: box.obj_track_id,
+                        obj_id: box.obj_track_id,
                         obj_type: box.obj_type,
                         obj_attr: box.obj_attr,
                 }
@@ -792,7 +794,7 @@ class ImageContext extends ResizableMoveableView{
 
         return null;
     }
-    
+
 
     draw_svg(){
         // draw picture
