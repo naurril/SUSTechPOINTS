@@ -12,7 +12,7 @@ parser.add_argument('dst_folder', type=str, default='./ir_dataset', help="")
 parser.add_argument('--scenes', type=str, default='.*', help="")
 parser.add_argument('--camera_types', type=str, default='aux_camera', help="")
 parser.add_argument('--camera_names', type=str, default='front', help="")
-parser.add_argument('--prefix_camera_name', type=str, default='yes', help="")
+
 
 args = parser.parse_args()
 
@@ -35,6 +35,12 @@ if not os.path.exists(os.path.join(dst_folder, 'images')):
 
 saved_cwd = os.getcwd()
 for scene in scenes:
+
+    [y,md,d,h,m,s] = scene[19].split('-')
+
+    if not (m == 10 and m >=30 or m >= 11):  # after 6:30 PM
+        continue
+
     for camera_type in camera_types:
         for camera in camera_names:
             yolo_folder = os.path.abspath(os.path.join(src_folder, scene, 'label_fusion_yolo', camera_type, camera))
