@@ -278,7 +278,7 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
 
     this.buildPoints = function(position){
         // build geometry
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('aux lidar');
         let geometry = new THREE.BufferGeometry();
         if ( position.length > 0 ) 
             geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );

@@ -10,19 +10,18 @@ function Debug(){
             this.countMap[category] = 1
         else 
             this.countMap[category] ++;
-
-        this.dump();
     };
 
     this.free = function(category){
         this.res_count--;
-        this.countMap[category] --;
-        this.dump();
+        this.countMap[category] --;        
     };
 
     this.dump = function(){
-        console.log(`number of resources: ${this.res_count}`, this.countMap.toString());
-    }
+        console.log(`GL resources allocated: ${this.res_count}`, this.countMap);
+    };
+
+    
 };
 
 export {Debug};

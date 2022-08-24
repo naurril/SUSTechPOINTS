@@ -79,7 +79,7 @@ function Annotation(sceneMeta, world, frameInfo){
     // internal funcs below
     this._afterPreload = function(){
         this.preloaded = true;
-        console.log("annotation preloaded");
+        //console.log("annotation preloaded");
 
         if (this.on_preload_finished){
             this.on_preload_finished();
@@ -427,7 +427,7 @@ function Annotation(sceneMeta, world, frameInfo){
         this.world.webglGroup.add(this.webglGroup);
 
         this.boxes_load_time = new Date().getTime();
-        console.log(this.boxes_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded boxes ", this.boxes_load_time - this.create_time, "ms");
+        //console.log(this.boxes_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded boxes ", this.boxes_load_time - this.create_time, "ms");
         
         this.sort_boxes();
 

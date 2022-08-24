@@ -220,7 +220,7 @@ class Data
 
         this._doPreload(sceneName, startIndex, endIndex);       
         
-        logger.log(`${endIndex - startIndex} frames created`);
+        
     }
 
     preloadScene(sceneName, currentWorld){
@@ -239,7 +239,7 @@ class Data
     {
         let meta = this.getMetaBySceneName(sceneName);
 
-        let numLoaded = 0;
+        
         let _need_create = (frame)=>{
             let world = this.worldList.find((w)=>{
                 return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
@@ -250,18 +250,13 @@ class Data
 
         let _do_create = (frame)=>{
             this._createWorld(sceneName, frame);
-            numLoaded++;
         };
 
         let pendingFrames = meta.frames.slice(startIndex, endIndex).filter(_need_create);
 
-        logger.log(`preload ${meta.scene} ${pendingFrames}`);
-        // if (numLoaded > 0){
-        //     meta.frames.slice(endIndex, Math.min(endIndex+5, meta.frames.length)).forEach(_do_create);
-        //     meta.frames.slice(Math.max(0, startIndex-5), startIndex).forEach(_do_create);
-        // }
-
         pendingFrames.forEach(_do_create);
+
+        console.log(pendingFrames.length + ' world created.')
     }
 
 

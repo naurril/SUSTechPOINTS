@@ -254,7 +254,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
 
     this.buildPoints = function(position){
         // build geometry
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('rader point');
         let geometry = new THREE.BufferGeometry();
         if ( position.length > 0 ) 
             geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
@@ -299,7 +299,7 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         ];
         
 
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('radar arrow');
         var geo = new THREE.BufferGeometry();
         geo.setAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         

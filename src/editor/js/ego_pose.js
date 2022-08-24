@@ -26,7 +26,7 @@ class EgoPose
             let egoPose = ret;
             this.egoPose = egoPose;
 
-            console.log(this.world.frameInfo.frame, "egopose", "loaded");
+            //console.log(this.world.frameInfo.frame, "egopose", "loaded");
             this.preloaded = true;
 
             if (this.on_preload_finished){

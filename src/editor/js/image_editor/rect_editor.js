@@ -83,6 +83,16 @@ class RectEditor{
 
         this.cfgUi.querySelector("#generate-by-3d-boxes").onclick = (e)=>{
             let rects = this.image.generate2dRects();
+
+            // delete all generated boxes.
+
+            Array.from(this.rects.children).forEach(r=>{
+                if (r.data.annotator == '3dbox'){
+                    this.removeRect(r);
+                }
+            });
+
+            // insert new
             rects.forEach(r=>{
 
                 let existedRect = this.findRectById(r.obj_id);
@@ -99,7 +109,6 @@ class RectEditor{
                 }
                 else if (existedRect.data.annotator==='3dbox')
                 {
-                    this.removeRect(existedRect);
                     this.addRect(r.rect,
                         {
                             obj_id: r.obj_id,
@@ -569,6 +578,11 @@ class RectEditor{
     {
         //jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${this.cameraType}&camera_name=${this.cameraName}`).then(ret=>{
         let ret = this.store.load()
+        if (!ret || !ret.objs || ret.objs.length ==0)
+        {
+            console.log("no annotation. ignored.");
+            return;
+        }
 
         if (ret.scene != this.scene || ret.frame != this.frame || ret.cameraType != this.cameraType || ret.cameraName != this.cameraName)
         {

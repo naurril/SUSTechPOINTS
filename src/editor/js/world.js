@@ -280,7 +280,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.on_subitem_preload_finished = function(on_preload_finished){
         if (this.preloaded()){
             
-            logger.log(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
+            //logger.log(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
 
             this.calcTransformMatrix();
 
@@ -527,7 +527,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
     this.preload=function(on_preload_finished){
         this.create_time = new Date().getTime();
-        console.log(this.create_time, sceneName, frame, "start");
+        //console.log(this.create_time, sceneName, frame, "start");
 
         this.webglGroup = new THREE.Group();
         this.webglGroup.name = "world";
@@ -591,7 +591,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
 
 
             this.finish_time = new Date().getTime();
-            console.log(this.finish_time, sceneName, frame, "loaded in ", this.finish_time - this.create_time, "ms");
+            console.log(`${sceneName},${frame} loaded in ${this.finish_time - this.create_time} ms`);
                 
 
             // render is called in on_finished() callback
@@ -614,7 +614,7 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     this.new_line=function(start, end, color){
 
         var vertex = start.concat(end);
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('line');
         var line = new THREE.BufferGeometry();
         line.addAttribute( 'position', new THREE.Float32BufferAttribute(vertex, 3 ) );
         

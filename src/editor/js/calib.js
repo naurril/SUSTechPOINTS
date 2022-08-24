@@ -108,7 +108,7 @@ class Calib
             
             this.calib = ret;
         
-            console.log(this.world.frameInfo.frame, "calib", "loaded");
+            //console.log(this.world.frameInfo.frame, "calib", "loaded");
             this.preloaded = true;
 
             if (this.on_preload_finished){

@@ -322,7 +322,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             body.push(2.0*x1,2.0*y1,h,2.0*x2,2.0*y2,h);
         }
 
-        this.data.dbg.alloc();
+        this.data.dbg.alloc('range circle');
         var bbox = new THREE.BufferGeometry();
         bbox.setAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
         

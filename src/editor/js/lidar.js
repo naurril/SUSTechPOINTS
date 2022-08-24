@@ -61,7 +61,7 @@ function Lidar(sceneMeta, world, frameInfo){
     this.processPcd = function(pcd){
 
         this.points_parse_time = new Date().getTime();
-        console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "parse pionts ", this.points_parse_time - this.create_time, "ms");
+        //console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "parse pionts ", this.points_parse_time - this.create_time, "ms");
 
         // if (this.frameInfo.transform_matrix){
 
@@ -174,7 +174,7 @@ function Lidar(sceneMeta, world, frameInfo){
         this.build_points_index();
         this.points_load_time = new Date().getTime();
 
-        console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded pionts ", this.points_load_time - this.create_time, "ms");
+        //console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded pionts ", this.points_load_time - this.create_time, "ms");
 
         this._afterPreload();
     }
@@ -232,7 +232,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
     this._afterPreload = function(){
         this.preloaded = true;
-        console.log("lidar preloaded");
+        //console.log("lidar preloaded");
         //go ahead, may load picture
         if (this.on_preload_finished){
             this.on_preload_finished();
@@ -291,7 +291,7 @@ function Lidar(sceneMeta, world, frameInfo){
         this.destroyed = true;
     }
 
-    
+
     this.set_point_size=function(v){
         if (this.points){
             this.points.material.size = v;

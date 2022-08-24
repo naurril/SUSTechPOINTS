@@ -130,6 +130,7 @@ class RectCtrl{
 
     hide(){
         this.ui.style.display = 'none';
+        this.hideFloatingToolBox();
     }
 
     attachRect(g)
