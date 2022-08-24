@@ -627,7 +627,7 @@ class ImageContext extends ResizableMoveableView{
     }
 
 
-    points_to_svg(points, trans_ratio, cssclass, radius=2, points_color){
+    points_to_svg(points, trans_ratio, cssclass, radius=1, points_color){
         var ptsFinal = points.map(function(x, i){
             if (i%2==0){
                 return Math.round(x * trans_ratio.x);
@@ -652,7 +652,7 @@ class ImageContext extends ResizableMoveableView{
             let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
             p.setAttribute("cx", x);
             p.setAttribute("cy", y);
-            p.setAttribute("r", 1);
+            p.setAttribute("r", 0.1);
             //p.setAttribute("stroke-width", "1");
 
             if (points_color)
@@ -922,7 +922,7 @@ class ImageContext extends ResizableMoveableView{
 
             // there may be none after projecting
             if (ptsOnImg && ptsOnImg.length>0){
-                let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio, "svg-points-lidar" /*css*/, 2 /*size*/, img_pts_color);
+                let pts_svg = this.points_to_svg(ptsOnImg, trans_ratio, "svg-points-lidar" /*css*/, 1 /*size*/, img_pts_color);
                 svg.appendChild(pts_svg);
             }
         }

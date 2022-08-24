@@ -33,6 +33,32 @@ class CalibTool  extends PopupDialog{
             this.editor.imageContextManager.render_2d_image();
         }
 
+        this.ui.querySelector("#btn-inc-opacity").onclick = (event)=>{
+            let svg = editor.imageContextManager.images[0].ui.querySelector("#svg-points");
+            let opacity = svg.style.opacity?parseFloat(svg.style.opacity):1;
+            svg.style.opacity = Math.min(1, (0.1 + opacity));
+        }
+
+        this.ui.querySelector("#btn-dec-opacity").onclick = (event)=>{
+            let svg = editor.imageContextManager.images[0].ui.querySelector("#svg-points");
+            let opacity = svg.style.opacity?parseFloat(svg.style.opacity):1;
+            svg.style.opacity = Math.min(1, (-0.1 + opacity));
+        }
+        this.ui.querySelector("#btn-inc-width").onclick = (event)=>{
+            let svg = editor.imageContextManager.images[0].ui.querySelector("#svg-points");
+            let strokeWidth = svg.style.strokeWidth?parseFloat(svg.style.strokeWidth.split('px')[0]):1;
+            svg.style.strokeWidth = strokeWidth * 1.2 +'px';
+        }
+        
+        this.ui.querySelector("#btn-dec-width").onclick = (event)=>{
+            let svg = editor.imageContextManager.images[0].ui.querySelector("#svg-points");
+            let strokeWidth = svg.style.strokeWidth?parseFloat(svg.style.strokeWidth.split('px')[0]):1;
+            svg.style.strokeWidth = strokeWidth * 0.8 +'px';
+        }
+
+
+
+
         this.ui.querySelector("#calib-proj-boxes").onchange = (event)=>{
             let v = event.currentTarget.checked;
             this.editor.editorCfg.projectBoxesToImage = v;
@@ -105,6 +131,7 @@ class CalibTool  extends PopupDialog{
         {
             this.calibBox = this.data.world.annotation.add_box(position, {x:1,y:1, z:1}, rotation, "camera",  this.targetCamera);
             this.calibBox.dontsave = true;
+            this.calibBox.world = this.data.world;
         }
         else{
             console.log("calib box exists.");
@@ -182,6 +209,10 @@ class CalibTool  extends PopupDialog{
 
 
     start(){
+
+        this.stop();
+
+        
         this.updateSettings();
 
         let targetName = this.editor.imageContextManager.images[0].name;
@@ -206,8 +237,8 @@ class CalibTool  extends PopupDialog{
     stop()
     {
         if (this.calibBox){
-            this.data.world.annotation.unload_box(this.calibBox);
-            this.data.world.annotation.remove_box(this.calibBox);
+            this.calibBox.world.annotation.unload_box(this.calibBox);
+            this.calibBox.world.annotation.remove_box(this.calibBox);
             this.calibBox = null;
             this.editor.render();
         }
