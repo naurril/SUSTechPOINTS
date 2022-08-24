@@ -392,6 +392,10 @@ class Data
 
     activateWorld= function(world, on_finished, show){
         if (show){
+            if (this.world){
+                this.world.deactivate();
+            }
+            
             this.world = world;
 
             this.deleteOtherWorldsExcept(world.frameInfo.scene);

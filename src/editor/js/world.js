@@ -557,6 +557,11 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
         }
     };
 
+    this.deactivate = function()
+    {
+        this.active = false;
+    }
+
     this.active = false;
     this.everythingDone = false;
     
