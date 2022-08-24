@@ -170,7 +170,7 @@ class RectEditor{
                 this.selectedRect.data.obj_type = rect.obj_type;
                 this.selectedRect.data.obj_attr = rect.obj_attr;
                 this.ctrl.rectUpdated();
-
+                this.save();
             }
         }
     }

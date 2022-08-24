@@ -61,6 +61,7 @@ class Data
                 
         world = this._createWorld(sceneName, frame, on_preload_finished);
 
+
         return world;
     };
 
@@ -156,13 +157,13 @@ class Data
 
         let disposable = (w)=>{
             let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>this.cfg.maxWorldNumber;
-            let active  = w.everythingDone;
+            //let active  = w.everythingDone;
             if (w.annotation.modified)
             {
-                console.log("deleting world not saved. stop.");
+                console.log("deleting world unsaved yet. stop.");
             }
             
-            return distant && !active && !w.annotation.modified;
+            return distant && !w.annotation.modified;
         }
 
         let distantWorldList = this.worldList.filter(w=>disposable(w));
@@ -225,8 +226,7 @@ class Data
     preloadScene(sceneName, currentWorld){
 
         // clean other scenes.
-        this.deleteOtherWorldsExcept(sceneName);
-        this.deleteDistantWorlds(currentWorld);
+
 
         if (!this.cfg.enablePreload)
             return;
@@ -396,8 +396,13 @@ class Data
     // };
 
     activateWorld= function(world, on_finished, show){
-        if (show)
+        if (show){
             this.world = world;
+
+            this.deleteOtherWorldsExcept(world.frameInfo.scene);
+            this.deleteDistantWorlds(world);
+
+        }
         world.activate(this.webglScene, on_finished);        
     };
 

@@ -102,10 +102,11 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
 
         if (this.elements){
             //this.scene.remove(this.points);
-            this.world.data.dbg.free();
+            
 
             if (this.elements.points)
             {
+                this.world.data.dbg.free();
                 this.elements.points.geometry.dispose();
                 this.elements.points.material.dispose();
             }
@@ -128,6 +129,8 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
             this.calib_box.material.dispose();
             this.calib_box = null;
         }
+
+        this.destroyed = true;
     };
 
     this.filterPoints = function(position){
@@ -173,6 +176,12 @@ function AuxLidar(sceneMeta, world, frameInfo, auxLidarName){
         loader.load( this.frameInfo.get_aux_lidar_path(this.name), 
             //ok
             function ( pcd ) {
+
+                if (_self.destroyed){
+                    console.error("received aux_lidar after destroyed.");
+                    return;
+                }
+
                 var position = pcd.position;
                 
                 
@@ -399,6 +408,7 @@ function AuxLidarManager(sceneMeta, world, frameInfo){
 
     this.deleteAll = function(){
         this.lidarList.forEach(r=>r.deleteAll());
+        
     };
 
     this.getOperableObjects = function(){

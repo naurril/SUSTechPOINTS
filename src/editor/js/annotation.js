@@ -103,6 +103,7 @@ function Annotation(sceneMeta, world, frameInfo){
 
     this.deleteAll = function(){
         this.remove_all_boxes();
+        this.destroyed = true;
     };
     this.boxToAnn = function(box){
         let ann = {
@@ -214,7 +215,7 @@ function Annotation(sceneMeta, world, frameInfo){
         if (this.boxes){
             this.boxes.forEach((b)=>{
                 this.webglGroup.remove(b);
-                this.world.data.dbg.free();
+                this.world.data.dbg.free('box');
                 b.geometry.dispose();
                 b.material.dispose();
                 b.world = null;
@@ -264,7 +265,7 @@ function Annotation(sceneMeta, world, frameInfo){
         ];
         
 
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('box');
 
         var bbox = new THREE.BufferGeometry();
         bbox.setAttribute( 'position', new THREE.Float32BufferAttribute(body, 3 ) );
@@ -345,7 +346,7 @@ function Annotation(sceneMeta, world, frameInfo){
     };
 
     this.remove_box=function(box){
-        this.world.data.dbg.free();
+        this.world.data.dbg.free('box');
         box.geometry.dispose();
         box.material.dispose();
         //selected_box.dispose();
@@ -406,6 +407,12 @@ function Annotation(sceneMeta, world, frameInfo){
 
     this.proc_annotation = function(boxes){
         
+
+        if (this.destroyed)
+        {
+            console.error("received boxes after destroyed.");
+            return;
+        }
         // boxes = this.transformBoxesByEgoPose(boxes);
         // boxes = this.transformBoxesByOffset(boxes);
 

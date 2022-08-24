@@ -122,6 +122,8 @@ function Radar(sceneMeta, world, frameInfo, radarName){
             this.radar_box.material.dispose();
             this.radar_box = null;
         }
+
+        this.destroyed = true;
     };
 
     this.calcTransformMatrix = function()  {
@@ -145,6 +147,12 @@ function Radar(sceneMeta, world, frameInfo, radarName){
         loader.load( this.frameInfo.get_radar_path(this.name), 
             //ok
             function ( pcd ) {
+
+                if (_self.destroyed)
+                {
+                    console.error("received radar after destroyed.");
+                    return;
+                }
                 var position = pcd.position;
                 //var velocity = pcd.velocity;
                 // velocity is a vector anchored at position, 

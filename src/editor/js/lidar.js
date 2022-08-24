@@ -59,6 +59,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
     
     this.processPcd = function(pcd){
+
         this.points_parse_time = new Date().getTime();
         console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "parse pionts ", this.points_parse_time - this.create_time, "ms");
 
@@ -92,7 +93,7 @@ function Lidar(sceneMeta, world, frameInfo){
 
 
         // build geometry
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('lidar');
         var geometry = new THREE.BufferGeometry();
         if ( position.length > 0 ) 
             geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( position, 3 ) );
@@ -183,6 +184,12 @@ function Lidar(sceneMeta, world, frameInfo){
 
         let url = this.frameInfo.get_pcd_path();
         loadfile(url).then(buffer=>{
+            if (this.destroyed)
+            {
+                console.error("received pcd after world been destroyed.")
+                return;
+            }
+
             let pcd = pointcloudReader.parse(buffer, url);
             this.processPcd(pcd);
         });
@@ -221,9 +228,7 @@ function Lidar(sceneMeta, world, frameInfo){
         );
     };
 
-    this.deleteAll = function(){
-        return this.remove_all_points();
-    }
+
 
     this._afterPreload = function(){
         this.preloaded = true;
@@ -283,8 +288,10 @@ function Lidar(sceneMeta, world, frameInfo){
 
     this.deleteAll = function(){
         this.remove_all_points();
+        this.destroyed = true;
     }
 
+    
     this.set_point_size=function(v){
         if (this.points){
             this.points.material.size = v;
@@ -527,7 +534,7 @@ function Lidar(sceneMeta, world, frameInfo){
         
 
         // build new geometry
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('lidar');
         var geometry = new THREE.BufferGeometry();
         
         if (hl_point.length > 0 ) {
@@ -598,7 +605,7 @@ function Lidar(sceneMeta, world, frameInfo){
     this.reset_points=function(points){  // coordinates of points
         
         
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('lidar');
         var geometry = new THREE.BufferGeometry();
         
         
@@ -658,7 +665,7 @@ function Lidar(sceneMeta, world, frameInfo){
         
 
         // build new geometry
-        this.world.data.dbg.alloc();
+        this.world.data.dbg.alloc('lidar');
         var geometry = new THREE.BufferGeometry();
         
         if (hl_point.length > 0 ) {
@@ -1305,18 +1312,18 @@ function Lidar(sceneMeta, world, frameInfo){
 
     this.remove_all_points=function(){
         if (this.points){
-            this.world.data.dbg.free();
+            this.world.data.dbg.free('lidar');
             this.points.geometry.dispose();
             this.points.material.dispose();
         
             
             if (this.points.points_backup){
-                this.world.data.dbg.free();
+                this.world.data.dbg.free('lidar');
                 this.points.points_backup.geometry.dispose();
                 this.points.points_backup.material.dispose();
 
                 if (this.points.points_backup.points_backup){
-                    this.world.data.dbg.free();
+                    this.world.data.dbg.free('lidar');
                     this.points.points_backup.points_backup.geometry.dispose();
                     this.points.points_backup.points_backup.material.dispose();
                     this.points.points_backup.points_backup = null;
