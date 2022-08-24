@@ -86,6 +86,7 @@ image_height = args.image_height
 
 
 for s in scenes:
+    print(s)
     for camera_type in camera_types:
         for camera in camera_names:
                 
@@ -111,10 +112,10 @@ for s in scenes:
                 with open(os.path.join(yolo_folder, frame+".txt"), 'w') as f:
                     for o in label['objs']:
                         f.write('{} {} {} {} {}\n'.format(obj_type_map[o['obj_type']], 
-                                                            o['rect']['x1']/image_width, 
-                                                            o['rect']['y1']/image_height, 
-                                                            (o['rect']['x2']-o['rect']['x1'])/image_width, 
-                                                            (o['rect']['y2']-o['rect']['y1'])/image_height))
+                                                            (o['rect']['x1'] + o['rect']['x2'])/2/image_width, 
+                                                            (o['rect']['y1'] + o['rect']['y2'])/2/image_height, 
+                                                            (o['rect']['x2'] - o['rect']['x1'])/image_width, 
+                                                            (o['rect']['y2'] - o['rect']['y1'])/image_height))
 
 
             

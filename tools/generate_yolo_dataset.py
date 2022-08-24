@@ -35,10 +35,11 @@ if not os.path.exists(os.path.join(dst_folder, 'images')):
 
 saved_cwd = os.getcwd()
 for scene in scenes:
+    print(scene)
+    [y,md,d,h,m,s] = scene[0:19].split('-')
 
-    [y,md,d,h,m,s] = scene[19].split('-')
-
-    if not (m == 10 and m >=30 or m >= 11):  # after 6:30 PM
+    if not ( h == '10' and m >='30' or h >= '11'):  # after 6:30 PM
+        print('ignore early data', scene)
         continue
 
     for camera_type in camera_types:
@@ -56,6 +57,10 @@ for scene in scenes:
 
                 image_file = os.path.abspath(os.path.join(src_folder, scene, camera_type, camera, frame+".jpg"))
                 if not os.path.exists(image_file):
+                    continue
+
+                if os.path.getsize(os.path.join(yolo_folder, fname)) <= 1:
+                    #print("empty label, ignored.", fname)
                     continue
 
                 os.chdir(os.path.join(dst_folder, 'images'))
