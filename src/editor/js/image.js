@@ -827,7 +827,8 @@ class ImageContext extends ResizableMoveableView{
                 var imgfinal = box_to_2d_points(box, calib);
                 if (imgfinal){
                     var box_svg = this.box_to_svg (box, imgfinal, trans_ratio, this.get_selected_box() == box);
-                    svg.appendChild(box_svg);
+                    if (box_svg)
+                        svg.appendChild(box_svg);
                 }
             });
         }
@@ -939,7 +940,13 @@ class ImageContext extends ResizableMoveableView{
             }else {
                 return Math.round(x * trans_ratio.y);
             }
-        })
+        });
+
+        if (!imgfinal || imgfinal.length == 0){
+            if (svg)
+                svg.remove();
+            return null;
+        }
 
 
         if (!svg){
@@ -1078,7 +1085,8 @@ class ImageContext extends ResizableMoveableView{
 
                     var svg_box = this.box_to_svg(box, imgfinal, trans_ratio);
                     var svg = this.ui.querySelector("#svg-boxes");
-                    svg.appendChild(svg_box);
+                    if (svg_box)
+                        svg.appendChild(svg_box);
                 }
             }
         },
@@ -1503,7 +1511,7 @@ function points3d_homo_to_image2d(points3d, calib, accept_partial=false, save_ma
         //todo: this function need clearance
         //imgpos2 = matmul(calib.intrinsic, temppos, 3);
     }
-    else  if (!accept_partial && !all_points_in_image_range(imgpos3)){
+    else  if (!accept_partial && !any_points_in_image_range(imgpos3)){
             return null;
     }
 
@@ -1534,6 +1542,16 @@ function all_points_in_image_range(p){
     }
     
     return true;
+}
+
+function any_points_in_image_range(p){
+    for (var i = 0; i<p.length/3; i++){
+        if (p[i*3+2]>0){
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 
