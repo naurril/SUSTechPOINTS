@@ -2474,6 +2474,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.cancelFocus(this.selected_box);
         }
 
+
+
+
         if (this.viewManager.mainView && this.viewManager.mainView.transform_control.visible)
         {
             //unselect first time
@@ -2482,8 +2485,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         var world = await this.data.getWorld(sceneName, frame);
 
-        if (world)
+        if (world != this.data.world)
         {
+            this.unselectBox(null, true);
+            this.unselectBox(null, true);
+            
+            if (this.data.world)
+                this.data.world.deactivate();
+
             this.data.activateWorld(
                 world, 
                 function(){

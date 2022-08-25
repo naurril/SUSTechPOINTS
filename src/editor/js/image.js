@@ -546,13 +546,7 @@ class ImageContext extends ResizableMoveableView{
 
 
     getCalib(){
-        var scene_meta = this.world;
-           
-        
-
-        //var active_camera_name = this.world.cameras.active_name;
-        var calib = this.world.calib.getCalib(this.cameraType, this.cameraName);
-
+        let calib = this.world.calib.getCalib(this.cameraType, this.cameraName);
         return calib;
     }
 
@@ -929,7 +923,7 @@ class ImageContext extends ResizableMoveableView{
 
     }
 
-    box_to_svg(box, box_corners, trans_ratio, selected){
+    box_to_svg(box, box_corners, trans_ratio, selected, svg){
         
 
         var imgfinal = box_corners.map(function(x, i){
@@ -941,30 +935,69 @@ class ImageContext extends ResizableMoveableView{
         })
 
 
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-        svg.setAttribute("id", "svg-box-local-"+box.obj_local_id);
+        if (!svg){
+            svg = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+            svg.setAttribute("id", "svg-box-local-"+box.obj_local_id);
 
-        if (selected){
-            svg.setAttribute("class", box.obj_type+" box-svg svg-selected");
-        } else{
-            if (box.world.data.cfg.color_obj == "id")
-            {
-                svg.setAttribute("class", "color-"+box.obj_track_id%33);
-            }
-            else // by id
-            {
-                svg.setAttribute("class", box.obj_type + " box-svg");
+            if (selected){
+                svg.setAttribute("class", box.obj_type+" svg-box svg-selected");
+            } else{
+                if (box.world.data.cfg.color_obj == "id")
+                {
+                    svg.setAttribute("class", "color-"+box.obj_track_id%33+ " svg-box");
+                }
+                else // by id
+                {
+                    svg.setAttribute("class", box.obj_type + " svg-box");
+                }
             }
         }
+        else
+        {
+            //remove children
+            svg.innerHTML = '';
+        }
 
-                
-        var front_panel =  document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
+
+
+        function create_panel(pts, className)
+        {
+            var panel =  document.createElementNS("http://www.w3.org/2000/svg", 'polygon');            
+            panel.setAttribute("points",
+                pts.reduce(function(x,y){            
+                    return String(x)+","+y;
+                })
+            );
+
+            panel.setAttribute("class", className);
+            return panel;
+        }
+        
+        let pts = imgfinal.slice(0, 4*2);
+        let front_panel =  create_panel(pts, 'box-front-panel');
         svg.appendChild(front_panel);
-        front_panel.setAttribute("points",
-            imgfinal.slice(0, 4*2).reduce(function(x,y){            
-                return String(x)+","+y;
-            })
-        )
+        
+
+        pts = imgfinal.slice(4*2, 4*2+4*2);
+        let rear_pannel = create_panel(pts, 'nofill');
+        svg.appendChild(rear_pannel);
+        
+        //left panel
+        pts = [imgfinal[0],imgfinal[1], imgfinal[6],imgfinal[7], imgfinal[14],imgfinal[15], imgfinal[8],imgfinal[9]];
+        let left_pannel = create_panel(pts, 'nofill');
+        svg.appendChild(left_pannel);
+
+        //right panel
+        pts = [imgfinal[2],imgfinal[3], imgfinal[4],imgfinal[5], imgfinal[12],imgfinal[13], imgfinal[10],imgfinal[11]];
+        let right_pannel = create_panel(pts, 'nofill');
+        svg.appendChild(right_pannel);
+
+        //top panel
+        pts = [imgfinal[4],imgfinal[5], imgfinal[6],imgfinal[7], imgfinal[14],imgfinal[15], imgfinal[12],imgfinal[13]];
+        let top_pannel = create_panel(pts, 'nofill');
+        svg.appendChild(top_pannel);
+
+        // bottom panel
 
         /*
         var back_panel =  document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
@@ -976,28 +1009,42 @@ class ImageContext extends ResizableMoveableView{
         )
         */
 
-        for (var i = 0; i<4; ++i){
-            var line =  document.createElementNS("http://www.w3.org/2000/svg", 'line');
-            svg.appendChild(line);
-            line.setAttribute("x1", imgfinal[(4+i)*2]);
-            line.setAttribute("y1", imgfinal[(4+i)*2+1]);
-            line.setAttribute("x2", imgfinal[(4+(i+1)%4)*2]);
-            line.setAttribute("y2", imgfinal[(4+(i+1)%4)*2+1]);
-        }
+        // for (var i = 0; i<4; ++i){
+        //     var line =  document.createElementNS("http://www.w3.org/2000/svg", 'line');
+        //     svg.appendChild(line);
+        //     line.setAttribute("x1", imgfinal[(4+i)*2]);
+        //     line.setAttribute("y1", imgfinal[(4+i)*2+1]);
+        //     line.setAttribute("x2", imgfinal[(4+(i+1)%4)*2]);
+        //     line.setAttribute("y2", imgfinal[(4+(i+1)%4)*2+1]);
+        // }
 
 
-        for (var i = 0; i<4; ++i){
-            var line =  document.createElementNS("http://www.w3.org/2000/svg", 'line');
-            svg.appendChild(line);
-            line.setAttribute("x1", imgfinal[i*2]);
-            line.setAttribute("y1", imgfinal[i*2+1]);
-            line.setAttribute("x2", imgfinal[(i+4)*2]);
-            line.setAttribute("y2", imgfinal[(i+4)*2+1]);
-        }
+        // for (var i = 0; i<4; ++i){
+        //     var line =  document.createElementNS("http://www.w3.org/2000/svg", 'line');
+        //     svg.appendChild(line);
+        //     line.setAttribute("x1", imgfinal[i*2]);
+        //     line.setAttribute("y1", imgfinal[i*2+1]);
+        //     line.setAttribute("x2", imgfinal[(i+4)*2]);
+        //     line.setAttribute("y2", imgfinal[(i+4)*2+1]);
+        // }
+
+        svg.data = {
+            obj_id: box.obj_track_id,
+        };
+
+        svg.onclick = (e)=>this.onBoxClicked(e);
+
 
         return svg;
     }
 
+    
+    onBoxClicked(e){
+        if (e.currentTarget.data.obj_id)
+        {
+            window.editor.makeVisible(e.currentTarget.data.obj_id);
+        }
+    }
 
     boxes_manager = {
         display_image: ()=>{
@@ -1033,7 +1080,7 @@ class ImageContext extends ResizableMoveableView{
         onBoxSelected: (box_obj_local_id, obj_type)=>{
             var b = this.ui.querySelector("#svg-box-local-"+box_obj_local_id);
             if (b){
-                b.setAttribute("class", "svg-selected");
+                b.setAttribute("class", "svg-selected svg-box");
             }
         },
 
@@ -1042,7 +1089,7 @@ class ImageContext extends ResizableMoveableView{
             var b = this.ui.querySelector("#svg-box-local-"+box_obj_local_id);
 
             if (b)
-                b.setAttribute("class", obj_type);
+                b.setAttribute("class", obj_type + " svg-box");
         },
 
         remove_box: (box_obj_local_id)=>{
@@ -1062,6 +1109,7 @@ class ImageContext extends ResizableMoveableView{
                 return;
             }
 
+            
             var children = b.childNodes;
 
             var calib = this.getCalib();
@@ -1085,31 +1133,7 @@ class ImageContext extends ResizableMoveableView{
             })
 
             if (imgfinal){
-                var front_panel = children[0];
-                front_panel.setAttribute("points",
-                    imgfinal.slice(0, 4*2).reduce(function(x,y){            
-                        return String(x)+","+y;
-                    })
-                )
-
-
-
-                for (var i = 0; i<4; ++i){
-                    var line =  children[1+i];
-                    line.setAttribute("x1", imgfinal[(4+i)*2]);
-                    line.setAttribute("y1", imgfinal[(4+i)*2+1]);
-                    line.setAttribute("x2", imgfinal[(4+(i+1)%4)*2]);
-                    line.setAttribute("y2", imgfinal[(4+(i+1)%4)*2+1]);
-                }
-
-
-                for (var i = 0; i<4; ++i){
-                    var line =  children[5+i];
-                    line.setAttribute("x1", imgfinal[i*2]);
-                    line.setAttribute("y1", imgfinal[i*2+1]);
-                    line.setAttribute("x2", imgfinal[(i+4)*2]);
-                    line.setAttribute("y2", imgfinal[(i+4)*2+1]);
-                }
+                this.box_to_svg(box, imgfinal, trans_ratio, null, b);
             }
 
         }
@@ -1394,13 +1418,14 @@ class ImageContextManager {
             sheet.insertRule(rule, sheet.cssRules.length);
         }
 
-        //sheet.insertRule('.rect-svg:hover {stroke: #0000ffaa; fill: #0000ff22;}', sheet.cssRules.length)
-        sheet.insertRule('.svg-select-pending {stroke: #0000ffaa; fill: #0000ff11;}', sheet.cssRules.length)
-        sheet.insertRule('.svg-selected {stroke: #ff00ff88; fill: #ff00ff22;}', sheet.cssRules.length)
-        sheet.insertRule('.svg-rect-selected {stroke: #ff00ff88; fill: #00000000;}', sheet.cssRules.length)        
-        //sheet.insertRule('.svg-selected:hover {stroke: #ff00ff88; fill: #ff00ff22;}', sheet.cssRules.length)
-        sheet.insertRule('.label-select-pending {color: var(--font-color);text-shadow: 0px 0px 5px var(--background-color);}', sheet.cssRules.length)              
-        sheet.insertRule('.nofill {fill:#00000000}', sheet.cssRules.length)              
+        //sheet.insertRule('.rect-svg:hover {stroke: #0000ffaa; fill: #0000ff22;}', sheet.cssRules.length);
+        sheet.insertRule('.svg-select-pending {stroke: #0000ffaa; fill: #0000ff11;}', sheet.cssRules.length);
+        sheet.insertRule('.svg-selected {stroke: #ff00ff88; fill: #ff00ff22;}', sheet.cssRules.length);
+        sheet.insertRule('.svg-rect-selected {stroke: #ff00ff88; fill: #00000000;}', sheet.cssRules.length);    
+        //sheet.insertRule('.svg-selected:hover {stroke: #ff00ff88; fill: #ff00ff22;}', sheet.cssRules.length);
+        sheet.insertRule('.label-select-pending {color: var(--font-color);text-shadow: 0px 0px 5px var(--background-color);}', sheet.cssRules.length);
+        sheet.insertRule('.nofill {fill:#00000000}', sheet.cssRules.length);
+        
     }
 }
 

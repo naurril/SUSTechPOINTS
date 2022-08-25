@@ -163,7 +163,7 @@ class Data
                 console.log("deleting world unsaved yet. stop.");
             }
             
-            return distant && !w.annotation.modified;
+            return distant && !w.active && !w.annotation.modified;
         }
 
         let distantWorldList = this.worldList.filter(w=>disposable(w));
@@ -182,10 +182,14 @@ class Data
         // release resources if scene changed
         this.worldList.forEach(w=>{
             if (w.frameInfo.scene != keepScene){
-                this.returnOffset(w.offsetIndex);
-                w.deleteAll();
 
-                this.removeRefEgoPoseOfScene(w.frameInfo.scene);
+                if (!w.active)
+                {
+                    this.returnOffset(w.offsetIndex);
+                    w.deleteAll();
+
+                    this.removeRefEgoPoseOfScene(w.frameInfo.scene);
+                }
             }
         })
         this.worldList = this.worldList.filter(w=>w.frameInfo.scene==keepScene);
@@ -392,10 +396,6 @@ class Data
 
     activateWorld= function(world, on_finished, show){
         if (show){
-            if (this.world){
-                this.world.deactivate();
-            }
-            
             this.world = world;
 
             this.deleteOtherWorldsExcept(world.frameInfo.scene);

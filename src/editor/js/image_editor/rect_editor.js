@@ -84,7 +84,7 @@ class RectEditor{
         this.cfgUi.querySelector("#generate-by-3d-boxes").onclick = (e)=>{
             let rects = this.image.generate2dRects();
 
-            // delete all generated boxes.
+            // delete all generated and not modified boxes.
 
             Array.from(this.rects.children).forEach(r=>{
                 if (r.data.annotator == '3dbox'){

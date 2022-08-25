@@ -18,10 +18,14 @@
 
 
 
-.box-svg{
+.svg-box{
 	/* stroke-width: 1px; */
 	/* stroke: #0000ffaa;
 	fill: #00880022; */
+}
+
+.svg-box:hover{
+	stroke: rgb(255, 0, 217);
 }
 
 /* 
