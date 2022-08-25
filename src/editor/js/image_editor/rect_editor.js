@@ -1,11 +1,11 @@
+
 import { DropdownMenu } from "../common/sensible_dropdown_menu";
-import { jsonrpc } from "../jsonrpc";
 import { RectCtrl } from "./rect_ctrl";
 
 
 
 class RectEditor{
-    constructor(canvas, floatingLabelsUi, parentUi, toolBoxUi, cfgUi, image )
+    constructor(canvas, floatingLabelsUi, parentUi, toolBoxUi, cfgUi, image, globalCfg )
     {
 
         //parentUi is content
@@ -14,6 +14,8 @@ class RectEditor{
         this.floatingLabelsUi = floatingLabelsUi;
         this.parentUi = parentUi;
         this.image = image;
+        this.cfg = globalCfg;
+
         this.parentUi.addEventListener("wheel", this.onWheel.bind(this));
         this.parentUi.addEventListener("mousedown", this.onMouseDown.bind(this));
         this.parentUi.addEventListener("mousemove", this.onMouseMove.bind(this));
@@ -41,14 +43,6 @@ class RectEditor{
             toolBoxUi,
             this.canvas, this);
 
-
-       
-        this.cfg = {
-            show3dBox: true,
-            selectInLidar: true,
-        };
-
-
         this.dropdownMenu = new DropdownMenu(this.cfgUi.querySelector("#rect-editor-cfg-btn"),
             this.cfgUi.querySelector("#object-dropdown-menu"), 
             this.parentUi);
@@ -57,7 +51,6 @@ class RectEditor{
         this.cfgUi.querySelector("#show-3d-box").onchange = (e)=>{
             let checked = e.currentTarget.checked;
 
-            this.cfg.show3dBox = checked;
             if (checked)
                 this.show3dBox();
             else
@@ -65,11 +58,17 @@ class RectEditor{
         };
 
 
-        this.cfgUi.querySelector("#show-2d-box").checked = true;
+        this.cfgUi.querySelector("#show-2d-box").checked = this.cfg.enableImageAnnotation;
+
+        if (this.cfg.enableImageAnnotation)
+            this.show2dBox();
+        else
+            this.hide2dBox();
+
         this.cfgUi.querySelector("#show-2d-box").onchange = (e)=>{
             let checked = e.currentTarget.checked;
 
-            this.cfg.show2dBox = checked;
+            this.localCfg.show2dBox = checked;
             if (checked)
                 this.show2dBox();
             else
@@ -82,6 +81,10 @@ class RectEditor{
         };
 
         this.cfgUi.querySelector("#generate-by-3d-boxes").onclick = (e)=>{
+            
+            if (!this.cfg.enableImageAnnotation)
+                return;
+            
             let rects = this.image.generate2dRects();
 
             // delete all generated and not modified boxes.
@@ -397,7 +400,7 @@ class RectEditor{
                 return;
             }
 
-            if (!this.editingRectangleSvg){
+            if (!this.editingRectangleSvg && this.cfg.enableImageAnnotation){
                 this.editingRectangle = {
                     x1: this.mouseDownPointSvg.x,
                     y1: this.mouseDownPointSvg.y,
@@ -756,6 +759,8 @@ class RectEditor{
 
     selectRect(rect)
     {
+
+
         if (this.selectedRect != rect)
         {
             this.cancelSelection();
@@ -768,12 +773,16 @@ class RectEditor{
 
             rect.classList.add("svg-rect-selected");
 
-            this.ctrl.attachRect(rect);
-            
+
+            if (this.cfg.enableImageAnnotation)
+            {
+                this.ctrl.attachRect(rect);    
+            }
+                        
             // if (e)
             //     this.ctrl.onRectDragMouseDown(e);
             
-            if (this.cfg.selectInLidar && rect.data.obj_id)
+            if (rect.data.obj_id)
             {
                 window.editor.makeVisible(rect.data.obj_id);
             }

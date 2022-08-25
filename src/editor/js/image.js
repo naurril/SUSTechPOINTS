@@ -225,16 +225,18 @@ class ImageContext extends ResizableMoveableView{
         this.ui.addEventListener("contextmenu", e => e. preventDefault());
         this.canvas = this.ui.querySelector("#maincanvas-svg");
 
+        
         this.rectEditor = new RectEditor(this.canvas, 
-            this.ui.querySelector("#rect-editor-floating-labels"),
-            this.contentUi,
-            this.ui.querySelector("#rect-editor-floating-toolbox"),
-            this.ui.querySelector("#rect-editor-cfg"),
-            this,            
-            );
+                this.ui.querySelector("#rect-editor-floating-labels"),
+                this.contentUi,
+                this.ui.querySelector("#rect-editor-floating-toolbox"),
+                this.ui.querySelector("#rect-editor-cfg"),
+                this,
+                this.cfg
+                );
 
         this.onResize = ()=>this.rectEditor.onResize();
-
+        
 
 
         this.ui.querySelector("#btn-exit").onclick = (event)=>{
@@ -584,17 +586,22 @@ class ImageContext extends ResizableMoveableView{
         this.WIDTH = img.naturalWidth;
         this.HEIGHT = img.naturalHeight;
        
-        this.rectEditor.resetImageSize(this.WIDTH, this.HEIGHT);
+        
+            
 
         this.draw_svg();
 
-                
+            
+        
+        this.rectEditor.resetImageSize(this.WIDTH, this.HEIGHT);
+            
         this.rectEditor.resetImage(this.WIDTH, this.HEIGHT, scene, frame, 
-            cameraType, cameraName,
-            {
-                save: (data)=>this.world.imageRectAnnotation.save(cameraType, cameraName, data),
-                load: ()=>this.world.imageRectAnnotation.load(cameraType, cameraName),
-            });
+                cameraType, cameraName,
+                {
+                    save: (data)=>this.world.imageRectAnnotation.save(cameraType, cameraName, data),
+                    load: ()=>this.world.imageRectAnnotation.load(cameraType, cameraName),
+                });
+        
     }
 
     show_image(){

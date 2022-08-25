@@ -71,6 +71,8 @@ class Config{
     projectBoxesToImage = true;
     autoCheckScene = false;
 
+    enableImageAnnotation = false;
+
     constructor()
     {
         
@@ -120,6 +122,7 @@ class Config{
         ["autoUpdateInterpolatedBoxes", this.toBool],
         ["maxWorldNumber",parseInt],
         ["cameraGroupForContext", null],
+        ["enableImageAnnotation", this.toBool],
     ];
 
     load()

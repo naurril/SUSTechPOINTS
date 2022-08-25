@@ -211,7 +211,13 @@ class ConfigUi{
             let checked = event.currentTarget.checked;
             window.pointsGlobalConfig.setItem("enablePreload", checked);
             return false;
-        }
+        },
+
+        "#cfg-enable-image-annotation-checkbox": (event)=>{
+            let checked = event.currentTarget.checked;
+            window.pointsGlobalConfig.setItem("enableImageAnnotation", checked);
+            return false;
+        },
 
     };
 
@@ -347,6 +353,7 @@ class ConfigUi{
         this.menu.querySelector("#cfg-auto-rotate-xy-checkbox").checked = window.pointsGlobalConfig.enableAutoRotateXY;
         this.menu.querySelector("#cfg-auto-update-interpolated-boxes-checkbox").checked = window.pointsGlobalConfig.autoUpdateInterpolatedBoxes;
         this.menu.querySelector("#cfg-camera-group-for-context-select").value = window.pointsGlobalConfig.cameraGroupForContext;
+        this.menu.querySelector("#cfg-enable-image-annotation-checkbox").checked = window.pointsGlobalConfig.enableImageAnnotation;
     }
 
 
