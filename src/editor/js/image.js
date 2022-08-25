@@ -1511,7 +1511,7 @@ function points3d_homo_to_image2d(points3d, calib, accept_partial=false, save_ma
         //todo: this function need clearance
         //imgpos2 = matmul(calib.intrinsic, temppos, 3);
     }
-    else  if (!accept_partial && !any_points_in_image_range(imgpos3)){
+    else  if (!accept_partial && !all_points_in_image_range(imgpos3)){
             return null;
     }
 
