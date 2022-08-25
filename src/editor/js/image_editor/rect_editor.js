@@ -12,6 +12,7 @@ class RectEditor{
         this.cfgUi = cfgUi;
         this.canvas = canvas;
         this.floatingLabelsUi = floatingLabelsUi;
+        this.floatingLabelsContentUi = floatingLabelsUi.querySelector('#rect-editor-floating-labels-scaling-wrapper');
         this.parentUi = parentUi;
         this.image = image;
         this.cfg = globalCfg;
@@ -67,8 +68,6 @@ class RectEditor{
 
         this.cfgUi.querySelector("#show-2d-box").onchange = (e)=>{
             let checked = e.currentTarget.checked;
-
-            this.localCfg.show2dBox = checked;
             if (checked)
                 this.show2dBox();
             else
@@ -278,9 +277,9 @@ class RectEditor{
         this.canvas.style['stroke-width'] = 1/this.viewScale.x+"px";
 
         if (this.viewScale.x < 0.2)
-            this.hideFloatingLabels();
+            this.floatingLabelsContentUi.style.display = 'none';
         else
-            this.showFloatingLabels();
+            this.floatingLabelsContentUi.style.display = 'inherit';
 
         this.updateFloatingLabels();
     }
@@ -720,7 +719,7 @@ class RectEditor{
         svg.divLabel.onmouseenter = (e)=>e.currentTarget.svg.classList.add("svg-select-pending");
         svg.divLabel.onmouseleave = (e)=>e.currentTarget.svg.classList.remove("svg-select-pending");
 
-        this.floatingLabelsUi.appendChild(svg.divLabel);
+        this.floatingLabelsContentUi.appendChild(svg.divLabel);
         this.updateDivLabel(svg);
         
 
