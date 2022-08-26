@@ -782,16 +782,18 @@ class ImageContext extends ResizableMoveableView{
         
         if (box)
         {
-            let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
+            let [points3dTopPart, points3dGroundPart] = this.world.lidar.get_points_of_box_word_coordinates(box);
 
-            let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
+            let ptsTopPartOnImg = points3d_to_image2d(points3dTopPart, calib, true, null, img.width, img.height);
+            let ptsGroundPartOnImg = points3d_to_image2d(points3dGroundPart, calib, true, null, img.width, img.height);
 
-            if (ptsOnImg && ptsOnImg.length > 3)
+            if (ptsTopPartOnImg && ptsTopPartOnImg.length > 3)
             {
-                let range = this.find2dPointsRange(ptsOnImg);
+                let range = this.find2dPointsRange(ptsTopPartOnImg);
+                let rangeGrd = this.find2dPointsRange(ptsGroundPartOnImg);
 
                 return {
-                    rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+                    rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: rangeGrd.maxy?rangeGrd.maxy:range.maxy},
                         obj_id: box.obj_track_id,
                         obj_type: box.obj_type,
                         obj_attr: box.obj_attr,
