@@ -737,16 +737,21 @@ class ImageContext extends ResizableMoveableView{
 
 
         return this.world.annotation.boxes.map((box)=>{
-            let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
 
-            let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
+            // better remove ground before we calculate the width of the objects.
+            // we assume the objects are all upward.
+            let [points3dTopPart, points3dGroundPart] = this.world.lidar.get_points_of_box_word_coordinates(box);
 
-            if (ptsOnImg && ptsOnImg.length > 3)
+            let ptsTopPartOnImg = points3d_to_image2d(points3dTopPart, calib, true, null, img.width, img.height);
+            let ptsGroundPartOnImg = points3d_to_image2d(points3dGroundPart, calib, true, null, img.width, img.height);
+
+            if (ptsTopPartOnImg && ptsTopPartOnImg.length > 3)
             {
-                let range = this.find2dPointsRange(ptsOnImg);
+                let range = this.find2dPointsRange(ptsTopPartOnImg);
+                let rangeGrd = this.find2dPointsRange(ptsGroundPartOnImg);
 
                 return {
-                    rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+                    rect: {x1: range.minx, y1: range.miny, x2: range.maxx, y2: rangeGrd.maxy?rangeGrd.maxy:range.maxy},
                         obj_id: box.obj_track_id,
                         obj_type: box.obj_type,
                         obj_attr: box.obj_attr,
@@ -832,31 +837,6 @@ class ImageContext extends ResizableMoveableView{
                 }
             });
         }
-
-
-        // if (this.cfg.projectBoxesToImage)
-        // {
-        //     // draw rects
-            
-        //     this.world.annotation.boxes.forEach((box)=>{
-
-        //         let points3d = this.world.lidar.get_points_of_box_word_coordinates(box);
-
-        //         let ptsOnImg = points3d_to_image2d(points3d, calib, true, null, img.width, img.height);
-
-        //         let range = this.find2dPointsRange(ptsOnImg);
-
-        //        this.rectEditor.addRect({x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
-        //             {
-        //                 box3d: {
-        //                     obj_track_id: box.obj_track_id,
-        //                     obj_type: box.obj_type,
-        //                     obj_attr: box.obj_attr,
-        //                 },
-        //             });
-
-        //     });
-        // }
 
 
         // draw radar points

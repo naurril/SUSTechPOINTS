@@ -783,15 +783,25 @@ function Lidar(sceneMeta, world, frameInfo){
     this.get_points_of_box_word_coordinates = function(box, scale_ratio)
     {
         var pos_array = this.points.geometry.getAttribute("position").array;
-        let indices = this._get_points_of_box(this.points, box, scale_ratio).index;
-        let pts = [];
-        indices.forEach(i=>{
-            pts.push(pos_array[i*3]);
-            pts.push(pos_array[i*3+1]);
-            pts.push(pos_array[i*3+2]);
+        let {index, position} = this._get_points_of_box(this.points, box, scale_ratio);
+        let ptsTopPart = [];
+        let ptsGroundPart = [];
+        let groundHeight = Math.min(0.5, box.scale.z*0.2);
+        index.forEach((v,i)=>{
+            if (position[i][2] < -box.scale.z/2 + 0.3)
+            {
+                ptsGroundPart.push(pos_array[v*3]);
+                ptsGroundPart.push(pos_array[v*3+1]);
+                ptsGroundPart.push(pos_array[v*3+2]);
+            }
+            else{
+                ptsTopPart.push(pos_array[v*3]);
+                ptsTopPart.push(pos_array[v*3+1]);
+                ptsTopPart.push(pos_array[v*3+2]);
+            }
         });
 
-        return pts;
+        return [ptsTopPart, ptsGroundPart];
     };
 
     this.get_points_relative_coordinates_of_box=function(box, scale_ratio){
