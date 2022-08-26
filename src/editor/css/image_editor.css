@@ -28,6 +28,11 @@
 	stroke: rgb(17, 0, 255);
 }
 
+#svg-rect-ctrl #rect{
+	fill: #00000000;
+	stroke: #00000000;
+	stroke-width: 0px;
+}
 /* 
 this css can be moved to dynamic css in main.js, after obj-type css being set 
 for now when a box is selected, its objtype class in css is removed so the color is set by selected state.

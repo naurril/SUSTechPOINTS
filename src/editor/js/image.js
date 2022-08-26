@@ -239,6 +239,7 @@ class ImageContext extends ResizableMoveableView{
         
 
 
+
         this.ui.querySelector("#btn-exit").onclick = (event)=>{
             this.manager.removeImage(this);
         }
@@ -1048,7 +1049,6 @@ class ImageContext extends ResizableMoveableView{
 
         svg.onclick = (e)=>this.onBoxClicked(e);
 
-
         return svg;
     }
 
@@ -1114,9 +1114,9 @@ class ImageContext extends ResizableMoveableView{
                 b.remove();
         },
 
-        update_obj_type: (box_obj_local_id, obj_type)=>{
-            this.onBoxSelected(box_obj_local_id, obj_type);
-        },
+        // update_obj_type: (box_obj_local_id, obj_type)=>{
+        //     this.onBoxSelected(box_obj_local_id, obj_type);
+        // },
         
         update_box: (box)=>{
             var b = this.ui.querySelector("#svg-box-local-"+box.obj_local_id);
@@ -1389,9 +1389,9 @@ class ImageContextManager {
             this.images.forEach(i=>i.boxes_manager.remove_box(box_obj_local_id));
         },
 
-        update_obj_type: (box_obj_local_id, obj_type)=>{
-            this.images.forEach(i=>i.boxes_manager.update_obj_type(box_obj_local_id, obj_type));
-        },
+        // update_obj_type: (box_obj_local_id, obj_type)=>{
+        //     this.images.forEach(i=>i.boxes_manager.update_obj_type(box_obj_local_id, obj_type));
+        // },
         
         update_box: (box)=>{
             this.images.forEach(i=>i.boxes_manager.update_box(box));
