@@ -189,16 +189,22 @@ class RectEditor{
     hide3dBox()
     {
         this.canvas.querySelector("#svg-boxes").style.display = 'none';
+        
+        if (this.canvas.querySelector("#svg-rects").style.display === 'none')
+            this.hideFloatingLabels();
     }
     show3dBox()
     {
         this.canvas.querySelector("#svg-boxes").style.display = 'inherit';
+        this.showFloatingLabels();
     }
 
     hide2dBox()
     {
         this.canvas.querySelector("#svg-rects").style.display = 'none';
-        this.hideFloatingLabels();
+
+        if (this.canvas.querySelector("#svg-boxes").style.display === 'none')
+            this.hideFloatingLabels();
     }
     show2dBox()
     {

@@ -12,8 +12,9 @@ class RectCtrl{
             topleft: ui.querySelector("#topleft"),
             topright: ui.querySelector("#topright"),
             bottomleft: ui.querySelector("#bottomleft"),
-            bottomright: ui.querySelector("#bottomright"),
-        }
+            bottomright: ui.querySelector("#bottomright"),            
+        };
+        this.ctrlRect = ui.querySelector("#rect");
 
         Object.keys(this.handles).forEach(k=>{
             let h  = this.handles[k];
@@ -23,6 +24,8 @@ class RectCtrl{
                 this.cornerEndOperation.bind(this),
                 ));
         });
+
+        this.ctrlRect.addEventListener('mousedown', this.onRectDragMouseDown);
 
         this.ui = ui;
         this.toolBoxUi = toolBoxUi;
@@ -140,7 +143,7 @@ class RectCtrl{
 
         this.show();
         this.g = g;        
-        this.g.addEventListener('mousedown', this.onRectDragMouseDown);
+        //this.g.addEventListener('mousedown', this.onRectDragMouseDown);
 
 
         this.moveHandle(g.data.rect);
@@ -160,8 +163,8 @@ class RectCtrl{
     detach(g)
     {
         this.hide();
-        if (this.g)
-            this.g.removeEventListener('mousedown', this.onRectDragMouseDown);
+        // if (this.g)
+        //     this.g.removeEventListener('mousedown', this.onRectDragMouseDown);
         this.g = null;
         this.hideFloatingToolBox();
     }
@@ -187,7 +190,14 @@ class RectCtrl{
 
         this.handles.bottomright.setAttribute("cx", rect.x2);
         this.handles.bottomright.setAttribute("cy", rect.y2);
+
+        this.ctrlRect.setAttribute('x', rect.x1);
+        this.ctrlRect.setAttribute('y', rect.y1);
+        this.ctrlRect.setAttribute('width', Math.abs(rect.x2-rect.x1));
+        this.ctrlRect.setAttribute('height', Math.abs(rect.y2-rect.y1));
     }
+
+
 
     rectDragBeginOperation()
     {

@@ -1490,10 +1490,13 @@
 
 								<g id="svg-rects"></g>
 								<g id="svg-rect-ctrl">
-									<circle id="topleft" class='rect-ctrl-handle' cx="0" cy="0" r="10"></circle>
-									<circle id="topright" class='rect-ctrl-handle'  cx="0" cy="0" r="10"></circle>
-									<circle id="bottomleft" class='rect-ctrl-handle'  cx="0" cy="0" r="10"></circle>
-									<circle id="bottomright" class='rect-ctrl-handle'  cx="0" cy="0" r="10"></circle>
+									<!-- this must be the last/top svg -->
+									<rect id="rect" x='0' y='0' width='0' height='0' class="rect-ctrl-rect"></rect>
+									<circle id="topleft" class="rect-ctrl-handle" cx="0" cy="0" r="10"></circle>
+									<circle id="topright" class="rect-ctrl-handle"  cx="0" cy="0" r="10"></circle>
+									<circle id="bottomleft" class="rect-ctrl-handle"  cx="0" cy="0" r="10"></circle>
+									<circle id="bottomright" class="rect-ctrl-handle"  cx="0" cy="0" r="10"></circle>
+									
 								</g>
 							</g>
 							
