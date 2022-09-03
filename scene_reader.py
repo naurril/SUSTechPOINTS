@@ -47,7 +47,7 @@ def get_meta_stat(s):
                         continue
 
                     if not meta[k] in  stat[k]:
-                        stat[k][meta[k]] = 1
+                        stat[k][meta[k]] = 0
                     stat[k][meta[k]] += 1
     
     return stat
