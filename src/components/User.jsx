@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { jsonrpc } from '../editor/js/jsonrpc';
@@ -39,22 +38,29 @@ class User extends React.Component{
     getStat()
     {
         let total = 0;
-        let medium = 0;
-        let low = 0;
+        
+        let stat = {};
 
         Object.keys(this.state.scenes).forEach(k=>{
             let s = this.state.scenes[k];
             total += s.frames;
-            if (s.meta && s.meta.framequality && s.meta.framequality.medium)
-                medium += s.meta.framequality.medium;
-            
-            if (s.meta && s.meta.framequality && s.meta.framequality.low)
-                low += s.meta.framequality.low;
+        
+            Object.keys(s.meta).forEach(category=>{
+                Object.keys(s.meta[category]).forEach(c=>{
+                    
+                    if (!stat[category])
+                        stat[category] = {};
+
+                    if (!stat[category][c])
+                        stat[category][c] = 0
+
+                    stat[category][c] += s.meta[category][c];
+                })
+            })
         })
 
-        return {
-            total, medium, low
-        }
+        stat.total = total;
+        return stat;
     }
 
     render(){

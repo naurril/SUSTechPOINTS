@@ -30,16 +30,12 @@ class Thumbnail extends React.Component{
     updateMeta()
     {
         jsonrpc("/api/loadtag?scene="+this.props.scene+"&frame="+this.props.frame).then(ret=>{
-            if (ret && ret.framequality){
+            if (ret){
                 this.setState({
                     ...ret
                 });
             }
-            else{
-                this.setState({
-                    frameQuality: 'high',
-                });
-            }
+            
        });
     }
 
@@ -89,10 +85,7 @@ class Thumbnail extends React.Component{
         });
     }
 
-    formatState()
-    {
-        return Object.keys(this.state).map(k=>this.state[k]).reduce((a,b)=>a+" "+b, "");
-    }
+    
     render(){
         let thumbnailStyle = {
             position: 'relative',
@@ -123,7 +116,11 @@ class Thumbnail extends React.Component{
                 <div style={this.getMaskStyle(this.state[this.props.operation.type]==this.props.operation.default) } onClick={e=>this.onMaskClicked(e)}></div>
                 <div style={operationStyle} >
                     <Link to={`/editor?scene=${this.props.scene}&frame=${this.props.frame}`}> {this.props.frame}</Link>
-                    <div className='color-red'> {this.formatState()} </div>
+                    <div className='color-red'> {
+                        Object.keys(this.state).map(k=>{
+                            return <div key={k}>{k}: {this.state[k]}</div>
+                        })
+                    } </div>
                 </div>
                 
             </div>

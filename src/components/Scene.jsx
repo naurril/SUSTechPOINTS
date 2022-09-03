@@ -1,5 +1,4 @@
 
-import { op } from '@tensorflow/tfjs';
 import React from 'react';
 import { jsonrpc } from '../editor/js/jsonrpc';
 import Thumbnail from './Thumbnail';
@@ -92,7 +91,8 @@ class Scene extends React.Component{
     operations = {
         framequality: ['high', 'medium'],
         weather: ['sunny', 'cloudy', 'raining'],
-        roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路']
+        roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
+        frontimagequality: ['medium', 'high'],
     };
 
     onOperationTypeChanged(e){

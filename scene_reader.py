@@ -32,18 +32,18 @@ def get_meta_stat(s):
     scene_dir = os.path.join(root_dir, s)
     stat = {}
     if os.path.exists(os.path.join(scene_dir, 'meta')):
-        stat['framequality'] = {}
         files = os.listdir(os.path.join(scene_dir, 'meta'))
         for f in files:
             with open(os.path.join(scene_dir, 'meta', f)) as f:
                 meta = json.load(f)
-                quality = meta['framequality']
 
-                if not quality in stat['framequality']:
-                    stat['framequality'][quality] = 0
-
-                stat['framequality'][quality]  = stat['framequality'][quality]  + 1
-
+                for k in meta:
+                    if not k in stat:
+                        stat[k] = {}
+                    if not meta[k] in  stat[k]:
+                        stat[k][meta[k]] = 1
+                    stat[k][meta[k]] += 1
+    
     return stat
 
 def get_scene_desc(s):
