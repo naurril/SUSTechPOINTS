@@ -17,5 +17,9 @@ code {
 } */
 
 .thumbnail:hover{
-  background-color: red;
+  background-color: green;
+}
+
+.color-red {
+  color: red
 }

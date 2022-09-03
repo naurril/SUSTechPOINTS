@@ -422,7 +422,7 @@ class Api(object):
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
-    def loadtag(self, scene, frame, key):
+    def loadtag(self, scene, frame):
       file = "./data/"+scene +"/meta/"+frame+".json"
       tag = None
       if os.path.exists(file):
@@ -431,6 +431,40 @@ class Api(object):
       
       return tag 
 
+
+    def combine_dict(self, data, update):
+
+      def combine(data, update):
+          for k in update:
+            if k in data and type(data[k])==dict and type(update[k])== dict:
+              data[k] = combine(data[k], update[k])
+            else:
+              data[k] = update[k]
+          return data
+
+      return combine(data, update)
+
+    def write_tag(self, scene, frame, data):
+        meta_path = os.path.join("data", scene, "meta")
+        if not os.path.exists(meta_path):
+          os.mkdir(meta_path)
+        
+        file = "./data/"+scene +"/meta/"+frame+".json"
+        if not os.path.exists(file):
+          meta = {}
+        else:
+          with open(file) as f:
+            #try:
+              meta = json.load(f)            
+            #except:
+            #  meta = {}
+
+        print(meta)
+        meta = self.combine_dict(meta, data)        
+
+        print(meta)
+        with open(file, 'w') as f:
+          json.dump(meta, f, indent=2)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -453,13 +487,7 @@ class Api(object):
         
         if 'editmeta' in usercfg[userid] and usercfg[userid]['editmeta'] == 'yes':
 
-            meta_path = os.path.join("data", scene, "meta")
-            if not os.path.exists(meta_path):
-              os.mkdir(meta_path)
-
-            print('savetag', scene, frame)
-            with open("./data/"+scene +"/meta/"+frame+".json",'w') as f:
-                json.dump(data['data'], f, indent=2, sort_keys=True)
+            self.write_tag(scene, frame, data['data'])
 
             logging.info(userid+","+scene+","+frame+", saved tag.")
             return {'result':"success"}

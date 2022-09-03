@@ -10,19 +10,36 @@ class Thumbnail extends React.Component{
     {
         super(props)
         this.state = {         
-            frameQuality: 'unknown',   
+            //frameQuality: 'unknown',   
         }
+        this.props.registerUpdate(this.props.frame, ()=>this.updateMeta());
+        
     }
   
   
     componentDidMount(){
-
+        this.updateMeta();        
         
-        jsonrpc("/api/loadtag?scene="+this.props.scene+"&frame="+this.props.frame+"&key=framequality").then(ret=>{
-            this.setState({
-                frameQuality: ret.framequality,
-                frameQualityCause: ret.framequality_cause
-            });
+    }
+
+    // componentDidUpdate(prevProps, prevState, snapshot){
+    //     if (prevProps.updateFlag != this.props.updateFlag)
+    //         this.updateMeta();
+    // }
+
+    updateMeta()
+    {
+        jsonrpc("/api/loadtag?scene="+this.props.scene+"&frame="+this.props.frame).then(ret=>{
+            if (ret && ret.framequality){
+                this.setState({
+                    ...ret
+                });
+            }
+            else{
+                this.setState({
+                    frameQuality: 'high',
+                });
+            }
        });
     }
 
@@ -47,37 +64,41 @@ class Thumbnail extends React.Component{
 
     onMaskClicked(e)
     {
-        if (this.state.frameQuality == 'low' || this.state.frameQuality=='unknown')
+        if (this.props.operation.type == 'framequality' && (this.state.framequality == 'low' || this.state.framequality=='unknown'))
             return;
 
-        let setQuality = this.state.frameQuality == 'high'? 'medium': 'high';
+        let type = this.props.operation.type;
+        let value = this.state[type]== this.props.operation.default? this.props.operation.set : this.props.operation.default;
 
         console.log( 'image quality', 'medium');
+        let data = {};
+        data[type] = value;
+
         jsonrpc("/api/savetag", "POST", {
             scene: this.props.scene,
             frame: this.props.frame,
-            data: {
-                scene: this.props.scene,
-                frame: this.props.frame,
-                framequality: setQuality,
-            }
+            data
         }).then(ret=>{
             if (ret.result != 'success'){
-                this.sendMsg('alert', {message: JSON.stringify(ret)});
+                //this.sendMsg('alert', {message: JSON.stringify(ret)});
             }
             else
             {
-                this.setState({
-                    frameQuality: setQuality
-                })
+                this.setState(data)
             }
         });
     }
 
+    formatState()
+    {
+        return Object.keys(this.state).map(k=>this.state[k]).reduce((a,b)=>a+" "+b, "");
+    }
     render(){
         let thumbnailStyle = {
             position: 'relative',
-        }
+            padding: '3px',
+        };
+
         let operationStyle = {
             position: 'absolute',
             left: '0%',
@@ -87,13 +108,22 @@ class Thumbnail extends React.Component{
 
         
         return <div style={thumbnailStyle}  className='thumbnail'>
-                <div><img width='400' height='300' src={this.getImgUrl('front')} alt={this.props.frame}></img></div>
-                <div><img width='400' height='300' src={this.getImgUrl('front', 'aux_camera')} alt={this.props.frame}></img></div>
-                <div><img width='400' height='300' src={this.getImgUrl('rear')} alt={this.props.frame}></img></div>
-                <div style={this.getMaskStyle(this.state.frameQuality=='high') } onClick={e=>this.onMaskClicked(e)}></div>
+                <div>
+                {
+                    this.props.cameraList.map(i=>{
+                        let [cameraType, camera] = i.split(":");
+
+                        if (this.props.layout=='column')
+                            return <div key={i}><img  width={this.props.size.width} height={this.props.size.height} src={this.getImgUrl(camera, cameraType)} alt={this.props.frame}></img></div>
+                        else
+                            return <img key={i} width={this.props.size.width} height={this.props.size.height} src={this.getImgUrl(camera, cameraType)} alt={this.props.frame}></img>;
+                    })
+                }
+                </div>
+                <div style={this.getMaskStyle(this.state[this.props.operation.type]==this.props.operation.default) } onClick={e=>this.onMaskClicked(e)}></div>
                 <div style={operationStyle} >
                     <Link to={`/editor?scene=${this.props.scene}&frame=${this.props.frame}`}> {this.props.frame}</Link>
-                    <div  title={this.state.frameQualityCause}> {this.state.frameQuality} </div>
+                    <div className='color-red'> {this.formatState()} </div>
                 </div>
                 
             </div>

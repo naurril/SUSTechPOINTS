@@ -102,7 +102,7 @@ class RectCtrl{
         
             let b = this.g.data;
             this.toolBoxUi.querySelector("#object-category-selector").value = b.obj_type;
-            this.toolBoxUi.querySelector("#object-track-id-editor").value = b.obj_track_id;
+            this.toolBoxUi.querySelector("#object-track-id-editor").value = b.obj_id;
             //this.toolBoxUi.querySelector("#attr-input").value = this.g.data.box3d.obj_attr;
 
             this.attrEditor.setAttrOptions(b.obj_type, b.obj_attr);
