@@ -38,8 +38,14 @@ def get_meta_stat(s):
                 meta = json.load(f)
 
                 for k in meta:
+                    if k == 'frame' or k == 'scene':
+                        continue
                     if not k in stat:
                         stat[k] = {}
+                    
+                    if type(meta[k])=='list' or type(meta[k])=='dict':
+                        continue
+
                     if not meta[k] in  stat[k]:
                         stat[k][meta[k]] = 1
                     stat[k][meta[k]] += 1
