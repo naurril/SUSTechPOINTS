@@ -308,3 +308,4 @@ def save_annotations(scene, frame, anno):
 
 if __name__ == "__main__":
     print(get_all_scenes())
+
