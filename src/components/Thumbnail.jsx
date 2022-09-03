@@ -92,11 +92,21 @@ class Thumbnail extends React.Component{
         });
     }
 
-    
+    getDisplay(){
+        for (let k in this.props.filter)
+        {
+            if (this.state[k] && ! this.props.filter[k].includes(this.state[k]))
+                return 'none';
+        }
+
+        return 'inherit';
+    }
+
     render(){
         let thumbnailStyle = {
             position: 'relative',
             padding: '3px',
+            display: this.getDisplay(),
         };
 
         let operationStyle = {

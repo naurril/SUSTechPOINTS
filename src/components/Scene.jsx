@@ -8,6 +8,15 @@ class Scene extends React.Component{
     constructor(props)
     {
         super(props)
+
+        this.operations = {
+            framequality: ['high', 'medium'],
+            weather: ['sunny', 'cloudy', 'raining'],
+            roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
+            frontimagequality: ['medium', 'high'],
+        };
+
+
         this.state = {
             meta: {},
             cameraList: ['camera:front'],
@@ -21,7 +30,7 @@ class Scene extends React.Component{
                 default: 'high',
                 set: 'medium',
             },
-
+            filter: JSON.parse(JSON.stringify(this.operations))
         }
     }
   
@@ -88,12 +97,7 @@ class Scene extends React.Component{
     }
 
 
-    operations = {
-        framequality: ['high', 'medium'],
-        weather: ['sunny', 'cloudy', 'raining'],
-        roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
-        frontimagequality: ['medium', 'high'],
-    };
+
 
     onOperationTypeChanged(e){
         let op = e.currentTarget.value;
@@ -172,6 +176,19 @@ class Scene extends React.Component{
         })
     }
 
+
+    onFilterChange(e, opType, value){
+        let checked = e.currentTarget.checked;
+        let filter = JSON.parse(JSON.stringify(this.state.filter))
+        filter[opType] = filter[opType].filter(x=>x!=value)
+
+        if (checked)
+           filter[opType].push(value)
+
+        this.setState({
+             filter
+        });
+    }
     callbacks = [];
     registerUpdate(frame, func)
     {
@@ -190,61 +207,107 @@ class Scene extends React.Component{
 
 
         return <div className='full-height auto-scroll' onWheel={(e)=>this.onWheel(e)}>
-            <div>
-                <span>cameras: </span>
-                <div style={style}>{
-                    cameras.map(c=> {return <div key={c}><input type='checkbox'  value={'camera:'+c} onChange={e=>this.onCameraClicked(e)}></input>{c}</div>})
-                }</div>
-            </div>
-            <div>
-            <span>aux_cameras: </span>
-                <div style={style}>{
-                    cameras.map(c=> {return <div key={c}><input type='checkbox' value={'aux_camera:'+c} onChange={e=>this.onCameraClicked(e)}></input>{c}</div>})
-                }</div>
-            </div>
-            <div>
-                layout: 
+            <table>
+            <tbody>
+            <tr>
+                <td>cameras: </td>
+                <td style={style}>{
+                    cameras.map(c=> {return <div key={c}><input type='checkbox'  
+                                                                value={'camera:'+c} 
+                                                                onChange={e=>this.onCameraClicked(e)}
+                                                                checked={this.state.cameraList.includes('camera:'+c)}
+                                                                ></input>{c}</div>})
+                }</td>
+            </tr>
+
+            <tr>
+            <td>aux_cameras: </td>
+            <td style={style}>{
+                    cameras.map(c=> {return <div key={c}><input type='checkbox' value={'aux_camera:'+c} 
+                                                                checked={this.state.cameraList.includes('aux_camera:'+c)}
+                                                                onChange={e=>this.onCameraClicked(e)}></input>{c}</div>})
+             }</td>
+            </tr>
+            <tr>
+                <td>layout</td>
+                <td>
                 <select value={this.state.layout} onChange={e=>this.onLayoutChanged(e)}>
                     <option value='column'>column</option>
                     <option value='row'>row</option>
                 </select>
-            </div>
+                </td>
+            </tr>
 
-            <div>
-                <span>operation: </span>
-                <select onChange={(e)=>this.onOperationTypeChanged(e)}>
-                    {
-                        Object.keys(this.operations).map(o=>{
-                            return <option key={o} value={o}>{o}</option>
-                        })
-                    }
-                </select>
-                <span>default: </span>
-                <select onChange={(e)=>this.onDefaultOperationChanged(e)} value={this.state.operation.default}>
-                    {
-                        this.operations[this.state.operation.type].map(o=>{
-                            return <option key={o} value={o}>{o}</option>
-                        })
-                    }
-                </select>
 
-                <span>set: </span>
-                <select onChange={(e)=>this.onSetOperationChanged(e)} value={this.state.operation.set}>
-                    {
-                        this.operations[this.state.operation.type].map(o=>{
-                            return <option key={o} value={o}>{o}</option>
-                        })
-                    }
-                </select>
 
-                <button onClick={e=>this.onApplyDefaultToAllClicked(e)}>
-                    apply default to all frames
-                </button>
 
-                <button onClick={e=>this.onApplyDefaultToUnsetClicked(e)}>
-                    apply default to all unset frames
-                </button>
-            </div>
+            <tr>
+                <td>frame filter </td>
+                <td>
+                <table>
+                <tbody>
+                {
+                    Object.keys(this.operations).map(ot=>{
+                        return <tr key={ot}>
+                                    <td>{ot}</td>
+                                    <td>
+                                    {
+                                        this.operations[ot].map(v=>{
+                                            return <span key={v}> <input type='checkbox' id={"filter-"+ot+"-"+v}
+                                                                         checked={this.state.filter[ot].includes(v)}
+                                                                         onChange={e=>this.onFilterChange(e, ot, v)}>
+                                                                </input><label htmlFor={"filter-"+ot+"-"+v}>{v}</label></span>
+                                        })
+                                    }
+                                    </td>
+                               </tr>
+                    })
+                }
+                </tbody>
+                </table>
+                </td>            
+            </tr>
+
+            <tr>
+                <td>operation </td>
+                <td>
+                    opType: 
+                    <select onChange={(e)=>this.onOperationTypeChanged(e)}>
+                        {
+                            Object.keys(this.operations).map(o=>{
+                                return <option key={o} value={o}>{o}</option>
+                            })
+                        }
+                    </select>
+                    <span>default: </span>
+                    <select onChange={(e)=>this.onDefaultOperationChanged(e)} value={this.state.operation.default}>
+                        {
+                            this.operations[this.state.operation.type].map(o=>{
+                                return <option key={o} value={o}>{o}</option>
+                            })
+                        }
+                    </select>
+
+                    <span>set: </span>
+                    <select onChange={(e)=>this.onSetOperationChanged(e)} value={this.state.operation.set}>
+                        {
+                            this.operations[this.state.operation.type].map(o=>{
+                                return <option key={o} value={o}>{o}</option>
+                            })
+                        }
+                    </select>
+
+                    <button onClick={e=>this.onApplyDefaultToAllClicked(e)}>
+                        apply default to all frames
+                    </button>
+
+                    <button onClick={e=>this.onApplyDefaultToUnsetClicked(e)}>
+                        apply default to all unset frames
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+            </table>
 
 
             <div >
@@ -259,6 +322,7 @@ class Scene extends React.Component{
                                 size={this.state.thumbnailSize}
                                 operation={this.state.operation}
                                 registerUpdate = {this.registerUpdate.bind(this)}
+                                filter = {this.state.filter}
                                 ></Thumbnail>
                     }):""
                 }</div>  
