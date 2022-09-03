@@ -23,3 +23,7 @@ code {
 .color-red {
   color: red
 }
+
+th {
+  text-align: left;
+}
