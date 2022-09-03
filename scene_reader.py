@@ -40,12 +40,13 @@ def get_meta_stat(s):
                 for k in meta:
                     if k == 'frame' or k == 'scene':
                         continue
-                    if not k in stat:
-                        stat[k] = {}
                     
                     if type(meta[k])==list or type(meta[k])==dict:
                         continue
 
+                    if not k in stat:
+                        stat[k] = {}
+                    
                     if not meta[k] in  stat[k]:
                         stat[k][meta[k]] = 0
                     stat[k][meta[k]] += 1
