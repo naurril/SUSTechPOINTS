@@ -17,6 +17,13 @@ class Scene extends React.Component{
         };
 
 
+        this.filterScheme = {
+            framequality: ['high', 'medium', 'low'],  // different from operations.
+            weather: ['sunny', 'cloudy', 'raining'],
+            roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
+            frontimagequality: ['medium', 'high']
+        }
+
         this.state = {
             meta: {},
             cameraList: ['camera:front'],
@@ -30,12 +37,7 @@ class Scene extends React.Component{
                 default: 'high',
                 set: 'medium',
             },
-            filter: {
-                framequality: ['high', 'medium', 'low'],  // different from operations.
-                weather: ['sunny', 'cloudy', 'raining'],
-                roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
-                frontimagequality: ['medium', 'high']
-            }
+            filter: JSON.parse(JSON.stringify(this.filterScheme))
         }
     }
   
@@ -252,12 +254,12 @@ class Scene extends React.Component{
                 <table>
                 <tbody>
                 {
-                    Object.keys(this.state.filter).map(ot=>{
+                    Object.keys(this.filterScheme).map(ot=>{
                         return <tr key={ot}>
                                     <td>{ot}</td>
                                     <td>
                                     {
-                                        this.state.filter[ot].map(v=>{
+                                        this.filterScheme[ot].map(v=>{
                                             return <span key={v}> <input type='checkbox' id={"filter-"+ot+"-"+v}
                                                                          checked={this.state.filter[ot].includes(v)}
                                                                          onChange={e=>this.onFilterChange(e, ot, v)}>
