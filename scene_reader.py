@@ -41,7 +41,7 @@ def get_meta_stat(s):
                     if k == 'frame' or k == 'scene':
                         continue
                     
-                    if type(meta[k])==list or type(meta[k])==dict:
+                    if type(meta[k])==list or type(meta[k])==dict or not meta[k]:
                         continue
 
                     if not k in stat:
