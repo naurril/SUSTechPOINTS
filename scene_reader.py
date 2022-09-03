@@ -43,7 +43,7 @@ def get_meta_stat(s):
                     if not k in stat:
                         stat[k] = {}
                     
-                    if type(meta[k])=='list' or type(meta[k])=='dict':
+                    if type(meta[k])==list or type(meta[k])==dict:
                         continue
 
                     if not meta[k] in  stat[k]:
