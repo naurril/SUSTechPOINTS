@@ -1,5 +1,4 @@
 
-import { CubeRefractionMapping } from "three";
 import {saveWorldList} from "./save.js"
 
 var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelected){
@@ -52,8 +51,8 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         let scene_selector_str = "<option>--scene--</option>";
         for (let scene in sceneDescList)
         {
-            if (data.sceneDescList[scene]){
-                let d = data.sceneDescList[scene];
+            if (sceneDescList[scene]){
+                let d = sceneDescList[scene];
                 scene_selector_str += "<option value="+scene +">"+scene + " - " + (d.scene ? d.scene : '') + ` (${d.label_files}/${d.frames})` + "</option>";
             }
             else
@@ -63,16 +62,22 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         this.ui.querySelector("#scene-selector").innerHTML = scene_selector_str;
     }
     
-    this.updateSceneList(this.data.sceneDescList);
+    
+    this.data.readSceneList().then((sceneDescList=>{
+            this.updateSceneList(sceneDescList);            
+    }));
+
+
+    
 
     this.ui.querySelector("#btn-reload-scene-list").onclick = (event)=>{
         let curentValue = this.sceneSelectorUi.value;
-        
         this.data.readSceneList().then((sceneDescList=>{
             this.updateSceneList(sceneDescList);
             this.sceneSelectorUi.value = curentValue;
-        }))
-    }
+        }));
+        
+    };
 
     
 

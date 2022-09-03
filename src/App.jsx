@@ -11,7 +11,18 @@ class App extends React.Component {
   }
 
   componentDidMount(){
+    let url = new URL(window.location.href);
+
+    let scene = url.searchParams.get("scene");
+    let frame = url.searchParams.get("frame");
+
     window.editor.show()
+
+    if (scene && frame){
+      window.editor.load_world(scene, frame, ()=>{
+        window.editor.onWindowResize();
+      });      
+    }
   }
 
   componentWillUnmount(){

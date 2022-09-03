@@ -28,6 +28,24 @@ def get_scene_names():
       scenes.sort()
       return scenes
 
+def get_meta_stat(s):
+    scene_dir = os.path.join(root_dir, s)
+    stat = {}
+    if os.path.exists(os.path.join(scene_dir, 'meta')):
+        stat['framequality'] = {}
+        files = os.listdir(os.path.join(scene_dir, 'meta'))
+        for f in files:
+            with open(os.path.join(scene_dir, 'meta', f)) as f:
+                meta = json.load(f)
+                quality = meta['framequality']
+
+                if not quality in stat['framequality']:
+                    stat['framequality'][quality] = 0
+
+                stat['framequality'][quality]  = stat['framequality'][quality]  + 1
+
+    return stat
+
 def get_scene_desc(s):
     scene_dir = os.path.join(root_dir, s)
     desc = {}
@@ -37,6 +55,7 @@ def get_scene_desc(s):
     
     desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'lidar')))
     desc['label_files'] = len(os.listdir(os.path.join(scene_dir, 'label')))
+    desc['meta'] = get_meta_stat(s)
 
     return desc
     

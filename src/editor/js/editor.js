@@ -68,17 +68,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     this.params={};
 
     this.currentMainEditor = this;  // who is on focus, this or batch-editor-manager?
-
-    this.hide = function()
-    {
-        this.editorUi.style.display = 'none';
-    }
-
-    this.show = function()
-    {
-        this.editorUi.style.display = '';
-    }
     
+    this.hide = function(){
+        this.wrapperUi.style.display="none";
+    };
+    this.show = function(){
+        this.wrapperUi.style.display="block";
+    };
 
     this.init = function() {
     
@@ -282,13 +278,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.imageContextManager.init_image_op(()=>this.selected_box);
 
         this.add_global_obj_type();        
-    };
-
-    this.hide = function(){
-        this.wrapperUi.style.display="none";
-    };
-    this.show = function(){
-        this.wrapperUi.style.display="block";
     };
 
 
@@ -1882,10 +1871,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     this.adjustContainerSize = function()
     {
-        let editorRect = this.editorUi.getBoundingClientRect();
-        let headerRect = this.editorUi.querySelector("#header").getBoundingClientRect();
+        
+            let editorRect = this.editorUi.getBoundingClientRect();
+            let headerRect = this.editorUi.querySelector("#header").getBoundingClientRect();
 
-        this.container.style.height = editorRect.height - headerRect.height + "px";
+            this.container.style.height = editorRect.height - headerRect.height + "px";
+        
     }
 
 

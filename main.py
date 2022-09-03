@@ -419,6 +419,59 @@ class Api(object):
         'readonly': readonly
       }
 
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def loadtag(self, scene, frame, key):
+      file = "./data/"+scene +"/meta/"+frame+".json"
+      tag = None
+      if os.path.exists(file):
+        with open(file,'r') as f:
+          tag = json.load(f)
+      
+      return tag 
+
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def savetag(self):
+
+      if args.save=='yes':
+
+
+        userid = get_user_id()
+        print(userid, 'saving tag')
+        
+        # cl = cherrypy.request.headers['Content-Length']
+        rawbody = cherrypy.request.body.readline().decode('UTF-8')
+        data = json.loads(rawbody)
+
+        
+        #url_path = data['url'].split("/")
+        frame = data['frame'] #url_path[len(url_path)-1]        
+        scene = data['scene']# url_path[len(url_path)-3]
+        
+        if 'editmeta' in usercfg[userid] and usercfg[userid]['editmeta'] == 'yes':
+
+            meta_path = os.path.join("data", scene, "meta")
+            if not os.path.exists(meta_path):
+              os.mkdir(meta_path)
+
+            print('savetag', scene, frame)
+            with open("./data/"+scene +"/meta/"+frame+".json",'w') as f:
+                json.dump(data['data'], f, indent=2, sort_keys=True)
+
+            logging.info(userid+","+scene+","+frame+", saved tag.")
+            return {'result':"success"}
+        else:
+            logging.info(userid+","+scene+","+frame+", saved tag rejected.")
+            return {'result':"fail", 'cause': 'not permited for user'}
+      else:
+        
+        print("saving disabled.")
+        return {'result':"fail", 'cause':"saving tag disabled"}
+
+
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def scenemeta(self, scene):

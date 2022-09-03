@@ -6,6 +6,7 @@ import App from './App';
 import { start } from './editor/js/main.js';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import User from './components/User';
+import Scene from './components/Scene';
 
 
 
@@ -22,6 +23,7 @@ root.render(
         {<Routes>
           <Route path="/" element={<App />} />
           <Route path="/user" element={<User />} />
+          <Route path="/scene" element={<Scene />} />
           <Route path="/editor" element={<App />} />
         </Routes>}
     </BrowserRouter>

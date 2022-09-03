@@ -1059,10 +1059,20 @@ td {
 }
 
 
+#root {
+	height: 100%;
+}
 #react-app-wrapper {
-	display: none;
+	/* display: none; */
+	height: 100%;
 }
 
+.full-height {
+	height: 100%;
+}
+.auto-scroll {
+	overflow: auto;
+}
 
 #image-wrapper {
 

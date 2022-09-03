@@ -17,8 +17,7 @@ class Data
     async readSceneList()
     {
         return jsonrpc("/api/get_all_scene_desc").then(ret=>{
-            console.log(ret);
-            this.sceneDescList = ret;
+            console.log(ret);            
             return ret;
         })
         .catch(reject=>{
@@ -26,8 +25,8 @@ class Data
         });
     }
 
-    async init(){
-        await this.readSceneList();
+    init(){
+        //this.sceneDescList = this.readSceneList();
     }
 
     // multiple world support
