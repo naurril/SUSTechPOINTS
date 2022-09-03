@@ -64,22 +64,46 @@ class User extends React.Component{
     }
 
     render(){
+        let stat = this.getStat();
         return <div className='full-height auto-scroll'>
                 <div>user: {this.state.userid}</div>
                 <div>readonly: {this.state.readonly?'yes':'no'}</div>
 
-                <div>{
+                <div>
+                    <table>
+                    <thead>
+                    <tr>
+                        <th>scene</th>
+                        <th>desc</th>
+                        <th>total</th>
+                        <th>annotated</th>
+                        <th>stat</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {
                     Object.keys(this.state.scenes).map(s=> {                        
                         let desc = this.state.scenes[s];
-                        return  <div key={s}> <Link to={"/scene?scene="+s}>{s}</Link>, <span>{desc?desc.scene:''}</span>, <span>{desc.label_files}/{desc.frames} annotated, {JSON.stringify(desc.meta)}</span></div>;
+                        return  <tr key={s}> 
+                                    <td><Link to={"/scene?scene="+s}>{s}</Link></td>
+                                    <td>{desc?desc.scene:''}</td>
+                                    <td>{desc.frames}</td>
+                                    <td>{desc.label_files}</td>
+                                    <td>{JSON.stringify(desc.meta)}</td>
+                                </tr>;
                     })
-                }</div> 
-
-                <div>{
-                    JSON.stringify(this.getStat())                
-                }</div> 
-
-                
+                    }
+                    
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>{stat.total}</td>
+                        <td></td>
+                        <td>{JSON.stringify(stat)}</td>
+                    </tr>
+                    </tbody>
+                    </table>
+                </div> 
             </div>
     }
   
