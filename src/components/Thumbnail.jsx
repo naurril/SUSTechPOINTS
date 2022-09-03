@@ -55,6 +55,13 @@ class Thumbnail extends React.Component{
             background: clean?'#00000000':'#66006666',
         };
 
+        if (this.state[this.props.operation.type]==this.props.operation.default)
+            s.background = '#00000000'
+        else if (this.state[this.props.operation.type]==this.props.operation.set)
+            s.background = '#66006666'
+        else
+            s.background = '#00666666'
+
         return s;
     }
 
@@ -113,9 +120,9 @@ class Thumbnail extends React.Component{
                     })
                 }
                 </div>
-                <div style={this.getMaskStyle(this.state[this.props.operation.type]==this.props.operation.default) } onClick={e=>this.onMaskClicked(e)}></div>
+                <div style={this.getMaskStyle() } onClick={e=>this.onMaskClicked(e)}></div>
                 <div style={operationStyle} >
-                    <Link to={`/editor?scene=${this.props.scene}&frame=${this.props.frame}`}> {this.props.frame}</Link>
+                    <Link className='color-red' to={`/editor?scene=${this.props.scene}&frame=${this.props.frame}`}> {this.props.frame}</Link>
                     <div className='color-red'> {
                         Object.keys(this.state).map(k=>{
                             return <div key={k}>{k}: {this.state[k]}</div>

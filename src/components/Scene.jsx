@@ -147,6 +147,31 @@ class Scene extends React.Component{
         })
     }
 
+
+    onApplyDefaultToUnsetClicked(e){
+        this.state.meta.frames.forEach(i=>{
+            let data = {};
+            data[this.state.operation.type] = this.state.operation.default;
+    
+            jsonrpc("/api/savetag", "POST", {
+                scene: this.scene,
+                frame: i,
+                overwrite: false,
+                data
+            }).then(ret=>{
+                if (ret.result != 'success'){
+                    //this.sendMsg('alert', {message: JSON.stringify(ret)});
+                }
+                else
+                {
+                    if (this.callbacks[i]){
+                        this.callbacks[i]();
+                    }
+                }
+            });
+        })
+    }
+
     callbacks = [];
     registerUpdate(frame, func)
     {
@@ -214,6 +239,10 @@ class Scene extends React.Component{
 
                 <button onClick={e=>this.onApplyDefaultToAllClicked(e)}>
                     apply default to all frames
+                </button>
+
+                <button onClick={e=>this.onApplyDefaultToUnsetClicked(e)}>
+                    apply default to all unset frames
                 </button>
             </div>
 
