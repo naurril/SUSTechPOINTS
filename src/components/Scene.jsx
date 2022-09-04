@@ -13,7 +13,7 @@ class Scene extends React.Component{
             framequality: ['high', 'medium'],
             weather: ['sunny', 'cloudy', 'raining'],
             roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
-            frontimagequality: ['medium', 'high'],
+            imagequality: ['medium', 'high'],
         };
 
 
@@ -21,7 +21,7 @@ class Scene extends React.Component{
             framequality: ['high', 'medium', 'low'],  // different from operations.
             weather: ['sunny', 'cloudy', 'raining'],
             roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
-            frontimagequality: ['medium', 'high']
+            imagequality: ['medium', 'high']
         }
 
         this.state = {
