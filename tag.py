@@ -80,7 +80,6 @@ if __name__=="__main__":
     scenes = os.listdir(args.data_dir)
     scenes.sort()
 
-    print(scenes)
     for s in scenes:
         if not re.fullmatch(args.scenes, s):
             continue
