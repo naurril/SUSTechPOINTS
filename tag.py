@@ -33,34 +33,34 @@ def show_tag(rootdir, scene, frame):
     with open(file) as f:            
             print(scene, frame, json.load(f))
 
-def del_tag(rootdir, scene, frame, update):
+def del_tag(rootdir, scene, frame, data):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
     with open(file) as f:            
         meta = json.load(f)
     
-    data = json.loads(update)
+    
     updated = del_dict(meta, data)
     print(scene, frame, updated)
     write_json(file, updated)
 
 
-def add_tag(rootdir, scene, frame, update):
+def add_tag(rootdir, scene, frame, data):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
     with open(file) as f:            
         meta = json.load(f)
     
-    data = json.loads(update)
+
     updated = combine_dict(meta, data, False)
     print(scene, frame, updated)
 
     write_json(file, updated)
 
-def update_tag(rootdir, scene, frame, update):
+def update_tag(rootdir, scene, frame, data):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
     with open(file) as f:            
         meta = json.load(f)
     
-    data = json.loads(update)
+
     updated = combine_dict(meta, data, True)
     print(scene, frame, updated)
     write_json(file, updated)
@@ -70,7 +70,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description='manage tags')
     parser.add_argument('data_dir', type=str, default='./', help="")
     parser.add_argument('scenes', type=str, default='.*', help="")
-    parser.add_argument('op', type=str, choices=['show','del', 'add', 'update'], default='', help="")
+    parser.add_argument('op', type=str, choices=['show','del', 'add', 'update', 'scene', 'frame'], default='', help="")
     parser.add_argument('--frames',    type=str, default='.*', help="")
     parser.add_argument('--arguments', type=str, default='', help="")
     args = parser.parse_args()
@@ -97,9 +97,13 @@ if __name__=="__main__":
                 if args.op == 'show':
                     show_tag(args.data_dir, s, frame)
                 elif args.op == 'del':
-                    del_tag(args.data_dir, s, frame, args.arguments)
+                    del_tag(args.data_dir, s, frame, json.loads(args.arguments))
                 elif args.op == 'add':
-                    add_tag(args.data_dir, s, frame, args.arguments)
+                    add_tag(args.data_dir, s, frame, json.loads(args.arguments))
                 elif args.op == 'update':
-                    update_tag(args.data_dir, s, frame, args.arguments)
+                    update_tag(args.data_dir, s, frame, json.loads(args.arguments))
+                elif args.op == 'scene':
+                    update_tag(args.data_dir, s, frame, {"scene":s})
+                elif args.op == 'frame':
+                    update_tag(args.data_dir, s, frame, {"frame":frame})
     
