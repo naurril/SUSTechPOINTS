@@ -24,6 +24,7 @@ class LabelChecker:
     def clear_messages(self):
         self.messages = []
     def show_messages(self):
+        print(len(self.messages), 'messages')
         for m in self.messages:
             print(m["frame_id"], m["obj_id"], m["desc"])
 
@@ -52,8 +53,12 @@ class LabelChecker:
 
         for id in self.frame_ids:
             f = id+".json"
+            print(f)
             with open(os.path.join(label_folder, f),'r') as fp:
                 l = json.load(fp)
+
+                if 'objs' in l:
+                    l = l['objs']
                 #print(l)
                 frame_id = os.path.splitext(f)[0]
                 labels[frame_id] = l
