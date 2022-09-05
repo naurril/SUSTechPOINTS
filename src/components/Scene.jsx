@@ -40,40 +40,62 @@ class Scene extends React.Component{
             filter: JSON.parse(JSON.stringify(this.filterScheme))
         }
 
+
+        
+
         console.log("scene created.");
     }
   
   
     componentDidMount(){
 
+        console.log("scene mounted.");
         let url = new URL(window.location.href);
 
         let scene = url.searchParams.get("scene");
 
         this.scene = scene;
 
-        return jsonrpc(`/api/scenemeta?scene=${scene}`).then(ret=>{
+        jsonrpc(`/api/scenemeta?scene=${scene}`).then(ret=>{
             
             this.setState({meta: ret});
 
         });
+
+        let savedFilterCfg = this.readFilterCfg();
+        if (savedFilterCfg)
+        {
+            this.setState({filter:savedFilterCfg});
+        }
+
+        let savedOperationCfg = this.readOperationCfg();
+        if (savedOperationCfg)
+        {
+            this.setState({operation: savedOperationCfg});
+        }
+
+        let cameraList = this.readCameraList();
+        if (cameraList){
+            this.setState({cameraList})
+        }
 
     }
 
 
     onCameraClicked(e){
         console.log(e.currentTarget.value, e.currentTarget.checked)
-        if (e.currentTarget.checked) {
-            this.setState({
-                cameraList: this.state.cameraList.filter(x=>x!==e.currentTarget.value).concat([e.currentTarget.value])
-            });
+        let cameraList = this.state.cameraList.filter(x=>x!==e.currentTarget.value);
+
+        if (e.currentTarget.checked) {            
+            cameraList.push(e.currentTarget.value)            
         }
-        else
-        {
-            this.setState({
-                cameraList: this.state.cameraList.filter(x=>x!==e.currentTarget.value)
+
+        this.setState({
+            cameraList
             });
-        }
+
+        this.saveCameraList(cameraList);
+
     }
 
     onWheel(e){
@@ -103,40 +125,73 @@ class Scene extends React.Component{
     onLayoutChanged(e){
         this.setState({
             layout: e.currentTarget.value,
-        })
+        });
+    }
+
+    saveCameraList(cameraList)
+    {
+        window.localStorage.setItem("tagCameraList", JSON.stringify(cameraList));
+    }
+    
+    readCameraList(cameraList)
+    {
+        return JSON.parse(window.localStorage.getItem("tagCameraList"));
+    }
+    
+
+    readOperationCfg()
+    {
+        return JSON.parse(window.localStorage.getItem("tagOperationConfg"));
+    }
+
+    saveOperationCfg(operation)
+    {
+        window.localStorage.setItem("tagOperationConfg", JSON.stringify(operation));
     }
 
 
+    readFilterCfg()
+    {
+        return JSON.parse(window.localStorage.getItem("tagFilterConfg"));
+    }
+    saveFilterCfg(filter)
+    {
+        window.localStorage.setItem("tagFilterConfg", JSON.stringify(filter));
+    }
 
+    
 
     onOperationTypeChanged(e){
         let op = e.currentTarget.value;
-        this.setState({
-            operation: {
-                type: op,
-                default: this.operations[op][0],
-                set: this.operations[op][1],
+        let operation = {
+            type: op,
+            default: this.operations[op][0],
+            set: this.operations[op][1],
 
-            }
-        })
+        }
+
+        this.saveOperationCfg(operation);
+        this.setState({operation})
     }
     onDefaultOperationChanged(e){
-        this.setState({
-            operation: {
-                type: this.state.operation.type,
-                default: e.currentTarget.value,
-                set: this.state.operation.set,
-            }
-        })
+        let operation = {
+            type: this.state.operation.type,
+            default: e.currentTarget.value,
+            set: this.state.operation.set,
+        };
+
+        this.saveOperationCfg(operation);
+        this.setState({operation});
     }
     onSetOperationChanged(e){
-        this.setState({
-            operation: {
-                type: this.state.operation.type,
-                default: this.state.operation.default,
-                set: e.currentTarget.value,
-            }
-        })
+        let operation = {
+            type: this.state.operation.type,
+            default: this.state.operation.default,
+            set: e.currentTarget.value,
+        };
+    
+        this.saveOperationCfg(operation);
+        this.setState({operation});
     }
     onApplyDefaultToAllClicked(e){
         this.state.meta.frames.filter(i=>this.thumbnails[i].shown()).forEach(i=>{
@@ -195,6 +250,7 @@ class Scene extends React.Component{
         if (checked)
            filter[opType].push(value)
 
+        this.saveFilterCfg(filter);
         this.setState({
              filter
         });
@@ -224,18 +280,19 @@ class Scene extends React.Component{
                 <td style={style}>{
                     cameras.map(c=> {return <div key={c}><input type='checkbox'  
                                                                 value={'camera:'+c} 
+                                                                id={'camera:'+c} 
                                                                 onChange={e=>this.onCameraClicked(e)}
                                                                 checked={this.state.cameraList.includes('camera:'+c)}
-                                                                ></input>{c}</div>})
+                                                                ></input><label htmlFor={'camera:'+c}>{c}</label></div>})
                 }</td>
             </tr>
 
             <tr>
             <td>aux_cameras: </td>
             <td style={style}>{
-                    cameras.map(c=> {return <div key={c}><input type='checkbox' value={'aux_camera:'+c} 
+                    cameras.map(c=> {return <div key={c}><input type='checkbox' value={'aux_camera:'+c} id={'aux_camera:'+c} 
                                                                 checked={this.state.cameraList.includes('aux_camera:'+c)}
-                                                                onChange={e=>this.onCameraClicked(e)}></input>{c}</div>})
+                                                                onChange={e=>this.onCameraClicked(e)}></input><label htmlFor={'aux_camera:'+c}>{c}</label></div>})
              }</td>
             </tr>
             <tr>
@@ -282,7 +339,7 @@ class Scene extends React.Component{
                 <td>operation </td>
                 <td>
                     opType: 
-                    <select onChange={(e)=>this.onOperationTypeChanged(e)}>
+                    <select onChange={(e)=>this.onOperationTypeChanged(e)} value={this.state.operation.type}>
                         {
                             Object.keys(this.operations).map(o=>{
                                 return <option key={o} value={o}>{o}</option>
