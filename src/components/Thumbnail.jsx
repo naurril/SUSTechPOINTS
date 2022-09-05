@@ -12,7 +12,7 @@ class Thumbnail extends React.Component{
         this.state = {         
             //frameQuality: 'unknown',   
         }
-        this.props.registerUpdate(this.props.frame, ()=>this.updateMeta());
+        this.props.registerObj(this.props.frame, this);
         
     }
   
@@ -92,21 +92,21 @@ class Thumbnail extends React.Component{
         });
     }
 
-    getDisplay(){
+    shown(){
         for (let k in this.props.filter)
         {
             if (this.state[k] && ! this.props.filter[k].includes(this.state[k]))
-                return 'none';
+                return false;
         }
 
-        return 'inherit';
+        return true;
     }
 
     render(){
         let thumbnailStyle = {
             position: 'relative',
             padding: '3px',
-            display: this.getDisplay(),
+            display: this.shown()?'inherit':'none',
         };
 
         let operationStyle = {

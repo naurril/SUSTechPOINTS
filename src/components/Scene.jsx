@@ -39,6 +39,8 @@ class Scene extends React.Component{
             },
             filter: JSON.parse(JSON.stringify(this.filterScheme))
         }
+
+        console.log("scene created.");
     }
   
   
@@ -53,6 +55,7 @@ class Scene extends React.Component{
         return jsonrpc(`/api/scenemeta?scene=${scene}`).then(ret=>{
             
             this.setState({meta: ret});
+
         });
 
     }
@@ -136,7 +139,7 @@ class Scene extends React.Component{
         })
     }
     onApplyDefaultToAllClicked(e){
-        this.state.meta.frames.forEach(i=>{
+        this.state.meta.frames.filter(i=>this.thumbnails[i].shown()).forEach(i=>{
             let data = {};
             data[this.state.operation.type] = this.state.operation.default;
     
@@ -150,8 +153,8 @@ class Scene extends React.Component{
                 }
                 else
                 {
-                    if (this.callbacks[i]){
-                        this.callbacks[i]();
+                    if (this.thumbnails[i]){
+                        this.thumbnails[i].updateMeta();
                     }
                 }
             });
@@ -160,7 +163,7 @@ class Scene extends React.Component{
 
 
     onApplyDefaultToUnsetClicked(e){
-        this.state.meta.frames.forEach(i=>{
+        this.state.meta.frames.filter(i=>this.thumbnails[i].shown()).forEach(i=>{
             let data = {};
             data[this.state.operation.type] = this.state.operation.default;
     
@@ -175,8 +178,8 @@ class Scene extends React.Component{
                 }
                 else
                 {
-                    if (this.callbacks[i]){
-                        this.callbacks[i]();
+                    if (this.thumbnails[i]){
+                        this.thumbnails[i].updateMeta();
                     }
                 }
             });
@@ -196,10 +199,10 @@ class Scene extends React.Component{
              filter
         });
     }
-    callbacks = [];
-    registerUpdate(frame, func)
+    thumbnails = {};
+    registerObj(frame, obj)
     {
-        this.callbacks[frame] = func;
+        this.thumbnails[frame] = obj;
     }
 
     render(){
@@ -328,7 +331,7 @@ class Scene extends React.Component{
                                 layout={this.state.layout} 
                                 size={this.state.thumbnailSize}
                                 operation={this.state.operation}
-                                registerUpdate = {this.registerUpdate.bind(this)}
+                                registerObj = {this.registerObj.bind(this)}
                                 filter = {this.state.filter}
                                 ></Thumbnail>
                     }):""
