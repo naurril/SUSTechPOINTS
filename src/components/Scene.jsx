@@ -10,7 +10,7 @@ class Scene extends React.Component{
         super(props)
 
         this.operations = {
-            framequality: ['high', 'medium'],
+            framequality: ['high', 'medium',],
             weather: ['sunny', 'cloudy', 'raining'],
             roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
             imagequality: ['high','medium'],
@@ -18,10 +18,10 @@ class Scene extends React.Component{
 
 
         this.filterScheme = {
-            framequality: ['high', 'medium', 'low'],  // different from operations.
-            weather: ['sunny', 'cloudy', 'raining'],
-            roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
-            imagequality: ['high', 'medium']
+            framequality: ['high', 'medium', 'low', ':empty'],  // different from operations.
+            weather: ['sunny', 'cloudy', 'raining', ':empty'],
+            roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路', ':empty'],
+            imagequality: ['high', 'medium', ':empty']
         }
 
         this.state = {

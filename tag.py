@@ -35,8 +35,12 @@ def read_json(file):
 
 def show_tag(rootdir, scene, frame):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
+    if not os.path.exists(file):
+        print(scene, frame, "")
+        return
+
     with open(file) as f:            
-            print(scene, frame, json.load(f))
+        print(scene, frame, json.load(f))
 
 def del_tag(rootdir, scene, frame, data):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
@@ -72,6 +76,7 @@ if __name__=="__main__":
     parser.add_argument('op', type=str, choices=['show','del', 'add', 'update', 'scene', 'frame'], default='', help="")
     parser.add_argument('--frames',    type=str, default='.*', help="")
     parser.add_argument('--arguments', type=str, default='', help="")
+    parser.add_argument('--frame_folder', type=str, default='lidar', help="")
     args = parser.parse_args()
     
     print(args)
@@ -87,7 +92,9 @@ if __name__=="__main__":
         if not os.path.exists(meta_folder):
             continue
 
-        files = os.listdir(meta_folder)
+        main_frame_folder = os.path.join(args.data_dir, s, args.frame_folder)
+
+        files = os.listdir(main_frame_folder)
         for file in files:
                 frame = os.path.splitext(file)[0]
                 if not re.fullmatch(args.frames, frame):

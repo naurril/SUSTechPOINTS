@@ -95,8 +95,10 @@ class Thumbnail extends React.Component{
     shown(){
         for (let k in this.props.filter)
         {
-            if (this.state[k] && ! this.props.filter[k].includes(this.state[k]))
+            let v = this.state[k] ? this.state[k] : ':empty';
+            if (!this.props.filter[k].includes(v)){
                 return false;
+            }
         }
 
         return true;
