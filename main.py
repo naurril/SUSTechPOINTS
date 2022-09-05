@@ -448,20 +448,21 @@ class Api(object):
         # cl = cherrypy.request.headers['Content-Length']
         rawbody = cherrypy.request.body.readline().decode('UTF-8')
         data = json.loads(rawbody)
-
-        
-        #url_path = data['url'].split("/")
-        frame = data['frame'] #url_path[len(url_path)-1]        
-        scene = data['scene']# url_path[len(url_path)-3]
-        if "overwrite" in data:
-            overwrite = data['overwrite']
-        else:
-            overwrite = True  #default to true
         
         if 'editmeta' in usercfg[userid] and usercfg[userid]['editmeta'] == 'yes':
 
-            tag.write_tag(scene, frame, data['data'], overwrite)
-
+            frame = data['frame'] #url_path[len(url_path)-1]        
+            scene = data['scene']# url_path[len(url_path)-3]
+            if "overwrite" in data:
+                overwrite = data['overwrite']
+            else:
+                overwrite = True  #default to true
+            
+            if overwrite:
+                tag.update_tag("./data", scene, frame, data['data'])
+            else:
+                tag.add_tag("./data", scene, frame, data['data'])
+                
             logging.info(userid+","+scene+","+frame+", saved tag.")
             return {'result':"success"}
         else:

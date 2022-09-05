@@ -134,7 +134,7 @@ class Thumbnail extends React.Component{
                 <div style={operationStyle} >
                     <Link className='color-red' to={`/editor?scene=${this.props.scene}&frame=${this.props.frame}`}> {this.props.frame}</Link>
                     <div className='color-red'> {
-                        Object.keys(this.state).map(k=>{
+                        Object.keys(this.state).filter(x=>x!='scene' && x!='frame').map(k=>{
                             return <div key={k}>{k}: {this.state[k]}</div>
                         })
                     } </div>
