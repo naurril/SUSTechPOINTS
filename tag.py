@@ -27,6 +27,11 @@ def write_json(file, data):
     with open(file, 'w') as f:
           json.dump(data, f, indent=2, sort_keys=True)
 
+def read_json(file):
+    if os.path.exists(file):
+        with open(file) as f:
+          return json.load(f)
+    return {}
 
 def show_tag(rootdir, scene, frame):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
@@ -35,9 +40,7 @@ def show_tag(rootdir, scene, frame):
 
 def del_tag(rootdir, scene, frame, data):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
-    with open(file) as f:            
-        meta = json.load(f)
-    
+    meta = read_json(file)
     
     updated = del_dict(meta, data)
     print(scene, frame, updated)
@@ -46,9 +49,7 @@ def del_tag(rootdir, scene, frame, data):
 
 def add_tag(rootdir, scene, frame, data):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
-    with open(file) as f:            
-        meta = json.load(f)
-    
+    meta = read_json(file)    
 
     updated = combine_dict(meta, data, False)
     print(scene, frame, updated)
@@ -57,9 +58,7 @@ def add_tag(rootdir, scene, frame, data):
 
 def update_tag(rootdir, scene, frame, data):
     file = os.path.join(rootdir, scene, 'meta', frame+".json")
-    with open(file) as f:            
-        meta = json.load(f)
-    
+    meta = read_json(file)
 
     updated = combine_dict(meta, data, True)
     print(scene, frame, updated)
