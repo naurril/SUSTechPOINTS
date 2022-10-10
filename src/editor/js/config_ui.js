@@ -1,377 +1,349 @@
-import { globalKeyDownManager } from "./keydown_manager.js";
-import {logger} from "./log.js";
+import { globalKeyDownManager } from './keydown_manager.js'
+import { logger } from './log.js'
 
-class ConfigUi{
+class ConfigUi {
+  clickableItems = {
+    '#cfg-increase-size': (event) => {
+      this.editor.data.scale_point_size(1.2)
+      this.editor.render()
+      this.editor.boxEditorManager.render()
+      return false
+    },
 
-    clickableItems = {
-        "#cfg-increase-size": (event)=>{
-            this.editor.data.scale_point_size(1.2);
-            this.editor.render();
-            this.editor.boxEditorManager.render();
-            return false;
-        },
+    '#cfg-decrease-size': (event) => {
+      this.editor.data.scale_point_size(0.8)
+      this.editor.render()
+      this.editor.boxEditorManager.render()
+      return false
+    },
 
-        "#cfg-decrease-size": (event)=>{
-            this.editor.data.scale_point_size(0.8);
-            this.editor.render();
-            this.editor.boxEditorManager.render();
-            return false;
-        },
+    '#cfg-increase-brightness': (event) => {
+      this.editor.data.scale_point_brightness(1.2)
+      this.editor.render()
+      this.editor.boxEditorManager.render()
+      return false
+    },
 
-        "#cfg-increase-brightness": (event)=>{
-            this.editor.data.scale_point_brightness(1.2);
-            this.editor.render();
-            this.editor.boxEditorManager.render();
-            return false;
-        },
+    '#cfg-decrease-brightness': (event) => {
+      this.editor.data.scale_point_brightness(0.8)
+      this.editor.render()
+      this.editor.boxEditorManager.render()
+      return false
+    },
 
-        "#cfg-decrease-brightness": (event)=>{
-            this.editor.data.scale_point_brightness(0.8);
-            this.editor.render();
-            this.editor.boxEditorManager.render();
-            return false;
-        },
+    '#cfg-take-screenshot': (event) => {
+      this.editor.downloadWebglScreenShot()
+      return true
+    },
 
-        "#cfg-take-screenshot": (event)=>{
-            this.editor.downloadWebglScreenShot();
-            return true;
-        },
+    '#cfg-show-log': (event) => {
+      logger.show()
+      return true
+    },
 
-        "#cfg-show-log": (event)=>{
-            logger.show();
-            return true;
-        },
-        
-        "#cfg-calib-camera-LiDAR":(event)=>{
-            this.editor.calib.show();
-            return true;
-        },
+    '#cfg-calib-camera-LiDAR': (event) => {
+      this.editor.calib.show()
+      return true
+    },
 
-        "#cfg-crop-scene": (event)=>{
-            this.editor.cropScene.show();
-            return true;
-        },
-        
-    };
+    '#cfg-crop-scene': (event) => {
+      this.editor.cropScene.show()
+      return true
+    }
 
-    changeableItems = {
-        
-        "#cfg-theme-select":(event)=>{
-            let theme = event.currentTarget.value;
+  }
 
-            //let scheme = document.documentElement.className;
+  changeableItems = {
 
-            
-            document.documentElement.className = "theme-"+theme;
-            
-            window.pointsGlobalConfig.setItem("theme", theme);
-            
-            this.editor.viewManager.setColorScheme();
-            this.editor.render();
-            this.editor.boxEditorManager.render();
+    '#cfg-theme-select': (event) => {
+      const theme = event.currentTarget.value
 
-            return false;
-        },
+      // let scheme = document.documentElement.className;
 
-        "#cfg-hide-box-checkbox":(event)=>{
-            let checked = event.currentTarget.checked;
+      document.documentElement.className = 'theme-' + theme
 
-            //let scheme = document.documentElement.className;
+      window.pointsGlobalConfig.setItem('theme', theme)
 
-            if (checked)
-                this.editor.data.set_box_opacity(0);
-            else
-                this.editor.data.set_box_opacity(1);
-            
-            this.editor.render();
-            this.editor.boxEditorManager.render();
-            
+      this.editor.viewManager.setColorScheme()
+      this.editor.render()
+      this.editor.boxEditorManager.render()
 
-            return false;
-        },
+      return false
+    },
 
+    '#cfg-hide-box-checkbox': (event) => {
+      const checked = event.currentTarget.checked
 
-        "#cfg-hide-id-checkbox":(event)=>{
-            let checked = event.currentTarget.checked;          
-            this.editor.floatLabelManager.show_id(!checked);            
-            return false;
-        },
+      // let scheme = document.documentElement.className;
 
+      if (checked) { this.editor.data.set_box_opacity(0) } else { this.editor.data.set_box_opacity(1) }
 
-        
-        "#cfg-hide-category-checkbox":(event)=>{
-            let checked = event.currentTarget.checked;
-            this.editor.floatLabelManager.show_category(!checked);
-            return false;
-        },
+      this.editor.render()
+      this.editor.boxEditorManager.render()
 
-        "#cfg-hide-circle-ruler-checkbox": (event)=>{
-            let checked = event.currentTarget.checked;
-            this.editor.showRangeCircle(!checked);
-            return false;
-        },
+      return false
+    },
 
-        "#cfg-auto-rotate-xy-checkbox": (event)=>{
-            let checked = event.currentTarget.checked;
-            window.pointsGlobalConfig.setItem("enableAutoRotateXY", checked);
-            return false;
-        },
+    '#cfg-hide-id-checkbox': (event) => {
+      const checked = event.currentTarget.checked
+      this.editor.floatLabelManager.show_id(!checked)
+      return false
+    },
 
-        '#cfg-auto-update-interpolated-boxes-checkbox': (event)=>{
-            let checked = event.currentTarget.checked;
-            window.pointsGlobalConfig.setItem("autoUpdateInterpolatedBoxes", checked);
-            return false;
-        },
+    '#cfg-hide-category-checkbox': (event) => {
+      const checked = event.currentTarget.checked
+      this.editor.floatLabelManager.show_category(!checked)
+      return false
+    },
 
-        "#cfg-color-points-select": (event)=>{
-            let value = event.currentTarget.value;
-            window.pointsGlobalConfig.setItem("color_points", value);
+    '#cfg-hide-circle-ruler-checkbox': (event) => {
+      const checked = event.currentTarget.checked
+      this.editor.showRangeCircle(!checked)
+      return false
+    },
 
-            this.editor.data.worldList.forEach(w=>{
-                w.lidar.color_points();                
-                w.lidar.update_points_color();
-            });
-            this.editor.render();
-            return false;
-        },
+    '#cfg-auto-rotate-xy-checkbox': (event) => {
+      const checked = event.currentTarget.checked
+      window.pointsGlobalConfig.setItem('enableAutoRotateXY', checked)
+      return false
+    },
 
-        "#cfg-color-object-scheme":(event)=>{
-            let value = event.currentTarget.value;
-            this.editor.data.set_obj_color_scheme(value);
-            this.editor.render();
-            this.editor.imageContextManager.render_2d_image();
+    '#cfg-auto-update-interpolated-boxes-checkbox': (event) => {
+      const checked = event.currentTarget.checked
+      window.pointsGlobalConfig.setItem('autoUpdateInterpolatedBoxes', checked)
+      return false
+    },
 
-            this.editor.floatLabelManager.set_color_scheme(value);
-            this.editor.render2dLabels(this.editor.data.world);
-            this.editor.boxEditorManager.render();
+    '#cfg-color-points-select': (event) => {
+      const value = event.currentTarget.value
+      window.pointsGlobalConfig.setItem('color_points', value)
 
-            return false;
-        },
+      this.editor.data.worldList.forEach(w => {
+        w.lidar.color_points()
+        w.lidar.updatePointsColor()
+      })
+      this.editor.render()
+      return false
+    },
 
-        "#cfg-batch-mode-inst-number":(event)=>{
-            let batchSize = parseInt(event.currentTarget.value);
+    '#cfg-color-object-scheme': (event) => {
+      const value = event.currentTarget.value
+      this.editor.data.set_obj_color_scheme(value)
+      this.editor.render()
+      this.editor.imageContextManager.render_2d_image()
 
-            window.pointsGlobalConfig.setItem("batchModeInstNumber", batchSize);
+      this.editor.floatLabelManager.set_color_scheme(value)
+      this.editor.render2dLabels(this.editor.data.world)
+      this.editor.boxEditorManager.render()
 
-            this.editor.boxEditorManager.setBatchSize(batchSize);
-            return false;
-        },
+      return false
+    },
 
-        "#cfg-coordinate-system-select": (event)=>{
-            let coord = event.currentTarget.value;
-            window.pointsGlobalConfig.setItem("coordinateSystem", coord);
+    '#cfg-batch-mode-inst-number': (event) => {
+      const batchSize = parseInt(event.currentTarget.value)
 
-            this.editor.data.worldList.forEach(w=>{
-                w.calcTransformMatrix();
-            });
-            this.editor.render();
-        },
+      window.pointsGlobalConfig.setItem('batchModeInstNumber', batchSize)
 
-        "#cfg-camera-group-for-context-select": (event)=>{
-            let v = event.currentTarget.value;
-            window.pointsGlobalConfig.setItem("cameraGroupForContext", v);
-        },
+      this.editor.boxEditorManager.setBatchSize(batchSize)
+      return false
+    },
 
-        "#cfg-data-aux-lidar-checkbox": (event)=>{
-            let checked = event.currentTarget.checked;
+    '#cfg-coordinate-system-select': (event) => {
+      const coord = event.currentTarget.value
+      window.pointsGlobalConfig.setItem('coordinateSystem', coord)
 
-            window.pointsGlobalConfig.setItem("enableAuxLidar", checked);
-            return false;
-        },
+      this.editor.data.worldList.forEach(w => {
+        w.calcTransformMatrix()
+      })
+      this.editor.render()
+    },
 
-        "#cfg-data-radar-checkbox": (event)=>{
-            let checked = event.currentTarget.checked;
+    '#cfg-camera-group-for-context-select': (event) => {
+      const v = event.currentTarget.value
+      window.pointsGlobalConfig.setItem('cameraGroupForContext', v)
+    },
 
-            window.pointsGlobalConfig.setItem("enableRadar", checked);
-            return false;
-        },
+    '#cfg-data-aux-lidar-checkbox': (event) => {
+      const checked = event.currentTarget.checked
 
-        "#cfg-data-filter-points-checkbox": (event)=>{
-            let checked = event.currentTarget.checked;
+      window.pointsGlobalConfig.setItem('enableAuxLidar', checked)
+      return false
+    },
 
-            window.pointsGlobalConfig.setItem("enableFilterPoints", checked);
-            return false;
-        },
+    '#cfg-data-radar-checkbox': (event) => {
+      const checked = event.currentTarget.checked
 
-        "#cfg-data-filter-points-z": (event)=>{
-            let z = event.currentTarget.value;
+      window.pointsGlobalConfig.setItem('enableRadar', checked)
+      return false
+    },
 
-            window.pointsGlobalConfig.setItem("filterPointsZ", z);
-            return false;
-        },
+    '#cfg-data-filter-points-checkbox': (event) => {
+      const checked = event.currentTarget.checked
 
-        '#cfg-data-preload-frames':(event)=>{
-            let n = event.currentTarget.value;
+      window.pointsGlobalConfig.setItem('enableFilterPoints', checked)
+      return false
+    },
 
-            window.pointsGlobalConfig.setItem("maxWorldNumber", n);
-            return false;
-        },
+    '#cfg-data-filter-points-z': (event) => {
+      const z = event.currentTarget.value
 
-        "#cfg-data-preload-checkbox": (event)=>{
-            let checked = event.currentTarget.checked;
-            window.pointsGlobalConfig.setItem("enablePreload", checked);
-            return false;
-        },
+      window.pointsGlobalConfig.setItem('filterPointsZ', z)
+      return false
+    },
 
-        "#cfg-enable-image-annotation-checkbox": (event)=>{
-            let checked = event.currentTarget.checked;
-            window.pointsGlobalConfig.setItem("enableImageAnnotation", checked);
-            return false;
-        },
+    '#cfg-data-preload-frames': (event) => {
+      const n = event.currentTarget.value
 
-    };
+      window.pointsGlobalConfig.setItem('maxWorldNumber', n)
+      return false
+    },
 
-    ignoreItems = [
-        "#cfg-point-size",
-        "#cfg-point-brightness",
-        "#cfg-theme",
-        "#cfg-color-object",
-        "#cfg-menu-batch-mode-inst-number",
-        "#cfg-hide-box",
-        "#cfg-experimental",
-        "#cfg-data",
-    ];
+    '#cfg-data-preload-checkbox': (event) => {
+      const checked = event.currentTarget.checked
+      window.pointsGlobalConfig.setItem('enablePreload', checked)
+      return false
+    },
 
-    subMenus = [
-        "#cfg-experimental",
-        "#cfg-data",
-    ];
+    '#cfg-enable-image-annotation-checkbox': (event) => {
+      const checked = event.currentTarget.checked
+      window.pointsGlobalConfig.setItem('enableImageAnnotation', checked)
+      return false
+    }
 
-    constructor(button, wrapper, editor)
-    {
-        this.button = button;
-        this.wrapper = wrapper;
-        this.editor = editor;
-        this.editorCfg = editor.editorCfg;
-        this.dataCfg = editor.data.cfg;
-        this.menu = this.wrapper.querySelector("#config-menu");
-        
-        this.wrapper.onclick = ()=>{
-            this.hide();
+  }
+
+  ignoreItems = [
+    '#cfg-point-size',
+    '#cfg-point-brightness',
+    '#cfg-theme',
+    '#cfg-color-object',
+    '#cfg-menu-batch-mode-inst-number',
+    '#cfg-hide-box',
+    '#cfg-experimental',
+    '#cfg-data'
+  ]
+
+  subMenus = [
+    '#cfg-experimental',
+    '#cfg-data'
+  ]
+
+  constructor (button, wrapper, editor) {
+    this.button = button
+    this.wrapper = wrapper
+    this.editor = editor
+    this.editorCfg = editor.editorCfg
+    this.dataCfg = editor.data.cfg
+    this.menu = this.wrapper.querySelector('#config-menu')
+
+    this.wrapper.onclick = () => {
+      this.hide()
+    }
+
+    this.button.onclick = (event) => {
+      this.show(event.currentTarget)
+    }
+
+    for (const item in this.clickableItems) {
+      this.menu.querySelector(item).onclick = (event) => {
+        const ret = this.clickableItems[item](event)
+        if (ret) {
+          this.hide()
         }
 
-        this.button.onclick = (event)=>{            
-            this.show(event.currentTarget);            
+        event.stopPropagation()
+      }
+    }
+
+    for (const item in this.changeableItems) {
+      this.menu.querySelector(item).onchange = (event) => {
+        const ret = this.changeableItems[item](event)
+        if (ret) {
+          this.hide()
         }
 
-        for (let item in this.clickableItems)
+        event.stopPropagation()
+      }
+    }
+
+    this.ignoreItems.forEach(item => {
+      this.menu.querySelector(item).onclick = (event) => {
         {
-            this.menu.querySelector(item).onclick = (event)=>{
-                let ret = this.clickableItems[item](event);
-                if (ret)
-                {
-                    this.hide();
-                }
+          event.stopPropagation()
+        }
+      }
+    })
 
-                event.stopPropagation();
-            }
+    this.subMenus.forEach(item => {
+      this.menu.querySelector(item).onmouseenter = function (event) {
+        if (this.hideTimer) {
+          clearTimeout(this.hideTimer)
+          this.hideTimer = null
         }
 
-        for (let item in this.changeableItems)
-        {
-            this.menu.querySelector(item).onchange = (event)=>{
-                let ret = this.changeableItems[item](event);
-                if (ret)
-                {
-                    this.hide();
-                }
+        const currentTarget = event.currentTarget
 
-                event.stopPropagation();
-            }
+        if (currentTarget.querySelector(item + '-submenu').style.display !== '') {
+          // shown now
+        } else {
+          this.showTimer = setTimeout(() => {
+            currentTarget.querySelector(item + '-submenu').style.display = 'inherit'
+            this.showTimer = null
+          }, 300)
         }
+      }
 
-        this.ignoreItems.forEach(item=>{
-            this.menu.querySelector(item).onclick = (event)=>{
-                {
-                    event.stopPropagation();                    
-                }
-            }
-        });
+      this.menu.querySelector(item).onmouseleave = function (event) {
+        if (this.showTimer) {
+          clearTimeout(this.showTimer)
+          this.showTimer = null
+        } else {
+          const ui = event.currentTarget.querySelector(item + '-submenu')
+          this.hideTimer = setTimeout(() => {
+            ui.style.display = ''
+            this.hideTimer = null
+          },
+          200)
+        }
+      }
+    })
 
-        this.subMenus.forEach(item=>{
-            this.menu.querySelector(item).onmouseenter = function(event){
-                if (this.hideTimer)
-                {
-                    clearTimeout(this.hideTimer);
-                    this.hideTimer = null;
-                }
-
-                let currentTarget = event.currentTarget;
-
-                if (currentTarget.querySelector(item +"-submenu").style.display !== "")
-                {
-                    //shown now
-                }
-                else
-                {
-
-                    this.showTimer = setTimeout(()=>{
-                        currentTarget.querySelector(item +"-submenu").style.display="inherit";
-                        this.showTimer = null;
-                    }, 300);
-                }
-            }
-
-            this.menu.querySelector(item).onmouseleave = function(event){
-
-                if (this.showTimer)
-                {
-                    clearTimeout(this.showTimer);
-                    this.showTimer = null;
-                }
-                else
-                {
-                    let ui = event.currentTarget.querySelector(item +"-submenu");
-                    this.hideTimer = setTimeout(()=>{
-                        ui.style.display="";
-                        this.hideTimer = null;
-                    },
-                    200);
-                }
-            }
-        });
-
-        this.menu.onclick = (event)=>{
-            event.stopPropagation();                    
-        };
-
-
-
-        // init ui
-        this.menu.querySelector("#cfg-theme-select").value = window.pointsGlobalConfig.theme;
-        this.menu.querySelector("#cfg-data-aux-lidar-checkbox").checked = window.pointsGlobalConfig.enableAuxLidar;
-        this.menu.querySelector("#cfg-data-radar-checkbox").checked = window.pointsGlobalConfig.enableRadar;
-        this.menu.querySelector("#cfg-color-points-select").value = window.pointsGlobalConfig.color_points;
-        this.menu.querySelector("#cfg-coordinate-system-select").value = window.pointsGlobalConfig.coordinateSystem;
-        this.menu.querySelector("#cfg-batch-mode-inst-number").value = window.pointsGlobalConfig.batchModeInstNumber;
-        this.menu.querySelector("#cfg-data-filter-points-checkbox").checked = window.pointsGlobalConfig.enableFilterPoints;
-        this.menu.querySelector("#cfg-data-filter-points-z").value = window.pointsGlobalConfig.filterPointsZ;
-        this.menu.querySelector("#cfg-data-preload-frames").value = window.pointsGlobalConfig.maxWorldNumber;
-        this.menu.querySelector("#cfg-hide-id-checkbox").value = window.pointsGlobalConfig.hideId;
-        this.menu.querySelector("#cfg-hide-category-checkbox").value = window.pointsGlobalConfig.hideCategory;
-        this.menu.querySelector("#cfg-data-preload-checkbox").checked = window.pointsGlobalConfig.enablePreload;
-        this.menu.querySelector("#cfg-auto-rotate-xy-checkbox").checked = window.pointsGlobalConfig.enableAutoRotateXY;
-        this.menu.querySelector("#cfg-auto-update-interpolated-boxes-checkbox").checked = window.pointsGlobalConfig.autoUpdateInterpolatedBoxes;
-        this.menu.querySelector("#cfg-camera-group-for-context-select").value = window.pointsGlobalConfig.cameraGroupForContext;
-        this.menu.querySelector("#cfg-enable-image-annotation-checkbox").checked = window.pointsGlobalConfig.enableImageAnnotation;
+    this.menu.onclick = (event) => {
+      event.stopPropagation()
     }
 
+    // init ui
+    this.menu.querySelector('#cfg-theme-select').value = window.pointsGlobalConfig.theme
+    this.menu.querySelector('#cfg-data-aux-lidar-checkbox').checked = window.pointsGlobalConfig.enableAuxLidar
+    this.menu.querySelector('#cfg-data-radar-checkbox').checked = window.pointsGlobalConfig.enableRadar
+    this.menu.querySelector('#cfg-color-points-select').value = window.pointsGlobalConfig.color_points
+    this.menu.querySelector('#cfg-coordinate-system-select').value = window.pointsGlobalConfig.coordinateSystem
+    this.menu.querySelector('#cfg-batch-mode-inst-number').value = window.pointsGlobalConfig.batchModeInstNumber
+    this.menu.querySelector('#cfg-data-filter-points-checkbox').checked = window.pointsGlobalConfig.enableFilterPoints
+    this.menu.querySelector('#cfg-data-filter-points-z').value = window.pointsGlobalConfig.filterPointsZ
+    this.menu.querySelector('#cfg-data-preload-frames').value = window.pointsGlobalConfig.maxWorldNumber
+    this.menu.querySelector('#cfg-hide-id-checkbox').value = window.pointsGlobalConfig.hideId
+    this.menu.querySelector('#cfg-hide-category-checkbox').value = window.pointsGlobalConfig.hideCategory
+    this.menu.querySelector('#cfg-data-preload-checkbox').checked = window.pointsGlobalConfig.enablePreload
+    this.menu.querySelector('#cfg-auto-rotate-xy-checkbox').checked = window.pointsGlobalConfig.enableAutoRotateXY
+    this.menu.querySelector('#cfg-auto-update-interpolated-boxes-checkbox').checked = window.pointsGlobalConfig.autoUpdateInterpolatedBoxes
+    this.menu.querySelector('#cfg-camera-group-for-context-select').value = window.pointsGlobalConfig.cameraGroupForContext
+    this.menu.querySelector('#cfg-enable-image-annotation-checkbox').checked = window.pointsGlobalConfig.enableImageAnnotation
+  }
 
-    show(target){
-        this.wrapper.style.display="inherit";
+  show (target) {
+    this.wrapper.style.display = 'inherit'
 
-        this.menu.style.right = "0px";
-        this.menu.style.top = target.offsetHeight + "px";
+    this.menu.style.right = '0px'
+    this.menu.style.top = target.offsetHeight + 'px'
 
-        globalKeyDownManager.register((event)=>false, 'config');
-    }
+    globalKeyDownManager.register((event) => false, 'config')
+  }
 
-    hide(){
-        globalKeyDownManager.deregister('config');
-        this.wrapper.style.display="none";
-    }
-
+  hide () {
+    globalKeyDownManager.deregister('config')
+    this.wrapper.style.display = 'none'
+  }
 }
 
-
-export {ConfigUi}
+export { ConfigUi }

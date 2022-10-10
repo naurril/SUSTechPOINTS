@@ -295,11 +295,11 @@ class Data
         this.cfg.point_brightness *= v;
 
         // if (this.world){
-        //     this.world.lidar.recolor_all_points();
+        //     this.world.lidar.recolorAllPoints();
         // }
 
         this.worldList.forEach(w=>{
-            w.lidar.recolor_all_points();
+            w.lidar.recolorAllPoints();
         })
     };
 
@@ -337,7 +337,7 @@ class Data
         //     });            
         // }
 
-        // this.world.lidar.update_points_color();
+        // this.world.lidar.updatePointsColor();
         // this.world.annotation.color_boxes();
 
 
@@ -352,7 +352,7 @@ class Data
                 w.lidar.color_objects();
             }
             
-            w.lidar.update_points_color();
+            w.lidar.updatePointsColor();
 
             w.annotation.color_boxes();
         })

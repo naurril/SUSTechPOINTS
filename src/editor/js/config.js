@@ -1,139 +1,126 @@
 
-class Config{
+class Config {
+  // dataCfg = {
 
-    //dataCfg = {
-    
-    
-    //disableLabels: true,
+  // disableLabels: true,
 
-    baseUrl = ''; //"http://127.0.0.1:8083";
+  baseUrl = '' // "http://127.0.0.1:8083";
 
-    enablePreload = true;
-    color_points = "mono";
-    enableRadar = false;
-    enableAuxLidar = false;
-    enableDynamicGroundLevel = true;
+  enablePreload = true
+  color_points = 'mono'
+  enableRadar = false
+  enableAuxLidar = false
+  enableDynamicGroundLevel = true
 
-    coordinateSystem = 'utm';
+  coordinateSystem = 'utm'
 
-    point_size = 1;
-    point_brightness = 0.6;
-    box_opacity = 1;
-    show_background = true;
-    color_obj = "category";
-    theme = "dark";
+  point_size = 1
+  point_brightness = 0.6
+  box_opacity = 1
+  show_background = true
+  color_obj = 'category'
+  theme = 'dark'
 
-    enableFilterPoints = false;
-    filterPointsZ = 2.0;
+  enableFilterPoints = false
+  filterPointsZ = 2.0
 
-    batchModeInstNumber = 20;
-    batchModeSubviewSize = {width: 130, height: 450};
+  batchModeInstNumber = 20
+  batchModeSubviewSize = { width: 130, height: 450 }
 
-    maxWorldNumber=40;
+  maxWorldNumber = 40
 
-    maxEmptyBoxPoints = 10;
+  maxEmptyBoxPoints = 10
 
-    // edit on one box, apply to all selected boxes.
-    linkEditorsInBatchMode = false;
+  // edit on one box, apply to all selected boxes.
+  linkEditorsInBatchMode = false
 
-    // only rotate z in 'auto/interpolate' algs
-    enableAutoRotateXY = false;
-    autoSave = true;
+  // only rotate z in 'auto/interpolate' algs
+  enableAutoRotateXY = false
+  autoSave = true
 
-    autoUpdateInterpolatedBoxes = true;
+  autoUpdateInterpolatedBoxes = true
 
-    hideId = false;
-    hideCategory = false;
+  hideId = false
+  hideCategory = false
 
-    moveStep = 0.01;  // ratio, percentage
-    rotateStep = Math.PI/360;
+  moveStep = 0.01 // ratio, percentage
+  rotateStep = Math.PI / 360
 
-    speedUpForRepeatedOp = 2;
-    
-    ignoreDistantObject = true;
-    cameraGroupForContext = "camera";
-    
-    ///editorCfg
+  speedUpForRepeatedOp = 2
 
-    //disableSceneSelector = true;
-    //disableFrameSelector = true;
-    //disableCameraSelector = true;
-    //disableFastToolbox= true;
-    //disableMainView= true;
-    //disableMainImageContext = true;
-    //disableGrid = true;
-    //disableRangeCircle = true;
-    //disableAxis = true;
-    //disableMainViewKeyDown = true;
-    //projectRadarToImage = true;
-    projectLidarToImage = false;   
-    
-    projectBoxesToImage = true;
-    autoCheckScene = false;
+  ignoreDistantObject = true
+  cameraGroupForContext = 'camera'
 
-    enableImageAnnotation = false;
+  /// editorCfg
 
-    constructor()
-    {
-        
+  // disableSceneSelector = true;
+  // disableFrameSelector = true;
+  // disableCameraSelector = true;
+  // disableFastToolbox= true;
+  // disableMainView= true;
+  // disableMainImageContext = true;
+  // disableGrid = true;
+  // disableRangeCircle = true;
+  // disableAxis = true;
+  // disableMainViewKeyDown = true;
+  // projectRadarToImage = true;
+  projectLidarToImage = false
+
+  projectBoxesToImage = true
+  autoCheckScene = false
+
+  enableImageAnnotation = false
+
+  constructor () {
+
+  }
+
+  readItem (name, defaultValue, castFunc) {
+    const ret = window.localStorage.getItem(name)
+
+    if (ret) {
+      if (castFunc) { return castFunc(ret) } else { return ret }
+    } else {
+      return defaultValue
     }
+  }
 
-    readItem(name, defaultValue, castFunc){
-        let ret = window.localStorage.getItem(name);
-        
-        if (ret)
-        {
-            if (castFunc)
-                return castFunc(ret);
-            else
-                return ret;
-        }
-        else
-        {
-            return defaultValue;
-        }        
-    }
+  setItem (name, value) {
+    this[name] = value
+    if (typeof value === 'object') { value = JSON.stringify(value) }
+    window.localStorage.setItem(name, value)
+  }
 
-    setItem(name, value)
-    {
-        this[name] = value;
-        if (typeof value == 'object')
-            value = JSON.stringify(value);
-        window.localStorage.setItem(name, value);
-    }
+  toBool (v) {
+    return v === 'true'
+  }
 
-    toBool(v)
-    {
-        return v==="true";
-    }
+  saveItems = [
+    ['theme', null],
+    ['enableRadar', this.toBool],
+    ['enablePreload', this.toBool],
+    ['enableAuxLidar', this.toBool],
+    ['enableFilterPoints', this.toBool],
+    ['filterPointsZ', parseFloat],
+    ['color_points', null],
+    ['coordinateSystem', null],
+    ['batchModeInstNumber', parseInt],
+    ['batchModeSubviewSize', JSON.parse],
+    ['enableAutoRotateXY', this.toBool],
+    ['autoUpdateInterpolatedBoxes', this.toBool],
+    ['maxWorldNumber', parseInt],
+    ['cameraGroupForContext', null],
+    ['enableImageAnnotation', this.toBool]
+  ]
 
-    saveItems = [
-        ["theme", null],
-        ["enableRadar", this.toBool],
-        ["enablePreload", this.toBool],
-        ["enableAuxLidar", this.toBool],
-        ["enableFilterPoints", this.toBool],
-        ["filterPointsZ", parseFloat],
-        ["color_points", null],
-        ["coordinateSystem", null],
-        ["batchModeInstNumber", parseInt],
-        ["batchModeSubviewSize", JSON.parse],
-        ["enableAutoRotateXY", this.toBool],
-        ["autoUpdateInterpolatedBoxes", this.toBool],
-        ["maxWorldNumber",parseInt],
-        ["cameraGroupForContext", null],
-        ["enableImageAnnotation", this.toBool],
-    ];
+  load () {
+    this.saveItems.forEach(item => {
+      const key = item[0]
+      const castFunc = item[1]
 
-    load()
-    {
-        this.saveItems.forEach(item=>{
-            let key = item[0];
-            let castFunc = item[1];
-
-            this[key] = this.readItem(key, this[key], castFunc);
-        })
-    }
+      this[key] = this.readItem(key, this[key], castFunc)
+    })
+  }
 };
 
-export {Config};
+export { Config }
