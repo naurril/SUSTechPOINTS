@@ -518,6 +518,8 @@ function onPointerHover (event) {
     case 'pen':
       this.pointerHover(this._getPointer(event))
       break
+    default:
+      break;
   }
 }
 
@@ -1228,6 +1230,8 @@ class TransformControlsPlane extends Mesh {
           case 'E':
             _dirVector.set(0, 0, 0)
             break
+          default:
+            break;
         }
 
         break

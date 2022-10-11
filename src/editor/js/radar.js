@@ -1,5 +1,7 @@
 import * as THREE from 'three'
-import { PCDLoader } from './lib/PCDLoader.js'
+import { loadfile } from './jsonrpc.js'
+//import { PCDLoader } from './lib/PCDLoader.js'
+import { pointcloudReader } from './lib/pointcloud_reader.js'
 import { matmul, eulerAngleToRotationMatrix3By3 } from './util.js'
 
 function Radar (sceneMeta, world, frameInfo, radarName) {
@@ -128,72 +130,63 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
     this.webglGroup.matrixAutoUpdate = false
   }
 
+  this.processPcd = function (pcd) {
+    if (this.destroyed) {
+      console.error('received radar after destroyed.')
+      return
+    }
+    const position = pcd.position
+    // var velocity = pcd.velocity;
+    // velocity is a vector anchored at position,
+    // we translate them into position of the vector head
+    const velocity = position.map((p, i) => pcd.velocity[i] / 5 + pcd.position[i])
+
+    // scale velocity
+    // velocity = velocity.map(v=>v*this.velocityScale);
+
+    // this.points_parse_time = new Date().getTime();
+    // console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "parse pionts ", this.points_parse_time - this.create_time, "ms");
+    this._radar_points_raw = position
+    this._radar_velocity_raw = velocity
+
+    // add one box to calibrate radar with lidar
+    this.radar_box = this.createRadarBox()
+
+    // install callback for box changing
+    this.radar_box.onBoxChanged = () => {
+      this.move_radar(this.radar_box)
+    }
+
+    // position = this.transformPointsByOffset(position);
+    // position = this.move_radar_points(this.radar_box);
+    // velocity = this.move_radar_velocity(this.radar_box);
+
+    const elements = this.buildRadarGeometry(position, velocity)
+    this.elements = elements
+
+    this.webglGroup = new THREE.Group()
+    this.webglGroup.name = 'radar-' + this.name
+    this.world.webglGroup.add(this.webglGroup)
+    this.calcTransformMatrix()
+
+    // this.points_backup = mesh;
+
+    this._afterPreload()
+  }
+
   this.preload = function (onPreloadFinished) {
-    const loader = new PCDLoader()
+    this.onPreloadFinished = onPreloadFinished
 
-    const _self = this
-    loader.load(this.frameInfo.get_radar_path(this.name),
-      // ok
-      function (pcd) {
-        if (_self.destroyed) {
-          console.error('received radar after destroyed.')
-          return
-        }
-        const position = pcd.position
-        // var velocity = pcd.velocity;
-        // velocity is a vector anchored at position,
-        // we translate them into position of the vector head
-        const velocity = position.map((p, i) => pcd.velocity[i] / 5 + pcd.position[i])
-
-        // scale velocity
-        // velocity = velocity.map(v=>v*_self.velocityScale);
-
-        // _self.points_parse_time = new Date().getTime();
-        // console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
-        _self._radar_points_raw = position
-        _self._radar_velocity_raw = velocity
-
-        // add one box to calibrate radar with lidar
-        _self.radar_box = _self.createRadarBox()
-
-        // install callback for box changing
-        _self.radar_box.onBoxChanged = () => {
-          _self.move_radar(_self.radar_box)
-        }
-
-        // position = _self.transformPointsByOffset(position);
-        // position = _self.move_radar_points(_self.radar_box);
-        // velocity = _self.move_radar_velocity(_self.radar_box);
-
-        const elements = _self.buildRadarGeometry(position, velocity)
-        _self.elements = elements
-
-        _self.webglGroup = new THREE.Group()
-        _self.webglGroup.name = 'radar-' + _self.name
-        _self.world.webglGroup.add(_self.webglGroup)
-        _self.calcTransformMatrix()
-
-        // _self.points_backup = mesh;
-
-        _self._afterPreload()
-      },
-
-      // on progress,
-      function () {},
-
-      // on error
-      function () {
-        // error
-        console.log('load radar failed.')
-        _self._afterPreload()
-      },
-
-      // on file loaded
-      function () {
-        // _self.points_readfile_time = new Date().getTime();
-        // console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "read file ", _self.points_readfile_time - _self.create_time, "ms");
+    const url = this.frameInfo.get_radar_path(this.name)
+    loadfile(url).then(buffer => {
+      if (this.destroyed) {
+        console.error('received pcd after world been destroyed.')
+        return
       }
-    )
+
+      const pcd = pointcloudReader.parse(buffer, url)
+      this.processPcd(pcd)
+    })
   }
 
   // internal funcs below

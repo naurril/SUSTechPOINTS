@@ -1,5 +1,4 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { jsonrpc } from '../editor/js/jsonrpc'
 
 class User extends React.Component {

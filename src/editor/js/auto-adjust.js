@@ -102,7 +102,7 @@ function AutoAdjust (boxOp, mouse, header) {
 
       candPoseSets = candPoseSets.filter(p => !!p)
 
-      if (candPoseSets.length == 0) {
+      if (candPoseSets.length === 0) {
         return
       }
 
@@ -298,7 +298,7 @@ function AutoAdjust (boxOp, mouse, header) {
     const world = box.world
     const allFollowers = world.annotation.boxes.filter(b => b.follows && b.follows.obj_track_id === box.obj_track_id)
 
-    if (allFollowers.length == 0) {
+    if (allFollowers.length === 0) {
       console.log('no followers')
       return
     }

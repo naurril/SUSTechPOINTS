@@ -5,9 +5,10 @@ import * as THREE from 'three'
 import { AttrEditor } from './common/attr_editor.js'
 import { DropdownMenu } from './common/sensible_dropdown_menu.js'
 import { ObjTypeEditor } from './common/obj_type_editor.js'
+
 class FastToolBox {
   constructor (ui, eventHandler) {
-    const self = this
+    
     this.ui = ui
     this.eventHandler = eventHandler
 
@@ -177,7 +178,7 @@ class FloatLabelManager {
   }
 
   remove_all_labels () {
-    const _self = this
+    
 
     if (this.labelsUi.children.length > 0) {
       for (let c = this.labelsUi.children.length - 1; c >= 0; c--) {
@@ -292,7 +293,7 @@ class FloatLabelManager {
   }
 
   update_color (label) {
-    if (this.color_scheme == 'id') {
+    if (this.color_scheme === 'id') {
       label.className = 'float-label color-' + (label.obj_track_id % 33)
     } else // by id
     {
@@ -307,7 +308,6 @@ class FloatLabelManager {
 
     label.id = 'obj-local-' + box.obj_local_id
 
-    const _self = this
 
     label.update_text = function () {
       let label_text = '<div class="label-obj-type-text">'
@@ -350,7 +350,6 @@ class FloatLabelManager {
 
     this.labelsUi.appendChild(label)
 
-    const self = this
     label.onclick = () => {
       this.on_label_clicked(box)
     }

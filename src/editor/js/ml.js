@@ -1,6 +1,5 @@
 
 import { logger } from './log.js'
-import { matmul, eulerAngleToRotationMatrix3By3, transpose, matmul2 } from './util.js'
 import * as tf from '@tensorflow/tfjs'
 
 const annMath = {
@@ -84,7 +83,7 @@ const ml = {
     console.log('number of points:', points.count)
 
     const center_points = {}
-    for (var i = 0; i < points.count; i++) {
+    for (let i = 0; i < points.count; i++) {
       if (points.array[i * 3] < 10 && points.array[i * 3] > -10 &&
                 points.array[i * 3 + 1] < 10 && points.array[i * 3 + 1] > -10) // x,y in [-10,10]
       {
@@ -101,7 +100,7 @@ const ml = {
     }
 
     const center_point_indices = []
-    for (var i in center_points) {
+    for (let i in center_points) {
       center_point_indices.push(center_points[i])
     }
 
@@ -174,19 +173,19 @@ const ml = {
   },
 
   // data is N*2 matrix,
-  l_shape_fit: function (data) {
+  lShapeFit: function (data) {
     // cos, sin
     // -sin, cos
     const A = tf.tensor2d(data)
     // A = tf.expandDims(A, [0]);
 
-    const theta = []
+    
     let min = 0
     let min_index = 0
     for (let i = 0; i <= 90; i += 1) {
       const obj = cal_objetive(A, i)
 
-      if (min == 0 || min > obj) {
+      if (min === 0 || min > obj) {
         min_index = i
         min = obj
       }
@@ -228,28 +227,7 @@ const ml = {
     }
   },
 
-  // predict_rotation_cb: function(data, callback){
-  //     var xhr = new XMLHttpRequest();
-  //     // we defined the xhr
 
-  //     xhr.onreadystatechange = function () {
-  //         if (this.readyState != 4)
-  //             return;
-
-  //         if (this.status == 200) {
-  //             var ret = JSON.parse(this.responseText);
-  //             console.log(ret);
-  //             callback(ret.angle);
-  //         }
-  //         else{
-  //             console.log(this);
-  //         }
-
-  //     };
-
-  //     xhr.open('POST', "/predict_rotation", true);
-  //     xhr.send(JSON.stringify({"points": data}));
-  // },
 
   predict_rotation: function (data) {
     const req = new Request('/api/predict_rotation')
@@ -429,37 +407,37 @@ const ml = {
 
 }
 
-function MaFilter_tf (initX) { // moving average filter
-  this.x = tf.tensor1d(initX) // pose
-  this.step = 0
+// function MaFilter_tf (initX) { // moving average filter
+//   this.x = tf.tensor1d(initX) // pose
+//   this.step = 0
 
-  this.v = tf.zeros([9]) // velocity
-  this.decay = tf.tensor1d([0.7, 0.7, 0.7,
-    0.7, 0.7, 0.7,
-    0.7, 0.7, 0.7])
+//   this.v = tf.zeros([9]) // velocity
+//   this.decay = tf.tensor1d([0.7, 0.7, 0.7,
+//     0.7, 0.7, 0.7,
+//     0.7, 0.7, 0.7])
 
-  this.update = function (x) {
-    if (this.step == 0) {
-      this.v = tf.sub(x, this.x)
-    } else {
-      this.v = tf.add(tf.mul(tf.sub(x, this.x), this.decay),
-        tf.mul(this.v, tf.sub(1, this.decay)))
-    }
+//   this.update = function (x) {
+//     if (this.step === 0) {
+//       this.v = tf.sub(x, this.x)
+//     } else {
+//       this.v = tf.add(tf.mul(tf.sub(x, this.x), this.decay),
+//         tf.mul(this.v, tf.sub(1, this.decay)))
+//     }
 
-    this.x = x
-    this.step++
-  }
+//     this.x = x
+//     this.step++
+//   }
 
-  this.predict = function () {
-    const pred = tf.concat([tf.add(this.x, this.v).slice(0, 6), this.x.slice(6)])
-    return pred.dataSync()
-  }
+//   this.predict = function () {
+//     const pred = tf.concat([tf.add(this.x, this.v).slice(0, 6), this.x.slice(6)])
+//     return pred.dataSync()
+//   }
 
-  this.nextStep = function (x) {
-    this.x = x
-    this.step++
-  }
-}
+//   this.nextStep = function (x) {
+//     this.x = x
+//     this.step++
+//   }
+// }
 
 function MaFilter (initX) { // moving average filter
   this.x = initX // pose
@@ -472,7 +450,7 @@ function MaFilter (initX) { // moving average filter
     0.5, 0.5, 0.5]
 
   this.update = function (x) {
-    if (this.step == 0) {
+    if (this.step === 0) {
       this.v = annMath.sub(x, this.x)
     } else {
       this.v = annMath.add(annMath.eleMul(annMath.sub(x, this.x), this.decay),

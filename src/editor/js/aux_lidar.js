@@ -1,5 +1,7 @@
 import * as THREE from 'three'
-import { PCDLoader } from './lib/PCDLoader.js'
+import { loadfile } from './jsonrpc.js'
+//import { PCDLoader } from './lib/PCDLoader.js'
+import { pointcloudReader } from './lib/pointcloud_reader.js'
 import { matmul, eulerAngleToRotationMatrix3By3 } from './util.js'
 
 // todo: clean arrows
@@ -48,10 +50,10 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     }
 
     // anyway we save go cmd
-    {
+    //{
       this.go_cmd_received = true
       this.on_go_finished = on_go_finished
-    }
+    //}
   }
 
   this.showCalibBox = function () {
@@ -148,66 +150,56 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     this.webglGroup.matrixAutoUpdate = false
   }
 
+  this.processPcd = function(pcd) {
+    if (this.destroyed) {
+      console.error('received aux_lidar after destroyed.')
+      return
+    }
+
+    const position = pcd.position
+
+    // this.points_parse_time = new Date().getTime();
+    // console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "parse pionts ", this.points_parse_time - this.create_time, "ms");
+    this.lidar_points = position
+
+    // add one box to calibrate lidar with lidar
+    this.calib_box = this.createCalibBox()
+
+    // install callback for box changing
+    this.calib_box.onBoxChanged = () => {
+      this.move_lidar(this.calib_box)
+    }
+
+    // position = this.transformPointsByOffset(position);
+    // position = this.move_points(this.calib_box);
+
+    const elements = this.buildGeometry(position)
+    this.elements = elements
+
+    this.webglGroup = new THREE.Group()
+    this.webglGroup.name = 'aux_lidar-' + this.name
+    this.world.webglGroup.add(this.webglGroup)
+    this.calcTransformMatrix()
+
+    // this.points_backup = mesh;
+
+    this._afterPreload()
+  }
+
   this.preload = function (onPreloadFinished) {
     this.onPreloadFinished = onPreloadFinished
 
-    const loader = new PCDLoader()
+    const url = this.frameInfo.get_aux_lidar_path(this.name)
 
-    const _self = this
-    loader.load(this.frameInfo.get_aux_lidar_path(this.name),
-      // ok
-      function (pcd) {
-        if (_self.destroyed) {
-          console.error('received aux_lidar after destroyed.')
-          return
-        }
-
-        const position = pcd.position
-
-        // _self.points_parse_time = new Date().getTime();
-        // console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "parse pionts ", _self.points_parse_time - _self.create_time, "ms");
-        _self.lidar_points = position
-
-        // add one box to calibrate lidar with lidar
-        _self.calib_box = _self.createCalibBox()
-
-        // install callback for box changing
-        _self.calib_box.onBoxChanged = () => {
-          _self.move_lidar(_self.calib_box)
-        }
-
-        // position = _self.transformPointsByOffset(position);
-        // position = _self.move_points(_self.calib_box);
-
-        const elements = _self.buildGeometry(position)
-        _self.elements = elements
-
-        _self.webglGroup = new THREE.Group()
-        _self.webglGroup.name = 'aux_lidar-' + _self.name
-        _self.world.webglGroup.add(_self.webglGroup)
-        _self.calcTransformMatrix()
-
-        // _self.points_backup = mesh;
-
-        _self._afterPreload()
-      },
-
-      // on progress,
-      function () {},
-
-      // on error
-      function () {
-        // error
-        console.log('load lidar failed.')
-        _self._afterPreload()
-      },
-
-      // on file loaded
-      function () {
-        // _self.points_readfile_time = new Date().getTime();
-        // console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, "read file ", _self.points_readfile_time - _self.create_time, "ms");
+    loadfile(url).then(buffer => {
+      if (this.destroyed) {
+        console.error('received pcd after world been destroyed.')
+        return
       }
-    )
+
+      const pcd = pointcloudReader.parse(buffer, url)
+      this.processPcd(pcd)
+    })
   }
 
   // internal funcs below

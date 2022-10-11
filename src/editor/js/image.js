@@ -1,7 +1,7 @@
 
-import { vector4to3, vector3_nomalize, pxrToXyz, matmul } from './util.js'
-import { globalObjectCategory } from './obj_cfg.js'
-import { MovableView, PopupDialog, ResizableMoveableView } from './common/popup_dialog.js'
+import { vector4to3, vector3_nomalize, pxrToXyz, matmul } from './util'
+import { globalObjectCategory } from './obj_cfg'
+import { ResizableMoveableView } from './common/popup_dialog'
 import { RectEditor } from './image_editor/rect_editor'
 
 function BoxImageContext (ui) {

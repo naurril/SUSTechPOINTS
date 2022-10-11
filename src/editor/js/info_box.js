@@ -1,4 +1,3 @@
-import { globalKeyDownManager } from './keydown_manager.js'
 import { PopupDialog } from './common/popup_dialog.js'
 
 class InfoBox extends PopupDialog {

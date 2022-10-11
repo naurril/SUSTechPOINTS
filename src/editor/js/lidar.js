@@ -1,12 +1,12 @@
 
 import * as THREE from 'three'
-import { matmul, eulerAngleToRotationMatrix, transpose, pxrToXyz, arrayAsVectorRange, arrayAsVectorIndexRange, vector_range, eulerAngleToRotationMatrix3By3 } from './util.js'
-import { PCDLoader } from './lib/PCDLoader.js'
+import { matmul, eulerAngleToRotationMatrix, transpose, pxrToXyz, arrayAsVectorRange, vector_range } from './util.js'
+//import { PCDLoader } from './lib/PCDLoader.js'
 import { globalObjectCategory } from './obj_cfg.js'
 
 import { settings } from './settings.js'
 import { loadfile } from './jsonrpc.js'
-import { pointcloudReader } from './pointcloud_reader.js'
+import { pointcloudReader } from './lib/pointcloud_reader'
 
 function Lidar (sceneMeta, world, frameInfo) {
   this.world = world
@@ -93,7 +93,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     if (normal.length > 0) { geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normal, 3)) }
 
     let color = pcd.color
-    if (color.length == 0) {
+    if (color.length === 0) {
       color = []
 
       // by default we set all points to same color
@@ -102,7 +102,7 @@ function Lidar (sceneMeta, world, frameInfo) {
       }
 
       // if enabled intensity we color points by intensity.
-      if (this.data.cfg.color_points == 'intensity' && pcd.intensity.length > 0) {
+      if (this.data.cfg.color_points === 'intensity' && pcd.intensity.length > 0) {
         // map intensity to color
         for (let i = 0; i < pcd.intensity.length; ++i) {
           let intensity = pcd.intensity[i]
@@ -180,35 +180,35 @@ function Lidar (sceneMeta, world, frameInfo) {
     })
   }
 
-  this.preload_pcdloader = function (onPreloadFinished) {
-    this.onPreloadFinished = onPreloadFinished
+  // this.preload_pcdloader = function (onPreloadFinished) {
+  //   this.onPreloadFinished = onPreloadFinished
 
-    const loader = new PCDLoader()
+  //   const loader = new PCDLoader()
 
-    const _self = this
-    loader.load(this.frameInfo.get_pcd_path(),
-      // ok
-      function (pcd) {
-        _self.processPcd(pcd)
-      },
+  //   const _self = this
+  //   loader.load(this.frameInfo.get_pcd_path(),
+  //     // ok
+  //     function (pcd) {
+  //       _self.processPcd(pcd)
+  //     },
 
-      // on progress,
-      function () {},
+  //     // on progress,
+  //     function () {},
 
-      // on error
-      function () {
-        // error
-        console.log('load pcd failed.')
-        _self._afterPreload()
-      },
+  //     // on error
+  //     function () {
+  //       // error
+  //       console.log('load pcd failed.')
+  //       _self._afterPreload()
+  //     },
 
-      // on file loaded
-      function () {
-        _self.points_readfile_time = new Date().getTime()
-        console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, 'read file ', _self.points_readfile_time - _self.create_time, 'ms')
-      }
-    )
-  }
+  //     // on file loaded
+  //     function () {
+  //       _self.points_readfile_time = new Date().getTime()
+  //       console.log(_self.points_load_time, _self.frameInfo.scene, _self.frameInfo.frame, 'read file ', _self.points_readfile_time - _self.create_time, 'ms')
+  //     }
+  //   )
+  // }
 
   this._afterPreload = function () {
     this.preloaded = true
@@ -235,7 +235,7 @@ function Lidar (sceneMeta, world, frameInfo) {
         this.hide_background()
       }
 
-      if (this.data.cfg.color_obj != 'no') {
+      if (this.data.cfg.color_obj !== 'no') {
         this.color_objects()
       }
 
@@ -283,9 +283,11 @@ function Lidar (sceneMeta, world, frameInfo) {
   }
 
   this.color_objects = function () {
-    if (this.data.cfg.color_obj != 'no') {
-      this.world.annotation.boxes.map((b) => {
-        if (!b.annotator) { this.setBoxPointsColor(b) }
+    if (this.data.cfg.color_obj !== 'no') {
+      this.world.annotation.boxes.forEach((b) => {
+        if (!b.annotator) { 
+          this.setBoxPointsColor(b) 
+        }
       })
     }
   }
@@ -296,7 +298,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     const color = this.points.geometry.getAttribute('color').array
 
     // step 1, color all points.
-    if (this.data.cfg.color_points == 'intensity' && this.pcd.intensity.length > 0) {
+    if (this.data.cfg.color_points === 'intensity' && this.pcd.intensity.length > 0) {
       // by intensity
       for (let i = 0; i < this.pcd.intensity.length; ++i) {
         let intensity = this.pcd.intensity[i]
@@ -426,7 +428,6 @@ function Lidar (sceneMeta, world, frameInfo) {
       }
     };
 
-    var indices = []
 
     const scaled_scale = {
       x: scale.x * scale_ratio.x,
@@ -437,7 +438,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     const box_corners = pxrToXyz(center, scaled_scale, rotation)
     const extreme = arrayAsVectorRange(box_corners, 4)
 
-    var indices = []
+    let indices = []
     for (let x = Math.floor(extreme.min[0] / this.points_index_grid_size); x <= Math.floor(extreme.max[0] / this.points_index_grid_size); x++) {
       for (let y = Math.floor(extreme.min[1] / this.points_index_grid_size); y <= Math.floor(extreme.max[1] / this.points_index_grid_size); y++) {
         for (let z = Math.floor(extreme.min[2] / this.points_index_grid_size); z <= Math.floor(extreme.max[2] / this.points_index_grid_size); z++) {
@@ -522,7 +523,7 @@ function Lidar (sceneMeta, world, frameInfo) {
       this.world.annotation.set_box_opacity(this.data.cfg.box_opacity)
 
       // copy colors, maybe changed.
-      if (this.data.cfg.color_obj != 'no') {
+      if (this.data.cfg.color_obj !== 'no') {
         const highlight_point_color = this.points.geometry.getAttribute('color')
         const backup_point_color = this.points.points_backup.geometry.getAttribute('color')
 
@@ -544,10 +545,10 @@ function Lidar (sceneMeta, world, frameInfo) {
       if (box) {
         // in highlighted mode, the box my be moved outof the highlighted area, so
         // we need to color them again.
-        if (this.data.cfg.color_obj != 'no') { this.setBoxPointsColor(box) }
+        if (this.data.cfg.color_obj !== 'no') { this.setBoxPointsColor(box) }
       }
 
-      if (this.data.cfg.color_obj != 'no') { this.updatePointsColor() }
+      if (this.data.cfg.color_obj !== 'no') { this.updatePointsColor() }
 
       this.world.webglGroup.add(this.points)
     }
@@ -650,7 +651,7 @@ function Lidar (sceneMeta, world, frameInfo) {
   // note how the 'lower part' is defined, we count
   // lowest_part_type has two options: lowest_point, or lowest_box
   this.getPointsDimensionOfBox = function (box, useBoxBottomAsLimit) {
-    var p = this.getPointsOfBoxInternal(this.points, box, 1).position // position is relative to box coordinates
+    let p = this.getPointsOfBoxInternal(this.points, box, 1).position // position is relative to box coordinates
 
     let lowest_limit = -box.scale.z / 2
 
@@ -660,7 +661,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     }
 
     // filter out lowest part
-    var p = p.filter(function (x) {
+    p = p.filter(function (x) {
       return x[2] - settings.ground_filter_height > lowest_limit
     })
 
@@ -685,11 +686,11 @@ function Lidar (sceneMeta, world, frameInfo) {
   // if the box size is fixed, and if corner align for z-axis aligns top,
   // we should filter ground points by the box bottom after aligned.
   this.get_dimension_of_points = function (indices, box) {
-    var p = this.getPointsOfBoxInternal(this.points, box, 1, indices).position
+    let p = this.getPointsOfBoxInternal(this.points, box, 1, indices).position
     const extreme1 = vector_range(p, 3)
 
     // filter out lowest part, to calculate x-y size.
-    var p = p.filter(function (x) {
+    p = p.filter(function (x) {
       return x[2] - settings.ground_filter_height > extreme1.min[2]
     })
 
@@ -724,7 +725,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     const { index, position } = this.getPointsOfBoxInternal(this.points, box, scale_ratio)
     const ptsTopPart = []
     const ptsGroundPart = []
-    const groundHeight = Math.min(0.5, box.scale.z * 0.2)
+    
+    //const groundHeight = Math.min(0.5, box.scale.z * 0.2)
+
     index.forEach((v, i) => {
       if (position[i][2] < -box.scale.z / 2 + 0.3) {
         ptsGroundPart.push(pos_array[v * 3])
@@ -869,7 +872,7 @@ function Lidar (sceneMeta, world, frameInfo) {
 
   this.growBox = function (box, min_distance, init_scale_ratio) {
     console.log('grow box, min_distance', min_distance, box.scale, init_scale_ratio)
-    const start_time = new Date().getTime()
+    //const start_time = new Date().getTime()
     const points = this.points
     const pos_array = points.geometry.getAttribute('position').array
 
@@ -1117,7 +1120,7 @@ function Lidar (sceneMeta, world, frameInfo) {
   this.resetBoxPointsColor = function (box) {
     const color = this.points.geometry.getAttribute('color').array
     const indices = this.getPointIndicesOfBox(this.points, box, 1.0)
-    if (this.data.cfg.color_points == 'intensity') {
+    if (this.data.cfg.color_points === 'intensity') {
       indices.forEach((i) => {
         let intensity = this.pcd.intensity[i]
         intensity *= 8
@@ -1142,9 +1145,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     const color = this.points.geometry.getAttribute('color')
 
     if (!target_color) {
-      if (this.data.cfg.color_obj == 'category') {
+      if (this.data.cfg.color_obj === 'category') {
         target_color = globalObjectCategory.get_color_by_category(box.obj_type)
-      } else if (this.data.cfg.color_obj == 'id')// by id
+      } else if (this.data.cfg.color_obj === 'id')// by id
       {
         const idx = (box.obj_track_id) ? parseInt(box.obj_track_id) : box.obj_local_id
         target_color = globalObjectCategory.get_color_by_id(idx)
@@ -1232,11 +1235,11 @@ function Lidar (sceneMeta, world, frameInfo) {
   }
 
   this.selectPointsByViewRect = function (x, y, w, h, camera) {
-    var points = this.points
-    const pos_array = points.geometry.getAttribute('position').array
+    
+    const pos_array =  this.points.geometry.getAttribute('position').array
 
     const indices = []
-    var points = []
+    let points = []
     let p = new THREE.Vector3()
 
     for (let i = 0; i < pos_array.length / 3; i++) {
