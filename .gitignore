@@ -12,3 +12,8 @@ package-lock.json
 build/
 doc/anno-tutorial
 conf
+help
+logs
+log
+tools/.ipynb*
+**.ipynb
