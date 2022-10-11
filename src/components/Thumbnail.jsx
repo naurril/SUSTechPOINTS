@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { jsonrpc } from '../editor/js/jsonrpc';
 
 
+
+
 class Thumbnail extends React.Component{
   
     constructor(props)
@@ -65,15 +67,11 @@ class Thumbnail extends React.Component{
         return s;
     }
 
-    onMaskClicked(e)
+    setValue(type, value)
     {
-        if (this.props.operation.type == 'framequality' && (this.state.framequality == 'low' || this.state.framequality=='unknown'))
+        if (type == 'framequality' && (this.state.framequality == 'low' || this.state.framequality=='unknown'))
             return;
 
-        let type = this.props.operation.type;
-        let value = this.state[type]== this.props.operation.default? this.props.operation.set : this.props.operation.default;
-
-        console.log( 'image quality', 'medium');
         let data = {};
         data[type] = value;
 
@@ -87,9 +85,27 @@ class Thumbnail extends React.Component{
             }
             else
             {
-                this.setState(data)
+                this.setState(ret.data)
             }
         });
+    }
+
+    onMaskClicked(e)
+    {
+
+
+        let type = this.props.operation.type;
+        let value = this.state[type]== this.props.operation.default? this.props.operation.set : this.props.operation.default;
+
+        this.setValue(type, value);
+        
+    }
+
+    onTagValueChanged(opType, e)
+    {
+        let type = opType;
+        let value = e.currentTarget.value;
+        this.setValue(type, value);
     }
 
     shown(){
@@ -136,8 +152,18 @@ class Thumbnail extends React.Component{
                 <div style={operationStyle} >
                     <Link className='color-red' to={`/editor?scene=${this.props.scene}&frame=${this.props.frame}`}> {this.props.frame}</Link>
                     <div className='color-red'> {
-                        Object.keys(this.state).filter(x=>x!='scene' && x!='frame').map(k=>{
-                            return <div key={k}>{k}: {this.state[k]}</div>
+                        Object.keys(this.props.allOps).filter(x=>x!='scene' && x!='frame').map(k=>{
+                            return <div key={k}>
+                                      <span>{k}: </span>
+                                      <select value={this.state[k]?this.state[k]:'notset'} onChange={e=>this.onTagValueChanged(k,e)}>
+                                        <option></option>                                            
+                                        {
+                                            this.props.allOps[k].map(i=>{
+                                                return <option key={k+"-"+i} value={i}>{i}</option>
+                                            })
+                                        }
+                                      </select>
+                                   </div>
                         })
                     } </div>
                 </div>

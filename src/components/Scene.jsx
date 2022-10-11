@@ -10,7 +10,7 @@ class Scene extends React.Component{
         super(props)
 
         this.operations = {
-            framequality: ['high', 'medium',],
+            framequality: ['high', 'medium', 'low'],
             weather: ['sunny', 'cloudy', 'raining'],
             roadtype: ['城市街道', '郊区道路', '乡村道路', '简易铺装道路', '非铺装平整道路'],
             imagequality: ['high','medium'],
@@ -37,7 +37,9 @@ class Scene extends React.Component{
                 default: 'high',
                 set: 'medium',
             },
-            filter: JSON.parse(JSON.stringify(this.filterScheme))
+            filter: JSON.parse(JSON.stringify(this.filterScheme)),
+            page: 0,
+            
         }
 
 
@@ -46,7 +48,28 @@ class Scene extends React.Component{
         console.log("scene created.");
     }
   
+    itemsPerPage = 200;
   
+    getPages()
+    {
+        if (!this.state.meta || !this.state.meta.frames)
+            return [0];
+
+        let pages = [];
+        for (let i = 0; i < this.state.meta.frames.length; i+=this.itemsPerPage){
+            pages.push(i);
+        }
+
+        return pages;
+    }
+
+    onPageChanged(e)
+    {
+        let page = parseInt(e.currentTarget.value);
+        this.setState({page});
+    }
+
+
     componentDidMount(){
 
         console.log("scene mounted.");
@@ -194,7 +217,7 @@ class Scene extends React.Component{
         this.setState({operation});
     }
     onApplyDefaultToAllClicked(e){
-        this.state.meta.frames.filter(i=>this.thumbnails[i].shown()).forEach(i=>{
+        this.state.meta.frames.slice(this.state.page, this.state.page+this.itemsPerPage).filter(i=>this.thumbnails[i].shown()).forEach(i=>{
             let data = {};
             data[this.state.operation.type] = this.state.operation.default;
     
@@ -218,7 +241,7 @@ class Scene extends React.Component{
 
 
     onApplyDefaultToUnsetClicked(e){
-        this.state.meta.frames.filter(i=>this.thumbnails[i].shown()).forEach(i=>{
+        this.state.meta.frames.slice(this.state.page, this.state.page+this.itemsPerPage).filter(i=>this.thumbnails[i].shown()).forEach(i=>{
             let data = {};
             data[this.state.operation.type] = this.state.operation.default;
     
@@ -373,13 +396,25 @@ class Scene extends React.Component{
                     </button>
                 </td>
             </tr>
+
+            <tr>
+                <td>page </td>
+                <td>
+                    <select onChange={(e)=>this.onPageChanged(e)}>{
+                        this.getPages().map(p=>{
+                            return <option key={p} value={p}>{p}</option>
+                        })
+                    }</select>
+                </td>
+            </tr>
+
             </tbody>
             </table>
 
 
             <div >
                 <div style={style}>{
-                    this.state.meta.frames?this.state.meta.frames.map(f=> {                                                
+                    this.state.meta.frames?this.state.meta.frames.slice(this.state.page, this.state.page+this.itemsPerPage).map(f=> {
                         return <Thumbnail 
                                 key={f} 
                                 scene={this.scene} 
@@ -388,6 +423,7 @@ class Scene extends React.Component{
                                 layout={this.state.layout} 
                                 size={this.state.thumbnailSize}
                                 operation={this.state.operation}
+                                allOps={this.operations}
                                 registerObj = {this.registerObj.bind(this)}
                                 filter = {this.state.filter}
                                 ></Thumbnail>

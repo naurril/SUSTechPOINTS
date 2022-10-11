@@ -654,7 +654,7 @@ class ImageContext extends ResizableMoveableView{
             let p = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
             p.setAttribute("cx", x);
             p.setAttribute("cy", y);
-            p.setAttribute("r", 0.1);
+            p.setAttribute("r", 1);
             //p.setAttribute("stroke-width", "1");
 
             if (points_color)

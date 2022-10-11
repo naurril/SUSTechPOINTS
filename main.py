@@ -453,18 +453,22 @@ class Api(object):
 
             frame = data['frame'] #url_path[len(url_path)-1]        
             scene = data['scene']# url_path[len(url_path)-3]
+
+            # if not os.path.exists(os.path.join('data',scene, 'meta')):
+            #     os.mkdir(os.path.join('data',scene, 'meta'))
+
             if "overwrite" in data:
                 overwrite = data['overwrite']
             else:
                 overwrite = True  #default to true
             
             if overwrite:
-                tag.update_tag("./data", scene, frame, data['data'])
+                updated = tag.update_tag("./data", scene, frame, data['data'])
             else:
-                tag.add_tag("./data", scene, frame, data['data'])
+                updated = tag.add_tag("./data", scene, frame, data['data'])
                 
             logging.info(userid+","+scene+","+frame+", saved tag.")
-            return {'result':"success"}
+            return {'result':"success", "data":updated}
         else:
             logging.info(userid+","+scene+","+frame+", saved tag rejected.")
             return {'result':"fail", 'cause': 'not permited for user'}

@@ -592,7 +592,7 @@ class RectEditor{
             return;
         }
 
-        if (ret.scene != this.scene || ret.frame != this.frame || ret.cameraType != this.cameraType || ret.cameraName != this.cameraName)
+        if (ret.frame != this.frame || ret.cameraType != this.cameraType || ret.cameraName != this.cameraName)
         {
             console.log("lagged data. ignored.");
             return;
@@ -789,7 +789,7 @@ class RectEditor{
             
             if (rect.data.obj_id)
             {
-                window.editor.makeVisible(rect.data.obj_id);
+                window.editor.selectBoxById(rect.data.obj_id);
             }
             
         }

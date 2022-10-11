@@ -73,11 +73,15 @@ def crop_pts(pts, box):
     center = np.array([box['psr']['position']['x'], box['psr']['position']['y'], box['psr']['position']['z']])
     box_pts = np.matmul((pts - center), (trans_matrix))
 
-    filter = (box_pts[:, 0] < box['psr']['scale']['x']/2) & (box_pts[:, 0] > - box['psr']['scale']['x']/2) & \
-             (box_pts[:, 1] < box['psr']['scale']['y']/2) & (box_pts[:, 1] > - box['psr']['scale']['y']/2) & \
-             (box_pts[:, 2] < box['psr']['scale']['z']/2) & (box_pts[:, 2] > - box['psr']['scale']['z']/2)
+    filter =  (box_pts[:, 0] < box['psr']['scale']['x']/2) & (box_pts[:, 0] > - box['psr']['scale']['x']/2) & \
+             (box_pts[:, 1] < box['psr']['scale']['y']/2) & (box_pts[:, 1] > - box['psr']['scale']['y']/2)
+
+    topfilter =    filter & (box_pts[:, 2] < box['psr']['scale']['z']/2) & (box_pts[:, 2] >= - box['psr']['scale']['z']/2 + 0.3)
+
+    groundfilter = filter & (box_pts[:, 2] < -box['psr']['scale']['z']/2+0.3) & (box_pts[:, 2] > - box['psr']['scale']['z']/2)
     
-    return pts[filter]
+    
+    return [pts[topfilter], pts[groundfilter]]
 
 
 
@@ -138,11 +142,18 @@ def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, int
         if label_index is not None:
             continue
 
-        img_pts = proj_pts3d_to_img(o['pts'], extrinsic, intrinsic, image_width, image_height)
+        img_pts_top = proj_pts3d_to_img(o['pts'][0], extrinsic, intrinsic, image_width, image_height)
+        img_pts_ground = proj_pts3d_to_img(o['pts'][1], extrinsic, intrinsic, image_width, image_height)
 
-        if img_pts.shape[0]>2:
-            p1 = np.min(img_pts, axis=0)
-            p2 = np.max(img_pts, axis=0)
+        if img_pts_top.shape[0]>3:
+            p1 = np.min(img_pts_top, axis=0)
+            p2 = np.max(img_pts_top, axis=0)
+
+            if img_pts_ground.shape[0] > 3:
+                q1 = np.min(img_pts_ground, axis=0)
+                q2 = np.max(img_pts_ground, axis=0)
+
+            
             obj = {
                 "annotator": "3dbox",                        
                 "obj_id": o['box3d']['obj_id'],
@@ -151,7 +162,7 @@ def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, int
                     "x1": p1[0],
                     "y1": p1[1],
                     "x2": p2[0],
-                    "y2": p2[1]
+                    "y2": q2[1] if img_pts_ground.shape[0]>3 else p2[1] #p2[1]
                 }
             }
             

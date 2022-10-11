@@ -3,3 +3,4 @@ jinja2
 cherrypy
 filterpy
 cheroot != 8.4.4
+jwt

@@ -8,7 +8,7 @@ import pypcd.pypcd as pypcd
 import argparse
 import re
 
-parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
+parser = argparse.ArgumentParser(description='')        
 parser.add_argument('data_folder', type=str, default='./data', help="")
 parser.add_argument('scene', type=str, default='', help="")
 parser.add_argument('camera_type', type=str, default='', help="")

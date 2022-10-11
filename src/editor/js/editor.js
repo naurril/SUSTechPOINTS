@@ -1279,6 +1279,18 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     };
 
+    this.selectBoxById = function(targetTrackId){
+        let box = this.data.world.annotation.findBoxByTrackId(targetTrackId);
+
+        if (box){
+            if (this.selected_box != box){
+                this.selectBox(box);
+            }
+        }
+
+    };
+
+
     this.object_changed = function(event){
         var sceneName = this.data.world.frameInfo.scene; //this.editorUi.querySelector("#scene-selector").value;
 
