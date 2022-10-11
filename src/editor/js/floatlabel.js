@@ -8,7 +8,6 @@ import { ObjTypeEditor } from './common/obj_type_editor.js'
 
 class FastToolBox {
   constructor (ui, eventHandler) {
-    
     this.ui = ui
     this.eventHandler = eventHandler
 
@@ -178,8 +177,6 @@ class FloatLabelManager {
   }
 
   remove_all_labels () {
-    
-
     if (this.labelsUi.children.length > 0) {
       for (let c = this.labelsUi.children.length - 1; c >= 0; c--) {
         this.labelsUi.children[c].remove()
@@ -307,7 +304,6 @@ class FloatLabelManager {
     const label = document.createElement('div')
 
     label.id = 'obj-local-' + box.obj_local_id
-
 
     label.update_text = function () {
       let label_text = '<div class="label-obj-type-text">'

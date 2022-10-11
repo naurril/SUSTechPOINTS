@@ -1353,7 +1353,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     const editors = this.activeEditorList()
     const lastEditor = editors[editors.length - 1]
-    if (lastEditor.target.world.frameInfo.frame_index == maxFrameIndex) {
+    if (lastEditor.target.world.frameInfo.frameIndex == maxFrameIndex) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
         this.nextObj()
       } else {
@@ -1372,7 +1372,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.prevBatch = function () {
     const firstEditor = this.activeEditorList()[0]
-    if (firstEditor.target.world.frameInfo.frame_index == 0) {
+    if (firstEditor.target.world.frameInfo.frameIndex == 0) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
         this.prevObj()
       } else {

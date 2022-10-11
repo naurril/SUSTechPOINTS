@@ -57,7 +57,7 @@ function ViewManager (mainViewContainer, webglScene, renderer, globalRenderFunc,
   function createMainView (scene, renderer, globalRenderFunc, container, onBoxChanged) {
     const view = {}
 
-    view.backgroundColor =　(document.documentElement.className === 'theme-dark') ? new THREE.Color(0.0, 0.0, 0.0) : new THREE.Color(1.0, 1.0, 1.0)
+    view.backgroundColor = (document.documentElement.className === 'theme-dark') ? new THREE.Color(0.0, 0.0, 0.0) : new THREE.Color(1.0, 1.0, 1.0)
     view.zoomRatio = 1.0 // useless for mainview
 
     let camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 1, 500)
@@ -447,7 +447,7 @@ function BoxView (ui, mainViewContainer, scene, renderer, viewManager) {
     view.name = 'topview'
     view.zoomRatio = 1.0
 
-    view.backgroundColor = 　(document.documentElement.className === 'theme-dark') ? new THREE.Color(0.1, 0.05, 0.05) : new THREE.Color(0.95, 0.9, 0.9)
+    view.backgroundColor = (document.documentElement.className === 'theme-dark') ? new THREE.Color(0.1, 0.05, 0.05) : new THREE.Color(0.95, 0.9, 0.9)
     view.container = container
     view.scene = scene
     view.renderer = renderer
@@ -594,17 +594,15 @@ function BoxView (ui, mainViewContainer, scene, renderer, viewManager) {
     }
 
     view.updateCameraRange = function (box) {
-      let expCameraWidth, expCameraHeight, expCameraClip
-
       // view.width = 0.2;//params["side view width"];
 
       const viewWidth = view.placeHolderUi.clientWidth
       const viewHeight = view.placeHolderUi.clientHeight
 
-      expCameraWidth = box.scale.x * 1.5 * view.zoomRatio
-      expCameraHeight = box.scale.z * 1.5 * view.zoomRatio
+      let expCameraWidth = box.scale.x * 1.5 * view.zoomRatio
+      let expCameraHeight = box.scale.z * 1.5 * view.zoomRatio
 
-      expCameraClip = box.scale.y * 1.2
+      const expCameraClip = box.scale.y * 1.2
 
       if (expCameraWidth / expCameraHeight > viewWidth / viewHeight) {
         // increase height

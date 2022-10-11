@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { loadfile } from './jsonrpc.js'
-//import { PCDLoader } from './lib/PCDLoader.js'
+// import { PCDLoader } from './lib/PCDLoader.js'
 import { pointcloudReader } from './lib/pointcloud_reader.js'
 import { matmul, eulerAngleToRotationMatrix3By3 } from './util.js'
 
@@ -27,10 +27,10 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
   this.preloaded = false
   this.loaded = false
 
-  this.go_cmd_received = false
+  this.goCmdReceived = false
   this.webglScene = null
-  this.on_go_finished = null
-  this.go = function (webglScene, on_go_finished) {
+  this.onGoFinished = null
+  this.go = function (webglScene, onGoFinished) {
     this.webglScene = webglScene
 
     if (this.preloaded) {
@@ -43,13 +43,13 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
       }
 
       this.loaded = true
-      if (on_go_finished) { on_go_finished() }
+      if (onGoFinished) { onGoFinished() }
     }
 
     // anyway we save go cmd
 
-    this.go_cmd_received = true
-    this.on_go_finished = on_go_finished
+    this.goCmdReceived = true
+    this.onGoFinished = onGoFinished
   }
 
   this.showRadarBox = function () {
@@ -62,7 +62,7 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
     this.webglGroup.remove(this.radar_box)
   }
 
-  this.get_unoffset_radar_points = function () {
+  this.getUnOffsetRadarPoints = function () {
     if (this.elements) {
       const pts = this.elements.points.geometry.getAttribute('position').array
       return pts.map((p, i) => p - this.world.coordinatesOffset[i % 3])
@@ -72,18 +72,18 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
   }
 
   // todo: what if it's not preloaded yet
-  this.unload = function (keep_box) {
+  this.unload = function (deepBox) {
     if (this.elements) {
       this.webglGroup.remove(this.elements.points)
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.remove(a)) }
 
-      if (!keep_box) { this.webglGroup.remove(this.radar_box) }
+      if (!deepBox) { this.webglGroup.remove(this.radar_box) }
     }
     this.loaded = false
   }
 
   // todo: its possible to remove points before preloading,
-  this.deleteAll = function (keep_box) {
+  this.deleteAll = function (deepBox) {
     if (this.loaded) {
       this.unload()
     }
@@ -108,7 +108,7 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
       this.elements = null
     }
 
-    if (!keep_box && this.radar_box) {
+    if (!deepBox && this.radar_box) {
       this.world.data.dbg.free()
       this.radar_box.geometry.dispose()
       this.radar_box.material.dispose()
@@ -196,8 +196,8 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
     if (this.onPreloadFinished) {
       this.onPreloadFinished()
     }
-    if (this.go_cmd_received) {
-      this.go(this.webglScene, this.on_go_finished)
+    if (this.goCmdReceived) {
+      this.go(this.webglScene, this.onGoFinished)
     }
   }
 
@@ -304,12 +304,12 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
 
   this.move_points = function (points, box) {
     const trans = eulerAngleToRotationMatrix3By3(box.rotation)
-    const rotated_points = matmul(trans, points, 3)
+    const rotatedPoints = matmul(trans, points, 3)
     const translation = [box.position.x, box.position.y, box.position.z]
-    const translated_points = rotated_points.map((p, i) => {
+    const translatedPoints = rotatedPoints.map((p, i) => {
       return p + translation[i % 3]
     })
-    return translated_points
+    return translatedPoints
   }
 
   this.move_radar_points = function (box) {
@@ -321,10 +321,10 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
   }
 
   this.move_radar = function (box) {
-    const translated_points = this.move_radar_points(box)
-    const translated_velocity = this.move_radar_velocity(box)
+    const translatedPoints = this.move_radar_points(box)
+    const translatedVelocity = this.move_radar_velocity(box)
 
-    const elements = this.buildRadarGeometry(translated_points, translated_velocity)
+    const elements = this.buildRadarGeometry(translatedPoints, translatedVelocity)
 
     // remove old points
     this.unload(true)
@@ -332,7 +332,7 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
 
     this.elements = elements
     // _self.points_backup = mesh;
-    if (this.go_cmd_received) // this should be always true
+    if (this.goCmdReceived) // this should be always true
     {
       this.webglGroup.add(this.elements.points)
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.add(a)) }
@@ -370,8 +370,8 @@ function RadarManager (sceneMeta, world, frameInfo) {
     return true
   }
 
-  this.go = function (webglScene, on_go_finished) {
-    this.radarList.forEach(r => r.go(webglScene, on_go_finished))
+  this.go = function (webglScene, onGoFinished) {
+    this.radarList.forEach(r => r.go(webglScene, onGoFinished))
   }
 
   this.preload = function (onPreloadFinished) {

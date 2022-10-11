@@ -155,21 +155,21 @@ class Trajectory extends PopupDialog {
   calculateCoordinateTransform (tracks) {
     tracks = tracks.filter(x => x[1])
     const xs = tracks.map(x => x[1].psr.position.x)
-    const max_x = Math.max(...xs)//, 0);
-    const min_x = Math.min(...xs)//, 0);
+    const maxX = Math.max(...xs)//, 0);
+    const minX = Math.min(...xs)//, 0);
 
     const ys = tracks.map(x => x[1].psr.position.y)
-    const max_y = Math.max(...ys)//, 0);
-    const min_y = Math.min(...ys)//, 0);
+    const maxY = Math.max(...ys)//, 0);
+    const minY = Math.min(...ys)//, 0);
 
-    let scale = Math.max(max_x - min_x, max_y - min_y)
+    let scale = Math.max(maxX - minX, maxY - minY)
 
     if (scale === 0) { scale = 1 } else { scale = 800 / scale } // svg view is 1000*1000
 
     this.posScale = scale
     this.posTrans = {
-      x: -min_x * this.posScale + 100,
-      y: max_y * this.posScale + 100
+      x: -minX * this.posScale + 100,
+      y: maxY * this.posScale + 100
     }
   }
 

@@ -343,13 +343,13 @@ class ProjectiveView {
   }
 
   updateViewHandle (viewport, objectDimension, objectPosition, objectRotation) {
-    const viewport_ratio = viewport.width / viewport.height
+    const viewportRatio = viewport.width / viewport.height
     const boxRatio = objectDimension.x / objectDimension.y
 
     let width = 0
     let height = 0
 
-    if (boxRatio > viewport_ratio) {
+    if (boxRatio > viewportRatio) {
       // handle width is viewport.width*2/3
       width = viewport.width * (2 / 3) / viewport.zoomRatio
       height = width / boxRatio
@@ -526,30 +526,30 @@ class ProjectiveView {
 
         this.ui.querySelector('#v-buttons').style.display = 'inherit'
 
-        const handle_delta = {
+        const handleDelta = {
           x: mouseCurrentPosition.x - this.mouseStartPosition.x,
           y: -(mouseCurrentPosition.y - this.mouseStartPosition.y) // reverse since it'll be used by 3d-coord system
         }
 
-        console.log('delta', handle_delta)
-        if (handle_delta.x === 0 && handle_delta.y === 0 && !event.ctrlKey && !event.shiftKey) {
+        console.log('delta', handleDelta)
+        if (handleDelta.x === 0 && handleDelta.y === 0 && !event.ctrlKey && !event.shiftKey) {
           return
         }
 
-        const ratio_delta = {
-          x: handle_delta.x / this.viewHandleDimension.x,
-          y: handle_delta.y / this.viewHandleDimension.y
+        const ratioDelta = {
+          x: handleDelta.x / this.viewHandleDimension.x,
+          y: handleDelta.y / this.viewHandleDimension.y
         }
 
         if (direction) {
-          this.onEdgeChanged(ratio_delta, direction, event.ctrlKey, event.shiftKey)
+          this.onEdgeChanged(ratioDelta, direction, event.ctrlKey, event.shiftKey)
 
           // if (event.ctrlKey){
           //     this.onAutoShrink(direction);
           // }
         } else {
           // when intall handler for mover, the direcion is left null
-          this.onMoved(ratio_delta)
+          this.onMoved(ratioDelta)
         }
       }
 
@@ -558,12 +558,12 @@ class ProjectiveView {
 
         mouseCurrentPosition = { x: event.layerX, y: event.layerY }
 
-        const handle_delta = {
+        const handleDelta = {
           x: mouseCurrentPosition.x - this.mouseStartPosition.x,
           y: mouseCurrentPosition.y - this.mouseStartPosition.y // don't reverse direction
         }
 
-        this.moveLines(handle_delta, direction)
+        this.moveLines(handleDelta, direction)
       }
     }
   }
@@ -615,7 +615,7 @@ class ProjectiveView {
 
       this.hideButtons()
 
-      const handle_center = {
+      const handleCenter = {
         x: parseInt(line.getAttribute('x1'))
       }
 
@@ -623,7 +623,7 @@ class ProjectiveView {
         x: event.layerX,
         y: event.layerY,
 
-        handle_offset_x: handle_center.x - event.layerX
+        handle_offset_x: handleCenter.x - event.layerX
       }
 
       let mouseCurrentPosition = { x: this.mouseStartPosition.x, y: this.mouseStartPosition.y }
@@ -635,14 +635,14 @@ class ProjectiveView {
       svg.onmousemove = (event) => {
         mouseCurrentPosition = { x: event.layerX, y: event.layerY }
 
-        const handle_center_cur_pos = {
+        const handleCenterCurPos = {
           x: mouseCurrentPosition.x + this.mouseStartPosition.handle_offset_x,
           y: mouseCurrentPosition.y
         }
 
         theta = Math.atan2(
-          handle_center_cur_pos.y - this.viewCenter.y,
-          handle_center_cur_pos.x - this.viewCenter.x)
+          handleCenterCurPos.y - this.viewCenter.y,
+          handleCenterCurPos.x - this.viewCenter.x)
         console.log(theta)
 
         this.rotate_lines(theta)
@@ -902,7 +902,7 @@ class ProjectiveViewOps {
       virtbox.scale.z += delta.z
 
       // note dim is the relative value
-      const new_dim = scope.box.world.lidar.getPointsDimensionOfBox(virtbox, useBoxBottomAsLimit)
+      const newDim = scope.box.world.lidar.getPointsDimensionOfBox(virtbox, useBoxBottomAsLimit)
 
       for (const axis in direction) {
         if (direction[axis] !== 0) {
@@ -912,9 +912,9 @@ class ProjectiveViewOps {
           }
 
           // scope.box.scale[axis]/2 - direction[axis]*extreme[end][axis];
-          const truedelta = delta[axis] / 2 + direction[axis] * new_dim[end][axis] - scope.box.scale[axis] / 2
+          const truedelta = delta[axis] / 2 + direction[axis] * newDim[end][axis] - scope.box.scale[axis] / 2
 
-          console.log(new_dim, delta)
+          console.log(newDim, delta)
           scope.boxOp.translateBox(scope.box, axis, direction[axis] * truedelta)
           // scope.box.scale[axis] -= delta;
         }
@@ -1004,8 +1004,8 @@ class ProjectiveViewOps {
     // box.x  vertical
     // box.y  horizental
 
-    function limitMoveStep (v, min_abs_v) {
-      if (v < 0) { return Math.min(v, -min_abs_v) } else if (v > 0) { return Math.max(v, min_abs_v) } else { return v }
+    function limitMoveStep (v, minAbsV) {
+      if (v < 0) { return Math.min(v, -minAbsV) } else if (v > 0) { return Math.max(v, minAbsV) } else { return v }
     }
 
     function onZMoved (ratio) {
@@ -1064,8 +1064,8 @@ class ProjectiveViewOps {
       }
     }
 
-    function onZAutoRotate (noscaling, rotate_method) {
-      if (rotate_method === 'moving-direction') {
+    function onZAutoRotate (noscaling, rotateMethod) {
+      if (rotateMethod === 'moving-direction') {
         const estimatedRot = scope.boxOp.estimate_rotation_by_moving_direciton(scope.box)
 
         if (estimatedRot) {
@@ -1342,12 +1342,18 @@ class ProjectiveViewOps {
   // exports
 
   hideAllHandlers () {
-    this.ui.querySelectorAll('.subview-svg').forEach(ui => ui.style.display = 'none')
+    this.ui.querySelectorAll('.subview-svg')
+      .forEach(ui => {
+        ui.style.display = 'none'
+      })
     // this.ui.querySelectorAll(".v-buttons-wrapper").forEach(ui=>ui.style.display="none");
   };
 
   showAllHandlers () {
-    this.ui.querySelectorAll('.subview-svg').forEach(ui => ui.style.display = '')
+    this.ui.querySelectorAll('.subview-svg')
+      .forEach(ui => {
+        ui.style.display = ''
+      })
     // this.ui.querySelectorAll(".v-buttons-wrapper").forEach(ui=>ui.style.display="");
   };
 

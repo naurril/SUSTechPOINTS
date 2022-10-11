@@ -724,7 +724,7 @@ class ImageContext extends ResizableMoveableView {
     if (this.cfg.projectRadarToImage) {
       const svg = this.ui.querySelector('#svg-points')
       this.world.radars.radarList.forEach(radar => {
-        const pts = radar.get_unoffset_radar_points()
+        const pts = radar.getUnOffsetRadarPoints()
         const ptsOnImg = points3d_to_image2d(pts, calib)
 
         // there may be none after projecting

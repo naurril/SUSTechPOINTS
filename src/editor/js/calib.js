@@ -90,21 +90,21 @@ class Calib {
       if (this.onPreloadFinished) {
         this.onPreloadFinished()
       }
-      if (this.go_cmd_received) {
-        this.go(this.webglScene, this.on_go_finished)
+      if (this.goCmdReceived) {
+        this.go(this.webglScene, this.onGoFinished)
       }
     })
   };
 
-  go_cmd_received = false
-  on_go_finished = null
+  goCmdReceived = false
+  onGoFinished = null
 
-  go (webglScene, on_go_finished) {
+  go (webglScene, onGoFinished) {
     if (this.preloaded) {
-      if (on_go_finished) { on_go_finished() }
+      if (onGoFinished) { onGoFinished() }
     } else {
-      this.go_cmd_received = true
-      this.on_go_finished = on_go_finished
+      this.goCmdReceived = true
+      this.onGoFinished = onGoFinished
     }
   };
 

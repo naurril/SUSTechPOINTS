@@ -1,7 +1,7 @@
 
 import * as THREE from 'three'
 import { matmul, eulerAngleToRotationMatrix, transpose, pxrToXyz, arrayAsVectorRange, vector_range } from './util.js'
-//import { PCDLoader } from './lib/PCDLoader.js'
+// import { PCDLoader } from './lib/PCDLoader.js'
 import { globalObjectCategory } from './obj_cfg.js'
 
 import { settings } from './settings.js'
@@ -217,17 +217,17 @@ function Lidar (sceneMeta, world, frameInfo) {
     if (this.onPreloadFinished) {
       this.onPreloadFinished()
     }
-    if (this.go_cmd_received) {
-      this.go(this.webglScene, this.on_go_finished)
+    if (this.goCmdReceived) {
+      this.go(this.webglScene, this.onGoFinished)
     }
   }
 
   this.loaded = false
   this.webglScene = null
-  this.go_cmd_received = false
-  this.on_go_finished = null
+  this.goCmdReceived = false
+  this.onGoFinished = null
 
-  this.go = function (webglScene, on_go_finished) {
+  this.go = function (webglScene, onGoFinished) {
     this.webglScene = webglScene
 
     if (this.preloaded) {
@@ -239,10 +239,10 @@ function Lidar (sceneMeta, world, frameInfo) {
         this.color_objects()
       }
 
-      if (on_go_finished) { on_go_finished() }
+      if (onGoFinished) { onGoFinished() }
     } else {
-      this.go_cmd_received = true
-      this.on_go_finished = on_go_finished
+      this.goCmdReceived = true
+      this.onGoFinished = onGoFinished
     }
   }
 
@@ -285,8 +285,8 @@ function Lidar (sceneMeta, world, frameInfo) {
   this.color_objects = function () {
     if (this.data.cfg.color_obj !== 'no') {
       this.world.annotation.boxes.forEach((b) => {
-        if (!b.annotator) { 
-          this.setBoxPointsColor(b) 
+        if (!b.annotator) {
+          this.setBoxPointsColor(b)
         }
       })
     }
@@ -427,7 +427,6 @@ function Lidar (sceneMeta, world, frameInfo) {
         z: scale_ratio
       }
     };
-
 
     const scaled_scale = {
       x: scale.x * scale_ratio.x,
@@ -721,22 +720,22 @@ function Lidar (sceneMeta, world, frameInfo) {
   }
 
   this.getPointsOfBoxInWorldCoordinates = function (box, scale_ratio) {
-    const pos_array = this.points.geometry.getAttribute('position').array
+    const posArray = this.points.geometry.getAttribute('position').array
     const { index, position } = this.getPointsOfBoxInternal(this.points, box, scale_ratio)
     const ptsTopPart = []
     const ptsGroundPart = []
-    
-    //const groundHeight = Math.min(0.5, box.scale.z * 0.2)
+
+    // const groundHeight = Math.min(0.5, box.scale.z * 0.2)
 
     index.forEach((v, i) => {
       if (position[i][2] < -box.scale.z / 2 + 0.3) {
-        ptsGroundPart.push(pos_array[v * 3])
-        ptsGroundPart.push(pos_array[v * 3 + 1])
-        ptsGroundPart.push(pos_array[v * 3 + 2])
+        ptsGroundPart.push(posArray[v * 3])
+        ptsGroundPart.push(posArray[v * 3 + 1])
+        ptsGroundPart.push(posArray[v * 3 + 2])
       } else {
-        ptsTopPart.push(pos_array[v * 3])
-        ptsTopPart.push(pos_array[v * 3 + 1])
-        ptsTopPart.push(pos_array[v * 3 + 2])
+        ptsTopPart.push(posArray[v * 3])
+        ptsTopPart.push(posArray[v * 3 + 1])
+        ptsTopPart.push(posArray[v * 3 + 2])
       }
     })
 
@@ -757,7 +756,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     if (!scale_ratio) {
       scale_ratio = 1
     }
-    const pos_array = points.geometry.getAttribute('position').array
+    const posArray = points.geometry.getAttribute('position').array
 
     const relative_position = []
     const relative_position_wo_rotation = []
@@ -766,16 +765,16 @@ function Lidar (sceneMeta, world, frameInfo) {
     const trans = transpose(eulerAngleToRotationMatrix(r, { x: 0, y: 0, z: 0 }), 4)
 
     const indices = []
-    let cand_point_indices = point_indices
+    let candPointIndices = point_indices
     if (!point_indices) {
-      cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, scale_ratio)
+      candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, scale_ratio)
     }
 
-    cand_point_indices.forEach(function (i) {
+    candPointIndices.forEach(function (i) {
       // for (var i  = 0; i < pos.count; i++){
-      const x = pos_array[i * 3]
-      const y = pos_array[i * 3 + 1]
-      const z = pos_array[i * 3 + 2]
+      const x = posArray[i * 3]
+      const y = posArray[i * 3 + 1]
+      const z = posArray[i * 3 + 2]
 
       const p = [x - box.position.x, y - box.position.y, z - box.position.z, 1]
 
@@ -807,17 +806,17 @@ function Lidar (sceneMeta, world, frameInfo) {
 
   this.findTop = function (box, init_scale_ratio) {
     const points = this.points
-    const pos_array = points.geometry.getAttribute('position').array
+    const posArray = points.geometry.getAttribute('position').array
 
     const trans = transpose(eulerAngleToRotationMatrix(box.rotation, { x: 0, y: 0, z: 0 }), 4)
 
-    const cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio)
+    const candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio)
     // all cand points are translated into box coordinates
 
-    const translated_cand_points = cand_point_indices.map(function (i) {
-      const x = pos_array[i * 3]
-      const y = pos_array[i * 3 + 1]
-      const z = pos_array[i * 3 + 2]
+    const translatedCandPoints = candPointIndices.map(function (i) {
+      const x = posArray[i * 3]
+      const y = posArray[i * 3 + 1]
+      const z = posArray[i * 3 + 2]
 
       const p = [x - box.position.x, y - box.position.y, z - box.position.z, 1]
       const tp = matmul(trans, p, 4)
@@ -826,7 +825,7 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     let maxZ = -1000
 
-    translated_cand_points.forEach((tp, i) => {
+    translatedCandPoints.forEach((tp, i) => {
       if (Math.abs(tp[0]) < box.scale.x * init_scale_ratio.x / 2 &&
                 Math.abs(tp[1]) < box.scale.y * init_scale_ratio.y / 2 &&
                 Math.abs(tp[2]) < box.scale.z * init_scale_ratio.z / 2) {
@@ -840,17 +839,17 @@ function Lidar (sceneMeta, world, frameInfo) {
   // find bottom and top points, in range of init_scale_ratio
   this.findBottom = function (box, init_scale_ratio) {
     const points = this.points
-    const pos_array = points.geometry.getAttribute('position').array
+    const posArray = points.geometry.getAttribute('position').array
 
     const trans = transpose(eulerAngleToRotationMatrix(box.rotation, { x: 0, y: 0, z: 0 }), 4)
 
-    const cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio)
+    const candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio)
     // all cand points are translated into box coordinates
 
-    const translated_cand_points = cand_point_indices.map(function (i) {
-      const x = pos_array[i * 3]
-      const y = pos_array[i * 3 + 1]
-      const z = pos_array[i * 3 + 2]
+    const translatedCandPoints = candPointIndices.map(function (i) {
+      const x = posArray[i * 3]
+      const y = posArray[i * 3 + 1]
+      const z = posArray[i * 3 + 2]
 
       const p = [x - box.position.x, y - box.position.y, z - box.position.z, 1]
       const tp = matmul(trans, p, 4)
@@ -859,7 +858,7 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     let minZ = 1000
 
-    translated_cand_points.forEach((tp, i) => {
+    translatedCandPoints.forEach((tp, i) => {
       if (Math.abs(tp[0]) < box.scale.x * init_scale_ratio.x / 2 &&
                 Math.abs(tp[1]) < box.scale.y * init_scale_ratio.y / 2 &&
                 Math.abs(tp[2]) < box.scale.z * init_scale_ratio.z / 2) {
@@ -870,15 +869,15 @@ function Lidar (sceneMeta, world, frameInfo) {
     return minZ
   }
 
-  this.growBox = function (box, min_distance, init_scale_ratio) {
-    console.log('grow box, min_distance', min_distance, box.scale, init_scale_ratio)
-    //const start_time = new Date().getTime()
+  this.growBox = function (box, minDistance, init_scale_ratio) {
+    console.log('grow box, minDistance', minDistance, box.scale, init_scale_ratio)
+    // const start_time = new Date().getTime()
     const points = this.points
-    const pos_array = points.geometry.getAttribute('position').array
+    const posArray = points.geometry.getAttribute('position').array
 
     const trans = transpose(eulerAngleToRotationMatrix(box.rotation, { x: 0, y: 0, z: 0 }), 4)
 
-    const cand_point_indices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio)
+    const candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio)
 
     // todo: different definition.
     let groundLevel = 0.3
@@ -890,10 +889,10 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     // all cand points are translated into box coordinates
 
-    const translated_cand_points = cand_point_indices.map(function (i) {
-      const x = pos_array[i * 3]
-      const y = pos_array[i * 3 + 1]
-      const z = pos_array[i * 3 + 2]
+    const translatedCandPoints = candPointIndices.map(function (i) {
+      const x = posArray[i * 3]
+      const y = posArray[i * 3 + 1]
+      const z = posArray[i * 3 + 2]
 
       const p = [x - box.position.x, y - box.position.y, z - box.position.z, 1]
       const tp = matmul(trans, p, 4)
@@ -915,7 +914,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     }
 
     let inside_points = 0
-    translated_cand_points.forEach((tp, i) => {
+    translatedCandPoints.forEach((tp, i) => {
       if ((Math.abs(tp[0]) > box.scale.x / 2 + 0.01) ||
                 (Math.abs(tp[1]) > box.scale.y / 2 + 0.01) ||
                 (Math.abs(tp[2]) > box.scale.z / 2 + 0.01)) {
@@ -967,149 +966,149 @@ function Lidar (sceneMeta, world, frameInfo) {
       }
     }
 
-    // let translated_cand_points_with_ground = translated_cand_points;
+    // let translated_cand_points_with_ground = translatedCandPoints;
 
     // filter ground points
-    // translated_cand_points = translated_cand_points.filter(function(tp, i){
+    // translatedCandPoints = translatedCandPoints.filter(function(tp, i){
     //     return tp[2] > -box.scale.z/2 + groundLevel;
     // });
 
-    let extreme_adjusted = true
+    let extremeAdjusted = true
     let loop_count = 0
-    while (extreme_adjusted) {
+    while (extremeAdjusted) {
       loop_count++
       if (loop_count > 100000) {
         console.log('deep loops in growBox')
         break
       }
 
-      extreme_adjusted = false
+      extremeAdjusted = false
 
       // x+
-      let find_point = translated_cand_points.find(tp => {
-        return tp[0] > extreme.max.x && tp[0] < extreme.max.x + min_distance / 2 &&
+      let foundPonts = translatedCandPoints.find(tp => {
+        return tp[0] > extreme.max.x && tp[0] < extreme.max.x + minDistance / 2 &&
                         tp[1] < extreme.max.y && tp[1] > extreme.min.y &&
                         tp[2] < extreme.max.z && tp[2] > extreme.min.z + groundLevel
       })
 
-      if (find_point) {
-        extreme.max.x += min_distance / 2
-        extreme_adjusted = true
+      if (foundPonts) {
+        extreme.max.x += minDistance / 2
+        extremeAdjusted = true
       }
 
       // x -
-      find_point = translated_cand_points.find(tp => {
-        return tp[0] < extreme.min.x && tp[0] > extreme.min.x - min_distance / 2 &&
+      foundPonts = translatedCandPoints.find(tp => {
+        return tp[0] < extreme.min.x && tp[0] > extreme.min.x - minDistance / 2 &&
                        tp[1] < extreme.max.y && tp[1] > extreme.min.y &&
                        tp[2] < extreme.max.z && tp[2] > extreme.min.z + groundLevel
       })
 
-      if (find_point) {
-        extreme.min.x -= min_distance / 2
-        extreme_adjusted = true
+      if (foundPonts) {
+        extreme.min.x -= minDistance / 2
+        extremeAdjusted = true
       }
 
       // y+
-      find_point = translated_cand_points.find(tp => {
-        return tp[1] > extreme.max.y && tp[1] < extreme.max.y + min_distance / 2 &&
+      foundPonts = translatedCandPoints.find(tp => {
+        return tp[1] > extreme.max.y && tp[1] < extreme.max.y + minDistance / 2 &&
                        tp[0] < extreme.max.x && tp[0] > extreme.min.x &&
                        tp[2] < extreme.max.z && tp[2] > extreme.min.z + groundLevel
       })
 
-      if (find_point) {
-        extreme.max.y += min_distance / 2
-        extreme_adjusted = true
+      if (foundPonts) {
+        extreme.max.y += minDistance / 2
+        extremeAdjusted = true
       }
 
       // y -
-      find_point = translated_cand_points.find(tp => {
-        return tp[1] < extreme.min.y && tp[1] > extreme.min.y - min_distance / 2 &&
+      foundPonts = translatedCandPoints.find(tp => {
+        return tp[1] < extreme.min.y && tp[1] > extreme.min.y - minDistance / 2 &&
                        tp[0] < extreme.max.x && tp[0] > extreme.min.x &&
                        tp[2] < extreme.max.z && tp[2] > extreme.min.z + groundLevel
       })
 
-      if (find_point) {
-        extreme.min.y -= min_distance / 2
-        extreme_adjusted = true
+      if (foundPonts) {
+        extreme.min.y -= minDistance / 2
+        extremeAdjusted = true
       }
 
       // z+
-      find_point = translated_cand_points.find(tp => {
+      foundPonts = translatedCandPoints.find(tp => {
         return tp[0] < extreme.max.x && tp[0] > extreme.min.x &&
                        tp[1] < extreme.max.y && tp[1] > extreme.min.y &&
-                       tp[2] > extreme.max.z && tp[2] < extreme.max.z + min_distance / 2
+                       tp[2] > extreme.max.z && tp[2] < extreme.max.z + minDistance / 2
       })
 
-      if (find_point) {
-        extreme.max.z += min_distance / 2
-        extreme_adjusted = true
+      if (foundPonts) {
+        extreme.max.z += minDistance / 2
+        extremeAdjusted = true
       }
 
       // z-
-      find_point = translated_cand_points.find(tp => {
+      foundPonts = translatedCandPoints.find(tp => {
         return tp[0] < extreme.max.x && tp[0] > extreme.min.x &&
                        tp[1] < extreme.max.y && tp[1] > extreme.min.y &&
-                       tp[2] < extreme.min.z && tp[2] > extreme.min.z - min_distance / 2
+                       tp[2] < extreme.min.z && tp[2] > extreme.min.z - minDistance / 2
       })
 
-      if (find_point) {
-        extreme.min.z -= min_distance / 2
-        extreme_adjusted = true
+      if (foundPonts) {
+        extreme.min.z -= minDistance / 2
+        extremeAdjusted = true
       }
     }
 
     // refine extreme values
     // 1 set initial value
-    const refined_extreme = {
+    const refinedExtremes = {
       max: {
-        x: extreme.max.x - min_distance / 2,
-        y: extreme.max.y - min_distance / 2,
-        z: extreme.max.z - min_distance / 2
+        x: extreme.max.x - minDistance / 2,
+        y: extreme.max.y - minDistance / 2,
+        z: extreme.max.z - minDistance / 2
       },
 
       min: {
-        x: extreme.min.x + min_distance / 2,
-        y: extreme.min.y + min_distance / 2,
-        z: extreme.min.z + min_distance / 2
+        x: extreme.min.x + minDistance / 2,
+        y: extreme.min.y + minDistance / 2,
+        z: extreme.min.z + minDistance / 2
       }
     }
 
     // 2  find refined values.
-    translated_cand_points.forEach(tp => {
+    translatedCandPoints.forEach(tp => {
       if (tp[0] > extreme.max.x || tp[0] < extreme.min.x ||
                 tp[1] > extreme.max.y || tp[1] < extreme.min.y ||
                 tp[2] > extreme.max.z || tp[2] < extreme.min.z) {
 
       } else {
-        if (tp[0] > refined_extreme.max.x && tp[2] > extreme.min.z + groundLevel) {
-          refined_extreme.max.x = tp[0]
+        if (tp[0] > refinedExtremes.max.x && tp[2] > extreme.min.z + groundLevel) {
+          refinedExtremes.max.x = tp[0]
         }
 
-        if (tp[0] < refined_extreme.min.x && tp[2] > extreme.min.z + groundLevel) {
-          refined_extreme.min.x = tp[0]
+        if (tp[0] < refinedExtremes.min.x && tp[2] > extreme.min.z + groundLevel) {
+          refinedExtremes.min.x = tp[0]
         }
 
-        if (tp[1] > refined_extreme.max.y && tp[2] > extreme.min.z + groundLevel) {
-          refined_extreme.max.y = tp[1]
+        if (tp[1] > refinedExtremes.max.y && tp[2] > extreme.min.z + groundLevel) {
+          refinedExtremes.max.y = tp[1]
         }
 
-        if (tp[1] < refined_extreme.min.y && tp[2] > extreme.min.z + groundLevel) {
-          refined_extreme.min.y = tp[1]
+        if (tp[1] < refinedExtremes.min.y && tp[2] > extreme.min.z + groundLevel) {
+          refinedExtremes.min.y = tp[1]
         }
 
-        if (tp[2] > refined_extreme.max.z) {
-          refined_extreme.max.z = tp[2]
+        if (tp[2] > refinedExtremes.max.z) {
+          refinedExtremes.max.z = tp[2]
         }
 
-        if (tp[2] < refined_extreme.min.z) {
-          refined_extreme.min.z = tp[2]
+        if (tp[2] < refinedExtremes.min.z) {
+          refinedExtremes.min.z = tp[2]
         }
       }
     })
 
-    refined_extreme.min.z -= groundLevel
-    console.log('refined extreme', JSON.stringify(refined_extreme))
-    return refined_extreme
+    refinedExtremes.min.z -= groundLevel
+    console.log('refined extreme', JSON.stringify(refinedExtremes))
+    return refinedExtremes
   }
 
   this.getBoxPointsNumber = function (box) {
@@ -1235,15 +1234,14 @@ function Lidar (sceneMeta, world, frameInfo) {
   }
 
   this.selectPointsByViewRect = function (x, y, w, h, camera) {
-    
-    const pos_array =  this.points.geometry.getAttribute('position').array
+    const posArray = this.points.geometry.getAttribute('position').array
 
     const indices = []
-    let points = []
+    const points = []
     let p = new THREE.Vector3()
 
-    for (let i = 0; i < pos_array.length / 3; i++) {
-      p.set(pos_array[i * 3], pos_array[i * 3 + 1], pos_array[i * 3 + 2])
+    for (let i = 0; i < posArray.length / 3; i++) {
+      p.set(posArray[i * 3], posArray[i * 3 + 1], posArray[i * 3 + 2])
       p = this.world.lidarPosToScene(p)
       p.project(camera)
       // p.x = p.x/p.z;
@@ -1251,7 +1249,7 @@ function Lidar (sceneMeta, world, frameInfo) {
       // console.log(p);
       if ((p.x >= x) && (p.x <= x + w) && (p.y >= y) && (p.y <= y + h) && (p.z > 0)) {
         indices.push(i)
-        points.push([pos_array[i * 3], pos_array[i * 3 + 1], pos_array[i * 3 + 2]])
+        points.push([posArray[i * 3], posArray[i * 3 + 1], posArray[i * 3 + 2]])
       }
     }
 
@@ -1265,16 +1263,16 @@ function Lidar (sceneMeta, world, frameInfo) {
 
   this.getCentroid = function (point_indices) {
     const points = this.points
-    const pos_array = points.geometry.getAttribute('position').array
+    const posArray = points.geometry.getAttribute('position').array
 
     const center = {
       x: 0, y: 0, z: 0
     }
 
     point_indices.forEach(i => {
-      center.x += pos_array[i * 3]
-      center.y += pos_array[i * 3 + 1]
-      center.z += pos_array[i * 3 + 2]
+      center.x += posArray[i * 3]
+      center.y += posArray[i * 3 + 1]
+      center.z += posArray[i * 3 + 2]
     })
 
     center.x /= point_indices.length
@@ -1287,14 +1285,14 @@ function Lidar (sceneMeta, world, frameInfo) {
   this.createBoxByPoints = function (point_indices, camera) {
     const indices = point_indices
     const points = this.points
-    const pos_array = points.geometry.getAttribute('position').array
+    const posArray = points.geometry.getAttribute('position').array
 
     // todo: copied the following code from next function. refactor it!
     console.log('select rect points', indices.length)
 
     // compute center, no need to tranform to box coordinates, and can't do it in this stage.
     /*
-        var extreme = arrayAsVectorIndexRange(pos_array, 3, indices);
+        var extreme = arrayAsVectorIndexRange(posArray, 3, indices);
 
         var center = {
             x: (extreme.max[0]+extreme.min[0])/2,
@@ -1310,9 +1308,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     }
 
     point_indices.forEach(i => {
-      center.x += pos_array[i * 3]
-      center.y += pos_array[i * 3 + 1]
-      center.z += pos_array[i * 3 + 2]
+      center.x += posArray[i * 3]
+      center.y += posArray[i * 3 + 1]
+      center.z += posArray[i * 3 + 2]
     })
 
     center.x /= point_indices.length
@@ -1323,9 +1321,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     const relative_position = []
     indices.forEach(function (i) {
       // for (var i  = 0; i < pos.count; i++){
-      const x = pos_array[i * 3]
-      const y = pos_array[i * 3 + 1]
-      const z = pos_array[i * 3 + 2]
+      const x = posArray[i * 3]
+      const y = posArray[i * 3 + 1]
+      const z = posArray[i * 3 + 2]
       const p = [x - center.x, y - center.y, z - center.z, 1]
       const tp = matmul(trans, p, 4)
       relative_position.push([tp[0], tp[1], tp[2]])

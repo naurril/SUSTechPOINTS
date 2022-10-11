@@ -26,7 +26,6 @@ import { vector_range } from './util.js'
 import { checkScene } from './error_check.js'
 import { jsonrpc } from './jsonrpc.js'
 
-
 function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   // create logger before anything else.
   create_logger(editorUi.querySelector('#log-wrapper'), editorUi.querySelector('#log-button'))
@@ -182,7 +181,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       (b) => this.onBoxChanged(b),
       (b, r) => this.remove_box(b, r), // on box remove
       () => {
-        // this.on_load_world_finished(this.data.world);
+        // this.onLoadWorldFinished(this.data.world);
         // this.imageContextManager.hide();
         // this.floatLabelManager.hide();
 
@@ -379,19 +378,23 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         break
 
       case 'label-batchedit':
-        {
-          if (!this.ensureBoxTrackIdExist()) { break }
 
-          if (!this.ensurePreloaded()) { break }
-
-          this.header.setObject(this.selected_box.obj_track_id)
-          this.editBatch(
-            this.data.world.frameInfo.scene,
-            this.data.world.frameInfo.frame,
-            this.selected_box.obj_track_id,
-            this.selected_box.obj_type
-          )
+        if (!this.ensureBoxTrackIdExist()) {
+          break
         }
+
+        if (!this.ensurePreloaded()) {
+          break
+        }
+
+        this.header.setObject(this.selected_box.obj_track_id)
+        this.editBatch(
+          this.data.world.frameInfo.scene,
+          this.data.world.frameInfo.frame,
+          this.selected_box.obj_track_id,
+          this.selected_box.obj_type
+        )
+
         break
 
       case 'label-trajectory':
@@ -550,16 +553,16 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.handleContextMenuEvent = function (event) {
     switch (event.currentTarget.id) {
       case 'cm-play-2fps':
-        this.playControl.play((w) => { this.on_load_world_finished(w) }, 2)
+        this.playControl.play((w) => { this.onLoadWorldFinished(w) }, 2)
         break
       case 'cm-play-10fps':
-        this.playControl.play((w) => { this.on_load_world_finished(w) }, 10)
+        this.playControl.play((w) => { this.onLoadWorldFinished(w) }, 10)
         break
       case 'cm-play-20fps':
-        this.playControl.play((w) => { this.on_load_world_finished(w) }, 20)
+        this.playControl.play((w) => { this.onLoadWorldFinished(w) }, 20)
         break
       case 'cm-play-50fps':
-        this.playControl.play((w) => { this.on_load_world_finished(w) }, 50)
+        this.playControl.play((w) => { this.onLoadWorldFinished(w) }, 50)
         break
       case 'cm-paste':
         {
@@ -617,7 +620,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       case 'cm-reload':
         {
           reloadWorldList([this.data.world], () => {
-            this.on_load_world_finished(this.data.world)
+            this.onLoadWorldFinished(this.data.world)
             this.header.updateModifiedStatus()
           })
         }
@@ -635,7 +638,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
                         (choice) => {
                           if (choice == 'yes') {
                             reloadWorldList(this.data.worldList, () => {
-                              this.on_load_world_finished(this.data.world)
+                              this.onLoadWorldFinished(this.data.world)
                               this.header.updateModifiedStatus()
                             })
                           }
@@ -643,7 +646,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
             )
           } else {
             reloadWorldList(this.data.worldList, () => {
-              this.on_load_world_finished(this.data.world)
+              this.onLoadWorldFinished(this.data.world)
               this.header.updateModifiedStatus()
             })
 
@@ -653,7 +656,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         break
 
       case 'cm-stop':
-        this.playControl.stop_play()
+        this.playControl.stopPlay()
         break
       case 'cm-pause':
         this.playControl.pause_resume_play()
@@ -894,18 +897,16 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         console.log('unhandled', event.currentTarget.id, event.type)
     };
   }
-    
-  this.selectBoxById = function(targetTrackId){
-      let box = this.data.world.annotation.findBoxByTrackId(targetTrackId);
 
-      if (box){
-          if (this.selected_box != box){
-              this.selectBox(box);
-          }
+  this.selectBoxById = function (targetTrackId) {
+    const box = this.data.world.annotation.findBoxByTrackId(targetTrackId)
+
+    if (box) {
+      if (this.selected_box != box) {
+        this.selectBox(box)
       }
-
-  };
-
+    }
+  }
 
   // this.animate= function() {
   //     let self=this;
@@ -1007,7 +1008,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   }
   this.ensurePreloaded = function () {
     let worldList = this.data.worldList.filter(w => w.frameInfo.scene == this.data.world.frameInfo.scene)
-    worldList = worldList.sort((a, b) => a.frameInfo.frame_index - b.frameInfo.frame_index)
+    worldList = worldList.sort((a, b) => a.frameInfo.frameIndex - b.frameInfo.frameIndex)
 
     const meta = this.data.get_current_world_scene_meta()
 
@@ -1030,7 +1031,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     if (!this.ensurePreloaded()) { return }
 
     let worldList = this.data.worldList.filter(w => w.frameInfo.scene == this.data.world.frameInfo.scene)
-    worldList = worldList.sort((a, b) => a.frameInfo.frame_index - b.frameInfo.frame_index)
+    worldList = worldList.sort((a, b) => a.frameInfo.frameIndex - b.frameInfo.frameIndex)
     const boxList = worldList.map(w => w.annotation.findBoxByTrackId(this.selected_box.obj_track_id))
 
     const applyIndList = boxList.map(b => true)
@@ -1060,7 +1061,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     if (!this.ensurePreloaded()) { return }
 
     let worldList = this.data.worldList.filter(w => w.frameInfo.scene == this.data.world.frameInfo.scene)
-    worldList = worldList.sort((a, b) => a.frameInfo.frame_index - b.frameInfo.frame_index)
+    worldList = worldList.sort((a, b) => a.frameInfo.frameIndex - b.frameInfo.frameIndex)
 
     const boxList = worldList.map(w => w.annotation.findBoxByTrackId(this.selected_box.obj_track_id))
 
@@ -1106,7 +1107,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
         if (targetTrackId) { this.view_state.lock_obj_track_id = targetTrackId }
 
-        this.on_load_world_finished(this.data.world)
+        this.onLoadWorldFinished(this.data.world)
 
         // if (this.selected_box){
         //     // attach again, restore box.boxEditor
@@ -1172,7 +1173,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   }
 
   this.annotateByAlg1 = function () {
-    autoAnnotate(this.data.world, () => this.on_load_world_finished(this.data.world))
+    autoAnnotate(this.data.world, () => this.onLoadWorldFinished(this.data.world))
   }
 
   this.object_category_changed = function (event) {
@@ -2088,44 +2089,44 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.previous_frame = function () {
     if (!this.data.meta) { return }
 
-    const scene_meta = this.data.get_current_world_scene_meta()
+    const sceneMeta = this.data.get_current_world_scene_meta()
 
-    const frame_index = this.data.world.frameInfo.frame_index - 1
+    const frameIndex = this.data.world.frameInfo.frameIndex - 1
 
-    if (frame_index < 0) {
+    if (frameIndex < 0) {
       console.log('first frame')
       this.infoBox.show('Notice', 'This is the first frame')
       return
     }
 
-    this.load_world(scene_meta.scene, scene_meta.frames[frame_index])
+    this.load_world(sceneMeta.scene, sceneMeta.frames[frameIndex])
   }
 
   this.last_frame = function () {
-    const scene_meta = this.data.get_current_world_scene_meta()
-    this.load_world(scene_meta.scene, scene_meta.frames[scene_meta.frames.length - 1])
+    const sceneMeta = this.data.get_current_world_scene_meta()
+    this.load_world(sceneMeta.scene, sceneMeta.frames[sceneMeta.frames.length - 1])
   }
   this.first_frame = function () {
-    const scene_meta = this.data.get_current_world_scene_meta()
-    this.load_world(scene_meta.scene, scene_meta.frames[0])
+    const sceneMeta = this.data.get_current_world_scene_meta()
+    this.load_world(sceneMeta.scene, sceneMeta.frames[0])
   }
 
   this.next_frame = function () {
     if (!this.data.meta) { return }
 
-    const scene_meta = this.data.get_current_world_scene_meta()
+    const sceneMeta = this.data.get_current_world_scene_meta()
 
-    const num_frames = scene_meta.frames.length
+    const num_frames = sceneMeta.frames.length
 
-    const frame_index = (this.data.world.frameInfo.frame_index + 1)
+    const frameIndex = (this.data.world.frameInfo.frameIndex + 1)
 
-    if (frame_index >= num_frames) {
+    if (frameIndex >= num_frames) {
       console.log('last frame')
       this.infoBox.show('Notice', 'This is the last frame')
       return
     }
 
-    this.load_world(scene_meta.scene, scene_meta.frames[frame_index])
+    this.load_world(sceneMeta.scene, sceneMeta.frames[frameIndex])
   }
 
   this.select_next_object = function () {
@@ -2167,7 +2168,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   //     this.viewManager.mainView.orbit.target.z += offset[2];
   // };
 
-  this.on_load_world_finished = function (world) {
+  this.onLoadWorldFinished = function (world) {
     document.title = 'SUSTech POINTS-' + world.frameInfo.scene
     // switch view positoin
     this.moveAxisHelper(world)
@@ -2248,7 +2249,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       this.data.activateWorld(
         world,
         function () {
-          self.on_load_world_finished(world)
+          self.onLoadWorldFinished(world)
           if (onFinished) { onFinished() }
         },
         true
@@ -2416,8 +2417,6 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   }
 
   this.add_global_obj_type = function () {
-    const self = this
-
     this.imageContextManager.buildCssStyle()
 
     const obj_type_map = globalObjectCategory.obj_type_map
@@ -2432,7 +2431,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     this.contextMenu.installMenu('newSubMenu', this.editorUi.querySelector('#new-submenu'), (event) => {
       const obj_type = event.currentTarget.getAttribute('uservalue')
-      const box = self.add_box_on_mouse_pos(obj_type)
+      const box = this.add_box_on_mouse_pos(obj_type)
       // switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
       // self.boxOp.growBox(box, 0.2, {x:2, y:2, z:3});
       // self.auto_shrink_box(box);
@@ -2440,9 +2439,10 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
       const noscaling = event.shiftKey
 
-      self.boxOp.auto_rotate_xyz(box, null, null, function (b) {
-        self.onBoxChanged(b)
+      this.boxOp.auto_rotate_xyz(box, null, null, (b) => {
+        this.onBoxChanged(b)
       }, noscaling)
+
       return true
     })
   }
@@ -2462,4 +2462,4 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   }
 }
 
-export {Editor}
+export { Editor }

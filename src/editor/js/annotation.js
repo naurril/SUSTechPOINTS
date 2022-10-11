@@ -47,10 +47,10 @@ function Annotation (sceneMeta, world, frameInfo) {
     this.load_annotation((boxes) => this.proc_annotation(boxes))
   }
 
-  this.go_cmd_received = false
+  this.goCmdReceived = false
   this.webglScene = null
-  this.on_go_finished = null
-  this.go = function (webglScene, on_go_finished) {
+  this.onGoFinished = null
+  this.go = function (webglScene, onGoFinished) {
     this.webglScene = webglScene
 
     if (this.preloaded) {
@@ -59,10 +59,10 @@ function Annotation (sceneMeta, world, frameInfo) {
         this.color_boxes()
       }
 
-      if (on_go_finished) { on_go_finished() }
+      if (onGoFinished) { onGoFinished() }
     } else {
-      this.go_cmd_received = true
-      this.on_go_finished = on_go_finished
+      this.goCmdReceived = true
+      this.onGoFinished = onGoFinished
     }
   }
 
@@ -74,8 +74,8 @@ function Annotation (sceneMeta, world, frameInfo) {
     if (this.onPreloadFinished) {
       this.onPreloadFinished()
     }
-    if (this.go_cmd_received) {
-      this.go(this.webglScene, this.on_go_finished)
+    if (this.goCmdReceived) {
+      this.go(this.webglScene, this.onGoFinished)
     }
   }
 

@@ -82,7 +82,7 @@ class Data
 
     findWorld(sceneName, frameIndex){
         let world = this.worldList.find((w)=>{
-            return w.frameInfo.scene == sceneName && w.frameInfo.frame_index == frameIndex;
+            return w.frameInfo.scene == sceneName && w.frameInfo.frameIndex == frameIndex;
         })
         if (world) // found!
             return world;
@@ -152,10 +152,10 @@ class Data
     };
 
     deleteDistantWorlds(world){
-        let currentWorldIndex = world.frameInfo.frame_index;
+        let currentWorldIndex = world.frameInfo.frameIndex;
 
         let disposable = (w)=>{
-            let distant = Math.abs(w.frameInfo.frame_index - currentWorldIndex)>this.cfg.maxWorldNumber;
+            let distant = Math.abs(w.frameInfo.frameIndex - currentWorldIndex)>this.cfg.maxWorldNumber;
             //let active  = w.everythingDone;
             if (w.annotation.modified)
             {
@@ -217,7 +217,7 @@ class Data
         //this.deleteOtherWorldsExcept(sceneName);
         let meta = currentWorld.sceneMeta;
 
-        let currentWorldIndex = currentWorld.frameInfo.frame_index;
+        let currentWorldIndex = currentWorld.frameInfo.frameIndex;
         let startIndex = Math.max(0, currentWorldIndex - this.cfg.maxWorldNumber/2);
         let endIndex = Math.min(meta.frames.length, startIndex + this.cfg.maxWorldNumber);
 

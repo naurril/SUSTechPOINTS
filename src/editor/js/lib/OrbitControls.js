@@ -513,7 +513,7 @@ class OrbitControls extends EventDispatcher {
           needsUpdate = true
           break
         default:
-          break;
+          break
       }
 
       if (needsUpdate) {

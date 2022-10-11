@@ -45,5 +45,11 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://127.0.0.1:8081"
+  "proxy": "https://127.0.0.1:8081",
+  "standard": {
+    "ignore": [
+      "config","scripts"
+    ],
+    "globals": [ "Request", "Image"]
+  }
 }

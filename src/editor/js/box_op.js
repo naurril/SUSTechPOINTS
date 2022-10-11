@@ -314,10 +314,10 @@ function BoxOp () {
 
   this.estimate_rotation_by_moving_direciton = function (box) {
     const prevWorld = box.world.data.findWorld(box.world.frameInfo.scene,
-      box.world.frameInfo.frame_index - 1)
+      box.world.frameInfo.frameIndex - 1)
 
     const nextWorld = box.world.data.findWorld(box.world.frameInfo.scene,
-      box.world.frameInfo.frame_index + 1)
+      box.world.frameInfo.frameIndex + 1)
 
     let prevBox = prevWorld ? prevWorld.annotation.findBoxByTrackId(box.obj_track_id) : null
     let nextBox = nextWorld ? nextWorld.annotation.findBoxByTrackId(box.obj_track_id) : null
@@ -353,12 +353,12 @@ function BoxOp () {
     return estimatedRot
   }
 
-  this.growBox = function (box, min_distance, init_scale_ratio, axies) {
+  this.growBox = function (box, minDistance, init_scale_ratio, axies) {
     if (!axies) {
       axies = ['x', 'y', 'z']
     }
 
-    const extreme = box.world.lidar.growBox(box, min_distance, init_scale_ratio)
+    const extreme = box.world.lidar.growBox(box, minDistance, init_scale_ratio)
 
     if (extreme) {
       axies.forEach((axis) => {

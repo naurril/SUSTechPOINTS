@@ -2,24 +2,24 @@
 function PlayControl (data) {
   this.data = data
   this.stop_play_flag = true
-  this.pause_play_flag = false
+  this.pausePlayFlag = false
 
   this.pause_resume_play = function () {
-    this.pause_play_flag = !this.pause_play_flag
+    this.pausePlayFlag = !this.pausePlayFlag
 
-    if (!this.pause_play_flag && !this.stop_play_flag) {
-      this.play(this.on_load_world_finished)
+    if (!this.pausePlayFlag && !this.stop_play_flag) {
+      this.play(this.onLoadWorldFinished)
     }
   }
 
-  this.stop_play = function () {
+  this.stopPlay = function () {
     this.stop_play_flag = true
-    this.pause_play_flag = false
+    this.pausePlayFlag = false
   }
 
-  this.on_load_world_finished = null
-  this.play = function (on_load_world_finished, fps = 2) {
-    this.on_load_world_finished = on_load_world_finished
+  this.onLoadWorldFinished = null
+  this.play = function (onLoadWorldFinished, fps = 2) {
+    this.onLoadWorldFinished = onLoadWorldFinished
 
     if (!this.data.meta) {
       console.log('no meta data! cannot play')
@@ -31,26 +31,26 @@ function PlayControl (data) {
     // }
 
     this.stop_play_flag = false
-    this.pause_play_flag = false
+    this.pausePlayFlag = false
 
-    const scene_meta = data.world.sceneMeta
+    const sceneMeta = data.world.sceneMeta
 
     const scope = this
 
-    let start_frame = data.world.frameInfo.frame
+    let startFrame = data.world.frameInfo.frame
 
-    const current_frame_index = scene_meta.frames.findIndex(function (x) { return x === data.world.frameInfo.frame })
-    if (current_frame_index === scene_meta.frames.length - 1) {
+    const currentFrameIndex = sceneMeta.frames.findIndex(function (x) { return x === data.world.frameInfo.frame })
+    if (currentFrameIndex === sceneMeta.frames.length - 1) {
       // this is the last frmae
       // we go to first frame.
-      start_frame = scene_meta.frames[0]
+      startFrame = sceneMeta.frames[0]
     }
 
-    play_frame(scene_meta, start_frame, on_load_world_finished)
+    playFrame(sceneMeta, startFrame, onLoadWorldFinished)
 
-    async function play_frame (scene_meta, frame, on_load_world_finished) {
-      if (!scope.stop_play_flag && !scope.pause_play_flag) {
-        const world = await scope.data.getWorld(scene_meta.scene, frame)
+    async function playFrame (sceneMeta, frame, onLoadWorldFinished) {
+      if (!scope.stop_play_flag && !scope.pausePlayFlag) {
+        const world = await scope.data.getWorld(sceneMeta.scene, frame)
 
         if (world.preloaded()) // found, data ready
         {
@@ -58,19 +58,19 @@ function PlayControl (data) {
             world,
             function () { // on load finished
               // views[0].detach_control();
-              on_load_world_finished(world)
+              onLoadWorldFinished(world)
 
               // play next frame
-              const frame_index = world.frameInfo.frame_index
-              if (frame_index + 1 < scene_meta.frames.length) {
-                const next_frame = scene_meta.frames[frame_index + 1]
+              const frameIndex = world.frameInfo.frameIndex
+              if (frameIndex + 1 < sceneMeta.frames.length) {
+                const next_frame = sceneMeta.frames[frameIndex + 1]
                 setTimeout(
                   function () {
-                    play_frame(scene_meta, next_frame, on_load_world_finished)
+                    playFrame(sceneMeta, next_frame, onLoadWorldFinished)
                   },
                   1000 / fps)
               } else {
-                scope.stop_play()
+                scope.stopPlay()
               }
             }, true)
         } else {
@@ -79,7 +79,7 @@ function PlayControl (data) {
 
           setTimeout(
             function () {
-              play_frame(scene_meta, frame, on_load_world_finished)
+              playFrame(sceneMeta, frame, onLoadWorldFinished)
             },
             10)
         }
@@ -100,23 +100,23 @@ function PlayControl (data) {
 
   //     stop_play_flag = false;
 
-  //     var scene_meta = data.get_current_world_scene_meta();
-  //     var sceneName= scene_meta.scene;
+  //     var sceneMeta = data.get_current_world_scene_meta();
+  //     var sceneName= sceneMeta.scene;
 
-  //     play_frame(scene_meta, data.world.frameInfo.frame);
+  //     playFrame(sceneMeta, data.world.frameInfo.frame);
 
-  //     function play_frame(scene_meta, frame){
+  //     function playFrame(sceneMeta, frame){
   //         load_world(sceneName, frame);
 
   //         if (!stop_play_flag)
   //         {
-  //             var frame_index = scene_meta.frames.findIndex(function(x){return x == frame;});
-  //             if (frame_index+1 < scene_meta.frames.length)
+  //             var frameIndex = sceneMeta.frames.findIndex(function(x){return x == frame;});
+  //             if (frameIndex+1 < sceneMeta.frames.length)
   //             {
-  //                 next_frame = scene_meta.frames[frame_index+1];
+  //                 next_frame = sceneMeta.frames[frameIndex+1];
   //                 setTimeout(
   //                     function(){
-  //                         play_frame(scene_meta, next_frame);
+  //                         playFrame(sceneMeta, next_frame);
   //                     },
   //                     100);
   //             }

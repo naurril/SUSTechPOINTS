@@ -12,9 +12,8 @@ function dotproduct (a, b) {
 // matrix (m*n), matrix(n*l), vl: vector length=n
 // this matmul is row-wise multiplication. 'x' and result are row-vectors.
 // ret^T = m * x^T
-//
-function matmul (m, x, vl) // vl is vector length
-{
+// vl is vector length
+function matmul (m, x, vl) {
   const ret = []
   const res_l = m.length / vl
   for (let vi = 0; vi < x.length / vl; vi++) { // vector index
@@ -29,8 +28,8 @@ function matmul (m, x, vl) // vl is vector length
   return ret
 }
 
-function matmul2 (m, x, vl) // vl is vector length
-{
+// vl is vector length
+function matmul2 (m, x, vl) {
   const ret = []
   const rows = m.length / vl
   const cols = x.length / vl

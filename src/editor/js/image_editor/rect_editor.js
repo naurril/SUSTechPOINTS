@@ -678,248 +678,213 @@ class RectEditor {
     }
   }
 
-    save()
-    {
-        let data={
-            scene: this.scene,
-            frame: this.frame,
-            cameraType: this.cameraType, 
-            cameraName: this.cameraName,
-        };
-
-        let objs = Array.from(this.rects.children).map(svg=>svg.data);
-        data.objs = objs;
-
-        //jsonrpc('/api/save_image_annotation', 'POST', data).then(ret=>{
-        let ret = this.store.save(data);
-        console.log("saved", ret);
+  save () {
+    const data = {
+      scene: this.scene,
+      frame: this.frame,
+      cameraType: this.cameraType,
+      cameraName: this.cameraName
     }
 
-    load()
-    {
-        //jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${this.cameraType}&camera_name=${this.cameraName}`).then(ret=>{
-        let ret = this.store.load()
-        if (!ret || !ret.objs || ret.objs.length ==0)
+    const objs = Array.from(this.rects.children).map(svg => svg.data)
+    data.objs = objs
+
+    // jsonrpc('/api/save_image_annotation', 'POST', data).then(ret=>{
+    const ret = this.store.save(data)
+    console.log('saved', ret)
+  }
+
+  load () {
+    // jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${this.cameraType}&camera_name=${this.cameraName}`).then(ret=>{
+    const ret = this.store.load()
+    if (!ret || !ret.objs || ret.objs.length == 0) {
+      console.log('no annotation. ignored.')
+      return
+    }
+
+    if (ret.frame != this.frame || ret.cameraType != this.cameraType || ret.cameraName != this.cameraName) {
+      console.log('lagged data. ignored.')
+      return
+    }
+
+    ret.objs.forEach(r => {
+      this.addRect(r.rect,
         {
-            console.log("no annotation. ignored.");
-            return;
+          obj_id: r.obj_id,
+          obj_type: r.obj_type,
+          obj_attr: r.obj_attr,
+          annotator: r.annotator
+        })
+    })
+  }
+
+  createRectangle (r) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    g.setAttribute('class', 'svg-rect nofill')
+    g.appendChild(rect)
+
+    this.rects.appendChild(g)
+
+    this.modifyRectangle(g, r)
+
+    return g
+  }
+
+  modifyRectangle (svg, r) {
+    const rect = svg.children[0]
+
+    r = this.normalizeRect(r)
+
+    rect.setAttribute('x', r.x1)
+    rect.setAttribute('y', r.y1)
+    rect.setAttribute('width', r.x2 - r.x1)
+    rect.setAttribute('height', r.y2 - r.y1)
+
+    // let label = svg.querySelector("#label");
+    // if (label)
+    // {
+    //     label.setAttribute('x', x1);
+    //     label.setAttribute('y', y1);
+    // }
+  }
+
+  rectUpdated (svg, r) {
+    delete svg.data.annotator
+    svg.classList.add(svg.data.obj_type)
+    this.updateDivLabel(svg)
+
+    this.save()
+  }
+
+  normalizeRect (r) {
+    const x1 = Math.min(r.x1, r.x2)
+    const y1 = Math.min(r.y1, r.y2)
+    const x2 = Math.max(r.x1, r.x2)
+    const y2 = Math.max(r.y1, r.y2)
+
+    return { x1, y1, x2, y2 }
+  }
+
+  updateFloatingLabels () {
+    Array.from(this.rects.children).forEach(svg => this.updateDivLabel(svg))
+  }
+
+  hideFloatingLabels () {
+    this.floatingLabelsUi.style.display = 'none'
+  }
+
+  showFloatingLabels () {
+    this.floatingLabelsUi.style.display = 'inherit'
+  }
+
+  updateDivLabel (svg) {
+    svg.divLabel.className = 'float-label ' + svg.data.obj_type
+    svg.divLabel.innerText = svg.data.obj_type + (svg.data.obj_attr ? (',' + svg.data.obj_attr) : '') +
+            (svg.data.obj_id ? (',' + svg.data.obj_id) : '')
+
+    const p = this.svgPointToUiPoint({ x: svg.data.rect.x1, y: svg.data.rect.y1 })
+
+    const height = svg.divLabel.clientHeight
+    svg.divLabel.style.left = p.x + 1 + 'px'
+    svg.divLabel.style.top = p.y - height - 1 + 'px'
+  }
+
+  endRectangle (svg, rect, data) {
+    rect = this.normalizeRect(rect)
+
+    const x = rect.x1
+    const y = rect.y1
+
+    // let p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
+    // p.setAttribute('id', 'label');
+    // p.setAttribute("x", x);
+    // p.setAttribute("y", y);
+    // // p.setAttribute("width", 200 * this.scale);
+    // p.setAttribute("font-size", 10+"px");
+    // p.setAttribute("class",'rect-label');
+
+    // let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
+    // text.textContent = 'object';
+    // p.appendChild(text);
+
+    // svg.appendChild(p);
+
+    svg.data = {
+      rect,
+      ...data
+    }
+
+    svg.divLabel = document.createElement('div')
+    svg.divLabel.svg = svg
+    svg.divLabel.onclick = (e) => this.selectRect(e.currentTarget.svg)
+    svg.divLabel.onmouseenter = (e) => e.currentTarget.svg.classList.add('svg-select-pending')
+    svg.divLabel.onmouseleave = (e) => e.currentTarget.svg.classList.remove('svg-select-pending')
+
+    this.floatingLabelsContentUi.appendChild(svg.divLabel)
+    this.updateDivLabel(svg)
+
+    svg.addEventListener('mouseenter', (e) => {
+      e.currentTarget.divLabel.classList.add('label-select-pending')
+      e.currentTarget.classList.add('svg-select-pending')
+      // e.preventDefault();
+      // e.stopPropagation();
+    })
+
+    svg.addEventListener('mouseleave', (e) => {
+      e.currentTarget.divLabel.classList.remove('label-select-pending')
+      e.currentTarget.classList.remove('svg-select-pending')
+      // e.preventDefault();
+      // e.stopPropagation();
+    })
+
+    svg.addEventListener('mousedown', (e) => {
+      if (e.which == 1) {
+        if (e.ctrlKey === false) {
+          this.selectRect(e.currentTarget)
+          e.preventDefault()
+          e.stopPropagation()
+        } else {
+          this.cancelSelection()
         }
+      }
+    })
+  }
 
-        if (ret.frame != this.frame || ret.cameraType != this.cameraType || ret.cameraName != this.cameraName)
-        {
-            console.log("lagged data. ignored.");
-            return;
-        }
-
-        ret.objs.forEach(r=>{
-                this.addRect(r.rect,
-                    {
-                        obj_id: r.obj_id,
-                        obj_type: r.obj_type,
-                        obj_attr: r.obj_attr,
-                        annotator: r.annotator,
-                    });
-        });
-
+  selectRect (rect) {
+    if (this.selectedRect != rect) {
+      this.cancelSelection()
     }
 
-    createRectangle(r)
-    {
-        let g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-        let rect =  document.createElementNS("http://www.w3.org/2000/svg", 'rect');
-        g.setAttribute("class", "svg-rect nofill");
-        g.appendChild(rect);
+    if (!this.selectedRect) {
+      this.selectedRect = rect
 
-        this.rects.appendChild(g);
+      rect.classList.add('svg-rect-selected')
 
-        this.modifyRectangle(g, r);        
+      if (this.cfg.enableImageAnnotation) {
+        this.ctrl.attachRect(rect)
+      }
 
-        return g;
+      // if (e)
+      //     this.ctrl.onRectDragMouseDown(e);
+
+      if (rect.data.obj_id) {
+        window.editor.selectBoxById(rect.data.obj_id)
+      }
     }
+  }
 
-    modifyRectangle(svg, r)
-    {
-        let rect = svg.children[0];
-
-        r = this.normalizeRect(r);
-
-        rect.setAttribute("x", r.x1);
-        rect.setAttribute("y", r.y1);
-        rect.setAttribute("width", r.x2-r.x1);
-        rect.setAttribute("height", r.y2-r.y1);
-
-        // let label = svg.querySelector("#label");
-        // if (label)
-        // {
-        //     label.setAttribute('x', x1);
-        //     label.setAttribute('y', y1);
-        // }
+  cancelSelection () {
+    if (this.selectedRect) {
+      this.selectedRect.classList.remove('svg-rect-selected')
     }
+    // this.canvas.querySelectorAll('.rect-svg-selected').forEach(e=>{
+    //     e.setAttribute("class", "rect-svg");
+    // });
 
-    rectUpdated(svg, r)
-    {
-        delete svg.data.annotator;
-        svg.classList.add(svg.data.obj_type);
-        this.updateDivLabel(svg);
-
-        this.save();
-    }
-
-
-
-
-    normalizeRect(r)
-    {
-        let x1 = Math.min(r.x1, r.x2);
-        let y1 = Math.min(r.y1, r.y2);
-        let x2 = Math.max(r.x1, r.x2);
-        let y2 = Math.max(r.y1, r.y2);
-
-        return {x1, y1, x2, y2};
-    }
-
-    updateFloatingLabels()
-    {
-        Array.from(this.rects.children).forEach(svg=>this.updateDivLabel(svg));
-    }
-
-    hideFloatingLabels()
-    {
-        this.floatingLabelsUi.style.display = 'none';
-    }
-
-    showFloatingLabels()
-    {
-        this.floatingLabelsUi.style.display = 'inherit';
-    }
-
-    updateDivLabel(svg)
-    {
-        svg.divLabel.className = "float-label "+ svg.data.obj_type;
-        svg.divLabel.innerText = svg.data.obj_type+(svg.data.obj_attr?(","+svg.data.obj_attr):"")+
-            (svg.data.obj_id?(","+svg.data.obj_id):'');
-
-        let p = this.svgPointToUiPoint({x: svg.data.rect.x1, y: svg.data.rect.y1});
-
-        let height = svg.divLabel.clientHeight;
-        svg.divLabel.style.left = p.x + 1 + "px"
-        svg.divLabel.style.top = p.y - height - 1 +"px"
-    }
-
-    endRectangle(svg, rect, data){
-
-        rect = this.normalizeRect(rect);
-
-        let x = rect.x1;
-        let y = rect.y1;
-
-        // let p = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
-        // p.setAttribute('id', 'label');
-        // p.setAttribute("x", x);
-        // p.setAttribute("y", y);
-        // // p.setAttribute("width", 200 * this.scale);
-        // p.setAttribute("font-size", 10+"px");
-        // p.setAttribute("class",'rect-label');
-
-        // let text = document.createElementNS("http://www.w3.org/1999/xhtml", 'div');
-        // text.textContent = 'object';
-        // p.appendChild(text);
-
-        // svg.appendChild(p);
-
-        svg.data = {
-            rect: rect,
-            ...data,
-        };
-
-        svg.divLabel = document.createElement('div');
-        svg.divLabel.svg = svg;
-        svg.divLabel.onclick = (e)=>this.selectRect(e.currentTarget.svg);
-        svg.divLabel.onmouseenter = (e)=>e.currentTarget.svg.classList.add("svg-select-pending");
-        svg.divLabel.onmouseleave = (e)=>e.currentTarget.svg.classList.remove("svg-select-pending");
-
-        this.floatingLabelsContentUi.appendChild(svg.divLabel);
-        this.updateDivLabel(svg);
-        
-
-        svg.addEventListener("mouseenter", (e)=>{
-            e.currentTarget.divLabel.classList.add('label-select-pending');
-            e.currentTarget.classList.add('svg-select-pending');
-            // e.preventDefault();
-            // e.stopPropagation();            
-        });
-
-        svg.addEventListener("mouseleave", (e)=>{
-            e.currentTarget.divLabel.classList.remove('label-select-pending');
-            e.currentTarget.classList.remove('svg-select-pending');
-            // e.preventDefault();
-            // e.stopPropagation();            
-        });
-
-        svg.addEventListener('mousedown', (e)=>{
-
-            if (e.which == 1)
-            {
-                if (e.ctrlKey === false)
-                {
-                    this.selectRect(e.currentTarget);
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                else
-                {
-                    this.cancelSelection();
-                }
-            }
-        });
-    }
-
-
-    selectRect(rect)
-    {
-
-
-        if (this.selectedRect != rect)
-        {
-            this.cancelSelection();
-        }
-
-        if (!this.selectedRect)
-        {
-
-            this.selectedRect = rect;
-
-            rect.classList.add("svg-rect-selected");
-
-
-            if (this.cfg.enableImageAnnotation)
-            {
-                this.ctrl.attachRect(rect);    
-            }
-                        
-            // if (e)
-            //     this.ctrl.onRectDragMouseDown(e);
-            
-            if (rect.data.obj_id)
-            {
-                window.editor.selectBoxById(rect.data.obj_id);
-            }
-            
-        }
-    }
-
-    cancelSelection()
-    {
-        if (this.selectedRect){
-            this.selectedRect.classList.remove("svg-rect-selected");            
-        }
-        // this.canvas.querySelectorAll('.rect-svg-selected').forEach(e=>{
-        //     e.setAttribute("class", "rect-svg");
-        // });
-
-        this.ctrl.detach();
-        this.selectedRect = null;
-    }
+    this.ctrl.detach()
+    this.selectedRect = null
+  }
 }
 
 export { RectEditor }

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { loadfile } from './jsonrpc.js'
-//import { PCDLoader } from './lib/PCDLoader.js'
+// import { PCDLoader } from './lib/PCDLoader.js'
 import { pointcloudReader } from './lib/pointcloud_reader.js'
 import { matmul, eulerAngleToRotationMatrix3By3 } from './util.js'
 
@@ -32,10 +32,10 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
   this.preloaded = false
   this.loaded = false
 
-  this.go_cmd_received = false
+  this.goCmdReceived = false
   this.webglScene = null
-  this.on_go_finished = null
-  this.go = function (webglScene, on_go_finished) {
+  this.onGoFinished = null
+  this.go = function (webglScene, onGoFinished) {
     this.webglScene = webglScene
 
     if (this.preloaded) {
@@ -46,14 +46,14 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
       }
 
       this.loaded = true
-      if (on_go_finished) { on_go_finished() }
+      if (onGoFinished) { onGoFinished() }
     }
 
     // anyway we save go cmd
-    //{
-      this.go_cmd_received = true
-      this.on_go_finished = on_go_finished
-    //}
+    // {
+    this.goCmdReceived = true
+    this.onGoFinished = onGoFinished
+    // }
   }
 
   this.showCalibBox = function () {
@@ -76,18 +76,18 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
   }
 
   // todo: what if it's not preloaded yet
-  this.unload = function (keep_box) {
+  this.unload = function (deepBox) {
     if (this.elements) {
       this.webglGroup.remove(this.elements.points)
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.remove(a)) }
 
-      if (!keep_box) { this.webglGroup.remove(this.calib_box) }
+      if (!deepBox) { this.webglGroup.remove(this.calib_box) }
     }
     this.loaded = false
   }
 
   // todo: its possible to remove points before preloading,
-  this.deleteAll = function (keep_box) {
+  this.deleteAll = function (deepBox) {
     if (this.loaded) {
       this.unload()
     }
@@ -112,7 +112,7 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
       this.elements = null
     }
 
-    if (!keep_box && this.calib_box) {
+    if (!deepBox && this.calib_box) {
       this.world.data.dbg.free()
       this.calib_box.geometry.dispose()
       this.calib_box.material.dispose()
@@ -150,7 +150,7 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     this.webglGroup.matrixAutoUpdate = false
   }
 
-  this.processPcd = function(pcd) {
+  this.processPcd = function (pcd) {
     if (this.destroyed) {
       console.error('received aux_lidar after destroyed.')
       return
@@ -209,8 +209,8 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     if (this.onPreloadFinished) {
       this.onPreloadFinished()
     }
-    if (this.go_cmd_received) {
-      this.go(this.webglScene, this.on_go_finished)
+    if (this.goCmdReceived) {
+      this.go(this.webglScene, this.onGoFinished)
     }
   }
 
@@ -309,7 +309,7 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
 
     this.elements = elements
     // _self.points_backup = mesh;
-    if (this.go_cmd_received) // this should be always true
+    if (this.goCmdReceived) // this should be always true
     {
       this.webglGroup.add(this.elements.points)
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.add(a)) }
@@ -347,8 +347,8 @@ function AuxLidarManager (sceneMeta, world, frameInfo) {
     return true
   }
 
-  this.go = function (webglScene, on_go_finished) {
-    this.lidarList.forEach(r => r.go(webglScene, on_go_finished))
+  this.go = function (webglScene, onGoFinished) {
+    this.lidarList.forEach(r => r.go(webglScene, onGoFinished))
   }
 
   this.preload = function (onPreloadFinished) {

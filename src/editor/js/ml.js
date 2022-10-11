@@ -100,7 +100,7 @@ const ml = {
     }
 
     const center_point_indices = []
-    for (let i in center_points) {
+    for (const i in center_points) {
       center_point_indices.push(center_points[i])
     }
 
@@ -179,7 +179,6 @@ const ml = {
     const A = tf.tensor2d(data)
     // A = tf.expandDims(A, [0]);
 
-    
     let min = 0
     let min_index = 0
     for (let i = 0; i <= 90; i += 1) {
@@ -226,8 +225,6 @@ const ml = {
       return min_dist.sum().dataSync()[0]
     }
   },
-
-
 
   predict_rotation: function (data) {
     const req = new Request('/api/predict_rotation')

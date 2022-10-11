@@ -519,7 +519,7 @@ function onPointerHover (event) {
       this.pointerHover(this._getPointer(event))
       break
     default:
-      break;
+      break
   }
 }
 
@@ -1231,7 +1231,7 @@ class TransformControlsPlane extends Mesh {
             _dirVector.set(0, 0, 0)
             break
           default:
-            break;
+            break
         }
 
         break
