@@ -422,60 +422,60 @@ class Api(object):
       }
 
 
-    @cherrypy.expose    
-    @cherrypy.tools.json_out()
-    def loadtag(self, scene, frame):
-      file = "./data/"+scene +"/meta/"+frame+".json"
-      tag = None
-      if os.path.exists(file):
-        with open(file,'r') as f:
-          tag = json.load(f)
+    # @cherrypy.expose    
+    # @cherrypy.tools.json_out()
+    # def loadtag(self, scene, frame):
+    #   file = "./data/"+scene +"/meta/"+frame+".json"
+    #   tag = None
+    #   if os.path.exists(file):
+    #     with open(file,'r') as f:
+    #       tag = json.load(f)
       
-      return tag 
+    #   return tag 
 
 
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def savetag(self):
+    # @cherrypy.expose
+    # @cherrypy.tools.json_out()
+    # def savetag(self):
 
-      if args.save=='yes':
+    #   if args.save=='yes':
 
 
-        userid = get_user_id()
-        print(userid, 'saving tag')
+    #     userid = get_user_id()
+    #     print(userid, 'saving tag')
         
-        # cl = cherrypy.request.headers['Content-Length']
-        rawbody = cherrypy.request.body.readline().decode('UTF-8')
-        data = json.loads(rawbody)
+    #     # cl = cherrypy.request.headers['Content-Length']
+    #     rawbody = cherrypy.request.body.readline().decode('UTF-8')
+    #     data = json.loads(rawbody)
         
-        if 'editmeta' in usercfg[userid] and usercfg[userid]['editmeta'] == 'yes':
+    #     if 'editmeta' in usercfg[userid] and usercfg[userid]['editmeta'] == 'yes':
 
-            frame = data['frame'] #url_path[len(url_path)-1]        
-            scene = data['scene']# url_path[len(url_path)-3]
+    #         frame = data['frame'] #url_path[len(url_path)-1]        
+    #         scene = data['scene']# url_path[len(url_path)-3]
 
-            # if not os.path.exists(os.path.join('data',scene, 'meta')):
-            #     os.mkdir(os.path.join('data',scene, 'meta'))
+    #         # if not os.path.exists(os.path.join('data',scene, 'meta')):
+    #         #     os.mkdir(os.path.join('data',scene, 'meta'))
 
-            if "overwrite" in data:
-                overwrite = data['overwrite']
-            else:
-                overwrite = True  #default to true
+    #         if "overwrite" in data:
+    #             overwrite = data['overwrite']
+    #         else:
+    #             overwrite = True  #default to true
             
-            if overwrite:
-                updated = tag.update_tag("./data", scene, frame, data['data'])
-            else:
-                updated = tag.add_tag("./data", scene, frame, data['data'])
+    #         if overwrite:
+    #             updated = tag.update_tag("./data", scene, frame, data['data'])
+    #         else:
+    #             updated = tag.add_tag("./data", scene, frame, data['data'])
                 
-            logging.info(userid+","+scene+","+frame+", saved tag.")
-            return {'result':"success", "data":updated}
-        else:
-            logging.info(userid+","+scene+","+frame+", saved tag rejected.")
-            return {'result':"fail", 'cause': 'not permited for user'}
-      else:
+    #         logging.info(userid+","+scene+","+frame+", saved tag.")
+    #         return {'result':"success", "data":updated}
+    #     else:
+    #         logging.info(userid+","+scene+","+frame+", saved tag rejected.")
+    #         return {'result':"fail", 'cause': 'not permited for user'}
+    #   else:
         
-        print("saving disabled.")
-        return {'result':"fail", 'cause':"saving tag disabled"}
+    #     print("saving disabled.")
+    #     return {'result':"fail", 'cause':"saving tag disabled"}
 
 
     @cherrypy.expose    

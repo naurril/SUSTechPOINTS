@@ -18,7 +18,10 @@ def get_all_scene_desc(scene_pattern):
 
     for n in scenes:
         if re.fullmatch(scene_pattern, n):
-            descs[n] = get_scene_desc(n)
+            try:
+                descs[n] = get_scene_desc(n)
+            except:
+                print('failed reading scene:', n)
     return descs
 
 def get_scene_names():
@@ -34,6 +37,10 @@ def get_meta_stat(s):
     if os.path.exists(os.path.join(scene_dir, 'meta')):
         files = os.listdir(os.path.join(scene_dir, 'meta'))
         for f in files:
+
+            if not os.path.exists(os.path.join(scene_dir, 'meta', f)):
+                continue
+            
             with open(os.path.join(scene_dir, 'meta', f)) as f:
                 meta = json.load(f)
 
@@ -60,7 +67,10 @@ def get_scene_desc(s):
         with open(os.path.join(scene_dir, "desc.json")) as f:
             desc = json.load(f)
     
-    desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'lidar')))
+    if os.path.exists(os.path.join(scene_dir, 'lidar')):
+        desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'lidar')))
+    else:
+        desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'image')))
     desc['label_files'] = len(os.listdir(os.path.join(scene_dir, 'label')))
     desc['meta'] = get_meta_stat(s)
 
