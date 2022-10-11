@@ -27,7 +27,7 @@ env = Environment(loader=FileSystemLoader('./'))
 import scene_reader
 from tools  import check_labels as check
 from cherrypy.process.plugins import Monitor
-import tag
+
 
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
 parser.add_argument('--save', type=str, choices=['yes','no'],default='yes', help="")

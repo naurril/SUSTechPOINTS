@@ -1,12 +1,11 @@
 import * as THREE from 'three'
 
-import { ViewManager } from './view.js'
-import { FastToolBox, FloatLabelManager } from './floatlabel.js'
+import { ViewManager } from './view'
+import { FastToolBox, FloatLabelManager } from './floatlabel'
 import { Mouse } from './mouse.js'
 import { BoxEditor, BoxEditorManager } from './box_editor.js'
 import { ImageContextManager } from './image.js'
 import { globalObjectCategory } from './obj_cfg.js'
-
 import { objIdManager } from './obj_id_list.js'
 import { Header } from './header.js'
 import { BoxOp } from './box_op.js'
@@ -26,6 +25,7 @@ import { globalKeyDownManager } from './keydown_manager.js'
 import { vector_range } from './util.js'
 import { checkScene } from './error_check.js'
 import { jsonrpc } from './jsonrpc.js'
+
 
 function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   // create logger before anything else.
@@ -50,6 +50,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     key_pressed: false,
     box_navigate_index: 0
   }
+
   this.view_state = {
     lock_obj_track_id: '',
     lock_obj_in_highlight: false, // focus mode
@@ -891,19 +892,19 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         break
       default:
         console.log('unhandled', event.currentTarget.id, event.type)
-
     };
+  }
+    
+  this.selectBoxById = function(targetTrackId){
+      let box = this.data.world.annotation.findBoxByTrackId(targetTrackId);
 
-    this.selectBoxById = function(targetTrackId){
-        let box = this.data.world.annotation.findBoxByTrackId(targetTrackId);
+      if (box){
+          if (this.selected_box != box){
+              this.selectBox(box);
+          }
+      }
 
-        if (box){
-            if (this.selected_box != box){
-                this.selectBox(box);
-            }
-        }
-
-    };
+  };
 
 
   // this.animate= function() {
@@ -2459,6 +2460,6 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.onAnnotationUpdatedByOthers = function (scene, frames) {
     this.data.onAnnotationUpdatedByOthers(scene, frames)
   }
-};
+}
 
-export { Editor }
+export {Editor}
