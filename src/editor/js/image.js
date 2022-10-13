@@ -30,7 +30,7 @@ function BoxImageContext (ui) {
       if (img && (img.naturalWidth > 0)) {
         this.clear_canvas()
 
-        var imgfinal = box_to_2d_points(box, calib)
+        let imgfinal = box_to_2d_points(box, calib)
 
         if (imgfinal != null) { // if projection is out of range of the image, stop drawing.
           const ctx = this.ui.getContext('2d')
@@ -41,7 +41,7 @@ function BoxImageContext (ui) {
 
           ctx.drawImage(img, crop_area[0], crop_area[1], crop_area[2], crop_area[3], 0, 0, ctx.canvas.width, ctx.canvas.height)// ctx.canvas.clientHeight);
           // ctx.drawImage(img, 0,0,img.naturalWidth, img.naturalHeight, 0, 0, 320, 180);// ctx.canvas.clientHeight);
-          var imgfinal = vectorsub(imgfinal, [crop_area[0], crop_area[1]])
+          imgfinal = vectorsub(imgfinal, [crop_area[0], crop_area[1]])
           const trans_ratio = {
             x: ctx.canvas.height / crop_area[3],
             y: ctx.canvas.height / crop_area[3]
@@ -110,7 +110,7 @@ function BoxImageContext (ui) {
 
     if (!selected) {
       let target_color = null
-      if (box.world.data.cfg.color_obj == 'category') {
+      if (box.world.data.cfg.color_obj === 'category') {
         target_color = globalObjectCategory.get_color_by_category(box.obj_type)
       } else // by id
       {
@@ -222,7 +222,7 @@ class ImageContext extends ResizableMoveableView {
   }
 
   addCssClass (className) {
-    if (this.ui.className.split(' ').find(x => x == className)) {
+    if (this.ui.className.split(' ').find(x => x === className)) {
 
     } else {
       this.ui.className = this.ui.className + ' ' + className
@@ -293,7 +293,7 @@ class ImageContext extends ResizableMoveableView {
   };
 
   hidden () {
-    return this.ui.style.display == 'none'
+    return this.ui.style.display === 'none'
   };
 
   show () {
@@ -326,7 +326,7 @@ class ImageContext extends ResizableMoveableView {
 
     const toHex = (c) => {
       let hex = Math.floor(c * 255).toString(16)
-      if (hex.length == 1) { hex = '0' + hex }
+      if (hex.length === 1) { hex = '0' + hex }
       return hex
     }
 
@@ -462,7 +462,7 @@ class ImageContext extends ResizableMoveableView {
     }
 
     function on_key (e) {
-      if (e.key == 'Escape') {
+      if (e.key === 'Escape') {
         cancel()
       }
     }
@@ -478,7 +478,7 @@ class ImageContext extends ResizableMoveableView {
   get_trans_ratio () {
     const img = this.world[this.cameraType].getImageByName(this.cameraName)
 
-    if (!img || img.width == 0) {
+    if (!img || img.width === 0) {
       return null
     }
 
@@ -541,7 +541,7 @@ class ImageContext extends ResizableMoveableView {
 
   points_to_svg (points, trans_ratio, cssclass, radius = 1, points_color) {
     const ptsFinal = points.map(function (x, i) {
-      if (i % 2 == 0) {
+      if (i % 2 === 0) {
         return Math.round(x * trans_ratio.x)
       } else {
         return Math.round(x * trans_ratio.y)
@@ -602,7 +602,7 @@ class ImageContext extends ResizableMoveableView {
     let minx = pts[0]; let miny = pts[1]; let maxx = pts[0]; let maxy = pts[1]
 
     pts.forEach((p, i) => {
-      if (i % 2 == 0) {
+      if (i % 2 === 0) {
         if (p > maxx) maxx = p
         if (p < minx) minx = p
       } else {
@@ -624,7 +624,7 @@ class ImageContext extends ResizableMoveableView {
 
     const img = this.world[this.cameraType].getImageByName(this.cameraName)
 
-    if (!img || img.width == 0) {
+    if (!img || img.width === 0) {
       return []
     }
 
@@ -660,7 +660,7 @@ class ImageContext extends ResizableMoveableView {
 
     const img = this.world[this.cameraType].getImageByName(this.cameraName)
 
-    if (!img || img.width == 0) {
+    if (!img || img.width === 0) {
       return []
     }
 
@@ -694,7 +694,7 @@ class ImageContext extends ResizableMoveableView {
 
     const img = this.world[this.cameraType].getImageByName(this.cameraName)
 
-    if (!img || img.width == 0) {
+    if (!img || img.width === 0) {
       this.hide_canvas()
       return
     }
@@ -714,7 +714,7 @@ class ImageContext extends ResizableMoveableView {
       this.world.annotation.boxes.forEach((box) => {
         const imgfinal = box_to_2d_points(box, calib)
         if (imgfinal) {
-          const box_svg = this.box_to_svg(box, imgfinal, trans_ratio, this.get_selected_box() == box)
+          const box_svg = this.box_to_svg(box, imgfinal, trans_ratio, this.get_selected_box() === box)
           if (box_svg) { svg.appendChild(box_svg) }
         }
       })
@@ -748,7 +748,7 @@ class ImageContext extends ResizableMoveableView {
       // build color
       const img_pts_color = []
 
-      if (this.cfg.color_points == 'intensity') {
+      if (this.cfg.color_points === 'intensity') {
         // by intensity
         // by depth
         for (let i = 0; i < ptsOnImg.length / 2; i++) {
@@ -780,14 +780,14 @@ class ImageContext extends ResizableMoveableView {
 
   box_to_svg (box, box_corners, trans_ratio, selected, svg) {
     const imgfinal = box_corners.map(function (x, i) {
-      if (i % 2 == 0) {
+      if (i % 2 === 0) {
         return Math.round(x * trans_ratio.x)
       } else {
         return Math.round(x * trans_ratio.y)
       }
     })
 
-    if (!imgfinal || imgfinal.length == 0) {
+    if (!imgfinal || imgfinal.length === 0) {
       if (svg) { svg.remove() }
       return null
     }
@@ -799,7 +799,7 @@ class ImageContext extends ResizableMoveableView {
       if (selected) {
         svg.setAttribute('class', box.obj_type + ' svg-box svg-selected')
       } else {
-        if (box.world.data.cfg.color_obj == 'id') {
+        if (box.world.data.cfg.color_obj === 'id') {
           svg.setAttribute('class', 'color-' + box.obj_track_id % 33 + ' svg-box')
         } else // by id
         {
@@ -903,10 +903,10 @@ class ImageContext extends ResizableMoveableView {
       }
       const trans_ratio = this.get_trans_ratio()
       if (trans_ratio) {
-        var imgfinal = box_to_2d_points(box, calib)
+        let imgfinal = box_to_2d_points(box, calib)
         if (imgfinal) {
-          var imgfinal = imgfinal.map(function (x, i) {
-            if (i % 2 == 0) {
+            imgfinal = imgfinal.map(function (x, i) {
+            if (i % 2 === 0) {
               return Math.round(x * trans_ratio.x)
             } else {
               return Math.round(x * trans_ratio.y)
@@ -949,22 +949,21 @@ class ImageContext extends ResizableMoveableView {
         return
       }
 
-      const children = b.childNodes
-
+      
       const calib = this.getCalib()
       if (!calib) {
         return
       }
 
       const trans_ratio = this.get_trans_ratio()
-      var imgfinal = box_to_2d_points(box, calib)
+      let imgfinal = box_to_2d_points(box, calib)
 
       if (!imgfinal) {
         // box may go out of image
         return
       }
-      var imgfinal = imgfinal.map(function (x, i) {
-        if (i % 2 == 0) {
+      imgfinal = imgfinal.map(function (x, i) {
+        if (i % 2 === 0) {
           return Math.round(x * trans_ratio.x)
         } else {
           return Math.round(x * trans_ratio.y)
@@ -1009,7 +1008,7 @@ class ImageContextManager {
     this.selectorUi.querySelector('#camera-list').onclick = (event) => {
       const cameraName = event.target.cameraName
 
-      if (cameraName == 'auto') {
+      if (cameraName === 'auto') {
         const existed = this.images.find(x => x.autoSwitch)
 
         if (existed) {
@@ -1018,7 +1017,7 @@ class ImageContextManager {
           this.addImage('', true)
         }
       } else {
-        const existed = this.images.find(x => !x.autoSwitch && x.name == cameraName)
+        const existed = this.images.find(x => !x.autoSwitch && x.name === cameraName)
 
         if (existed) {
           this.removeImage(existed)
@@ -1039,7 +1038,7 @@ class ImageContextManager {
     const camera_selector_str = cameras.map(c => {
       const c_id = c.replace(':', '-')
 
-      const existed = this.images.find(i => i.name == c && !i.autoSwitch)
+      const existed = this.images.find(i => i.name === c && !i.autoSwitch)
       const className = existed ? 'camera-item camera-selected' : 'camera-item'
 
       return `<div class="${className}" id="camera-item-${c_id}">${c}</div>`
@@ -1102,7 +1101,7 @@ class ImageContextManager {
   removeImage (image) {
     const selectorName = image.autoSwitch ? 'auto' : image.name
     this.selectorUi.querySelector('#camera-item-' + selectorName.replace(':', '-')).className = 'camera-item'
-    this.images = this.images.filter(x => x != image)
+    this.images = this.images.filter(x => x !== image)
     image.remove()
   }
 
@@ -1187,10 +1186,11 @@ class ImageContextManager {
     const obj_type_map = globalObjectCategory.obj_type_map
 
     for (const o in obj_type_map) {
-      const rule = '.' + o + '{color:' + obj_type_map[o].color + ';' +
-                                'stroke:' + obj_type_map[o].color + ';' +
-                                'fill:' + obj_type_map[o].color + '22' + ';' +
-                                '}'
+      const rule = '.' + o + '{color:' + obj_type_map[o].color + '; stroke:'
+                                + obj_type_map[o].color + ';fill:'
+                                + obj_type_map[o].color + '22;'
+                                + '}'
+
       sheet.insertRule(rule, sheet.cssRules.length)
     }
 
@@ -1203,10 +1203,7 @@ class ImageContextManager {
       const c = globalObjectCategory.get_color_by_id(idx)
       const color = '#' + color_str(c.x) + color_str(c.y) + color_str(c.z)
 
-      const rule = '.color-' + idx + '{color:' + color + ';' +
-                                'stroke:' + color + ';' +
-                                'fill:' + color + '22' + ';' +
-                                '}'
+      const rule = `.color-${idx} {color: ${color}; stroke: ${color}; fill: ${color}22;}`
       sheet.insertRule(rule, sheet.cssRules.length)
     }
 
@@ -1313,15 +1310,15 @@ function all_points_in_image_range (p) {
   return true
 }
 
-function any_points_in_image_range (p) {
-  for (let i = 0; i < p.length / 3; i++) {
-    if (p[i * 3 + 2] > 0) {
-      return true
-    }
-  }
+// function any_points_in_image_range (p) {
+//   for (let i = 0; i < p.length / 3; i++) {
+//     if (p[i * 3 + 2] > 0) {
+//       return true
+//     }
+//   }
 
-  return false
-}
+//   return false
+// }
 
 function choose_best_camera_for_point (world, center) {
   // choose best camera only in main cameras. (dont consider aux_camera)
