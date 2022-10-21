@@ -655,28 +655,6 @@ class RectEditor {
     })
   }
 
-  selectRect (rect) {
-    if (this.selectedRect != rect) {
-      this.cancelSelection()
-    }
-
-    if (!this.selectedRect) {
-      this.selectedRect = rect
-
-      rect.classList.add('svg-rect-selected')
-
-      if (this.cfg.enableImageAnnotation) {
-        this.ctrl.attachRect(rect)
-      }
-
-      // if (e)
-      //     this.ctrl.onRectDragMouseDown(e);
-
-      if (rect.data.obj_id) {
-        window.editor.makeVisible(rect.data.obj_id)
-      }
-    }
-  }
 
   save () {
     const data = {
@@ -874,6 +852,14 @@ class RectEditor {
     }
   }
 
+  selectRectById(id) {
+    let rect = this.findRectById(id)
+
+    if (rect) {
+      this.selectRect(rect)
+    }
+    
+  }
   cancelSelection () {
     if (this.selectedRect) {
       this.selectedRect.classList.remove('svg-rect-selected')

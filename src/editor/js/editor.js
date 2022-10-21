@@ -905,7 +905,11 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       if (this.selected_box != box) {
         this.selectBox(box)
       }
+    } else {
+      this.unselectBox();
+      this.unselectBox();
     }
+
   }
 
   // this.animate= function() {
@@ -2244,7 +2248,9 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       this.unselectBox(null, true)
       this.unselectBox(null, true)
 
-      if (this.data.world) { this.data.world.deactivate() }
+      if (this.data.world) { 
+        this.data.world.deactivate() 
+      }
 
       this.data.activateWorld(
         world,
@@ -2387,7 +2393,9 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       this.header.updateBoxInfo(box)
       // this.floatLabelManager.update_position(box, true);
       // this.fastToolBox.setPos(this.floatLabelManager.getLabelEditorPos(box.obj_local_id));
-      this.imageContextManager.boxes_manager.onBoxSelected(box.obj_local_id, box.obj_type)
+      this.imageContextManager.boxes_manager.onBoxSelected(box.obj_local_id, 
+        box.obj_type,
+        box.obj_track_id)
 
       // this.boxEditor.attachBox(box);
 

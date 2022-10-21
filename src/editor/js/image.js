@@ -920,11 +920,14 @@ class ImageContext extends ResizableMoveableView {
       }
     },
 
-    onBoxSelected: (box_obj_local_id, obj_type) => {
+    onBoxSelected: (box_obj_local_id, obj_type, obj_track_id) => {
       const b = this.ui.querySelector('#svg-box-local-' + box_obj_local_id)
       if (b) {
-        b.setAttribute('class', 'svg-selected svg-box')
+        b.setAttribute('class', 'svg-selected svg-box')        
       }
+
+      this.rectEditor.selectRectById(obj_track_id)
+      
     },
 
     onBoxUnselected: (box_obj_local_id, obj_type) => {
@@ -1158,8 +1161,8 @@ class ImageContextManager {
       this.images.forEach(i => i.boxes_manager.add_box(box))
     },
 
-    onBoxSelected: (box_obj_local_id, obj_type) => {
-      this.images.forEach(i => i.boxes_manager.onBoxSelected(box_obj_local_id, obj_type))
+    onBoxSelected: (box_obj_local_id, obj_type, obj_track_id) => {
+      this.images.forEach(i => i.boxes_manager.onBoxSelected(box_obj_local_id, obj_type, obj_track_id))
     },
 
     onBoxUnselected: (box_obj_local_id, obj_type) => {
