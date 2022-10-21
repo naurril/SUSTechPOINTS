@@ -24,6 +24,7 @@ parser.add_argument('--image_height', type=int, default=480, help="")
 args = parser.parse_args()
 
 
+
 all_scenes = os.listdir(args.data_folder)
 scenes = list(filter(lambda s: re.fullmatch(args.scenes, s), all_scenes))
 scenes.sort()
@@ -119,8 +120,23 @@ def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, int
 
     if os.path.exists(label2d_file):
         with open(label2d_file) as f:
-            label = json.load(f)
-            label['objs'] = list(filter(lambda x: not 'annotator' in x, label['objs']))
+            try:
+                label = json.load(f)
+                label['objs'] = list(filter(lambda x: not 'annotator' in x, label['objs']))
+
+                if "version" in label and label['version'] == 1:
+                    print("dont overwrite", scene, frame, camera_type, camera)
+                    return 
+            except :
+                print(scene, frame, camera_type, camera, 'load json FAILED!')
+                label = {
+                    'cameraType': camera_type,
+                    'cameraName': camera,
+                    'scene': scene,
+                    'frame': frame,
+                    'objs': []
+                }
+            
     else:
         label = {
             'cameraType': camera_type,
@@ -129,7 +145,6 @@ def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, int
             'frame': frame,
             'objs': []
         }
-
 
     for o in objs:
 
@@ -178,6 +193,14 @@ def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, int
 def gen_2dbox_for_frame(scene, frame, calib):
 
     print(frame)
+
+    # load 3d boxes
+    label_3d_file = os.path.join(data_folder, scene, 'label', frame+".json")
+    if not os.path.exists(label_3d_file):
+        print("label3d for", frame, 'does not exist')
+        return
+
+
     # load lidar points
     lidar_file = os.path.join(data_folder, scene, 'lidar', frame+".pcd")
     pc = pypcd.PointCloud.from_path(lidar_file)
@@ -189,14 +212,14 @@ def gen_2dbox_for_frame(scene, frame, calib):
     pts = pts[(pts[:,0]!=0) | (pts[:,1]!=0) | (pts[:,2]!=0)]
     print(pts.shape)
 
-    # load 3d boxes
-    label_3d_file = os.path.join(data_folder, scene, 'label', frame+".json")
-    if not os.path.exists(label_3d_file):
-        print("label3d for", frame, 'does not exist')
-        return
+
 
     with open(label_3d_file) as f:
-        label_3d = json.load(f)
+        try:
+            label_3d = json.load(f)
+        except:
+            print("error load", label_3d_file)
+            return
 
     boxes = label_3d
     if 'objs' in boxes:
@@ -218,15 +241,26 @@ def gen_2dbox_for_frame(scene, frame, calib):
 
 
     for camera_type in camera_types:
-        for camera in camera_names: 
-            gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, calib[camera_type][camera]['extrinsic'], calib[camera_type][camera]['intrinsic'], objs)
+        for camera in camera_names:
+            # check for local calibration file
+            local_calib_file = os.path.join(data_folder, scene, 'calib', camera_type, camera, frame+".json")
+            if os.path.exists(local_calib_file):
+                with open (local_calib_file) as f:
+                    local_calib = json.load(f)
+                    (extrinsic, intrinsic) = get_calib(calib[camera_type][camera], local_calib)
+            else:
+                (extrinsic,intrinsic) =  (calib[camera_type][camera]['extrinsic'], calib[camera_type][camera]['intrinsic'])
+
+            gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, intrinsic, objs)
             
 
 
             
             
-
-            
+def get_calib(static_calib, local_calib):
+    trans = np.array(local_calib['lidar_transform']).reshape((4,4))
+    extrinsic = np.matmul(static_calib['extrinsic'], trans)
+    return (extrinsic,static_calib['intrinsic'])
 
 def gen_2dbox_for_one_scene(scene):
     print(scene)

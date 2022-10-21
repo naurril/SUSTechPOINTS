@@ -162,7 +162,7 @@ class Data
                 console.log("deleting world unsaved yet. stop.");
             }
             
-            return distant && !w.active && !w.annotation.modified;
+            return distant ; //&& !w.active && !w.annotation.modified;
         }
 
         let distantWorldList = this.worldList.filter(w=>disposable(w));
