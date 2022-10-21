@@ -72,7 +72,7 @@ def get_scene_desc(s):
     else:
         desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'image')))
     desc['label_files'] = len(os.listdir(os.path.join(scene_dir, 'label')))
-    desc['meta'] = get_meta_stat(s)
+    #desc['meta'] = get_meta_stat(s)
 
     return desc
     
