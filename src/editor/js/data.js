@@ -181,8 +181,7 @@ class Data
         // release resources if scene changed
         this.worldList.forEach(w=>{
             if (w.frameInfo.scene != keepScene){
-
-                if (!w.active)
+                //if (!w.active)
                 {
                     this.returnOffset(w.offsetIndex);
                     w.deleteAll();
