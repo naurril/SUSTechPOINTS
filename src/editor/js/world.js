@@ -488,7 +488,7 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
   this.activate = function (scene, onFinished) {
     this.scene = scene
     this.active = true
-    console.log(this.frameInfo.frame, "world activated.")
+    console.log(this.frameInfo.frame, 'world activated.')
     this.onFinished = onFinished
     if (this.preloaded()) {
       this.go()
@@ -497,7 +497,7 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
 
   this.deactivate = function () {
     this.active = false
-    console.log(this.frameInfo.frame, "world deactivated.")
+    console.log(this.frameInfo.frame, 'world deactivated.')
   }
 
   this.active = false

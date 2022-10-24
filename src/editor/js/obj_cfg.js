@@ -1,7 +1,7 @@
 // size is the dimension of the object in x/y/z axis, with unit meter.
 
 class ObjectCategory {
-  obj_type_map = {
+  objTypeMap = {
     Car: { color: '#86af49', size: [4.5, 1.8, 1.5], attr: ['door open', 'trunk open'] },
     Pedestrian: { color: '#ff0000', size: [0.4, 0.5, 1.7], attr: ['umbrella', 'sitting', 'squating', 'bending over', 'luggage'] },
     Van: { color: '#00ff00', size: [4.5, 1.8, 1.5], attr: ['door open', 'trunk open'] },
@@ -65,11 +65,11 @@ class ObjectCategory {
 
   popularCategories = ['Car', 'Pedestrian', 'Van', 'Bus', 'Truck', 'Scooter', 'ScooterRider', 'Bicycle', 'BicycleRider']
 
-  guess_obj_type_by_dimension (scale) {
-    let max_score = 0
-    let max_name = 0
+  guessObjTypeByDimension (scale) {
+    let maxScore = 0
+    let maxName = 0
     this.popularCategories.forEach(i => {
-      const o = this.obj_type_map[i]
+      const o = this.objTypeMap[i]
       let scorex = o.size[0] / scale.x
       let scorey = o.size[1] / scale.y
       let scorez = o.size[2] / scale.z
@@ -78,23 +78,23 @@ class ObjectCategory {
       if (scorey > 1) scorey = 1 / scorey
       if (scorez > 1) scorez = 1 / scorez
 
-      if (scorex + scorey + scorez > max_score) {
-        max_score = scorex + scorey + scorez
-        max_name = i
+      if (scorex + scorey + scorez > maxScore) {
+        maxScore = scorex + scorey + scorez
+        maxName = i
       }
     })
 
-    console.log('guess type', max_name)
-    return max_name
+    console.log('guess type', maxName)
+    return maxName
   }
 
-  global_color_idx = 0
-  get_color_by_id (id) {
+  globalColorIdx = 0
+  getColorById (id) {
     let idx = parseInt(id)
 
     if (!idx) {
-      idx = this.global_color_idx
-      this.global_color_idx += 1
+      idx = this.globalColorIdx
+      this.globalColorIdx += 1
     }
 
     idx %= 33
@@ -107,44 +107,23 @@ class ObjectCategory {
     }
   }
 
-  get_color_by_category (category) {
-    const target_color_hex = parseInt('0x' + this.get_obj_cfg_by_type(category).color.slice(1))
+  getColorByType (category) {
+    const targetColorHex = parseInt('0x' + this.getObjCfgByType(category).color.slice(1))
 
     return {
-      x: (target_color_hex / 256 / 256) / 255.0,
-      y: (target_color_hex / 256 % 256) / 255.0,
-      z: (target_color_hex % 256) / 255.0
+      x: (targetColorHex / 256 / 256) / 255.0,
+      y: (targetColorHex / 256 % 256) / 255.0,
+      z: (targetColorHex % 256) / 255.0
     }
   }
 
-  get_obj_cfg_by_type (name) {
-    if (this.obj_type_map[name]) {
-      return this.obj_type_map[name]
+  getObjCfgByType (name) {
+    if (this.objTypeMap[name]) {
+      return this.objTypeMap[name]
     } else {
-      return this.obj_type_map.Unknown
+      return this.objTypeMap.Unknown
     }
   }
-
-  // name_array = []
-
-  // build_name_array(){
-  //     for (var n in this.obj_type_map){
-  //         name_array.push(n);
-  //     }
-  // }
-
-  // get_next_obj_type_name(name){
-
-  //     if (name_array.length == 0)    {
-  //         build_name_array();
-  //     }
-
-  //     var idx = name_array.findIndex(function(n){return n==name;})
-  //     idx+=1;
-  //     idx %= name_array.length;
-
-  //     return name_array[idx];
-  // }
 }
 
 const globalObjectCategory = new ObjectCategory()

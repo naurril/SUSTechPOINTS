@@ -50,6 +50,6 @@
     "ignore": [
       "config","scripts"
     ],
-    "globals": [ "Request", "Image"]
+    "globals": [ "Request", "Image", "ResizeObserver"]
   }
 }

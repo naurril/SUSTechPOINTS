@@ -1,5 +1,5 @@
 
-import { vector4to3, vector3_nomalize, pxrToXyz, matmul } from './util'
+import { vector4to3, vector3Nomalize, pxrToXyz, matmul } from './util'
 import { globalObjectCategory } from './obj_cfg'
 import { ResizableMoveableView } from './common/popup_dialog'
 import { RectEditor } from './image_editor/rect_editor'
@@ -111,16 +111,16 @@ function BoxImageContext (ui) {
     if (!selected) {
       let target_color = null
       if (box.world.data.cfg.color_obj === 'category') {
-        target_color = globalObjectCategory.get_color_by_category(box.obj_type)
+        target_color = globalObjectCategory.getColorByType(box.obj_type)
       } else // by id
       {
         const idx = (box.obj_track_id) ? parseInt(box.obj_track_id) : box.obj_local_id
-        target_color = globalObjectCategory.get_color_by_id(idx)
+        target_color = globalObjectCategory.getColorById(idx)
       }
 
-      // ctx.strokeStyle = get_obj_cfg_by_type(box.obj_type).color;
+      // ctx.strokeStyle = getObjCfgByType(box.obj_type).color;
 
-      // var c = get_obj_cfg_by_type(box.obj_type).color;
+      // var c = getObjCfgByType(box.obj_type).color;
       const r = '0x' + (target_color.x * 256).toString(16)
       const g = '0x' + (target_color.y * 256).toString(16)
       const b = '0x' + (target_color.z * 256).toString(16)
@@ -1186,12 +1186,12 @@ class ImageContextManager {
     console.log(window.document.styleSheets.length, 'sheets')
     const sheet = window.document.styleSheets[1]
 
-    const obj_type_map = globalObjectCategory.obj_type_map
+    const objTypeMap = globalObjectCategory.objTypeMap
 
-    for (const o in obj_type_map) {
-      const rule = '.' + o + '{color:' + obj_type_map[o].color + '; stroke:'
-                                + obj_type_map[o].color + ';fill:'
-                                + obj_type_map[o].color + '22;'
+    for (const o in objTypeMap) {
+      const rule = '.' + o + '{color:' + objTypeMap[o].color + '; stroke:'
+                                + objTypeMap[o].color + ';fill:'
+                                + objTypeMap[o].color + '22;'
                                 + '}'
 
       sheet.insertRule(rule, sheet.cssRules.length)
@@ -1203,7 +1203,7 @@ class ImageContextManager {
     }
 
     for (let idx = 0; idx <= 32; idx++) {
-      const c = globalObjectCategory.get_color_by_id(idx)
+      const c = globalObjectCategory.getColorById(idx)
       const color = '#' + color_str(c.x) + color_str(c.y) + color_str(c.z)
 
       const rule = `.color-${idx} {color: ${color}; stroke: ${color}; fill: ${color}22;}`
@@ -1251,7 +1251,7 @@ function points3d_homo_to_image2d (points3d, calib, accept_partial = false, save
     imgpos2 = matmul(calib.intrinsic, imgpos, 4)
   } else { imgpos2 = matmul(calib.intrinsic, imgpos3, 3) }
 
-  let imgfinal = vector3_nomalize(imgpos2)
+  let imgfinal = vector3Nomalize(imgpos2)
   const imgfinal_filterd = []
 
   if (accept_partial) {

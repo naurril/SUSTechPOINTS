@@ -77,7 +77,7 @@ class AttrEditor {
   setAttrOptions (obj_type, obj_attr) {
     let attrs = ['static', 'occluded']
 
-    if (globalObjectCategory.obj_type_map[obj_type] && globalObjectCategory.obj_type_map[obj_type].attr) { attrs = attrs.concat(globalObjectCategory.obj_type_map[obj_type].attr) }
+    if (globalObjectCategory.objTypeMap[obj_type] && globalObjectCategory.objTypeMap[obj_type].attr) { attrs = attrs.concat(globalObjectCategory.objTypeMap[obj_type].attr) }
 
     // merge attrs
     let objAttrs = []

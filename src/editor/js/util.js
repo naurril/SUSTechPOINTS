@@ -15,12 +15,12 @@ function dotproduct (a, b) {
 // vl is vector length
 function matmul (m, x, vl) {
   const ret = []
-  const res_l = m.length / vl
+  const resL = m.length / vl
   for (let vi = 0; vi < x.length / vl; vi++) { // vector index
     for (let r = 0; r < m.length / vl; r++) { // row of matrix
-      ret[vi * res_l + r] = 0
+      ret[vi * resL + r] = 0
       for (let i = 0; i < vl; i++) {
-        ret[vi * res_l + r] += m[r * vl + i] * x[vi * vl + i]
+        ret[vi * resL + r] += m[r * vl + i] * x[vi * vl + i]
       }
     }
   }
@@ -64,7 +64,7 @@ function pxrToXyz (p, s, r) {
   const y = s.y / 2
   const z = s.z / 2
   /*
-    var local_coord = [
+    var localCoord = [
         -x, y, -z, 1,   x, y, -z, 1,  //front-left-bottom, front-right-bottom
         x, y, z, 1,    -x, y, z, 1,  //front-right-top,   front-left-top
 
@@ -74,7 +74,7 @@ function pxrToXyz (p, s, r) {
     ];
     */
 
-  const local_coord = [
+  const localCoord = [
     x, y, -z, 1, x, -y, -z, 1, // front-left-bottom, front-right-bottom
     x, -y, z, 1, x, y, z, 1, // front-right-top,   front-left-top
 
@@ -86,8 +86,8 @@ function pxrToXyz (p, s, r) {
     // 0, -y, z, 1,   0, y, z, 1,  //rear-right-top,   rear-left-top
   ]
 
-  const world_coord = matmul(transMatrix, local_coord, 4)
-  const w = world_coord
+  const worldCoord = matmul(transMatrix, localCoord, 4)
+  const w = worldCoord
   return w
 }
 
@@ -138,14 +138,13 @@ function vector4to3 (v) {
   return ret
 }
 
-function vector_range (v) {
+function vectorRange (v) {
   if (v.length === 0) {
     return null
   }
 
-  let min, max
-  min = [...v[0]]
-  max = [...v[0]]
+  const min = [...v[0]]
+  const max = [...v[0]]
 
   for (let i = 1; i < v.length; ++i) {
     for (let j = 0; j < min.length; ++j) {
@@ -225,7 +224,7 @@ function arrayAsVectorIndexRange (v, vl, p) {
   }
 }
 
-function vector3_nomalize (m) {
+function vector3Nomalize (m) {
   const ret = []
   for (let i = 0; i < m.length / 3; i++) {
     ret.push(m[i * 3 + 0] / m[i * 3 + 2])
@@ -471,7 +470,7 @@ function psrToXyzFacePoints (p, s, r, minGrid) {
   const y = s.y / 2
   const z = s.z / 2
 
-  //    var local_coord = [
+  //    var localCoord = [
   //         [x, y, -z],   [x, -y, -z],  //front-left-bottom, front-right-bottom
   //         [x, -y, z],   [x, y, z],  //front-right-top,   front-left-top
 
@@ -513,9 +512,9 @@ function psrToXyzFacePoints (p, s, r, minGrid) {
 
   points = points.reduce((a, b) => a.concat(b))
 
-  const world_coord = matmul(transMatrix, points, 4)
+  const worldCoord = matmul(transMatrix, points, 4)
 
-  return vector4to3(world_coord)
+  return vector4to3(worldCoord)
 }
 
 function cornersAinB (boxA, boxB) {
@@ -563,7 +562,7 @@ function intersect (boxA, boxB) {
 };
 
 export {
-  dotproduct, vector_range, arrayAsVectorRange, arrayAsVectorIndexRange, vector4to3, vector3_nomalize, pxrToXyz, matmul,
+  dotproduct, vectorRange, arrayAsVectorRange, arrayAsVectorIndexRange, vector4to3, vector3Nomalize, pxrToXyz, matmul,
   matmul2,
   eulerAngleToRotationMatrix3By3, eulerAngleToRotationMatrix, rotationMatrixToEulerAngle,
   linalgStd,

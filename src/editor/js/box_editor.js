@@ -990,7 +990,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         {
           const b = this.firingBoxEditor.box
           const obj_type = b.obj_type
-          const obj_cfg = globalObjectCategory.get_obj_cfg_by_type(obj_type)
+          const obj_cfg = globalObjectCategory.getObjCfgByType(obj_type)
 
           b.scale.x = obj_cfg.size[0]
           b.scale.y = obj_cfg.size[1]

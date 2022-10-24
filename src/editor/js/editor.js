@@ -22,7 +22,7 @@ import { CropScene } from './crop_scene.js'
 import { ConfigUi } from './config_ui.js'
 import { MovableView } from './common/popup_dialog.js'
 import { globalKeyDownManager } from './keydown_manager.js'
-import { vector_range } from './util.js'
+import { vectorRange } from './util.js'
 import { checkScene } from './error_check.js'
 import { jsonrpc } from './jsonrpc.js'
 
@@ -885,7 +885,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       case 'cm-reset-obj-size':
         {
           const obj_type = this.selected_box.obj_type
-          const obj_cfg = globalObjectCategory.get_obj_cfg_by_type(obj_type)
+          const obj_cfg = globalObjectCategory.getObjCfgByType(obj_type)
 
           this.selected_box.scale.x = obj_cfg.size[0]
           this.selected_box.scale.y = obj_cfg.size[1]
@@ -896,6 +896,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       default:
         console.log('unhandled', event.currentTarget.id, event.type)
     };
+
+    return true;
   }
 
   this.selectBoxById = function (targetTrackId) {
@@ -1324,7 +1326,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     const rotation = { x: 0, y: 0, z: this.viewManager.mainView.camera.rotation.z + Math.PI / 2 }
 
-    const obj_cfg = globalObjectCategory.get_obj_cfg_by_type(obj_type)
+    const obj_cfg = globalObjectCategory.getObjCfgByType(obj_type)
     const scale = {
       x: obj_cfg.size[0],
       y: obj_cfg.size[1],
@@ -1347,7 +1349,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
         // guess obj type here
 
-        box.obj_type = guess_obj_type_by_dimension(box.scale);
+        box.obj_type = guessObjTypeByDimension(box.scale);
 
         this.floatLabelManager.add_label(box);
 
@@ -1355,7 +1357,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         this.onBoxChanged(box);
 
         this.boxOp.auto_rotate_xyz(box, function(){
-            box.obj_type = guess_obj_type_by_dimension(box.scale);
+            box.obj_type = guessObjTypeByDimension(box.scale);
             self.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type);
             self.floatLabelManager.update_label_editor(box.obj_type, box.obj_track_id);
             self.onBoxChanged(box);
@@ -1430,7 +1432,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     // guess obj type here
 
-    box.obj_type = globalObjectCategory.guess_obj_type_by_dimension(box.scale)
+    box.obj_type = globalObjectCategory.guessObjTypeByDimension(box.scale)
 
     objIdManager.addObject({
       category: box.obj_type,
@@ -1445,7 +1447,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     if (!shift) {
       this.boxOp.auto_rotate_xyz(box, () => {
-        box.obj_type = globalObjectCategory.guess_obj_type_by_dimension(box.scale)
+        box.obj_type = globalObjectCategory.guessObjTypeByDimension(box.scale)
         this.floatLabelManager.set_object_type(box.obj_local_id, box.obj_type)
         this.fastToolBox.setValue(box.obj_type, box.obj_track_id, box.obj_attr)
         this.onBoxChanged(box)
@@ -1472,7 +1474,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       relative_position.push([boxP.x, boxP.y, boxP.z])
     })
 
-    const relative_extreme = vector_range(relative_position)
+    const relative_extreme = vectorRange(relative_position)
     const scale = {
       x: relative_extreme.max[0] - relative_extreme.min[0],
       y: relative_extreme.max[1] - relative_extreme.min[1],
@@ -1566,7 +1568,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
             }
           } else {
             // unselected finally
-            // this.selected_box.material.color = new THREE.Color(parseInt("0x"+get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)));
+            // this.selected_box.material.color = new THREE.Color(parseInt("0x"+getObjCfgByType(this.selected_box.obj_type).color.slice(1)));
             // this.selected_box.material.opacity = this.data.cfg.box_opacity;
             this.boxOp.unhighlightBox(this.selected_box)
             // this.floatLabelManager.unselect_box(this.selected_box.obj_local_id, this.selected_box.obj_type);
@@ -1603,7 +1605,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
           }
         }
 
-        this.selected_box.material.color = new THREE.Color(parseInt('0x' + globalObjectCategory.get_obj_cfg_by_type(this.selected_box.obj_type).color.slice(1)))
+        this.selected_box.material.color = new THREE.Color(parseInt('0x' + globalObjectCategory.getObjCfgByType(this.selected_box.obj_type).color.slice(1)))
         this.selected_box.material.opacity = this.data.cfg.box_opacity
         // this.floatLabelManager.unselect_box(this.selected_box.obj_local_id);
         this.fastToolBox.hide()
@@ -1771,7 +1773,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     let rotation = new THREE.Euler(0, 0, this.viewManager.mainView.camera.rotation.z + Math.PI / 2, 'XYZ')
     rotation = this.data.world.sceneRotToLidar(rotation)
 
-    const obj_cfg = globalObjectCategory.get_obj_cfg_by_type(obj_type)
+    const obj_cfg = globalObjectCategory.getObjCfgByType(obj_type)
     const scale = {
       x: obj_cfg.size[0],
       y: obj_cfg.size[1],
@@ -1914,7 +1916,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   //     }
 
   //     this.selected_box.obj_type = target_type;
-  //     var obj_cfg = get_obj_cfg_by_type(target_type);
+  //     var obj_cfg = getObjCfgByType(target_type);
   //     this.selected_box.scale.x=obj_cfg.size[0];
   //     this.selected_box.scale.y=obj_cfg.size[1];
   //     this.selected_box.scale.z=obj_cfg.size[2];
@@ -2427,11 +2429,11 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.add_global_obj_type = function () {
     this.imageContextManager.buildCssStyle()
 
-    const obj_type_map = globalObjectCategory.obj_type_map
+    const objTypeMap = globalObjectCategory.objTypeMap
 
     // submenu of new
     let items = ''
-    for (const o in obj_type_map) {
+    for (const o in objTypeMap) {
       items += '<div class="menu-item cm-new-item ' + o + '" id="cm-new-' + o + '" uservalue="' + o + '"><div class="menu-item-text">' + o + '</div></div>'
     }
 

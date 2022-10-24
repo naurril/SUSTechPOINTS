@@ -9,7 +9,7 @@ function autoAnnotate (world, done, alg) {
     if (this.status == 200) {
       const anns = JSON.parse(this.responseText)
 
-      anns.map(a => a.obj_type = globalObjectCategory.guess_obj_type_by_dimension(a.psr.scale))
+      anns.map(a => a.obj_type = globalObjectCategory.guessObjTypeByDimension(a.psr.scale))
 
       // load annotations
       world.annotation.reapplyAnnotation(anns)

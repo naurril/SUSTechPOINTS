@@ -270,7 +270,7 @@ function Annotation (sceneMeta, world, frameInfo) {
   }
 
   this.createCuboid = function (pos, scale, rotation, obj_type, track_id, obj_attr) {
-    const mesh = this.new_bbox_cube(parseInt('0x' + globalObjectCategory.get_obj_cfg_by_type(obj_type).color.slice(1)))
+    const mesh = this.new_bbox_cube(parseInt('0x' + globalObjectCategory.getObjCfgByType(obj_type).color.slice(1)))
     mesh.position.x = pos.x
     mesh.position.y = pos.y
     mesh.position.z = pos.z
@@ -511,12 +511,12 @@ function Annotation (sceneMeta, world, frameInfo) {
 
   this.color_box = function (box) {
     if (this.data.cfg.color_obj == 'category' || this.data.cfg.color_obj == 'no') {
-      const color = globalObjectCategory.get_color_by_category(box.obj_type)
+      const color = globalObjectCategory.getColorByType(box.obj_type)
       box.material.color.r = color.x
       box.material.color.g = color.y
       box.material.color.b = color.z
     } else {
-      const color = globalObjectCategory.get_color_by_id(box.obj_track_id)
+      const color = globalObjectCategory.getColorById(box.obj_track_id)
       box.material.color.r = color.x
       box.material.color.g = color.y
       box.material.color.b = color.z

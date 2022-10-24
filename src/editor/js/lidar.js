@@ -1,6 +1,6 @@
 
 import * as THREE from 'three'
-import { matmul, eulerAngleToRotationMatrix, transpose, pxrToXyz, arrayAsVectorRange, vector_range } from './util.js'
+import { matmul, eulerAngleToRotationMatrix, transpose, pxrToXyz, arrayAsVectorRange, vectorRange } from './util.js'
 // import { PCDLoader } from './lib/PCDLoader.js'
 import { globalObjectCategory } from './obj_cfg.js'
 
@@ -655,7 +655,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     let lowest_limit = -box.scale.z / 2
 
     if (!useBoxBottomAsLimit) {
-      const extreme1 = vector_range(p, 3)
+      const extreme1 = vectorRange(p, 3)
       lowest_limit = extreme1.min[2]
     }
 
@@ -665,7 +665,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     })
 
     // compute range again.
-    const extreme2 = vector_range(p, 3)
+    const extreme2 = vectorRange(p, 3)
 
     return {
       max: {
@@ -686,7 +686,7 @@ function Lidar (sceneMeta, world, frameInfo) {
   // we should filter ground points by the box bottom after aligned.
   this.get_dimension_of_points = function (indices, box) {
     let p = this.getPointsOfBoxInternal(this.points, box, 1, indices).position
-    const extreme1 = vector_range(p, 3)
+    const extreme1 = vectorRange(p, 3)
 
     // filter out lowest part, to calculate x-y size.
     p = p.filter(function (x) {
@@ -694,7 +694,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     })
 
     // compute range again.
-    const extreme2 = vector_range(p, 3)
+    const extreme2 = vectorRange(p, 3)
 
     return {
       max: {
@@ -1145,11 +1145,11 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     if (!target_color) {
       if (this.data.cfg.color_obj === 'category') {
-        target_color = globalObjectCategory.get_color_by_category(box.obj_type)
+        target_color = globalObjectCategory.getColorByType(box.obj_type)
       } else if (this.data.cfg.color_obj === 'id')// by id
       {
         const idx = (box.obj_track_id) ? parseInt(box.obj_track_id) : box.obj_local_id
-        target_color = globalObjectCategory.get_color_by_id(idx)
+        target_color = globalObjectCategory.getColorById(idx)
       } else // no color
       {
 
@@ -1329,7 +1329,7 @@ function Lidar (sceneMeta, world, frameInfo) {
       relative_position.push([tp[0], tp[1], tp[2]])
     })
 
-    const relative_extreme = vector_range(relative_position)
+    const relative_extreme = vectorRange(relative_position)
     const scale = {
       x: relative_extreme.max[0] - relative_extreme.min[0],
       y: relative_extreme.max[1] - relative_extreme.min[1],
