@@ -96,7 +96,7 @@ class Trajectory extends PopupDialog {
   object = {}
 
   setObject (objType, objId, tracks, funcOnExit) { // tracks is a list of [frameId, x, y, direction], in order
-      this.object = {
+    this.object = {
       type: objType,
       id: objId,
       tracks

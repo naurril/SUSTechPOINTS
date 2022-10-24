@@ -1,14 +1,14 @@
-import React from 'react'
-import { jsonrpc } from '../editor/js/jsonrpc'
+import React from 'react';
+import { jsonrpc } from '../editor/js/jsonrpc';
 
 class User extends React.Component {
   constructor (props) {
-    super(props)
+    super(props);
     this.state = {
       userid: 'unknown',
       readonly: true,
       scenes: {}
-    }
+    };
   }
 
   componentDidMount () {
@@ -16,46 +16,46 @@ class User extends React.Component {
       this.setState({
         userid: ret.annotator,
         readonly: ret.readonly
-      })
-    })
+      });
+    });
 
     jsonrpc('/api/get_all_scene_desc').then(ret => {
-      console.log(ret)
+      console.log(ret);
       this.setState({
         scenes: ret
-      })
+      });
     })
       .catch(reject => {
-        console.log('error read scene list!')
-      })
+        console.log('error read scene list!');
+      });
   }
 
   getStat () {
-    let total = 0
+    let total = 0;
 
-    const stat = {}
+    const stat = {};
 
     Object.keys(this.state.scenes).forEach(k => {
-      const s = this.state.scenes[k]
-      total += s.frames
+      const s = this.state.scenes[k];
+      total += s.frames;
 
       Object.keys(s.meta).forEach(category => {
         Object.keys(s.meta[category]).forEach(c => {
-          if (!stat[category]) { stat[category] = {} }
+          if (!stat[category]) { stat[category] = {}; }
 
-          if (!stat[category][c]) { stat[category][c] = 0 }
+          if (!stat[category][c]) { stat[category][c] = 0; }
 
-          stat[category][c] += s.meta[category][c]
-        })
-      })
-    })
+          stat[category][c] += s.meta[category][c];
+        });
+      });
+    });
 
-    stat.total = total
-    return stat
+    stat.total = total;
+    return stat;
   }
 
   render () {
-    const stat = this.getStat()
+    const stat = this.getStat();
     return (
       <div className='full-height auto-scroll'>
         <div>user: {this.state.userid}</div>
@@ -75,7 +75,7 @@ class User extends React.Component {
             <tbody>
               {
                     Object.keys(this.state.scenes).map(s => {
-                      const desc = this.state.scenes[s]
+                      const desc = this.state.scenes[s];
                       return (
                         <tr key={s}>
                           <td>{s}</td>
@@ -84,7 +84,7 @@ class User extends React.Component {
                           <td>{desc.label_files}</td>
                           <td>{JSON.stringify(desc.meta)}</td>
                         </tr>
-                      )
+                      );
                     })
                     }
 
@@ -99,8 +99,8 @@ class User extends React.Component {
           </table>
         </div>
       </div>
-    )
+    );
   }
 }
 
-export default User
+export default User;

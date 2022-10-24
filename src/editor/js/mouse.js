@@ -1,28 +1,30 @@
 
 import * as THREE from 'three'
 
-function Mouse (view, op_state, mainui_container, parentUi, on_left_click, on_right_click, on_select_rect) {
-  this.view = view
-  this.domElement = mainui_container
-  this.parentUi = parentUi
-  this.operation_state = op_state
+class Mouse {
+  constructor (view, opState, mainUiContainer, parentUi, onLeftClick, onRightClick, onSelectRect) {
+    this.view = view
+    this.domElement = mainUiContainer
+    this.parentUi = parentUi
+    this.operationState = opState
 
-  this.domElement.addEventListener('mousemove', (e) => { this.onMouseMove(e) }, false)
-  this.domElement.addEventListener('mousedown', (e) => { this.onMouseDown(e) }, true)
+    this.domElement.addEventListener('mousemove', (e) => { this.onMouseMove(e) }, false)
+    this.domElement.addEventListener('mousedown', (e) => { this.onMouseDown(e) }, true)
 
-  this.raycaster = new THREE.Raycaster()
-  this.onDownPosition = new THREE.Vector2()
-  this.onUpPosition = new THREE.Vector2()
+    this.raycaster = new THREE.Raycaster()
+    this.onDownPosition = new THREE.Vector2()
+    this.onUpPosition = new THREE.Vector2()
 
-  this.handleLeftClick = on_left_click
-  this.handleRightClick = on_right_click
-  this.handleSelectRect = on_select_rect
+    this.handleLeftClick = onLeftClick
+    this.handleRightClick = onRightClick
+    this.handleSelectRect = onSelectRect
 
-  let in_select_mode = false
-  let select_start_pos
-  let select_end_pos
+    this.inSelectMode = false
+    this.selectStartPos = null
+    this.selectEndPos = null
+  }
 
-  this.get_mouse_location_in_world = function () {
+  getMouseLocationInWorld () {
     this.raycaster.setFromCamera(this.onUpPosition, this.view.camera)
     const o = this.raycaster.ray.origin
     const d = this.raycaster.ray.direction
@@ -33,12 +35,12 @@ function Mouse (view, op_state, mainui_container, parentUi, on_left_click, on_ri
     return { x, y, z: 0 }
   }
 
-  this.get_screen_location_in_world = function (x, y) {
-    const screen_pos = new THREE.Vector2()
-    screen_pos.x = x
-    screen_pos.y = y
+  getScreenLocationInWorld (x, y) {
+    const screenPos = new THREE.Vector2()
+    screenPos.x = x
+    screenPos.y = y
 
-    this.raycaster.setFromCamera(screen_pos, this.view.camera)
+    this.raycaster.setFromCamera(screenPos, this.view.camera)
     const o = this.raycaster.ray.origin
     const d = this.raycaster.ray.direction
 
@@ -51,11 +53,11 @@ function Mouse (view, op_state, mainui_container, parentUi, on_left_click, on_ri
     }
   }
 
-  this.getMousePosition = function (dom, offsetX, offsetY) {
+  getMousePosition (dom, offsetX, offsetY) {
     return [offsetX / dom.clientWidth * 2 - 1, -offsetY / dom.clientHeight * 2 + 1]
   }
 
-  this.getIntersects = function (point, objects) {
+  getIntersects (point, objects) {
     // mouse is temp var
     const mouse = new THREE.Vector2()
     mouse.set(point.x, point.y)
@@ -65,20 +67,20 @@ function Mouse (view, op_state, mainui_container, parentUi, on_left_click, on_ri
     return this.raycaster.intersectObjects(objects, false) // 2nd argument: recursive.
   }
 
-  this.onMouseDown = function (event) {
-    in_select_mode = false
+  onMouseDown (event) {
+    this.inSelectMode = false
 
     if (event.which === 3) {
-      this.operation_state.key_pressed = false
+      this.operationState.key_pressed = false
     } else if (event.which === 1) {
       console.log('mouse left key down!')
       if (event.ctrlKey || event.shiftKey) {
         event.stopPropagation()
         event.preventDefault()
 
-        in_select_mode = true
+        this.inSelectMode = true
 
-        select_start_pos = {
+        this.selectStartPos = {
           x: event.offsetX,
           y: event.offsetY
         }
@@ -89,49 +91,49 @@ function Mouse (view, op_state, mainui_container, parentUi, on_left_click, on_ri
     this.onDownPosition.fromArray(array)
     console.log('mouse down', array)
 
-    this.domElement.addEventListener('mouseup', on_mouse_up, false)
+    this.domElement.addEventListener('mouseup', this.on_mouse_up, false)
   }
 
-  this.onMouseMove = function (event) {
+  onMouseMove (event) {
     event.preventDefault()
 
     // console.log(this.getMousePosition(this.domElement, event.offsetX, event.offsetY));
 
-    if (in_select_mode) {
-      select_end_pos = {
+    if (this.inSelectMode) {
+      this.selectEndPos = {
         x: event.offsetX,
         y: event.offsetY
       }
 
-      if (event.offsetX !== select_start_pos.x || event.offsetY !== select_end_pos.y) {
+      if (event.offsetX !== this.selectStartPos.x || event.offsetY !== this.selectEndPos.y) {
         // draw select box
         const sbox = this.parentUi.querySelector('#select-box')
 
         sbox.style.display = 'inherit'
 
-        if (select_start_pos.x < select_end_pos.x) {
-          sbox.style.left = select_start_pos.x + 'px'
-          sbox.style.width = select_end_pos.x - select_start_pos.x + 'px'
+        if (this.selectStartPos.x < this.selectEndPos.x) {
+          sbox.style.left = this.selectStartPos.x + 'px'
+          sbox.style.width = this.selectEndPos.x - this.selectStartPos.x + 'px'
         } else {
-          sbox.style.left = select_end_pos.x + 'px'
-          sbox.style.width = -select_end_pos.x + select_start_pos.x + 'px'
+          sbox.style.left = this.selectEndPos.x + 'px'
+          sbox.style.width = -this.selectEndPos.x + this.selectStartPos.x + 'px'
         }
 
-        if (select_start_pos.y < select_end_pos.y) {
-          sbox.style.top = select_start_pos.y + 'px'
-          sbox.style.height = select_end_pos.y - select_start_pos.y + 'px'
+        if (this.selectStartPos.y < this.selectEndPos.y) {
+          sbox.style.top = this.selectStartPos.y + 'px'
+          sbox.style.height = this.selectEndPos.y - this.selectStartPos.y + 'px'
         } else {
-          sbox.style.top = select_end_pos.y + 'px'
-          sbox.style.height = -select_end_pos.y + select_start_pos.y + 'px'
+          sbox.style.top = this.selectEndPos.y + 'px'
+          sbox.style.height = -this.selectEndPos.y + this.selectStartPos.y + 'px'
         }
       }
     }
   }
 
-  var on_mouse_up = (e) => { this.onMouseUp(e) }
+  on_mouse_up = (e) => { this.onMouseUp(e) }
 
-  this.onMouseUp = function (event) {
-    this.domElement.removeEventListener('mouseup', on_mouse_up, false)
+  onMouseUp (event) {
+    this.domElement.removeEventListener('mouseup', this.on_mouse_up, false)
 
     const array = this.getMousePosition(this.domElement, event.offsetX, event.offsetY)
     this.onUpPosition.fromArray(array)
@@ -142,7 +144,7 @@ function Mouse (view, op_state, mainui_container, parentUi, on_left_click, on_ri
       if (event.which === 3) {
         // right click
         // if no other key pressed, we consider this as a right click
-        if (!this.operation_state.key_pressed) {
+        if (!this.operationState.key_pressed) {
           console.log('right clicked.')
           this.handleRightClick(event)
         }
@@ -151,12 +153,12 @@ function Mouse (view, op_state, mainui_container, parentUi, on_left_click, on_ri
         this.handleLeftClick(event)
       }
 
-      in_select_mode = false
+      this.inSelectMode = false
       return
     }
 
-    if (in_select_mode) {
-      in_select_mode = false
+    if (this.inSelectMode) {
+      this.inSelectMode = false
 
       const sbox = this.parentUi.querySelector('#select-box')
       sbox.style.display = 'none'

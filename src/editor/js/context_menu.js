@@ -1,8 +1,8 @@
-import { globalKeyDownManager } from './keydown_manager.js'
+import { globalKeyDownManager } from './keydown_manager.js';
 
 class ContextMenu {
   constructor (ui) {
-    this.wrapperUi = ui
+    this.wrapperUi = ui;
 
     this.menus = {
       world: ui.querySelector('#context-menu'),
@@ -13,19 +13,19 @@ class ContextMenu {
       gotoSubMenu: ui.querySelector('#goto-submenu'),
       fitSubMenu: ui.querySelector('#cm-fit-submenu')
       // thisSubMenu: ui.querySelector("#cm-this-submenu"),
-    }
+    };
 
     for (const m in this.menus) {
       for (let i = 0; i < this.menus[m].children.length; i++) {
         this.menus[m].children[i].onclick = (event) => {
           // event.preventDefault();
-          event.stopPropagation()
+          event.stopPropagation();
 
-          const ret = this.handler.handleContextMenuEvent(event)
+          const ret = this.handler.handleContextMenuEvent(event);
           if (ret) {
-            this.hide()
+            this.hide();
           }
-        }
+        };
       }
     }
 
@@ -35,133 +35,133 @@ class ContextMenu {
       '#cm-play': '#play-submenu',
       '#cm-fit': '#cm-fit-submenu'
       // "#cm-this": "#cm-this-submenu",
-    }
+    };
 
     for (const item in motherMenu) {
-      const menu = ui.querySelector(item)
+      const menu = ui.querySelector(item);
       menu.onclick = (event) => {
-        return false
-      }
+        return false;
+      };
 
-      const self = this
+      const self = this;
       menu.onmouseenter = function (event) {
         if (this.timerId) {
-          clearTimeout(this.timerId)
-          this.timerId = null
+          clearTimeout(this.timerId);
+          this.timerId = null;
         }
 
-        const menu = event.currentTarget.querySelector(motherMenu[item])
-        menu.style.display = 'inherit'
+        const menu = event.currentTarget.querySelector(motherMenu[item]);
+        menu.style.display = 'inherit';
 
-        const motherMenuRect = event.currentTarget.getBoundingClientRect()
-        const posX = motherMenuRect.right
-        const posY = motherMenuRect.bottom
+        const motherMenuRect = event.currentTarget.getBoundingClientRect();
+        const posX = motherMenuRect.right;
+        const posY = motherMenuRect.bottom;
 
         if (self.wrapperUi.clientHeight < posY + menu.clientHeight) {
-          menu.style.bottom = '0%'
-          menu.style.top = ''
+          menu.style.bottom = '0%';
+          menu.style.top = '';
         } else {
-          menu.style.top = '0%'
-          menu.style.bottom = ''
+          menu.style.top = '0%';
+          menu.style.bottom = '';
         }
 
         if (self.wrapperUi.clientWidth < posX + menu.clientWidth) {
-          menu.style.right = '100%'
-          menu.style.left = ''
+          menu.style.right = '100%';
+          menu.style.left = '';
         } else {
-          menu.style.left = '100%'
-          menu.style.right = ''
+          menu.style.left = '100%';
+          menu.style.right = '';
         }
-      }
+      };
 
       menu.onmouseleave = function (event) {
-        const ui = event.currentTarget.querySelector(motherMenu[item])
+        const ui = event.currentTarget.querySelector(motherMenu[item]);
         this.timerId = setTimeout(() => {
-          ui.style.display = 'none'
-          this.timerId = null
+          ui.style.display = 'none';
+          this.timerId = null;
         },
-        200)
-      }
+        200);
+      };
     }
 
     this.wrapperUi.onclick = (event) => {
-      this.hide()
-      event.preventDefault()
-      event.stopPropagation()
-    }
+      this.hide();
+      event.preventDefault();
+      event.stopPropagation();
+    };
 
     this.wrapperUi.oncontextmenu = (event) => {
       // event.currentTarget.style.display="none";
-      event.preventDefault()
-      event.stopPropagation()
-    }
+      event.preventDefault();
+      event.stopPropagation();
+    };
   }
 
   // install dynamic menu, like object new
   installMenu (name, ui, funcHandler) {
-    this.menus[name] = ui
+    this.menus[name] = ui;
 
     for (let i = 0; i < ui.children.length; i++) {
       ui.children[i].onclick = (event) => {
         // event.preventDefault();
-        event.stopPropagation()
+        event.stopPropagation();
 
-        const ret = funcHandler(event)
+        const ret = funcHandler(event);
         if (ret) {
-          this.hide()
+          this.hide();
         }
-      }
+      };
     }
   }
 
   hide () {
-    this.wrapperUi.style.display = 'none'
-    globalKeyDownManager.deregister('context menu')
+    this.wrapperUi.style.display = 'none';
+    globalKeyDownManager.deregister('context menu');
   }
 
   show (name, posX, posY, handler, funcSetPos) {
-    this.handler = handler
+    this.handler = handler;
 
     // hide all others
     for (const m in this.menus) {
-      if (m !== name) { this.menus[m].style.display = 'none' }
+      if (m !== name) { this.menus[m].style.display = 'none'; }
     }
 
     // show
-    this.wrapperUi.style.display = 'block'
+    this.wrapperUi.style.display = 'block';
 
-    const menu = this.menus[name]
-    menu.style.display = 'inherit'
+    const menu = this.menus[name];
+    menu.style.display = 'inherit';
 
-    this.currentMenu = menu
+    this.currentMenu = menu;
 
     if (funcSetPos) {
-      funcSetPos(menu)
+      funcSetPos(menu);
     } else {
       if (this.wrapperUi.clientHeight < posY + menu.clientHeight) {
-        menu.style.top = (this.wrapperUi.clientHeight - menu.clientHeight) + 'px'
+        menu.style.top = (this.wrapperUi.clientHeight - menu.clientHeight) + 'px';
       } else {
-        menu.style.top = posY + 'px'
+        menu.style.top = posY + 'px';
       }
 
       if (this.wrapperUi.clientWidth < posX + menu.clientWidth) {
-        menu.style.left = (this.wrapperUi.clientWidth - menu.clientWidth) + 'px'
+        menu.style.left = (this.wrapperUi.clientWidth - menu.clientWidth) + 'px';
       } else {
-        menu.style.left = posX + 'px'
+        menu.style.left = posX + 'px';
       }
     }
 
     globalKeyDownManager.register((event) => {
-      const menuRect = this.currentMenu.getBoundingClientRect()
+      const menuRect = this.currentMenu.getBoundingClientRect();
       const ret = this.handler.handleContextMenuKeydownEvent(event,
-        { x: menuRect.left, y: menuRect.top })
+        { x: menuRect.left, y: menuRect.top });
       if (!ret) {
-        this.hide()
+        this.hide();
       }
 
-      return false // false means don't propogate
-    }, 'context menu')
+      return false; // false means don't propogate
+    }, 'context menu');
   }
-};
+}
 
-export { ContextMenu }
+export { ContextMenu };

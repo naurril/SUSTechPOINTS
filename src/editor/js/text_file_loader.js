@@ -3,41 +3,41 @@ import {
   DefaultLoadingManager,
   FileLoader,
   LoaderUtils
-} from 'three'
+} from 'three';
 
 const TextFileLoader = function (manager) {
-  this.manager = (manager !== undefined) ? manager : DefaultLoadingManager
-  this.littleEndian = true
-}
+  this.manager = (manager !== undefined) ? manager : DefaultLoadingManager;
+  this.littleEndian = true;
+};
 
 TextFileLoader.prototype = {
 
   constructor: TextFileLoader,
 
   load: function (url, onLoad, onProgress, onError) {
-    const scope = this
+    const scope = this;
 
-    const loader = new FileLoader(scope.manager)
-    loader.setPath(scope.path)
-    loader.setResponseType('arraybuffer')
+    const loader = new FileLoader(scope.manager);
+    loader.setPath(scope.path);
+    loader.setResponseType('arraybuffer');
     loader.load(url, function (data) {
       try {
-        const textData = LoaderUtils.decodeText(new Uint8Array(data))
-        onLoad(textData, url)
+        const textData = LoaderUtils.decodeText(new Uint8Array(data));
+        onLoad(textData, url);
       } catch (e) {
         if (onError) {
-          onError(e)
+          onError(e);
         } else {
-          throw e
+          throw e;
         }
       }
-    }, onProgress, onError)
+    }, onProgress, onError);
   },
 
   setPath: function (value) {
-    this.path = value
-    return this
+    this.path = value;
+    return this;
   }
-}
+};
 
-export { TextFileLoader }
+export { TextFileLoader };

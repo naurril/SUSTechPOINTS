@@ -1,133 +1,133 @@
 
-import { logger } from './log.js'
-import * as tf from '@tensorflow/tfjs'
+import { logger } from './log.js';
+import * as tf from '@tensorflow/tfjs';
 
 const annMath = {
 
   sub: function (a, b) { // pos, rot, scale
-    const c = []
+    const c = [];
     for (const i in a) {
-      c[i] = a[i] - b[i]
+      c[i] = a[i] - b[i];
     }
 
-    return this.norm(c)
+    return this.norm(c);
   },
 
   div: function (a, d) { // d is scalar
-    const c = []
+    const c = [];
     for (const i in a) {
-      c[i] = a[i] / d
+      c[i] = a[i] / d;
     }
 
-    return c
+    return c;
   },
 
   add: function (a, b) {
-    const c = []
+    const c = [];
     for (const i in a) {
-      c[i] = a[i] + b[i]
+      c[i] = a[i] + b[i];
     }
 
-    return this.norm(c)
+    return this.norm(c);
   },
 
   mul: function (a, d) // d is scalar
   {
-    const c = []
+    const c = [];
     for (const i in a) {
-      c[i] = a[i] * d
+      c[i] = a[i] * d;
     }
 
-    return this.norm(c)
+    return this.norm(c);
   },
 
   norm: function (c) {
     for (let i = 3; i < 6; i++) {
       if (c[i] > Math.PI) {
-        c[i] -= Math.PI * 2
+        c[i] -= Math.PI * 2;
       } else if (c[i] < -Math.PI) {
-        c[i] += Math.PI * 2
+        c[i] += Math.PI * 2;
       }
     }
 
-    return c
+    return c;
   },
 
   normAngle: function (a) {
     if (a > Math.PI) {
-      return a - Math.PI * 2
+      return a - Math.PI * 2;
     } else if (a < -Math.PI) {
-      return a + Math.PI * 2
+      return a + Math.PI * 2;
     }
 
-    return a
+    return a;
   },
 
   eleMul: function (a, b) // element-wise multiplication
   {
-    const c = []
+    const c = [];
     for (const i in a) {
-      c[i] = a[i] * b[i]
+      c[i] = a[i] * b[i];
     }
 
-    return c
+    return c;
   }
 
-}
+};
 
 const ml = {
   backend: tf.getBackend(),
 
   calibrate_axes: function (points) {
-    console.log('backend of tensorflow:', tf.getBackend())
-    console.log('number of points:', points.count)
+    console.log('backend of tensorflow:', tf.getBackend());
+    console.log('number of points:', points.count);
 
-    const center_points = {}
+    const center_points = {};
     for (let i = 0; i < points.count; i++) {
       if (points.array[i * 3] < 10 && points.array[i * 3] > -10 &&
                 points.array[i * 3 + 1] < 10 && points.array[i * 3 + 1] > -10) // x,y in [-10,10]
       {
-        const key = (10 + Math.round(points.array[i * 3])) * 100 + (Math.round(points.array[i * 3 + 1]) + 10)
+        const key = (10 + Math.round(points.array[i * 3])) * 100 + (Math.round(points.array[i * 3 + 1]) + 10);
         if (center_points[key]) {
           // save only  minimal index
           if (points.array[i * 3 + 2] < points.array[center_points[key] * 3 + 2]) {
-            center_points[key] = i
+            center_points[key] = i;
           }
         } else {
-          center_points[key] = i
+          center_points[key] = i;
         }
       }
     }
 
-    const center_point_indices = []
+    const center_point_indices = [];
     for (const i in center_points) {
-      center_point_indices.push(center_points[i])
+      center_point_indices.push(center_points[i]);
     }
 
     // console.log(center_point_indices);
-    const points_2d = center_point_indices.map(i => [points.array[i * 3], points.array[i * 3 + 1], points.array[i * 3 + 2]])
-    const pointsArray = points_2d.flatMap(x => x)
+    const points_2d = center_point_indices.map(i => [points.array[i * 3], points.array[i * 3 + 1], points.array[i * 3 + 2]]);
+    const pointsArray = points_2d.flatMap(x => x);
 
     const sum = points_2d.reduce(function (s, x) {
       return [s[0] + x[0],
         s[1] + x[1],
-        s[2] + x[2]]
-    }, [0, 0, 0])
-    const count = points_2d.length
-    const mean = [sum[0] / count, sum[1] / count, sum[2] / count]
+        s[2] + x[2]];
+    }, [0, 0, 0]);
+    const count = points_2d.length;
+    const mean = [sum[0] / count, sum[1] / count, sum[2] / count];
 
     const data_centered = points_2d.map(function (x) {
       return [
         x[0] - mean[0],
         x[1] - mean[1],
         x[2] - mean[2]
-      ]
-    })
+      ];
+    });
 
-    const normal_v = this.train(data_centered)
+    const normal_v = this.train(data_centered);
 
-    window.editor.data.world.add_line(mean, [-normal_v[0] * 10, -normal_v[1] * 10, normal_v[2] * 10])
-    window.editor.data.world.lidar.reset_points(pointsArray)
+    window.editor.data.world.add_line(mean, [-normal_v[0] * 10, -normal_v[1] * 10, normal_v[2] * 10]);
+    window.editor.data.world.lidar.reset_points(pointsArray);
     /*
 
         var transMatrix = transpose(eulerAngleToRotationMatrix3By3({x:Math.atan2(normal_v[1], -1), y: 0, z: 0}));
@@ -140,269 +140,269 @@ const ml = {
         //data.world.lidar.updatePointsColor();
         */
 
-    return center_point_indices
+    return center_point_indices;
   },
 
   train: function (data_centered) // data is ?*3 array.
   {
-    const XY = data_centered.map(function (x) { return x.slice(0, 2) })
-    const Z = data_centered.map(function (x) { return x[2] })
+    const XY = data_centered.map(function (x) { return x.slice(0, 2); });
+    const Z = data_centered.map(function (x) { return x[2]; });
 
-    const x = tf.tensor2d(XY)
-    const para = tf.variable(tf.tensor2d([[Math.random(), Math.random()]]))
+    const x = tf.tensor2d(XY);
+    const para = tf.variable(tf.tensor2d([[Math.random(), Math.random()]]));
 
-    const learningRate = 0.00001
-    const optimizer = tf.train.sgd(learningRate)
-    para.print()
+    const learningRate = 0.00001;
+    const optimizer = tf.train.sgd(learningRate);
+    para.print();
     for (let i = 0; i < 20; i++) {
       optimizer.minimize(function () {
-        const dists = tf.matMul(para, x.transpose())
-        const sqrdiff = tf.squaredDifference(dists, Z)
-        const loss = tf.div(tf.sum(sqrdiff), sqrdiff.shape[0])
-        loss.print()
-        return loss
-      })
+        const dists = tf.matMul(para, x.transpose());
+        const sqrdiff = tf.squaredDifference(dists, Z);
+        const loss = tf.div(tf.sum(sqrdiff), sqrdiff.shape[0]);
+        loss.print();
+        return loss;
+      });
 
-      console.log(i)
-      para.print()
+      console.log(i);
+      para.print();
     }
 
-    const pv = para.dataSync()
-    console.log('train result: ', pv)
-    return [pv[0], pv[1], 1]
+    const pv = para.dataSync();
+    console.log('train result: ', pv);
+    return [pv[0], pv[1], 1];
   },
 
   // data is N*2 matrix,
   lShapeFit: function (data) {
     // cos, sin
     // -sin, cos
-    const A = tf.tensor2d(data)
+    const A = tf.tensor2d(data);
     // A = tf.expandDims(A, [0]);
 
-    let min = 0
-    let min_index = 0
+    let min = 0;
+    let min_index = 0;
     for (let i = 0; i <= 90; i += 1) {
-      const obj = cal_objetive(A, i)
+      const obj = cal_objetive(A, i);
 
       if (min === 0 || min > obj) {
-        min_index = i
-        min = obj
+        min_index = i;
+        min = obj;
       }
     }
 
-    console.log(min_index, min)
-    return min
+    console.log(min_index, min);
+    return min;
 
     // end of func
 
     function cal_objetive (A, theta) {
-      const r = theta * Math.PI / 180
+      const r = theta * Math.PI / 180;
       const bases = tf.tensor2d([[Math.cos(r), -Math.sin(r)],
-        [Math.sin(r), Math.cos(r)]])
+        [Math.sin(r), Math.cos(r)]]);
 
-      const proj = tf.matMul(A, bases) // n * 2
-      const max = tf.max(proj, 0) // 1*2
-      const min = tf.min(proj, 0) // 1*2
-      const dist_to_min = tf.sum(tf.square(tf.sub(proj, min)), 0)
-      const dist_to_max = tf.sum(tf.square(tf.sub(max, proj)), 0)
+      const proj = tf.matMul(A, bases); // n * 2
+      const max = tf.max(proj, 0); // 1*2
+      const min = tf.min(proj, 0); // 1*2
+      const dist_to_min = tf.sum(tf.square(tf.sub(proj, min)), 0);
+      const dist_to_max = tf.sum(tf.square(tf.sub(max, proj)), 0);
 
       // axis 0
-      let dist0, dist1 // dist to axis 0, axis 1
+      let dist0, dist1; // dist to axis 0, axis 1
       if (dist_to_min.gather(0).dataSync() < dist_to_max.gather(0).dataSync()) {
-        dist0 = tf.sub(proj.gather([0], 1), min.gather(0))
+        dist0 = tf.sub(proj.gather([0], 1), min.gather(0));
       } else {
-        dist0 = tf.sub(max.gather(0), proj.gather([0], 1))
+        dist0 = tf.sub(max.gather(0), proj.gather([0], 1));
       }
 
       if (dist_to_min.gather(1).dataSync() < dist_to_max.gather(1).dataSync()) {
-        dist1 = tf.sub(proj.gather([1], 1), min.gather(1))
+        dist1 = tf.sub(proj.gather([1], 1), min.gather(1));
       } else {
-        dist1 = tf.sub(max.gather(1), proj.gather([1], 1))
+        dist1 = tf.sub(max.gather(1), proj.gather([1], 1));
       }
 
       // concat dist0, dist1
-      const min_dist = tf.concat([dist0, dist1], 1).min(1)
-      return min_dist.sum().dataSync()[0]
+      const min_dist = tf.concat([dist0, dist1], 1).min(1);
+      return min_dist.sum().dataSync()[0];
     }
   },
 
   predict_rotation: function (data) {
-    const req = new Request('/api/predict_rotation')
+    const req = new Request('/api/predict_rotation');
     const init = {
       method: 'POST',
       body: JSON.stringify({ points: data })
-    }
+    };
     // we defined the xhr
-    console.log('start predict rotatoin.', data.length, 'points')
+    console.log('start predict rotatoin.', data.length, 'points');
 
     return fetch(req, init)
       .then(response => {
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          throw new Error(`HTTP error! status: ${response.status}`);
         } else {
-          console.log('predict rotatoin response received.')
-          return response.json()
+          console.log('predict rotatoin response received.');
+          return response.json();
         }
       })
       .catch(reject => {
-        console.log('error predicting yaw angle!')
-      })
+        console.log('error predicting yaw angle!');
+      });
   },
 
   // autoadj is async
   interpolate_annotation: async function (anns, autoAdj, onFinishOneBox) {
-    let i = 0
+    let i = 0;
     while (true) {
       while (i + 1 < anns.length && !(anns[i] && !anns[i + 1])) {
-        i++
+        i++;
       }
 
-      const start = i
-      i += 2
+      const start = i;
+      i += 2;
 
       while (i < anns.length && !anns[i]) {
-        i++
+        i++;
       }
 
       if (i < anns.length) {
-        const end = i
+        const end = i;
         // insert (begin, end)
-        let interpolate_step = annMath.div(annMath.sub(anns[end], anns[start]), (end - start))
+        let interpolate_step = annMath.div(annMath.sub(anns[end], anns[start]), (end - start));
 
         for (let inserti = start + 1; inserti < end; inserti++) {
-          let tempAnn = annMath.add(anns[inserti - 1], interpolate_step)
+          let tempAnn = annMath.add(anns[inserti - 1], interpolate_step);
 
           if (autoAdj) {
             try {
-              const adjustedAnn = await autoAdj(inserti, tempAnn)
+              const adjustedAnn = await autoAdj(inserti, tempAnn);
 
-              const adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5])
+              const adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
 
               if (Math.abs(adjustedYaw) > Math.PI / 2) {
-                console.log('adjust angle by Math.PI.')
-                adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI)
+                console.log('adjust angle by Math.PI.');
+                adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
               }
 
               if (!window.pointsGlobalConfig.enableAutoRotateXY) {
                 // adjustedAnn[3] = tempAnn[3];
                 // adjustedAnn[4] = tempAnn[4];
-                adjustedAnn[3] = 0
-                adjustedAnn[4] = 0
+                adjustedAnn[3] = 0;
+                adjustedAnn[4] = 0;
               }
 
-              tempAnn = adjustedAnn
+              tempAnn = adjustedAnn;
             } catch (e) {
-              console.log(e)
+              console.log(e);
             }
             //
           }
 
-          anns[inserti] = tempAnn
+          anns[inserti] = tempAnn;
 
           // adjust step since we have finished annotate one more box.
-          interpolate_step = annMath.div(annMath.sub(anns[end], anns[inserti]), (end - inserti))
+          interpolate_step = annMath.div(annMath.sub(anns[end], anns[inserti]), (end - inserti));
 
-          if (onFinishOneBox) { onFinishOneBox(inserti) }
+          if (onFinishOneBox) { onFinishOneBox(inserti); }
         }
       } else {
-        break
+        break;
       }
     }
 
     // interpolate finished
 
     // forward
-    i = 0
-    while (i < anns.length && !anns[i]) { i++ }
+    i = 0;
+    while (i < anns.length && !anns[i]) { i++; }
 
     if (i < anns.length) {
-      const filter = new MaFilter(anns[i])
-      i++
+      const filter = new MaFilter(anns[i]);
+      i++;
 
       while (i < anns.length && anns[i]) {
-        filter.update(anns[i])
-        i++
+        filter.update(anns[i]);
+        i++;
       }
 
       while (i < anns.length && !anns[i]) {
-        let tempAnn = filter.predict()
+        let tempAnn = filter.predict();
 
         if (autoAdj) {
           try {
-            const adjustedAnn = await autoAdj(i, tempAnn)
+            const adjustedAnn = await autoAdj(i, tempAnn);
 
-            const adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5])
+            const adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
 
             if (Math.abs(adjustedYaw) > Math.PI / 2) {
-              console.log('adjust angle by Math.PI.')
-              adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI)
+              console.log('adjust angle by Math.PI.');
+              adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
             }
 
-            tempAnn = adjustedAnn
+            tempAnn = adjustedAnn;
 
-            filter.update(tempAnn)
+            filter.update(tempAnn);
           } catch (error) {
-            console.log(error)
-            filter.nextStep(tempAnn)
+            console.log(error);
+            filter.nextStep(tempAnn);
           }
         } else {
-          filter.nextStep(tempAnn)
+          filter.nextStep(tempAnn);
         }
 
-        anns[i] = tempAnn
+        anns[i] = tempAnn;
         // we should update
-        if (onFinishOneBox) { onFinishOneBox(i) }
+        if (onFinishOneBox) { onFinishOneBox(i); }
 
-        i++
+        i++;
       }
     }
     // now extrapolate
 
     // backward
-    i = anns.length - 1
-    while (i >= 0 && !anns[i]) { i-- }
+    i = anns.length - 1;
+    while (i >= 0 && !anns[i]) { i--; }
 
     if (i >= 0) {
-      const filter = new MaFilter(anns[i])
-      i--
+      const filter = new MaFilter(anns[i]);
+      i--;
 
       while (i >= 0 && anns[i]) {
-        filter.update(anns[i])
-        i--
+        filter.update(anns[i]);
+        i--;
       }
 
       while (i >= 0 && !anns[i]) {
-        let tempAnn = filter.predict()
+        let tempAnn = filter.predict();
         if (autoAdj) {
           const adjustedAnn = await autoAdj(i, tempAnn).catch(e => {
-            logger.log(e)
-            return tempAnn
-          })
+            logger.log(e);
+            return tempAnn;
+          });
 
-          const adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5])
+          const adjustedYaw = annMath.normAngle(adjustedAnn[5] - tempAnn[5]);
 
           if (Math.abs(adjustedYaw) > Math.PI / 2) {
-            console.log('adjust angle by Math.PI.')
-            adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI)
+            console.log('adjust angle by Math.PI.');
+            adjustedAnn[5] = annMath.normAngle(adjustedAnn[5] + Math.PI);
           }
 
-          tempAnn = adjustedAnn
+          tempAnn = adjustedAnn;
 
-          filter.update(tempAnn)
+          filter.update(tempAnn);
         } else {
-          filter.nextStep(tempAnn)
+          filter.nextStep(tempAnn);
         }
 
-        anns[i] = tempAnn
-        if (onFinishOneBox) { onFinishOneBox(i) }
-        i--
+        anns[i] = tempAnn;
+        if (onFinishOneBox) { onFinishOneBox(i); }
+        i--;
       }
     }
 
-    return anns
+    return anns;
   }
 
-}
+};
 
 // function MaFilter_tf (initX) { // moving average filter
 //   this.x = tf.tensor1d(initX) // pose
@@ -437,36 +437,36 @@ const ml = {
 // }
 
 function MaFilter (initX) { // moving average filter
-  this.x = initX // pose
-  this.step = 0
+  this.x = initX; // pose
+  this.step = 0;
 
-  this.v = [0, 0, 0, 0, 0, 0, 0, 0, 0] // velocity
-  this.ones = [1, 1, 1, 1, 1, 1, 1, 1, 1]
+  this.v = [0, 0, 0, 0, 0, 0, 0, 0, 0]; // velocity
+  this.ones = [1, 1, 1, 1, 1, 1, 1, 1, 1];
   this.decay = [0.5, 0.5, 0.5,
     0.5, 0.5, 0.5,
-    0.5, 0.5, 0.5]
+    0.5, 0.5, 0.5];
 
   this.update = function (x) {
     if (this.step === 0) {
-      this.v = annMath.sub(x, this.x)
+      this.v = annMath.sub(x, this.x);
     } else {
       this.v = annMath.add(annMath.eleMul(annMath.sub(x, this.x), this.decay),
-        annMath.eleMul(this.v, annMath.sub(this.ones, this.decay)))
+        annMath.eleMul(this.v, annMath.sub(this.ones, this.decay)));
     }
 
-    this.x = x
-    this.step++
-  }
+    this.x = x;
+    this.step++;
+  };
 
   this.predict = function () {
-    const pred = [...annMath.add(this.x, this.v).slice(0, 6), ...this.x.slice(6)]
-    return pred
-  }
+    const pred = [...annMath.add(this.x, this.v).slice(0, 6), ...this.x.slice(6)];
+    return pred;
+  };
 
   this.nextStep = function (x) {
-    this.x = x
-    this.step++
-  }
+    this.x = x;
+    this.step++;
+  };
 }
 
-export { ml, MaFilter }
+export { ml, MaFilter };

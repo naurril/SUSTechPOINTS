@@ -1,6 +1,6 @@
 
 function jsonrpc (url, method = 'GET', param) {
-  const req = new Request(url)
+  const req = new Request(url);
   const init = {
     method,
 
@@ -15,55 +15,55 @@ function jsonrpc (url, method = 'GET', param) {
     redirect: 'follow', // manual, *follow, error
     referrerPolicy: 'no-referrer' // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
 
-  }
+  };
 
   if (param) {
-    init.body = JSON.stringify(param)
+    init.body = JSON.stringify(param);
   }
 
   return fetch(req, init).then(response => {
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      throw new Error(`HTTP error! status: ${response.status}`);
     } else {
-      return response.json()
+      return response.json();
     }
-  })
+  });
 }
 
 function loadjson (url) {
-  const req = new Request(url)
+  const req = new Request(url);
   const init = {
     headers: {
       'x-user-token': window.pointsGlobalConfig.userToken
     }
-  }
+  };
 
   return fetch(req, init).then(response => {
     if (!response.ok) {
       // throw new Error(`HTTP error! status: ${response.status}`);
-      return null
+      return null;
     } else {
-      return response.json()
+      return response.json();
     }
-  })
+  });
 }
 
 function loadfile (url) {
-  const req = new Request(url)
+  const req = new Request(url);
   const init = {
     headers: {
       'x-user-token': window.pointsGlobalConfig.userToken
     }
-  }
+  };
 
   return fetch(req, init).then(response => {
     if (!response.ok) {
       // throw new Error(`HTTP error! status: ${response.status}`);
-      return null
+      return null;
     } else {
-      return response.arrayBuffer()
+      return response.arrayBuffer();
     }
-  })
+  });
 }
 
-export { jsonrpc, loadjson, loadfile }
+export { jsonrpc, loadjson, loadfile };

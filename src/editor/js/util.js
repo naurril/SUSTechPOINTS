@@ -1,12 +1,12 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
 
 function dotproduct (a, b) {
-  let ret = 0
+  let ret = 0;
   for (let i = 0; i < a.length; i++) {
-    ret += a[i] * b[i]
+    ret += a[i] * b[i];
   }
 
-  return ret
+  return ret;
 }
 
 // matrix (m*n), matrix(n*l), vl: vector length=n
@@ -14,35 +14,35 @@ function dotproduct (a, b) {
 // ret^T = m * x^T
 // vl is vector length
 function matmul (m, x, vl) {
-  const ret = []
-  const resL = m.length / vl
+  const ret = [];
+  const resL = m.length / vl;
   for (let vi = 0; vi < x.length / vl; vi++) { // vector index
     for (let r = 0; r < m.length / vl; r++) { // row of matrix
-      ret[vi * resL + r] = 0
+      ret[vi * resL + r] = 0;
       for (let i = 0; i < vl; i++) {
-        ret[vi * resL + r] += m[r * vl + i] * x[vi * vl + i]
+        ret[vi * resL + r] += m[r * vl + i] * x[vi * vl + i];
       }
     }
   }
 
-  return ret
+  return ret;
 }
 
 // vl is vector length
 function matmul2 (m, x, vl) {
-  const ret = []
-  const rows = m.length / vl
-  const cols = x.length / vl
+  const ret = [];
+  const rows = m.length / vl;
+  const cols = x.length / vl;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      ret[r * cols + c] = 0
+      ret[r * cols + c] = 0;
       for (let i = 0; i < vl; i++) {
-        ret[r * cols + c] += m[r * vl + i] * x[i * cols + c]
+        ret[r * cols + c] += m[r * vl + i] * x[i * cols + c];
       }
     }
   }
 
-  return ret
+  return ret;
 }
 
 // box(position, scale, rotation) to box corner corrdinates.
@@ -58,11 +58,11 @@ function pxrToXyz (p, s, r) {
         0,             0,              0, 1,
     ];
     */
-  const transMatrix = eulerAngleToRotationMatrix(r, p)
+  const transMatrix = eulerAngleToRotationMatrix(r, p);
 
-  const x = s.x / 2
-  const y = s.y / 2
-  const z = s.z / 2
+  const x = s.x / 2;
+  const y = s.y / 2;
+  const z = s.z / 2;
   /*
     var localCoord = [
         -x, y, -z, 1,   x, y, -z, 1,  //front-left-bottom, front-right-bottom
@@ -84,11 +84,11 @@ function pxrToXyz (p, s, r) {
     // middle plane
     // 0, y, -z, 1,   0, -y, -z, 1,  //rear-left-bottom, rear-right-bottom
     // 0, -y, z, 1,   0, y, z, 1,  //rear-right-top,   rear-left-top
-  ]
+  ];
 
-  const worldCoord = matmul(transMatrix, localCoord, 4)
-  const w = worldCoord
-  return w
+  const worldCoord = matmul(transMatrix, localCoord, 4);
+  const w = worldCoord;
+  return w;
 }
 
 // function xyz_to_psr(vertices){
@@ -128,32 +128,32 @@ function pxrToXyz (p, s, r) {
 // }
 
 function vector4to3 (v) {
-  const ret = []
+  const ret = [];
   for (let i = 0; i < v.length; i++) {
     if ((i + 1) % 4 !== 0) {
-      ret.push(v[i])
+      ret.push(v[i]);
     }
   }
 
-  return ret
+  return ret;
 }
 
 function vectorRange (v) {
   if (v.length === 0) {
-    return null
+    return null;
   }
 
-  const min = [...v[0]]
-  const max = [...v[0]]
+  const min = [...v[0]];
+  const max = [...v[0]];
 
   for (let i = 1; i < v.length; ++i) {
     for (let j = 0; j < min.length; ++j) {
       if (min[j] > v[i][j]) {
-        min[j] = v[i][j]
+        min[j] = v[i][j];
       }
 
       if (max[j] < v[i][j]) {
-        max[j] = v[i][j]
+        max[j] = v[i][j];
       }
     }
   }
@@ -161,29 +161,29 @@ function vectorRange (v) {
   return {
     min,
     max
-  }
+  };
 }
 
 // v is array of vector, vl is vector length
 function arrayAsVectorRange (v, vl) {
-  const n = v.length / vl
+  const n = v.length / vl;
 
-  let min, max
+  let min, max;
   if (n === 0) {
-    return null
+    return null;
   } else {
-    min = v.slice(0, vl)
-    max = v.slice(0, vl)
+    min = v.slice(0, vl);
+    max = v.slice(0, vl);
   }
 
   for (let i = 1; i < n; ++i) {
     for (let j = 0; j < vl; ++j) {
       if (min[j] > v[i * vl + j]) {
-        min[j] = v[i * vl + j]
+        min[j] = v[i * vl + j];
       }
 
       if (max[j] < v[i * vl + j]) {
-        max[j] = v[i * vl + j]
+        max[j] = v[i * vl + j];
       }
     }
   }
@@ -191,29 +191,29 @@ function arrayAsVectorRange (v, vl) {
   return {
     min,
     max
-  }
+  };
 }
 
 // v is 1-d array of vector, vl is vector length, p is index into v.
 function arrayAsVectorIndexRange (v, vl, p) {
-  const n = p.length
+  const n = p.length;
 
-  let min, max
+  let min, max;
   if (n === 0) {
-    return null
+    return null;
   } else {
-    min = v.slice(p[0] * vl, (p[0] + 1) * vl)
-    max = v.slice(p[0] * vl, (p[0] + 1) * vl)
+    min = v.slice(p[0] * vl, (p[0] + 1) * vl);
+    max = v.slice(p[0] * vl, (p[0] + 1) * vl);
   }
 
   for (let i = 1; i < n; ++i) {
     for (let j = 0; j < vl; ++j) {
       if (min[j] > v[p[i] * vl + j]) {
-        min[j] = v[p[i] * vl + j]
+        min[j] = v[p[i] * vl + j];
       }
 
       if (max[j] < v[p[i] * vl + j]) {
-        max[j] = v[p[i] * vl + j]
+        max[j] = v[p[i] * vl + j];
       }
     }
   }
@@ -221,58 +221,58 @@ function arrayAsVectorIndexRange (v, vl, p) {
   return {
     min,
     max
-  }
+  };
 }
 
 function vector3Nomalize (m) {
-  const ret = []
+  const ret = [];
   for (let i = 0; i < m.length / 3; i++) {
-    ret.push(m[i * 3 + 0] / m[i * 3 + 2])
-    ret.push(m[i * 3 + 1] / m[i * 3 + 2])
+    ret.push(m[i * 3 + 0] / m[i * 3 + 2]);
+    ret.push(m[i * 3 + 1] / m[i * 3 + 2]);
   }
 
-  return ret
+  return ret;
 }
 
 function mat (m, s, x, y) {
-  return m[x * s + y]
+  return m[x * s + y];
 }
 
 // m; matrix, vl: column vector length
 function transpose (m, cl = NaN) {
-  const rl = m.length / cl
+  const rl = m.length / cl;
   for (let i = 0; i < cl; i++) {
     for (let j = i + 1; j < rl; j++) {
-      const t = m[i * rl + j]
-      m[i * rl + j] = m[j * cl + i]
-      m[j * cl + i] = t
+      const t = m[i * rl + j];
+      m[i * rl + j] = m[j * cl + i];
+      m[j * cl + i] = t;
     }
   }
 
-  return m
+  return m;
 }
 
 function eulerAngleToRotationMatrix (eu, tr, order = 'ZYX') {
-  const theta = [eu.x, eu.y, eu.z]
+  const theta = [eu.x, eu.y, eu.z];
   // Calculate rotation about x axis
   const rx = [
     1, 0, 0,
     0, Math.cos(theta[0]), -Math.sin(theta[0]),
     0, Math.sin(theta[0]), Math.cos(theta[0])
-  ]
+  ];
 
   // Calculate rotation about y axis
   const ry = [
     Math.cos(theta[1]), 0, Math.sin(theta[1]),
     0, 1, 0,
     -Math.sin(theta[1]), 0, Math.cos(theta[1])
-  ]
+  ];
 
   // Calculate rotation about z axis
   const rz = [
     Math.cos(theta[2]), -Math.sin(theta[2]), 0,
     Math.sin(theta[2]), Math.cos(theta[2]), 0,
-    0, 0, 1]
+    0, 0, 1];
 
   // console.log(rx, ry, rz);
 
@@ -284,39 +284,39 @@ function eulerAngleToRotationMatrix (eu, tr, order = 'ZYX') {
     Z: rz,
     Y: ry,
     X: rx
-  }
+  };
 
-  const R = matmul2(matrices[order[2]], matmul2(matrices[order[1]], matrices[order[0]], 3), 3)
+  const R = matmul2(matrices[order[2]], matmul2(matrices[order[1]], matrices[order[0]], 3), 3);
 
   return [
     mat(R, 3, 0, 0), mat(R, 3, 0, 1), mat(R, 3, 0, 2), tr.x,
     mat(R, 3, 1, 0), mat(R, 3, 1, 1), mat(R, 3, 1, 2), tr.y,
     mat(R, 3, 2, 0), mat(R, 3, 2, 1), mat(R, 3, 2, 2), tr.z,
     0, 0, 0, 1
-  ]
+  ];
 }
 
 function eulerAngleToRotationMatrix3By3 (eu, order = 'ZYX') {
-  const theta = [eu.x, eu.y, eu.z]
+  const theta = [eu.x, eu.y, eu.z];
   // Calculate rotation about x axis
   const rx = [
     1, 0, 0,
     0, Math.cos(theta[0]), -Math.sin(theta[0]),
     0, Math.sin(theta[0]), Math.cos(theta[0])
-  ]
+  ];
 
   // Calculate rotation about y axis
   const ry = [
     Math.cos(theta[1]), 0, Math.sin(theta[1]),
     0, 1, 0,
     -Math.sin(theta[1]), 0, Math.cos(theta[1])
-  ]
+  ];
 
   // Calculate rotation about z axis
   const rz = [
     Math.cos(theta[2]), -Math.sin(theta[2]), 0,
     Math.sin(theta[2]), Math.cos(theta[2]), 0,
-    0, 0, 1]
+    0, 0, 1];
 
   // console.log(rx, ry, rz);
 
@@ -327,15 +327,15 @@ function eulerAngleToRotationMatrix3By3 (eu, order = 'ZYX') {
     Z: rz,
     Y: ry,
     X: rx
-  }
+  };
 
-  const R = matmul2(matrices[order[2]], matmul2(matrices[order[1]], matrices[order[0]], 3), 3)
+  const R = matmul2(matrices[order[2]], matmul2(matrices[order[1]], matrices[order[0]], 3), 3);
 
   return [
     mat(R, 3, 0, 0), mat(R, 3, 0, 1), mat(R, 3, 0, 2),
     mat(R, 3, 1, 0), mat(R, 3, 1, 1), mat(R, 3, 1, 2),
     mat(R, 3, 2, 0), mat(R, 3, 2, 1), mat(R, 3, 2, 2)
-  ]
+  ];
 }
 
 function rotationMatrixToEulerAngle (m, msize) { // m is 4* 4
@@ -353,101 +353,101 @@ function rotationMatrixToEulerAngle (m, msize) { // m is 4* 4
         z: z,
     };
     */
-  const odd = false
-  let res = [0, 0, 0]
-  const i = 0; const j = 1; const k = 2
+  const odd = false;
+  let res = [0, 0, 0];
+  const i = 0; const j = 1; const k = 2;
 
   if (!msize) {
-    msize = 4
+    msize = 4;
   }
 
-  function coeff (x, y) { return mat(m, msize, x, y) }
+  function coeff (x, y) { return mat(m, msize, x, y); }
 
-  function atan2 (x, y) { return Math.atan2(x, y) }
-  const sin = Math.sin
-  const cos = Math.cos
-  function Scalar (x) { return x }
+  function atan2 (x, y) { return Math.atan2(x, y); }
+  const sin = Math.sin;
+  const cos = Math.cos;
+  function Scalar (x) { return x; }
 
-  res[0] = atan2(coeff(j, k), coeff(k, k))
+  res[0] = atan2(coeff(j, k), coeff(k, k));
   // var c2 = Vector2(coeff(i,i), coeff(i,j)).norm();
-  const c2 = Math.sqrt(coeff(i, i) * coeff(i, i) + coeff(i, j) * coeff(i, j))
+  const c2 = Math.sqrt(coeff(i, i) * coeff(i, i) + coeff(i, j) * coeff(i, j));
   if ((odd && res[0] < Scalar(0)) || ((!odd) && res[0] > Scalar(0))) {
     if (res[0] > Scalar(0)) {
-      res[0] -= Scalar(Math.PI)
+      res[0] -= Scalar(Math.PI);
     } else {
-      res[0] += Scalar(Math.PI)
+      res[0] += Scalar(Math.PI);
     }
-    res[1] = atan2(-coeff(i, k), -c2)
-  } else { res[1] = atan2(-coeff(i, k), c2) }
-  const s1 = sin(res[0])
-  const c1 = cos(res[0])
-  res[2] = atan2(s1 * coeff(k, i) - c1 * coeff(j, i), c1 * coeff(j, j) - s1 * coeff(k, j))
+    res[1] = atan2(-coeff(i, k), -c2);
+  } else { res[1] = atan2(-coeff(i, k), c2); }
+  const s1 = sin(res[0]);
+  const c1 = cos(res[0]);
+  res[2] = atan2(s1 * coeff(k, i) - c1 * coeff(j, i), c1 * coeff(j, j) - s1 * coeff(k, j));
 
-  if (!odd) { res = res.map(function (x) { return -x }) }
+  if (!odd) { res = res.map(function (x) { return -x; }); }
 
   return {
     x: res[0],
     y: res[1],
     z: res[2]
-  }
+  };
 }
 
 const linalgStd = {
   eulerAngletoRotationMatrix: function (euler) {
-    const theta = [euler.x, euler.y, euler.z]
+    const theta = [euler.x, euler.y, euler.z];
     // Calculate rotation about x axis
-    const rx = new THREE.Matrix4()
+    const rx = new THREE.Matrix4();
     rx.set(
       1, 0, 0, 0,
       0, Math.cos(theta[0]), -Math.sin(theta[0]), 0,
       0, Math.sin(theta[0]), Math.cos(theta[0]), 0,
       0, 0, 0, 1
-    )
+    );
 
     // Calculate rotation about y axis
-    const ry = new THREE.Matrix4()
+    const ry = new THREE.Matrix4();
     ry.set(
       Math.cos(theta[1]), 0, Math.sin(theta[1]), 0,
       0, 1, 0, 0,
       -Math.sin(theta[1]), 0, Math.cos(theta[1]), 0,
       0, 0, 0, 1
-    )
+    );
 
     // Calculate rotation about z axis
-    const rz = new THREE.Matrix4()
+    const rz = new THREE.Matrix4();
     rz.set(
       Math.cos(theta[2]), -Math.sin(theta[2]), 0, 0,
       Math.sin(theta[2]), Math.cos(theta[2]), 0, 0,
       0, 0, 1, 0,
       0, 0, 0, 1
-    )
+    );
 
-    rz.multiply(ry)
-    rz.multiply(rx)
+    rz.multiply(ry);
+    rz.multiply(rx);
 
-    return rz
+    return rz;
   },
 
   eulerAngleFromRotationMatrix: function (m) {
-    const euler = new THREE.Euler()
-    euler.setFromRotationMatrix(m)
-    return euler
+    const euler = new THREE.Euler();
+    euler.setFromRotationMatrix(m);
+    return euler;
   },
 
   // {x:, y:, z:}
   eulerAngleComposite: function (current, delta) {
-    const currentMatrix = this.eulerAngletoRotationMatrix(current)
-    const deltaMatrix = this.eulerAngletoRotationMatrix(delta)
-    const compositeMatrix = new THREE.Matrix4()
-    compositeMatrix.multiplyMatrices(deltaMatrix, currentMatrix)
+    const currentMatrix = this.eulerAngletoRotationMatrix(current);
+    const deltaMatrix = this.eulerAngletoRotationMatrix(delta);
+    const compositeMatrix = new THREE.Matrix4();
+    compositeMatrix.multiplyMatrices(deltaMatrix, currentMatrix);
 
-    return this.eulerAngleFromRotationMatrix(compositeMatrix)
+    return this.eulerAngleFromRotationMatrix(compositeMatrix);
   }
-}
+};
 
 function normalizeAngle (a) {
   while (true) {
-    if (a > Math.PI) { a -= Math.PI * 2 } else if (a < -Math.PI) { a += Math.PI * 2 } else { return a }
+    if (a > Math.PI) { a -= Math.PI * 2; } else if (a < -Math.PI) { a += Math.PI * 2; } else { return a; }
   }
 }
 
@@ -464,11 +464,11 @@ function psrToXyzFacePoints (p, s, r, minGrid) {
         0,             0,              0, 1,
     ];
     */
-  const transMatrix = eulerAngleToRotationMatrix(r, p)
+  const transMatrix = eulerAngleToRotationMatrix(r, p);
 
-  const x = s.x / 2
-  const y = s.y / 2
-  const z = s.z / 2
+  const x = s.x / 2;
+  const y = s.y / 2;
+  const z = s.z / 2;
 
   //    var localCoord = [
   //         [x, y, -z],   [x, -y, -z],  //front-left-bottom, front-right-bottom
@@ -478,88 +478,88 @@ function psrToXyzFacePoints (p, s, r, minGrid) {
   //         [-x, -y, z],   [-x, y, z],  //rear-right-top,   rear-left-top
   //    ];
 
-  const xs = []
+  const xs = [];
   for (let i = -x; i <= x; i += minGrid) {
-    xs.push(i)
+    xs.push(i);
   }
 
-  const ys = []
+  const ys = [];
   for (let i = -y; i <= y; i += minGrid) {
-    ys.push(i)
+    ys.push(i);
   }
 
-  const zs = []
+  const zs = [];
   for (let i = -z; i <= z; i += minGrid) {
-    zs.push(i)
+    zs.push(i);
   }
 
-  let points = []
+  let points = [];
 
-  points = points.concat(ys.map(i => [x, i, -z, 1]))
-  points = points.concat(ys.map(i => [x, i, z, 1]))
-  points = points.concat(ys.map(i => [-x, i, -z, 1]))
-  points = points.concat(ys.map(i => [-x, i, z, 1]))
+  points = points.concat(ys.map(i => [x, i, -z, 1]));
+  points = points.concat(ys.map(i => [x, i, z, 1]));
+  points = points.concat(ys.map(i => [-x, i, -z, 1]));
+  points = points.concat(ys.map(i => [-x, i, z, 1]));
 
-  points = points.concat(xs.map(i => [i, y, -z, 1]))
-  points = points.concat(xs.map(i => [i, y, z, 1]))
-  points = points.concat(xs.map(i => [i, -y, -z, 1]))
-  points = points.concat(xs.map(i => [i, -y, z, 1]))
+  points = points.concat(xs.map(i => [i, y, -z, 1]));
+  points = points.concat(xs.map(i => [i, y, z, 1]));
+  points = points.concat(xs.map(i => [i, -y, -z, 1]));
+  points = points.concat(xs.map(i => [i, -y, z, 1]));
 
-  points = points.concat(zs.map(i => [x, y, i, 1]))
-  points = points.concat(zs.map(i => [x, -y, i, 1]))
-  points = points.concat(zs.map(i => [-x, -y, i, 1]))
-  points = points.concat(zs.map(i => [-x, y, i, 1]))
+  points = points.concat(zs.map(i => [x, y, i, 1]));
+  points = points.concat(zs.map(i => [x, -y, i, 1]));
+  points = points.concat(zs.map(i => [-x, -y, i, 1]));
+  points = points.concat(zs.map(i => [-x, y, i, 1]));
 
-  points = points.reduce((a, b) => a.concat(b))
+  points = points.reduce((a, b) => a.concat(b));
 
-  const worldCoord = matmul(transMatrix, points, 4)
+  const worldCoord = matmul(transMatrix, points, 4);
 
-  return vector4to3(worldCoord)
+  return vector4to3(worldCoord);
 }
 
 function cornersAinB (boxA, boxB) {
   let minGrid = Math.min(
     boxA.scale.x, boxA.scale.y, boxA.scale.z,
     boxB.scale.x, boxB.scale.y, boxB.scale.z
-  )
+  );
 
-  minGrid = minGrid / 2
+  minGrid = minGrid / 2;
 
   // in world coord, offset by b pos
   const boxAPosInB = {
     x: boxA.position.x - boxB.position.x,
     y: boxA.position.y - boxB.position.y,
     z: boxA.position.z - boxB.position.z
-  }
+  };
 
-  const cornersA = psrToXyzFacePoints(boxAPosInB, boxA.scale, boxA.rotation, minGrid) // in world coordinates
+  const cornersA = psrToXyzFacePoints(boxAPosInB, boxA.scale, boxA.rotation, minGrid); // in world coordinates
 
-  cornersA.push(boxAPosInB.x, boxAPosInB.y, boxAPosInB.z) // center point
+  cornersA.push(boxAPosInB.x, boxAPosInB.y, boxAPosInB.z); // center point
 
   // in box b coord
-  let matrixB = eulerAngleToRotationMatrix3By3(boxB.rotation)
-  matrixB = transpose(matrixB, 3)
-  const cornersAInB = matmul(matrixB, cornersA, 3)
+  let matrixB = eulerAngleToRotationMatrix3By3(boxB.rotation);
+  matrixB = transpose(matrixB, 3);
+  const cornersAInB = matmul(matrixB, cornersA, 3);
 
   for (let i = 0; i < cornersAInB.length; i += 3) {
-    const [x, y, z] = cornersAInB.slice(i, i + 3)
+    const [x, y, z] = cornersAInB.slice(i, i + 3);
 
     if (Math.abs(x) < boxB.scale.x / 2 &&
             Math.abs(y) < boxB.scale.y / 2 &&
             Math.abs(z) < boxB.scale.z / 2) {
-      return true
+      return true;
     }
   }
 
-  return false
+  return false;
 }
 
 // check if 2 boxes has non-empty intersection
 // the idea is to check if any corner of one box is inside the other one
 // when boxA contains B entirely, we shoudl test the opposite way.
 function intersect (boxA, boxB) {
-  return cornersAinB(boxA, boxB) || cornersAinB(boxB, boxA)
-};
+  return cornersAinB(boxA, boxB) || cornersAinB(boxB, boxA);
+}
 
 export {
   dotproduct, vectorRange, arrayAsVectorRange, arrayAsVectorIndexRange, vector4to3, vector3Nomalize, pxrToXyz, matmul,
@@ -570,4 +570,4 @@ export {
   mat,
   normalizeAngle,
   intersect
-}
+};

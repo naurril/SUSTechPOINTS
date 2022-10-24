@@ -655,7 +655,6 @@ class RectEditor {
     })
   }
 
-
   save () {
     const data = {
       scene: this.scene,
@@ -852,14 +851,14 @@ class RectEditor {
     }
   }
 
-  selectRectById(id) {
-    let rect = this.findRectById(id)
+  selectRectById (id) {
+    const rect = this.findRectById(id)
 
     if (rect) {
       this.selectRect(rect)
     }
-    
   }
+
   cancelSelection () {
     if (this.selectedRect) {
       this.selectedRect.classList.remove('svg-rect-selected')

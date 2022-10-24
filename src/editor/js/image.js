@@ -905,7 +905,7 @@ class ImageContext extends ResizableMoveableView {
       if (trans_ratio) {
         let imgfinal = box_to_2d_points(box, calib)
         if (imgfinal) {
-            imgfinal = imgfinal.map(function (x, i) {
+          imgfinal = imgfinal.map(function (x, i) {
             if (i % 2 === 0) {
               return Math.round(x * trans_ratio.x)
             } else {
@@ -923,11 +923,10 @@ class ImageContext extends ResizableMoveableView {
     onBoxSelected: (box_obj_local_id, obj_type, obj_track_id) => {
       const b = this.ui.querySelector('#svg-box-local-' + box_obj_local_id)
       if (b) {
-        b.setAttribute('class', 'svg-selected svg-box')        
+        b.setAttribute('class', 'svg-selected svg-box')
       }
 
       this.rectEditor.selectRectById(obj_track_id)
-      
     },
 
     onBoxUnselected: (box_obj_local_id, obj_type) => {
@@ -952,7 +951,6 @@ class ImageContext extends ResizableMoveableView {
         return
       }
 
-      
       const calib = this.getCalib()
       if (!calib) {
         return
@@ -1189,10 +1187,10 @@ class ImageContextManager {
     const objTypeMap = globalObjectCategory.objTypeMap
 
     for (const o in objTypeMap) {
-      const rule = '.' + o + '{color:' + objTypeMap[o].color + '; stroke:'
-                                + objTypeMap[o].color + ';fill:'
-                                + objTypeMap[o].color + '22;'
-                                + '}'
+      const rule = '.' + o + '{color:' + objTypeMap[o].color + '; stroke:' +
+                                objTypeMap[o].color + ';fill:' +
+                                objTypeMap[o].color + '22;' +
+                                '}'
 
       sheet.insertRule(rule, sheet.cssRules.length)
     }

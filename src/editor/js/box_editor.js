@@ -1,15 +1,15 @@
 
-import { ProjectiveViewOps } from './side_view_op.js'
-import { BoxImageContext } from './image.js'
-import { saveWorldList, reloadWorldList } from './save.js'
-import { objIdManager } from './obj_id_list.js'
-import { globalKeyDownManager } from './keydown_manager.js'
-import { ml } from './ml.js'
-import { BooleanKeyframeTrack } from 'three'
-import { checkScene } from './error_check.js'
-import { logger } from './log.js'
-import { AutoAdjust } from './auto-adjust.js'
-import { globalObjectCategory } from './obj_cfg.js'
+import { ProjectiveViewOps } from './side_view_op.js';
+import { BoxImageContext } from './image.js';
+import { saveWorldList, reloadWorldList } from './save.js';
+import { objIdManager } from './obj_id_list.js';
+import { globalKeyDownManager } from './keydown_manager.js';
+import { ml } from './ml.js';
+import { BooleanKeyframeTrack } from 'three';
+import { checkScene } from './error_check.js';
+import { logger } from './log.js';
+import { AutoAdjust } from './auto-adjust.js';
+import { globalObjectCategory } from './obj_cfg.js';
 
 /*
 2 ways to attach and edit a box
@@ -18,19 +18,19 @@ import { globalObjectCategory } from './obj_cfg.js'
 */
 function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
   funcOnBoxChanged, funcOnBoxRemoved, name) {
-  this.boxEditorManager = boxEditorManager
-  this.parentUi = parentUi
-  this.name = name
-  const uiTmpl = document.getElementById('box-editor-ui-template')
-  const tmpui = uiTmpl.content.cloneNode(true) // sub-views
+  this.boxEditorManager = boxEditorManager;
+  this.parentUi = parentUi;
+  this.name = name;
+  const uiTmpl = document.getElementById('box-editor-ui-template');
+  const tmpui = uiTmpl.content.cloneNode(true); // sub-views
 
-  parentUi.appendChild(tmpui)
-  this.ui = parentUi.lastElementChild
-  this.boxInfoUi = this.ui.querySelector('#box-info')
+  parentUi.appendChild(tmpui);
+  this.ui = parentUi.lastElementChild;
+  this.boxInfoUi = this.ui.querySelector('#box-info');
 
-  this.viewManager = viewManager
-  this.boxOp = boxOp
-  this.boxView = this.viewManager.addBoxView(this.ui) // this.editorUi.querySelector("#sub-views")
+  this.viewManager = viewManager;
+  this.boxOp = boxOp;
+  this.boxView = this.viewManager.addBoxView(this.ui); // this.editorUi.querySelector("#sub-views")
   this.projectiveViewOps = new ProjectiveViewOps(
     this.ui, // this.editorUi.querySelector("#sub-views"),
     cfg,
@@ -38,71 +38,71 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
     this.boxView.views,
     this.boxOp,
     funcOnBoxChanged,
-    funcOnBoxRemoved)
+    funcOnBoxRemoved);
 
-  this.focusImageContext = new BoxImageContext(this.ui.querySelector('#focuscanvas'))
+  this.focusImageContext = new BoxImageContext(this.ui.querySelector('#focuscanvas'));
 
   this.pseudoBox = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0 },
     scale: { x: 1, y: 1, z: 1 }
-  }
+  };
 
   this.copyPseudoBox = function (b) {
-    this.pseudoBox.position.x = b.position.x
-    this.pseudoBox.position.y = b.position.y
-    this.pseudoBox.position.z = b.position.z
+    this.pseudoBox.position.x = b.position.x;
+    this.pseudoBox.position.y = b.position.y;
+    this.pseudoBox.position.z = b.position.z;
 
-    this.pseudoBox.rotation.x = b.rotation.x
-    this.pseudoBox.rotation.y = b.rotation.y
-    this.pseudoBox.rotation.z = b.rotation.z
+    this.pseudoBox.rotation.x = b.rotation.x;
+    this.pseudoBox.rotation.y = b.rotation.y;
+    this.pseudoBox.rotation.z = b.rotation.z;
 
-    this.pseudoBox.scale.x = b.scale.x
-    this.pseudoBox.scale.y = b.scale.y
-    this.pseudoBox.scale.z = b.scale.z
-  }
+    this.pseudoBox.scale.x = b.scale.x;
+    this.pseudoBox.scale.y = b.scale.y;
+    this.pseudoBox.scale.z = b.scale.z;
+  };
 
   this.isInBatchMode = function () {
-    return !!this.boxEditorManager
-  }
+    return !!this.boxEditorManager;
+  };
 
-  this.target = {}
+  this.target = {};
 
   this.setTarget = function (world, objTrackId, objType) {
     this.target = {
       world,
       objTrackId,
       objType
-    }
+    };
 
     if (this.isInBatchMode()) {
-      this.pseudoBox.world = world
-      this.boxView.attachBox(this.pseudoBox)
+      this.pseudoBox.world = world;
+      this.boxView.attachBox(this.pseudoBox);
     }
 
-    this.tryAttach()
-    this.ui.style.display = 'inline-block'
-    this.updateInfo()
-  }
+    this.tryAttach();
+    this.ui.style.display = 'inline-block';
+    this.updateInfo();
+  };
 
   this.setIndex = function (index) {
-    this.index = index // index as of in all editors.
-  }
+    this.index = index; // index as of in all editors.
+  };
 
   this.setSelected = function (selected, eventId) {
     if (selected) {
-      this.ui.className = 'selected'
-      this.selected = true
-      this.selectEventId = eventId
+      this.ui.className = 'selected';
+      this.selected = true;
+      this.selectEventId = eventId;
     } else {
       if (!eventId || (this.selectEventId == eventId)) {
         // cancel only you selected.
-        this.ui.className = ''
-        this.selected = false
-        this.selectEventId = null
+        this.ui.className = '';
+        this.selected = false;
+        this.selectEventId = null;
       }
     }
-  }
+  };
 
   // this.onContextMenu = (event)=>{
   //     if (this.boxEditorManager)  // there is no manager for box editor in main ui
@@ -119,159 +119,159 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
       //     this.target.world.unload();
     }
 
-    this.detach()
-    this.target = {}
+    this.detach();
+    this.target = {};
     // this.ui.style.display="none";
-  }
+  };
 
   this.tryAttach = function () {
     // find target box, attach to me
     if (this.target && this.target.world) {
-      const box = this.target.world.annotation.findBoxByTrackId(this.target.objTrackId)
+      const box = this.target.world.annotation.findBoxByTrackId(this.target.objTrackId);
       if (box) {
-        this.attachBox(box)
+        this.attachBox(box);
       }
     }
-  }
+  };
 
   /*
      the projectiveView tiggers zoomratio changing event.
      editormanager broaccasts it to all editors
     */
   this._setViewZoomRatio = function (viewIndex, ratio) {
-    this.boxView.views[viewIndex].zoomRatio = ratio
-  }
+    this.boxView.views[viewIndex].zoomRatio = ratio;
+  };
 
   this.updateViewZoomRatio = function (viewIndex, ratio) {
     // this.upate();
-    if (this.boxEditorManager) { this.boxEditorManager.updateViewZoomRatio(viewIndex, ratio) } else {
-      this._setViewZoomRatio(viewIndex, ratio)
-      this.update()
+    if (this.boxEditorManager) { this.boxEditorManager.updateViewZoomRatio(viewIndex, ratio); } else {
+      this._setViewZoomRatio(viewIndex, ratio);
+      this.update();
       // this.viewManager.render();
     }
-  }
+  };
 
   this.onOpCmd = function (cmd) {
-    if (this.boxEditorManager) { this.boxEditorManager.onOpCmd(cmd, this) } else {
-      this.executeOpCmd(cmd)
+    if (this.boxEditorManager) { this.boxEditorManager.onOpCmd(cmd, this); } else {
+      this.executeOpCmd(cmd);
     }
-  }
+  };
 
   this.executeOpCmd = function (cmd) {
     if (!this.box) {
-      return
+      return;
     }
 
     if (cmd.op == 'translate') {
       for (const axis in cmd.params.delta) {
-        this.boxOp.translateBox(this.box, axis, cmd.params.delta[axis])
+        this.boxOp.translateBox(this.box, axis, cmd.params.delta[axis]);
         // this.boxOp.translateBox(this.box, "y", delta.y);
       }
 
-      funcOnBoxChanged(this.box)
+      funcOnBoxChanged(this.box);
     }
-  }
+  };
 
-  this.box = null
+  this.box = null;
   this.attachBox = function (box) {
     if (this.box && this.box !== box) {
-      this.box.boxEditor = null
-      console.log('detach box editor')
+      this.box.boxEditor = null;
+      console.log('detach box editor');
       // todo de-highlight box
     }
 
-    this.box = null
-    this.show()
+    this.box = null;
+    this.show();
 
     if (box) {
-      box.boxEditor = this
-      this.box = box
+      box.boxEditor = this;
+      this.box = box;
       // this.boxOp.highlightBox(box);
-      this.boxView.attachBox(box)
-      this.projectiveViewOps.attachBox(box)
-      this.focusImageContext.updateFocusedImageContext(box)
+      this.boxView.attachBox(box);
+      this.projectiveViewOps.attachBox(box);
+      this.focusImageContext.updateFocusedImageContext(box);
 
       // this.update();
-      this.updateInfo()
+      this.updateInfo();
       // this.boxView.render();
 
       if (this.isInBatchMode()) {
-        this.boxEditorManager.onBoxChanged(this)
+        this.boxEditorManager.onBoxChanged(this);
       }
     }
-  }
+  };
 
   this.detach = function (dontHide) {
     if (this.box) {
       if (this.box.boxEditor === this) {
-        this.box.boxEditor = null
+        this.box.boxEditor = null;
       }
       // this.boxOp.unhighlightBox(this.box);
       // todo de-highlight box
 
-      this.projectiveViewOps.detach()
+      this.projectiveViewOps.detach();
 
       if (!this.isInBatchMode()) {
-        this.boxView.detach()
+        this.boxView.detach();
       } else {
-        this.copyPseudoBox(this.box)
-        this.boxView.attachBox(this.pseudoBox)
+        this.copyPseudoBox(this.box);
+        this.boxView.attachBox(this.pseudoBox);
       }
 
-      this.focusImageContext.clear_canvas()
+      this.focusImageContext.clear_canvas();
 
-      this.box = null
+      this.box = null;
     }
 
-    if (!dontHide) { this.hide() }
-  }
+    if (!dontHide) { this.hide(); }
+  };
 
   this.hide = function () {
-    this.ui.style.display = 'none'
+    this.ui.style.display = 'none';
 
     // this is a hack, if we don't have manager, this is the main editor
     // hide parent ui
     // todo, add a pseudo manager, hide itself when child hide
     if (!this.boxEditorManager) {
-      this.parentUi.style.display = 'none'
+      this.parentUi.style.display = 'none';
     }
-  }
+  };
   this.show = function () {
-    this.ui.style.display = ''// "inline-block";
+    this.ui.style.display = '';// "inline-block";
     if (!this.boxEditorManager) {
-      this.parentUi.style.display = ''
+      this.parentUi.style.display = '';
     }
-  }
+  };
 
   this.onBoxChanged = function () {
-    this.projectiveViewOps.updateViewHandle()
-    this.focusImageContext.updateFocusedImageContext(this.box)
-    this.boxView.onBoxChanged()
+    this.projectiveViewOps.updateViewHandle();
+    this.focusImageContext.updateFocusedImageContext(this.box);
+    this.boxView.onBoxChanged();
 
     // mark
-    delete this.box.annotator // human annotator doesn't need a name
-    delete this.box.follows
-    this.box.changed = true
+    delete this.box.annotator; // human annotator doesn't need a name
+    delete this.box.follows;
+    this.box.changed = true;
 
     // don't mark world's change flag, for it's hard to clear it.
 
     // inform boxEditorMgr to transfer annotation to other frames.
-    if (this.boxEditorManager) { this.boxEditorManager.onBoxChanged(this) }
+    if (this.boxEditorManager) { this.boxEditorManager.onBoxChanged(this); }
 
-    this.updateInfo()
+    this.updateInfo();
 
     // this.boxView.render();
-  }
+  };
 
   this.onDelBox = function () {
-    const box = this.box
-    this.detach('donthide')
-  }
+    const box = this.box;
+    this.detach('donthide');
+  };
 
   // windowresize...
   this.update = function (dontRender = false) {
     if (this.boxView) {
-      this.boxView.onBoxChanged(dontRender)
+      this.boxView.onBoxChanged(dontRender);
 
       // this.boxView.updateCameraRange(this.box);
       // this.boxView.updateCameraPose(this.box);
@@ -282,34 +282,34 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
     // boxview should be updated for pseudobox.
 
-    if (this.box === null) { return }
+    if (this.box === null) { return; }
 
-    this.projectiveViewOps.updateViewHandle()
+    this.projectiveViewOps.updateViewHandle();
 
     // this is not needed somtime
-    this.focusImageContext.updateFocusedImageContext(this.box)
+    this.focusImageContext.updateFocusedImageContext(this.box);
 
     // should we update info?
-    this.updateInfo()
-  }
+    this.updateInfo();
+  };
 
   this.updateInfo = function () {
-    let info = ''
+    let info = '';
     if (this.target.world) {
-      info += String(this.target.world.frameInfo.frame)
+      info += String(this.target.world.frameInfo.frame);
 
-      if (this.box && this.box.annotator) { info += ',' + this.box.annotator }
+      if (this.box && this.box.annotator) { info += ',' + this.box.annotator; }
 
       // if (this.box && this.box.changed)
       //     info += " *";
     }
 
-    this.boxInfoUi.innerHTML = info
-  }
+    this.boxInfoUi.innerHTML = info;
+  };
 
   this.updateBoxDimension = function () {
 
-  }
+  };
 
   this.resize = function (width, height) {
     // if (height + "px" == this.ui.style.height &&  width + "px" == this.ui.style.width)
@@ -317,27 +317,27 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
     //     return;
     // }
 
-    this.ui.style.width = width + 'px'
-    this.ui.style.height = height + 'px'
-    this.boxView.render()
-  }
+    this.ui.style.width = width + 'px';
+    this.ui.style.height = height + 'px';
+    this.boxView.render();
+  };
 
   this.setResize = function (option) {
-    this.ui.style.resize = option
-    this.ui.style['z-index'] = '0'
+    this.ui.style.resize = option;
+    this.ui.style['z-index'] = '0';
 
     if (option == 'both') {
       this.lastSize = {
         width: 0,
         height: 0
-      }
+      };
 
       this.resizeObserver = new ResizeObserver(elements => {
-        const rect = elements[0].contentRect
-        console.log('sub-views resized.', rect)
+        const rect = elements[0].contentRect;
+        console.log('sub-views resized.', rect);
 
         if (rect.height == 0 || rect.width == 0) {
-          return
+          return;
         }
 
         if (rect.height != this.lastSize.height || rect.width != this.lastSize.width) {
@@ -349,44 +349,44 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
 
           if (this.boxEditorManager) // there is no manager for box editor in main ui
           {
-            window.pointsGlobalConfig.setItem('batchModeSubviewSize', { width: rect.width, height: rect.height })
-            this.boxEditorManager.onSubViewsResize(rect.width, rect.height)
+            window.pointsGlobalConfig.setItem('batchModeSubviewSize', { width: rect.width, height: rect.height });
+            this.boxEditorManager.onSubViewsResize(rect.width, rect.height);
           } else {
-            this.boxView.render()
+            this.boxView.render();
           }
 
           // save
-          this.lastSize.width = rect.width
-          this.lastSize.height = rect.height
+          this.lastSize.width = rect.width;
+          this.lastSize.height = rect.height;
         }
-      })
+      });
 
-      this.resizeObserver.observe(this.ui)
+      this.resizeObserver.observe(this.ui);
     }
-  }
+  };
 }
 
 // parentUi  #batch-box-editor
 function BoxEditorManager (parentUi, viewManager, objectTrackView,
   cfg, boxOp, globalHeader, contextMenu, configMenu,
   funcOnBoxChanged, funcOnBoxRemoved, func_on_annotation_reloaded) {
-  this.viewManager = viewManager
-  this.objectTrackView = objectTrackView
-  this.boxOp = boxOp
-  this.activeIndex = 0
-  this.editorList = []
-  this.cfg = cfg
-  this.globalHeader = globalHeader
-  this.contextMenu = contextMenu
-  this.parentUi = parentUi // #batch-box-editor
-  this.boxEditorGroupUi = parentUi.querySelector('#batch-box-editor-group')
-  this.boxEditorHeaderUi = parentUi.querySelector('#batch-box-editor-header')
-  this.batchSize = cfg.batchModeInstNumber
+  this.viewManager = viewManager;
+  this.objectTrackView = objectTrackView;
+  this.boxOp = boxOp;
+  this.activeIndex = 0;
+  this.editorList = [];
+  this.cfg = cfg;
+  this.globalHeader = globalHeader;
+  this.contextMenu = contextMenu;
+  this.parentUi = parentUi; // #batch-box-editor
+  this.boxEditorGroupUi = parentUi.querySelector('#batch-box-editor-group');
+  this.boxEditorHeaderUi = parentUi.querySelector('#batch-box-editor-header');
+  this.batchSize = cfg.batchModeInstNumber;
   // this.configMenu = configMenu;
 
   this.activeEditorList = function () {
-    return this.editorList.slice(0, this.activeIndex)
-  }
+    return this.editorList.slice(0, this.activeIndex);
+  };
 
   this.editingTarget = {
     data: null,
@@ -394,9 +394,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     objTrackId: '',
     frame: '',
     frameIndex: NaN
-  }
+  };
 
-  this.onExit = null
+  this.onExit = null;
   // frame specifies the center frame to edit
 
   // this.parentUi.addEventListener("contextmenu", event=>{
@@ -406,48 +406,48 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   // })
 
   this.onSubViewsResize = function (width, height) {
-    this.viewManager.mainView.clearView()
+    this.viewManager.mainView.clearView();
     this.editorList.forEach(e => {
-      e.resize(width, height)
-    })
+      e.resize(width, height);
+    });
 
     // this.viewManager.render();
-  }
+  };
 
   this.calculateBestSubviewSize = function (batchSize) {
-    const parentRect = this.parentUi.getBoundingClientRect()
-    const headerRect = this.boxEditorHeaderUi.getBoundingClientRect()
-    const editorsGroupRect = this.boxEditorGroupUi.getBoundingClientRect()
+    const parentRect = this.parentUi.getBoundingClientRect();
+    const headerRect = this.boxEditorHeaderUi.getBoundingClientRect();
+    const editorsGroupRect = this.boxEditorGroupUi.getBoundingClientRect();
 
-    const availableHeight = parentRect.height - headerRect.height
-    const availableWidth = parentRect.width
+    const availableHeight = parentRect.height - headerRect.height;
+    const availableWidth = parentRect.width;
 
     if (availableHeight == 0 || availableWidth == 0) {
-      this.batchSizeUpdated = true
-      return
+      this.batchSizeUpdated = true;
+      return;
     }
 
-    const defaultBoxWidth = 130
-    const defaultBoxHeight = 450
+    const defaultBoxWidth = 130;
+    const defaultBoxHeight = 450;
 
-    let rows = 1
-    const w = availableWidth / Math.ceil(batchSize / rows)
-    const h = availableHeight / rows
-    const cost = Math.abs((w / h) - (defaultBoxWidth / defaultBoxHeight))
-    let minCost = cost
-    let bestRows = rows
+    let rows = 1;
+    const w = availableWidth / Math.ceil(batchSize / rows);
+    const h = availableHeight / rows;
+    const cost = Math.abs((w / h) - (defaultBoxWidth / defaultBoxHeight));
+    let minCost = cost;
+    let bestRows = rows;
     while (true) {
-      rows += 1
+      rows += 1;
 
-      const w = Math.floor(availableWidth / Math.ceil(batchSize / rows))
-      const h = Math.floor(availableHeight / rows)
-      const cost = Math.abs((w / h) - (defaultBoxWidth / defaultBoxHeight))
+      const w = Math.floor(availableWidth / Math.ceil(batchSize / rows));
+      const h = Math.floor(availableHeight / rows);
+      const cost = Math.abs((w / h) - (defaultBoxWidth / defaultBoxHeight));
 
       if (cost < minCost) {
-        minCost = cost
-        bestRows = rows
+        minCost = cost;
+        bestRows = rows;
       } else {
-        break
+        break;
       }
     }
 
@@ -455,282 +455,282 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     window.pointsGlobalConfig.batchModeSubviewSize = {
       width: Math.floor(availableWidth / Math.ceil(batchSize / bestRows)),
       height: Math.floor(availableHeight / bestRows)
-    }
-  }
+    };
+  };
 
   this.setBatchSize = function (batchSize) {
-    this.calculateBestSubviewSize(batchSize)
+    this.calculateBestSubviewSize(batchSize);
 
-    this.batchSize = batchSize
+    this.batchSize = batchSize;
     if (this.parentUi.style.display != 'none') {
       this.edit(this.editingTarget.data,
         this.editingTarget.sceneMeta,
         this.editingTarget.frame,
         this.editingTarget.objTrackId,
         this.editingTarget.objType
-      )
+      );
     }
-  }
+  };
 
   this.onWindowResize = function () {
-    this.setBatchSize(this.batchSize)
-  }
+    this.setBatchSize(this.batchSize);
+  };
 
   this.edit = function (data, sceneMeta, frame, objTrackId, objType, onExit) {
-    this.show()
-    this.reset()
+    this.show();
+    this.reset();
 
     if (this.batchSizeUpdated) {
-      this.batchSizeUpdated = false
-      this.calculateBestSubviewSize(this.batchSize)
+      this.batchSizeUpdated = false;
+      this.calculateBestSubviewSize(this.batchSize);
     }
 
     if (onExit) {
       // next/prev call will not update onExit
-      this.onExit = onExit
+      this.onExit = onExit;
     }
-    const sceneName = sceneMeta.scene
+    const sceneName = sceneMeta.scene;
 
-    this.editingTarget.data = data
-    this.editingTarget.sceneMeta = sceneMeta
-    this.editingTarget.objTrackId = objTrackId
+    this.editingTarget.data = data;
+    this.editingTarget.sceneMeta = sceneMeta;
+    this.editingTarget.objTrackId = objTrackId;
 
-    this.editingTarget.objType = objType
+    this.editingTarget.objType = objType;
 
-    this.editingTarget.frame = frame
+    this.editingTarget.frame = frame;
 
     // this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
     // this.parentUi.querySelector("#object-category-selector").value=objType;
 
-    let centerIndex = sceneMeta.frames.findIndex(f => f == frame)
-    this.editingTarget.frameIndex = centerIndex
+    let centerIndex = sceneMeta.frames.findIndex(f => f == frame);
+    this.editingTarget.frameIndex = centerIndex;
 
     if (centerIndex < 0) {
-      centerIndex = 0
+      centerIndex = 0;
     }
 
-    let startIndex = Math.max(0, centerIndex - this.batchSize / 2)
+    let startIndex = Math.max(0, centerIndex - this.batchSize / 2);
 
     if (startIndex > 0) {
       if (startIndex + this.batchSize > sceneMeta.frames.length) {
-        startIndex -= startIndex + this.batchSize - sceneMeta.frames.length
+        startIndex -= startIndex + this.batchSize - sceneMeta.frames.length;
 
         if (startIndex < 0) {
-          startIndex = 0
+          startIndex = 0;
         }
       }
     }
 
-    const frames = sceneMeta.frames.slice(startIndex, startIndex + this.batchSize)
+    const frames = sceneMeta.frames.slice(startIndex, startIndex + this.batchSize);
 
     // this.viewManager.mainView.clearView();
 
     frames.forEach(async (frame, editorIndex) => {
-      const world = await data.getWorld(sceneName, frame)
-      const editor = this.addEditor()
+      const world = await data.getWorld(sceneName, frame);
+      const editor = this.addEditor();
       // editor.setTarget(world, objTrackId, objType);
-      editor.setIndex(editorIndex)
-      editor.resize(window.pointsGlobalConfig.batchModeSubviewSize.width, window.pointsGlobalConfig.batchModeSubviewSize.height)
+      editor.setIndex(editorIndex);
+      editor.resize(window.pointsGlobalConfig.batchModeSubviewSize.width, window.pointsGlobalConfig.batchModeSubviewSize.height);
 
       if (this.editingTarget.frame == frame) {
-        editor.setSelected(true)
+        editor.setSelected(true);
       }
 
       data.activateWorld(world,
         () => {
           // editor.tryAttach();
 
-          editor.setTarget(world, objTrackId, objType)
+          editor.setTarget(world, objTrackId, objType);
 
           //
           // this.viewManager.render();
         },
-        false)
-    })
+        false);
+    });
 
     // set obj selector
-    this.globalHeader.setObject(objTrackId)
-  }
+    this.globalHeader.setObject(objTrackId);
+  };
 
   this.onContextMenu = function (event, boxEditor) {
-    this.firingBoxEditor = boxEditor
+    this.firingBoxEditor = boxEditor;
 
     if (boxEditor.selected) {
       // ok
     } else {
-      this.getSelectedEditors().forEach(e => e.setSelected(false))
-      boxEditor.setSelected(true)
+      this.getSelectedEditors().forEach(e => e.setSelected(false));
+      boxEditor.setSelected(true);
     }
 
-    this.contextMenu.show('boxEditor', event.clientX, event.clientY, this)
-    event.stopPropagation()
-    event.preventDefault()
-  }
+    this.contextMenu.show('boxEditor', event.clientX, event.clientY, this);
+    event.stopPropagation();
+    event.preventDefault();
+  };
 
   this.parentUi.oncontextmenu = (event) => {
-    const ed = this.getEditorByMousePosition(event.clientX, event.clientY)
+    const ed = this.getEditorByMousePosition(event.clientX, event.clientY);
 
-    this.onContextMenu(event, ed)
-  }
+    this.onContextMenu(event, ed);
+  };
 
   this.handleContextMenuKeydownEvent = function (event, menuPos) {
     switch (event.key) {
       case 's':
-        this.activeEditorList().forEach(e => e.setSelected(true))
-        return true
-        break
+        this.activeEditorList().forEach(e => e.setSelected(true));
+        return true;
+        break;
       case 'a':
-        this.autoAnnotateSelectedFrames()
-        break
+        this.autoAnnotateSelectedFrames();
+        break;
       case 'f':
-        this.finalizeSelectedBoxes()
-        break
+        this.finalizeSelectedBoxes();
+        break;
       case 'd':
-        this.deleteSelectedBoxes(menuPos)
-        break
+        this.deleteSelectedBoxes(menuPos);
+        break;
       case 'e':
-        this.interpolateSelectedFrames()
-        break
+        this.interpolateSelectedFrames();
+        break;
       case 'g':
-        this.gotoThisFrame()
-        break
+        this.gotoThisFrame();
+        break;
       case 't':
-        this.showTrajectory()
-        break
+        this.showTrajectory();
+        break;
       default:
-        return true
+        return true;
     }
 
-    return false
-  }
+    return false;
+  };
 
-  this.delayUpdateAutoGeneratedBoxesTimer = null
+  this.delayUpdateAutoGeneratedBoxesTimer = null;
 
   this.updateAutoGeneratedBoxes = function () {
     if (this.delayUpdateAutoGeneratedBoxesTimer) {
-      clearTimeout(this.delayUpdateAutoGeneratedBoxesTimer)
+      clearTimeout(this.delayUpdateAutoGeneratedBoxesTimer);
     }
 
     this.delayUpdateAutoGeneratedBoxesTimer = setTimeout(async () => {
       if (this.cfg.autoUpdateInterpolatedBoxes) {
-        await this.updateInterpolatedBoxes()
+        await this.updateInterpolatedBoxes();
       }
 
-      await this.updatePseudoBoxes()
+      await this.updatePseudoBoxes();
     },
-    500)
-  }
+    500);
+  };
 
   this.updateInterpolatedBoxes = async function () {
-    const editorList = this.activeEditorList()
-    const applyIndList = editorList.map(e => e.box && e.box.annotator == 'i')
+    const editorList = this.activeEditorList();
+    const applyIndList = editorList.map(e => e.box && e.box.annotator == 'i');
 
-    const boxList = editorList.map(e => e.box)
-    const worldList = editorList.map(e => e.target.world)
-    await this.boxOp.interpolateAsync(worldList, boxList, applyIndList)
+    const boxList = editorList.map(e => e.box);
+    const worldList = editorList.map(e => e.target.world);
+    await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
     // this.activeEditorList().forEach(e=>e.tryAttach());
 
-    this.globalHeader.updateModifiedStatus()
+    this.globalHeader.updateModifiedStatus();
     // this.viewManager.render();
     editorList.forEach(e => {
       if (e.box && e.box.annotator == 'i') {
-        e.boxView.onBoxChanged()
+        e.boxView.onBoxChanged();
       }
-    })
-  }
+    });
+  };
 
   this.updatePseudoBoxes = async function () {
-    const editorList = this.activeEditorList()
-    const boxList = editorList.map(e => e.box)
-    const anns = boxList.map(b => b ? b.world.annotation.ann_to_vector_global(b) : null)
+    const editorList = this.activeEditorList();
+    const boxList = editorList.map(e => e.box);
+    const anns = boxList.map(b => b ? b.world.annotation.ann_to_vector_global(b) : null);
 
-    const ret = await ml.interpolate_annotation(anns)
+    const ret = await ml.interpolate_annotation(anns);
 
     editorList.forEach((e, i) => {
       if (!e.box) {
-        const ann = e.target.world.annotation.vector_global_to_ann(ret[i])
-        e.copyPseudoBox(ann)
-        e.boxView.onBoxChanged()
+        const ann = e.target.world.annotation.vector_global_to_ann(ret[i]);
+        e.copyPseudoBox(ann);
+        e.boxView.onBoxChanged();
       }
-    })
-  }
+    });
+  };
 
   // manager
   this.onBoxChanged = function (e) {
-    this.updateAutoGeneratedBoxes()
+    this.updateAutoGeneratedBoxes();
     //
-  }
+  };
 
   const onBoxChangedInBatchMode = function (box) {
     if (box.boxEditor) // if in batch mode with less than 40 windows, some box don't have editor attached.
-    { box.boxEditor.update() } // render.
+    { box.boxEditor.update(); } // render.
 
-    box.world.annotation.setModified()
-  }
+    box.world.annotation.setModified();
+  };
 
   this.finalizeSelectedBoxes = function () {
     this.getSelectedEditors().forEach(e => {
       if (e.box) {
         if (e.box.annotator) {
-          delete e.box.annotator
-          funcOnBoxChanged(e.box)
+          delete e.box.annotator;
+          funcOnBoxChanged(e.box);
           // e.box.world.annotation.setModified();
-          e.updateInfo()
+          e.updateInfo();
         }
       }
-    })
+    });
 
-    this.globalHeader.updateModifiedStatus()
-  }
+    this.globalHeader.updateModifiedStatus();
+  };
 
   this.interpolateSelectedFrames = function () {
-    const applyIndList = this.activeEditorList().map(e => false) // all shoud be applied.
-    const selectedEditors = this.getSelectedEditors()
+    const applyIndList = this.activeEditorList().map(e => false); // all shoud be applied.
+    const selectedEditors = this.getSelectedEditors();
 
     // if interpolate only one box, remove it if exist.
     // no matter who is the annotator.
     if (selectedEditors.length == 1) {
       if (selectedEditors[0].box) {
-        funcOnBoxRemoved(selectedEditors[0].box, true)
+        funcOnBoxRemoved(selectedEditors[0].box, true);
       }
     }
 
-    selectedEditors.forEach(e => applyIndList[e.index] = true)
-    this.interpolate(applyIndList)
+    selectedEditors.forEach(e => applyIndList[e.index] = true);
+    this.interpolate(applyIndList);
 
-    this.updateAutoGeneratedBoxes()
-  }
+    this.updateAutoGeneratedBoxes();
+  };
 
   this.deleteEmptyBoxes = function () {
-    const editors = this.activeEditorList()
+    const editors = this.activeEditorList();
     editors.forEach(e => {
       if (e.box) {
         if (e.box.world.lidar.getBoxPointsNumber(e.box) <= this.cfg.maxEmptyBoxPoints) {
-          funcOnBoxRemoved(e.box, true)
+          funcOnBoxRemoved(e.box, true);
         }
       }
-    })
+    });
 
-    this.updateAutoGeneratedBoxes()
-  }
+    this.updateAutoGeneratedBoxes();
+  };
 
   this.deleteIntersectedBoxes = function () {
-    const editors = this.getSelectedEditors()
+    const editors = this.getSelectedEditors();
     editors.forEach(e => {
       if (e.box) {
-        const boxes = e.box.world.annotation.findIntersectedBoxes(e.box)
+        const boxes = e.box.world.annotation.findIntersectedBoxes(e.box);
 
         boxes.forEach(b => {
-          funcOnBoxRemoved(b, true)
-        })
+          funcOnBoxRemoved(b, true);
+        });
 
-        onBoxChangedInBatchMode(e.box)
+        onBoxChangedInBatchMode(e.box);
       }
-    })
-  }
+    });
+  };
 
   this.deleteSelectedBoxes = function (infoBoxPos) {
-    const selectedEditors = this.getSelectedEditors()
+    const selectedEditors = this.getSelectedEditors();
 
     if (selectedEditors.length >= 2) {
       window.editor.infoBox.show(
@@ -740,371 +740,371 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
                 (btn) => {
                   if (btn == 'yes') {
                     selectedEditors.forEach(e => {
-                      if (e.box) { funcOnBoxRemoved(e.box, true) }
-                    })
+                      if (e.box) { funcOnBoxRemoved(e.box, true); }
+                    });
 
-                    this.updateAutoGeneratedBoxes()
+                    this.updateAutoGeneratedBoxes();
                   }
                 },
                 infoBoxPos
-      )
+      );
     } else {
       selectedEditors.forEach(e => {
-        if (e.box) { funcOnBoxRemoved(e.box, true) }
-      })
+        if (e.box) { funcOnBoxRemoved(e.box, true); }
+      });
 
-      this.updateAutoGeneratedBoxes()
+      this.updateAutoGeneratedBoxes();
     }
-  }
+  };
 
   this.autoAnnotateSelectedFrames = function () {
-    const applyIndList = this.activeEditorList().map(e => false) // all shoud be applied.
-    this.getSelectedEditors().forEach(e => applyIndList[e.index] = true)
-    this.autoAnnotate(applyIndList)
-  }
+    const applyIndList = this.activeEditorList().map(e => false); // all shoud be applied.
+    this.getSelectedEditors().forEach(e => applyIndList[e.index] = true);
+    this.autoAnnotate(applyIndList);
+  };
 
   this.onOpCmd = function (cmd, firingEditor) {
-    firingEditor.executeOpCmd(cmd)
+    firingEditor.executeOpCmd(cmd);
 
     if (this.cfg.linkEditorsInBatchMode) {
-      const editors = this.getSelectedEditors()
+      const editors = this.getSelectedEditors();
 
       if (editors.includes(firingEditor)) {
         editors.filter(x => x != firingEditor).forEach(e => {
           if (e.box && !e.box.annotator) {
-            e.executeOpCmd(cmd)
+            e.executeOpCmd(cmd);
           }
-        })
+        });
       }
     }
-  }
+  };
 
   this.handleContextMenuEvent = function (event) {
-    console.log(event.currentTarget.id, event.type)
+    console.log(event.currentTarget.id, event.type);
     switch (event.currentTarget.id) {
       // manager
       case 'cm-increase-box-editor':
-        this.batchSize += 1
+        this.batchSize += 1;
         this.edit(
           this.editingTarget.data,
           this.editingTarget.sceneMeta,
           this.editingTarget.sceneMeta.frame,
           this.editingTarget.objTrackId,
           this.editingTarget.objType
-        )
-        break
+        );
+        break;
 
       case 'cm-decrease-box-editor':
-        this.batchSize -= 1
+        this.batchSize -= 1;
         this.edit(
           this.editingTarget.data,
           this.editingTarget.sceneMeta,
           this.editingTarget.sceneMeta.frame,
           this.editingTarget.objTrackId,
           this.editingTarget.objType
-        )
-        break
+        );
+        break;
 
         /// //////////////////// obj instance //
 
       case 'cm-select-all':
-        this.activeEditorList().forEach(e => e.setSelected(true))
-        return false// don't hide context menu
-        break
+        this.activeEditorList().forEach(e => e.setSelected(true));
+        return false;// don't hide context menu
+        break;
       case 'cm-select-all-previous':
-        this.activeEditorList().forEach(e => e.setSelected(e.index <= this.firingBoxEditor.index))
-        return false// don't hide context menu
-        break
+        this.activeEditorList().forEach(e => e.setSelected(e.index <= this.firingBoxEditor.index));
+        return false;// don't hide context menu
+        break;
       case 'cm-select-all-next':
-        this.activeEditorList().forEach(e => e.setSelected(e.index >= this.firingBoxEditor.index))
-        return false// don't hide context menu
-        break
+        this.activeEditorList().forEach(e => e.setSelected(e.index >= this.firingBoxEditor.index));
+        return false;// don't hide context menu
+        break;
 
       case 'cm-delete':
-        this.deleteSelectedBoxes({ x: event.clientX, y: event.clientY })
-        break
+        this.deleteSelectedBoxes({ x: event.clientX, y: event.clientY });
+        break;
       case 'cm-delete-empty-boxes':
-        this.deleteEmptyBoxes()
-        break
+        this.deleteEmptyBoxes();
+        break;
       case 'cm-delete-intersected-boxes':
-        this.deleteIntersectedBoxes()
-        break
+        this.deleteIntersectedBoxes();
+        break;
       case 'cm-interpolate':
-        this.interpolateSelectedFrames()
-        break
+        this.interpolateSelectedFrames();
+        break;
 
       case 'cm-auto-annotate':
-        this.autoAnnotateSelectedFrames()
-        break
+        this.autoAnnotateSelectedFrames();
+        break;
 
       case 'cm-auto-annotate-wo-rotation':
         {
-          const applyIndList = this.activeEditorList().map(e => false) // all shoud be applied.
-          this.getSelectedEditors().forEach(e => applyIndList[e.index] = true)
-          this.autoAnnotate(applyIndList, 'dontrotate')
+          const applyIndList = this.activeEditorList().map(e => false); // all shoud be applied.
+          this.getSelectedEditors().forEach(e => applyIndList[e.index] = true);
+          this.autoAnnotate(applyIndList, 'dontrotate');
         }
-        break
+        break;
 
       case 'cm-fit-moving-direction':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
+          if (!e.box) { return; }
 
-          const currentBox = e.box
-          const estimatedRot = boxOp.estimate_rotation_by_moving_direciton(currentBox)
+          const currentBox = e.box;
+          const estimatedRot = boxOp.estimate_rotation_by_moving_direciton(currentBox);
 
           if (estimatedRot) {
-            currentBox.rotation.z = estimatedRot.z
-            funcOnBoxChanged(currentBox)
+            currentBox.rotation.z = estimatedRot.z;
+            funcOnBoxChanged(currentBox);
           }
-        })
+        });
 
-        this.updateAutoGeneratedBoxes()
+        this.updateAutoGeneratedBoxes();
 
-        break
+        break;
       case 'cm-fit-size':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
+          if (!e.box) { return; }
 
-          boxOp.fitSize(e.box, ['x', 'y'])
-          funcOnBoxChanged(e.box)
-        })
+          boxOp.fitSize(e.box, ['x', 'y']);
+          funcOnBoxChanged(e.box);
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-position':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
+          if (!e.box) { return; }
           boxOp.auto_rotate_xyz(e.box, null,
             null, // {x:false, y:false, z:true},
             funcOnBoxChanged, // onBoxChangedInBatchMode,
-            'noscaling', 'dontrotate')
-        })
+            'noscaling', 'dontrotate');
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-rotation':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
+          if (!e.box) { return; }
           boxOp.auto_rotate_xyz(e.box, null,
             null,
             funcOnBoxChanged, // onBoxChangedInBatchMode, //
-            'noscaling')
-        })
+            'noscaling');
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-bottom':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
-          boxOp.fit_bottom(e.box)
+          if (!e.box) { return; }
+          boxOp.fit_bottom(e.box);
 
-          funcOnBoxChanged(e.box)
-        })
+          funcOnBoxChanged(e.box);
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-top':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
-          boxOp.fit_top(e.box)
+          if (!e.box) { return; }
+          boxOp.fit_top(e.box);
 
-          funcOnBoxChanged(e.box)
-        })
+          funcOnBoxChanged(e.box);
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-left':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
-          boxOp.fit_left(e.box)
+          if (!e.box) { return; }
+          boxOp.fit_left(e.box);
 
-          funcOnBoxChanged(e.box)
-        })
+          funcOnBoxChanged(e.box);
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-right':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
-          boxOp.fit_right(e.box)
+          if (!e.box) { return; }
+          boxOp.fit_right(e.box);
 
-          funcOnBoxChanged(e.box)
-        })
+          funcOnBoxChanged(e.box);
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-rear':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
-          boxOp.fit_rear(e.box)
+          if (!e.box) { return; }
+          boxOp.fit_rear(e.box);
 
-          funcOnBoxChanged(e.box)
-        })
+          funcOnBoxChanged(e.box);
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-fit-front':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
-          boxOp.fit_front(e.box)
+          if (!e.box) { return; }
+          boxOp.fit_front(e.box);
 
-          funcOnBoxChanged(e.box)
-        })
+          funcOnBoxChanged(e.box);
+        });
 
-        this.updateAutoGeneratedBoxes()
-        break
+        this.updateAutoGeneratedBoxes();
+        break;
       case 'cm-reverse-direction':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
+          if (!e.box) { return; }
           if (e.box.rotation.z > 0) {
-            e.box.rotation.z -= Math.PI
+            e.box.rotation.z -= Math.PI;
           } else {
-            e.box.rotation.z += Math.PI
+            e.box.rotation.z += Math.PI;
           }
 
-          onBoxChangedInBatchMode(e.box)
-        })
+          onBoxChangedInBatchMode(e.box);
+        });
 
         // this.viewManager.render();
 
-        this.updateAutoGeneratedBoxes()
+        this.updateAutoGeneratedBoxes();
 
-        break
+        break;
       case 'cm-reset-roll-pitch':
         this.getSelectedEditors().forEach(e => {
-          if (!e.box) { return }
-          e.box.rotation.x = 0
-          e.box.rotation.y = 0
-          e.update('dontrender')
-          e.box.world.annotation.setModified()
+          if (!e.box) { return; }
+          e.box.rotation.x = 0;
+          e.box.rotation.y = 0;
+          e.update('dontrender');
+          e.box.world.annotation.setModified();
 
-          onBoxChangedInBatchMode(e.box)
-        })
+          onBoxChangedInBatchMode(e.box);
+        });
 
         // this.viewManager.render();
-        this.updateAutoGeneratedBoxes()
+        this.updateAutoGeneratedBoxes();
 
-        break
+        break;
 
       case 'cm-reset-size':
         {
-          const b = this.firingBoxEditor.box
-          const obj_type = b.obj_type
-          const obj_cfg = globalObjectCategory.getObjCfgByType(obj_type)
+          const b = this.firingBoxEditor.box;
+          const obj_type = b.obj_type;
+          const obj_cfg = globalObjectCategory.getObjCfgByType(obj_type);
 
-          b.scale.x = obj_cfg.size[0]
-          b.scale.y = obj_cfg.size[1]
-          b.scale.z = obj_cfg.size[2]
-          funcOnBoxChanged(b)
+          b.scale.x = obj_cfg.size[0];
+          b.scale.y = obj_cfg.size[1];
+          b.scale.z = obj_cfg.size[2];
+          funcOnBoxChanged(b);
         }
-        break
+        break;
       case 'cm-show-trajectory':
-        this.showTrajectory()
-        break
+        this.showTrajectory();
+        break;
 
       case 'cm-check':
         {
-          const scene = this.editingTarget.sceneMeta.scene
-          checkScene(scene)
-          logger.show()
-          logger.errorBtn.onclick()
+          const scene = this.editingTarget.sceneMeta.scene;
+          checkScene(scene);
+          logger.show();
+          logger.errorBtn.onclick();
         }
-        break
+        break;
 
       case 'cm-finalize':
-        this.finalizeSelectedBoxes()
-        break
+        this.finalizeSelectedBoxes();
+        break;
 
       case 'cm-sync-size':
         this.editingTarget.data.worldList.forEach(w => {
-          const box = w.annotation.boxes.find(b => b.obj_track_id == this.firingBoxEditor.target.objTrackId)
+          const box = w.annotation.boxes.find(b => b.obj_track_id == this.firingBoxEditor.target.objTrackId);
           if (box && box !== this.firingBoxEditor.box) {
-            box.scale.x = this.firingBoxEditor.box.scale.x
-            box.scale.y = this.firingBoxEditor.box.scale.y
-            box.scale.z = this.firingBoxEditor.box.scale.z
+            box.scale.x = this.firingBoxEditor.box.scale.x;
+            box.scale.y = this.firingBoxEditor.box.scale.y;
+            box.scale.z = this.firingBoxEditor.box.scale.z;
             // saveList.push(w);
-            w.annotation.setModified()
+            w.annotation.setModified();
 
-            onBoxChangedInBatchMode(box)
+            onBoxChangedInBatchMode(box);
           }
-        })
+        });
 
         // this.activeEditorList().forEach(e=>e.update('dontrender'));
         // this.viewManager.render();
-        this.updateAutoGeneratedBoxes()
+        this.updateAutoGeneratedBoxes();
 
-        break
+        break;
       case 'cm-reload':
 
         {
-          const selectedEditors = this.getSelectedEditors()
-          this.reloadAnnotation(selectedEditors)
+          const selectedEditors = this.getSelectedEditors();
+          this.reloadAnnotation(selectedEditors);
 
-          this.updateAutoGeneratedBoxes()
+          this.updateAutoGeneratedBoxes();
         }
-        break
+        break;
 
       case 'cm-goto-this-frame':
         {
-          this.gotoThisFrame()
+          this.gotoThisFrame();
         }
-        break
+        break;
       case 'cm-follow-static-objects':
         {
-          const b = this.firingBoxEditor.box
-          window.editor.autoAdjust.followStaticObjects(b)
-          this.globalHeader.updateModifiedStatus()
+          const b = this.firingBoxEditor.box;
+          window.editor.autoAdjust.followStaticObjects(b);
+          this.globalHeader.updateModifiedStatus();
 
           this.activeEditorList().forEach(e => {
-            e.tryAttach()
-          })
+            e.tryAttach();
+          });
 
           // this.viewManager.render();
-          this.updateAutoGeneratedBoxes()
+          this.updateAutoGeneratedBoxes();
         }
-        break
-    };
+        break;
+    }
 
-    return true
-  }
+    return true;
+  };
 
   this.reset = function () {
     this.activeEditorList().forEach(e => {
-      e.setSelected(false)
-      e.resetTarget()
+      e.setSelected(false);
+      e.resetTarget();
       // logger.log("batchedit, on subview reset.");
-    })
+    });
 
     // logger.log("batchedit, subviews reset.");
 
-    this.viewManager.mainView.clearView()
+    this.viewManager.mainView.clearView();
     // logger.log("batchedit, mainview cleared.");
-    this.activeIndex = 0
-  }
+    this.activeIndex = 0;
+  };
 
   this.keydownHandler = (event) => {
     switch (event.key) {
       case 'a':
         if (event.ctrlKey) {
-          this.activeEditorList().forEach(e => e.setSelected(true))
+          this.activeEditorList().forEach(e => e.setSelected(true));
         }
-        break
+        break;
 
       case 's':
         if (event.ctrlKey) {
-          this._save()
-          console.log('saved for batch editor')
+          this._save();
+          console.log('saved for batch editor');
         }
-        break
+        break;
       case '+':
       case '=':
-        this.editingTarget.data.scale_point_size(1.2)
-        this.viewManager.render()
-        break
+        this.editingTarget.data.scale_point_size(1.2);
+        this.viewManager.render();
+        break;
       case '-':
-        this.editingTarget.data.scale_point_size(0.8)
-        this.viewManager.render()
-        break
+        this.editingTarget.data.scale_point_size(0.8);
+        this.viewManager.render();
+        break;
       case 'v':
       case 'Escape':
         {
@@ -1114,94 +1114,94 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
           // }
           // else
           {
-            logger.log('exiting batchedit.')
-            this.hide()
-            logger.log('hide batch edit window.')
-            this.reset()
-            logger.log('reset batch edit window.')
+            logger.log('exiting batchedit.');
+            this.hide();
+            logger.log('hide batch edit window.');
+            this.reset();
+            logger.log('reset batch edit window.');
             if (this.onExit) {
-              this.onExit()
-              logger.log('called exit cb.')
+              this.onExit();
+              logger.log('called exit cb.');
             }
           }
         }
-        break
+        break;
       case 'PageUp':
       case '3':
-        this.prevBatch()
-        break
+        this.prevBatch();
+        break;
       case 'PageDown':
       case '4':
-        this.nextBatch()
-        break
+        this.nextBatch();
+        break;
       case 't':
-        this.showTrajectory()
-        break
+        this.showTrajectory();
+        break;
       default:
-        console.log(`key ${event.key} igonored`)
-        break
+        console.log(`key ${event.key} igonored`);
+        break;
     }
 
-    return false
-  }
+    return false;
+  };
 
-  const keydownHandler = (event) => this.keydownHandler(event)
+  const keydownHandler = (event) => this.keydownHandler(event);
 
   this.hide = function () {
     if (this.parentUi.style.display != 'none') {
-      this.parentUi.style.display = 'none'
-      this.toolbox.style.display = 'none'
+      this.parentUi.style.display = 'none';
+      this.toolbox.style.display = 'none';
       // document.removeEventListener("keydown", keydownHandler);
-      globalKeyDownManager.deregister('batch-editor')
+      globalKeyDownManager.deregister('batch-editor');
     }
-  }
+  };
   this.show = function () {
     if (this.parentUi.style.display == 'none') {
-      this.parentUi.style.display = ''
+      this.parentUi.style.display = '';
       // document.addEventListener("keydown", keydownHandler);
-      globalKeyDownManager.register(keydownHandler, 'batch-editor')
-      this.toolbox.style.display = ''
+      globalKeyDownManager.register(keydownHandler, 'batch-editor');
+      this.toolbox.style.display = '';
     }
-  }
+  };
 
   this.render = function () {
     if (this.parentUi.style.display != 'none') {
-      this.viewManager.render()
+      this.viewManager.render();
     }
-  }
+  };
 
   this._addToolBox = function () {
-    const template = document.getElementById('batch-editor-tools-template')
-    const tool = template.content.cloneNode(true)
+    const template = document.getElementById('batch-editor-tools-template');
+    const tool = template.content.cloneNode(true);
     // this.boxEditorHeaderUi.appendChild(tool);
     // return this.boxEditorHeaderUi.lastElementChild;
 
-    document.getElementById('dynamic-buttons-placeholder').appendChild(tool)
-    return document.getElementById('dynamic-buttons-placeholder').lastElementChild
-  }
+    document.getElementById('dynamic-buttons-placeholder').appendChild(tool);
+    return document.getElementById('dynamic-buttons-placeholder').lastElementChild;
+  };
 
-  this.toolbox = this._addToolBox()
+  this.toolbox = this._addToolBox();
 
   this.reloadAnnotation = function (editorList) {
     const done = (anns) => {
       // update editor
       editorList.forEach(e => {
-        e.tryAttach()
-        e.update('dontrender')
-      })
+        e.tryAttach();
+        e.update('dontrender');
+      });
 
       // reload main view
-      if (func_on_annotation_reloaded) { func_on_annotation_reloaded() }
+      if (func_on_annotation_reloaded) { func_on_annotation_reloaded(); }
       // render all, at last
 
-      this.viewManager.render()
+      this.viewManager.render();
 
-      this.globalHeader.updateModifiedStatus()
-    }
+      this.globalHeader.updateModifiedStatus();
+    };
 
-    const worldList = editorList.map(e => e.target.world)
+    const worldList = editorList.map(e => e.target.world);
 
-    const modifiedFrames = worldList.filter(w => w && w.annotation.modified)
+    const modifiedFrames = worldList.filter(w => w && w.annotation.modified);
 
     if (modifiedFrames.length > 0) {
       window.editor.infoBox.show(
@@ -1210,52 +1210,52 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
                 ['yes', 'no'],
                 (choice) => {
                   if (choice == 'yes') {
-                    reloadWorldList(worldList, done)
+                    reloadWorldList(worldList, done);
                   }
                 }
-      )
+      );
     } else {
-      reloadWorldList(worldList, done)
+      reloadWorldList(worldList, done);
     }
-  }
+  };
 
   this.interpolate = async function (applyIndList) {
-    const boxList = this.activeEditorList().map(e => e.box)
-    const worldList = this.activeEditorList().map(e => e.target.world)
-    await this.boxOp.interpolateAsync(worldList, boxList, applyIndList)
-    this.activeEditorList().forEach(e => e.tryAttach())
+    const boxList = this.activeEditorList().map(e => e.box);
+    const worldList = this.activeEditorList().map(e => e.target.world);
+    await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
+    this.activeEditorList().forEach(e => e.tryAttach());
 
-    this.globalHeader.updateModifiedStatus()
+    this.globalHeader.updateModifiedStatus();
 
-    this.viewManager.render()
-  }
+    this.viewManager.render();
+  };
 
   this.gotoThisFrame = function () {
-    const targetFrame = this.firingBoxEditor.target.world.frameInfo.frame
-    const targetTrackId = this.firingBoxEditor.target.objTrackId
-    this.hide()
+    const targetFrame = this.firingBoxEditor.target.world.frameInfo.frame;
+    const targetTrackId = this.firingBoxEditor.target.objTrackId;
+    this.hide();
 
-    this.reset()
-    if (this.onExit) { this.onExit(targetFrame, targetTrackId) }
-  }
+    this.reset();
+    if (this.onExit) { this.onExit(targetFrame, targetTrackId); }
+  };
 
   this.autoAnnotate = async function (applyIndList, dontRotate) {
-    const editors = this.activeEditorList()
-    const boxList = editors.map(e => e.box)
-    const worldList = editors.map(e => e.target.world)
+    const editors = this.activeEditorList();
+    const boxList = editors.map(e => e.box);
+    const worldList = editors.map(e => e.target.world);
 
     const onFinishOneBox = (i) => {
-      editors[i].tryAttach()
-      editors[i].box.world.annotation.setModified()
-      this.viewManager.render()
+      editors[i].tryAttach();
+      editors[i].box.world.annotation.setModified();
+      this.viewManager.render();
 
-      this.updateAutoGeneratedBoxes()
-    }
+      this.updateAutoGeneratedBoxes();
+    };
 
-    await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList, dontRotate)
+    await this.boxOp.interpolateAndAutoAdjustAsync(worldList, boxList, onFinishOneBox, applyIndList, dontRotate);
 
-    this.globalHeader.updateModifiedStatus()
-  }
+    this.globalHeader.updateModifiedStatus();
+  };
 
   // this.parentUi.querySelector("#object-track-id-editor").addEventListener("keydown", function(e){
   //     e.stopPropagation();});
@@ -1283,81 +1283,81 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.showTrajectory = () => {
     const tracks = this.editingTarget.data.worldList.map(w => {
-      const box = w.annotation.findBoxByTrackId(this.editingTarget.objTrackId)
-      let ann = null
+      const box = w.annotation.findBoxByTrackId(this.editingTarget.objTrackId);
+      let ann = null;
       if (box) {
-        ann = w.annotation.boxToAnn(box)
-        ann.psr.position = w.lidarPosToUtm(ann.psr.position)
-        ann.psr.rotation = w.lidarRotToUtm(ann.psr.rotation)
+        ann = w.annotation.boxToAnn(box);
+        ann.psr.position = w.lidarPosToUtm(ann.psr.position);
+        ann.psr.rotation = w.lidarRotToUtm(ann.psr.rotation);
       }
-      return [w.frameInfo.frame, ann, false]
-    })
+      return [w.frameInfo.frame, ann, false];
+    });
 
-    tracks.sort((a, b) => (a[0] > b[0]) ? 1 : -1)
+    tracks.sort((a, b) => (a[0] > b[0]) ? 1 : -1);
 
     this.objectTrackView.setObject(
       this.editingTarget.objType,
       this.editingTarget.objTrackId,
       tracks,
       (targetFrame) => { // onExit
-        this.getSelectedEditors().forEach(e => e.setSelected(false))
-        this.activeEditorList().find(e => e.target.world.frameInfo.frame == targetFrame).setSelected(true)
+        this.getSelectedEditors().forEach(e => e.setSelected(false));
+        this.activeEditorList().find(e => e.target.world.frameInfo.frame == targetFrame).setSelected(true);
       }
-    )
-  }
+    );
+  };
 
   this.toolbox.querySelector('#trajectory').onclick = (e) => {
-    this.showTrajectory()
-  }
+    this.showTrajectory();
+  };
 
   this.toolbox.querySelector('#reload').onclick = (e) => {
-    const selectedEditors = this.activeEditorList()
-    this.reloadAnnotation(selectedEditors)
-  }
+    const selectedEditors = this.activeEditorList();
+    this.reloadAnnotation(selectedEditors);
+  };
 
   this.toolbox.querySelector('#interpolate').onclick = async () => {
     // this.boxOp.interpolate_selected_object(this.editingTarget.scene, this.editingTarget.objTrackId, "");
 
-    const applyIndList = this.activeEditorList().map(e => true) // all shoud be applied.
-    this.interpolate(applyIndList)
-  }
+    const applyIndList = this.activeEditorList().map(e => true); // all shoud be applied.
+    this.interpolate(applyIndList);
+  };
 
   this.toolbox.querySelector('#auto-annotate').onclick = async () => {
-    const applyIndList = this.activeEditorList().map(e => true) // all shoud be applied.
-    this.autoAnnotate(applyIndList)
-  }
+    const applyIndList = this.activeEditorList().map(e => true); // all shoud be applied.
+    this.autoAnnotate(applyIndList);
+  };
 
   this.toolbox.querySelector('#auto-annotate-translate-only').onclick = async () => {
-    const applyIndList = this.activeEditorList().map(e => true) // all shoud be applied.
-    this.autoAnnotate(applyIndList, 'dontrotate')
-  }
+    const applyIndList = this.activeEditorList().map(e => true); // all shoud be applied.
+    this.autoAnnotate(applyIndList, 'dontrotate');
+  };
 
   this.toolbox.querySelector('#exit').onclick = () => {
-    this.hide()
+    this.hide();
 
-    this.reset()
+    this.reset();
 
-    if (this.onExit) { this.onExit() }
-  }
+    if (this.onExit) { this.onExit(); }
+  };
 
   this.toolbox.querySelector('#next').onclick = () => {
-    this.nextBatch()
-  }
+    this.nextBatch();
+  };
 
   this.toolbox.querySelector('#prev').onclick = () => {
-    this.prevBatch()
-  }
+    this.prevBatch();
+  };
 
   this.nextBatch = function () {
-    const maxFrameIndex = this.editingTarget.sceneMeta.frames.length - 1
+    const maxFrameIndex = this.editingTarget.sceneMeta.frames.length - 1;
 
-    const editors = this.activeEditorList()
-    const lastEditor = editors[editors.length - 1]
+    const editors = this.activeEditorList();
+    const lastEditor = editors[editors.length - 1];
     if (lastEditor.target.world.frameInfo.frameIndex == maxFrameIndex) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
-        this.nextObj()
+        this.nextObj();
       } else {
-        window.editor.infoBox.show('Info', 'This is the last batch of frames.')
+        window.editor.infoBox.show('Info', 'This is the last batch of frames.');
       }
     } else {
       this.edit(
@@ -1366,17 +1366,17 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex + this.batchSize / 2, maxFrameIndex)],
         this.editingTarget.objTrackId,
         this.editingTarget.objType
-      )
+      );
     }
-  }
+  };
 
   this.prevBatch = function () {
-    const firstEditor = this.activeEditorList()[0]
+    const firstEditor = this.activeEditorList()[0];
     if (firstEditor.target.world.frameInfo.frameIndex == 0) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
-        this.prevObj()
+        this.prevObj();
       } else {
-        window.editor.infoBox.show('Info', 'This is the first batch  of frames')
+        window.editor.infoBox.show('Info', 'This is the first batch  of frames');
       }
     } else {
       this.edit(
@@ -1385,18 +1385,18 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex - this.batchSize / 2, 0)],
         this.editingTarget.objTrackId,
         this.editingTarget.objType
-      )
+      );
     }
-  }
+  };
 
   this.prevObj = function () {
-    let idx = objIdManager.objectList.findIndex(x => x.id == this.editingTarget.objTrackId)
+    let idx = objIdManager.objectList.findIndex(x => x.id == this.editingTarget.objTrackId);
 
-    const objNum = objIdManager.objectList.length
+    const objNum = objIdManager.objectList.length;
 
-    idx = (idx + objNum - 1) % objNum
+    idx = (idx + objNum - 1) % objNum;
 
-    const obj = objIdManager.objectList[idx]
+    const obj = objIdManager.objectList[idx];
 
     this.edit(
       this.editingTarget.data,
@@ -1404,17 +1404,17 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       this.editingTarget.sceneMeta.frames[this.editingTarget.frameIndex],
       obj.id,
       obj.category
-    )
-  }
+    );
+  };
 
   this.gotoFrame = function (frameID) {
-    this.getSelectedEditors().forEach(e => e.setSelected(false))
-    this.activeEditorList().find(e => e.target.world.frameInfo.frame == frameID).setSelected(true)
-  }
+    this.getSelectedEditors().forEach(e => e.setSelected(false));
+    this.activeEditorList().find(e => e.target.world.frameInfo.frame == frameID).setSelected(true);
+  };
 
   this.gotoObjectFrame = function (frameId, objId) {
     if (objId != this.editingTarget.objTrackId) {
-      const obj = objIdManager.getObjById(objId)
+      const obj = objIdManager.getObjById(objId);
 
       this.edit(
         this.editingTarget.data,
@@ -1422,21 +1422,21 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         frameId,
         objId,
         obj.category
-      )
+      );
     }
 
-    this.getSelectedEditors().forEach(e => e.setSelected(false))
-    this.activeEditorList().find(e => e.target.world.frameInfo.frame == frameId).setSelected(true)
-  }
+    this.getSelectedEditors().forEach(e => e.setSelected(false));
+    this.activeEditorList().find(e => e.target.world.frameInfo.frame == frameId).setSelected(true);
+  };
 
   this.nextObj = function () {
-    let idx = objIdManager.objectList.findIndex(x => x.id == this.editingTarget.objTrackId && x.category == this.editingTarget.objType)
+    let idx = objIdManager.objectList.findIndex(x => x.id == this.editingTarget.objTrackId && x.category == this.editingTarget.objType);
 
-    const objNum = objIdManager.objectList.length
+    const objNum = objIdManager.objectList.length;
 
-    idx = (idx + 1) % objNum
+    idx = (idx + 1) % objNum;
 
-    const obj = objIdManager.objectList[idx]
+    const obj = objIdManager.objectList[idx];
 
     this.edit(
       this.editingTarget.data,
@@ -1444,87 +1444,87 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       this.editingTarget.sceneMeta.frames[this.editingTarget.frameIndex],
       obj.id,
       obj.category
-    )
-  }
+    );
+  };
 
   // this.toolbox.querySelector("#save").onclick = ()=>{
   //     this._save();
   // };
 
   this.toolbox.querySelector('#finalize').onclick = () => {
-    this.finalize()
-  }
+    this.finalize();
+  };
 
   this.finalize = function () {
     this.activeEditorList().forEach(e => {
       if (e.box) {
         if (e.box.annotator) {
-          delete e.box.annotator
-          funcOnBoxChanged(e.box)
+          delete e.box.annotator;
+          funcOnBoxChanged(e.box);
         }
-        e.box.world.annotation.setModified()
-        e.updateInfo()
+        e.box.world.annotation.setModified();
+        e.updateInfo();
       }
-    })
+    });
 
-    this.globalHeader.updateModifiedStatus()
-  }
+    this.globalHeader.updateModifiedStatus();
+  };
 
   this.object_track_id_changed = function (event) {
-    let id = event.currentTarget.value
+    let id = event.currentTarget.value;
 
     if (id == 'new') {
-      id = objIdManager.generateNewUniqueId()
-      this.parentUi.querySelector('#object-track-id-editor').value = id
+      id = objIdManager.generateNewUniqueId();
+      this.parentUi.querySelector('#object-track-id-editor').value = id;
     }
 
     this.activeEditorList().forEach(e => {
       if (e.box) {
-        e.box.obj_track_id = id
+        e.box.obj_track_id = id;
       }
-    })
-  }
+    });
+  };
 
   this.object_category_changed = function (event) {
-    const obj_type = event.currentTarget.value
+    const obj_type = event.currentTarget.value;
     this.activeEditorList().forEach(e => {
       if (e.box) {
-        e.box.obj_type = obj_type
+        e.box.obj_type = obj_type;
       }
-    })
-  }
+    });
+  };
 
   this._save = function () {
-    const worldList = []
-    const editorList = []
+    const worldList = [];
+    const editorList = [];
     this.activeEditorList().forEach(e => {
-      worldList.push(e.target.world)
-      editorList.push(e)
-    })
+      worldList.push(e.target.world);
+      editorList.push(e);
+    });
 
-    saveWorldList(worldList)
-  }
+    saveWorldList(worldList);
+  };
 
   this.updateViewZoomRatio = function (viewIndex, ratio) {
-    const dontRender = true
+    const dontRender = true;
     this.activeEditorList().forEach(e => {
-      e._setViewZoomRatio(viewIndex, ratio)
-      e.update(dontRender)
-    })
+      e._setViewZoomRatio(viewIndex, ratio);
+      e.update(dontRender);
+    });
 
     // render all
-    this.viewManager.render()
-  }
+    this.viewManager.render();
+  };
 
   this.addEditor = function () {
-    const editor = this.allocateEditor()
-    this.activeIndex += 1
-    return editor
-  }
+    const editor = this.allocateEditor();
+    this.activeIndex += 1;
+    return editor;
+  };
 
   this.allocateEditor = function () {
     if (this.activeIndex >= this.editorList.length) {
-      const editor = new BoxEditor(this.boxEditorGroupUi, this, this.viewManager, cfg, this.boxOp, funcOnBoxChanged, funcOnBoxRemoved, String(this.activeIndex))
+      const editor = new BoxEditor(this.boxEditorGroupUi, this, this.viewManager, cfg, this.boxOp, funcOnBoxChanged, funcOnBoxRemoved, String(this.activeIndex));
 
       // resizable for the first editor
 
@@ -1533,116 +1533,116 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       //     editor.setResize("both");
       // }
 
-      this.editorList.push(editor)
+      this.editorList.push(editor);
 
-      return editor
+      return editor;
     } else {
-      return this.editorList[this.activeIndex]
+      return this.editorList[this.activeIndex];
     }
-  }
+  };
 
   this.getEditorByMousePosition = function (x, y) {
     return this.editorList.find(e => {
-      const rect = e.ui.getBoundingClientRect()
+      const rect = e.ui.getBoundingClientRect();
 
-      return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom
-    })
-  }
+      return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
+    });
+  };
 
   this.parentUi.onmousedown = (event) => {
-    if (event.which != 1) { return }
+    if (event.which != 1) { return; }
 
-    const eventId = Date.now()
+    const eventId = Date.now();
 
     const select_start_pos = {
       x: event.clientX,
       y: event.clientY
-    }
+    };
 
-    console.log('box editor manager, on mouse down.', select_start_pos)
+    console.log('box editor manager, on mouse down.', select_start_pos);
 
     const select_end_pos = {
       x: event.clientX,
       y: event.clientY
-    }
+    };
 
-    let leftMouseDown = true
+    let leftMouseDown = true;
 
     // a1<a2, b1<b2
     function lineIntersect (a1, a2, b1, b2) {
-      if (a1 > a2) [a1, a2] = [a2, a1]
-      if (b1 > b2) [b1, b2] = [b2, b1]
+      if (a1 > a2) [a1, a2] = [a2, a1];
+      if (b1 > b2) [b1, b2] = [b2, b1];
 
-      return (a1 > b1 && a1 < b2) || (a2 > b1 && a2 < b2) || (b1 > a1 && b1 < a2) || (b2 > a1 && b2 < a2)
+      return (a1 > b1 && a1 < b2) || (a2 > b1 && a2 < b2) || (b1 > a1 && b1 < a2) || (b2 > a1 && b2 < a2);
     }
 
     // a,b: left, right, right, bottom
     function intersect (domRect, mouseA, mouseB) {
       return (lineIntersect(select_end_pos.x, select_start_pos.x, domRect.left, domRect.right) &&
-                    lineIntersect(select_end_pos.y, select_start_pos.y, domRect.top, domRect.bottom))
+                    lineIntersect(select_end_pos.y, select_start_pos.y, domRect.top, domRect.bottom));
     }
 
     this.parentUi.onmousemove = (event) => {
-      select_end_pos.x = event.clientX
-      select_end_pos.y = event.clientY
+      select_end_pos.x = event.clientX;
+      select_end_pos.y = event.clientY;
 
       this.editorList.forEach(e => {
-        const rect = e.ui.getBoundingClientRect()
-        const intersected = intersect(rect, select_start_pos, select_end_pos)
+        const rect = e.ui.getBoundingClientRect();
+        const intersected = intersect(rect, select_start_pos, select_end_pos);
 
-        e.setSelected(intersected, event.ctrlKey ? eventId : null)
-      })
-    }
+        e.setSelected(intersected, event.ctrlKey ? eventId : null);
+      });
+    };
 
     this.parentUi.onmouseup = (event) => {
-      if (event.which != 1) { return }
+      if (event.which != 1) { return; }
 
-      leftMouseDown = false
-      this.parentUi.onmousemove = null
-      this.parentUi.onmouseup = null
+      leftMouseDown = false;
+      this.parentUi.onmousemove = null;
+      this.parentUi.onmouseup = null;
 
       if (event.clientX == select_start_pos.x && event.clientY == select_start_pos.y) { // click
-        const ed = this.getEditorByMousePosition(event.clientX, event.clientY)
+        const ed = this.getEditorByMousePosition(event.clientX, event.clientY);
 
         if (event.shiftKey) {
-          const selectedEditors = this.getSelectedEditors()
+          const selectedEditors = this.getSelectedEditors();
           if (selectedEditors.length == 0) {
 
           } else if (ed.index < selectedEditors[0].index) {
             this.activeEditorList().forEach(e => {
               if (e.index >= ed.index && e.index < selectedEditors[0].index) {
-                e.setSelected(true)
+                e.setSelected(true);
               }
-            })
+            });
           } else if (ed.index > selectedEditors[selectedEditors.length - 1].index) {
             this.activeEditorList().forEach(e => {
               if (e.index <= ed.index && e.index > selectedEditors[selectedEditors.length - 1].index) {
-                e.setSelected(true)
+                e.setSelected(true);
               }
-            })
+            });
           }
         } else if (event.ctrlKey) {
-          ed.setSelected(!ed.selected)
+          ed.setSelected(!ed.selected);
         } else {
-          const selectedEditors = this.getSelectedEditors()
+          const selectedEditors = this.getSelectedEditors();
 
           if (ed) {
             if (ed.selected && selectedEditors.length == 1) {
-              ed.setSelected(false)
+              ed.setSelected(false);
             } else {
-              selectedEditors.forEach(e => e.setSelected(false))
-              ed.setSelected(true)
+              selectedEditors.forEach(e => e.setSelected(false));
+              ed.setSelected(true);
             }
           } else {
-            selectedEditors.forEach(e => e.setSelected(false))
+            selectedEditors.forEach(e => e.setSelected(false));
           }
         }
       }
-    }
-  }
+    };
+  };
 
   this.getSelectedEditors = function () {
-    return this.editorList.filter(e => e.selected)
-  }
+    return this.editorList.filter(e => e.selected);
+  };
 }
-export { BoxEditorManager, BoxEditor }
+export { BoxEditorManager, BoxEditor };

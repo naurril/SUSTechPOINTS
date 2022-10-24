@@ -66,8 +66,10 @@ class ObjectIdManager {
       this.objectList = ret
       this.sortObjIdList()
       this.maxId = Math.max(...ret.map(function (x) { return x.id }))
-      if (this.maxId < 0) // this is -infinity if there is no ids.
-      { this.maxId = 0 }
+      if (this.maxId < 0) {
+        // this is -infinity if there is no ids.
+        this.maxId = 0 
+      }
 
       this.setObjdIdListOptions()
 

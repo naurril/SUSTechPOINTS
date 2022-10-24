@@ -1,26 +1,26 @@
-import { globalObjectCategory } from './obj_cfg.js'
+import { globalObjectCategory } from './obj_cfg.js';
 
 function autoAnnotate (world, done, alg) {
-  const xhr = new XMLHttpRequest()
+  const xhr = new XMLHttpRequest();
   // we defined the xhr
   xhr.onreadystatechange = () => {
-    if (this.readyState != 4) { return }
+    if (this.readyState != 4) { return; }
 
     if (this.status == 200) {
-      const anns = JSON.parse(this.responseText)
+      const anns = JSON.parse(this.responseText);
 
-      anns.map(a => a.obj_type = globalObjectCategory.guessObjTypeByDimension(a.psr.scale))
+      anns.map(a => a.obj_type = globalObjectCategory.guessObjTypeByDimension(a.psr.scale));
 
       // load annotations
-      world.annotation.reapplyAnnotation(anns)
+      world.annotation.reapplyAnnotation(anns);
 
-      if (done) { done() }
+      if (done) { done(); }
     }
-  }
+  };
 
-  xhr.open('GET', '/auto_annotate?' + 'scene=' + world.frameInfo.scene + '&frame=' + world.frameInfo.frame, true)
+  xhr.open('GET', '/auto_annotate?' + 'scene=' + world.frameInfo.scene + '&frame=' + world.frameInfo.frame, true);
 
-  xhr.send()
+  xhr.send();
 }
 
-export { autoAnnotate }
+export { autoAnnotate };
