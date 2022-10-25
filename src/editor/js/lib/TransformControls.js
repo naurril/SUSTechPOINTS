@@ -658,7 +658,7 @@ class TransformControlsGizmo extends Object3D {
     scaleHandleGeometry.translate(0, 0.04, 0);
 
     const lineGeometry = new BufferGeometry();
-    lineGeometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0,	1, 0, 0], 3));
+    lineGeometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3));
 
     const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3);
     lineGeometry2.translate(0, 0.25, 0);

@@ -332,8 +332,8 @@ function Radar (sceneMeta, world, frameInfo, radarName) {
 
     this.elements = elements;
     // _self.points_backup = mesh;
-    if (this.goCmdReceived) // this should be always true
-    {
+    if (this.goCmdReceived) {
+      // this should be always true
       this.webglGroup.add(this.elements.points);
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.add(a)); }
     }

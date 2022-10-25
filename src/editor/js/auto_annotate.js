@@ -4,12 +4,14 @@ function autoAnnotate (world, done, alg) {
   const xhr = new XMLHttpRequest();
   // we defined the xhr
   xhr.onreadystatechange = () => {
-    if (this.readyState != 4) { return; }
+    if (this.readyState !== 4) { return; }
 
-    if (this.status == 200) {
+    if (this.status === 200) {
       const anns = JSON.parse(this.responseText);
 
-      anns.map(a => a.obj_type = globalObjectCategory.guessObjTypeByDimension(a.psr.scale));
+      anns.forEach(a => {
+        a.obj_type = globalObjectCategory.guessObjTypeByDimension(a.psr.scale);
+      });
 
       // load annotations
       world.annotation.reapplyAnnotation(anns);
@@ -18,7 +20,7 @@ function autoAnnotate (world, done, alg) {
     }
   };
 
-  xhr.open('GET', '/auto_annotate?' + 'scene=' + world.frameInfo.scene + '&frame=' + world.frameInfo.frame, true);
+  xhr.open('GET', '/auto_annotate?scene=' + world.frameInfo.scene + '&frame=' + world.frameInfo.frame, true);
 
   xhr.send();
 }

@@ -15,9 +15,9 @@ class CropScene extends PopupDialog {
       const xhr = new XMLHttpRequest();
       // we defined the xhr
       xhr.onreadystatechange = function () {
-        if (this.readyState != 4) return;
+        if (this.readyState !== 4) return;
 
-        if (this.status == 200) {
+        if (this.status === 200) {
           const ret = JSON.parse(this.responseText);
           self.contentUi.querySelector('#log').innerText = JSON.stringify(ret, null, '\t');
         }

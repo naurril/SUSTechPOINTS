@@ -46,10 +46,10 @@
     ]
   },
   "proxy": "https://127.0.0.1:8081",
-  "standard": {
+  "semistandard": {
     "ignore": [
       "config","scripts"
     ],
-    "globals": [ "Request", "Image", "ResizeObserver"]
+    "globals": [ "Request", "Image", "ResizeObserver", "XMLHttpRequest"]
   }
 }

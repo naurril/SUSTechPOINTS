@@ -31,8 +31,7 @@ const annMath = {
     return this.norm(c);
   },
 
-  mul: function (a, d) // d is scalar
-  {
+  mul: function (a, d) { // d is scalar
     const c = [];
     for (const i in a) {
       c[i] = a[i] * d;
@@ -63,8 +62,7 @@ const annMath = {
     return a;
   },
 
-  eleMul: function (a, b) // element-wise multiplication
-  {
+  eleMul: function (a, b) { // element-wise multiplication
     const c = [];
     for (const i in a) {
       c[i] = a[i] * b[i];
@@ -82,41 +80,40 @@ const ml = {
     console.log('backend of tensorflow:', tf.getBackend());
     console.log('number of points:', points.count);
 
-    const center_points = {};
+    const ceneterPonts = {};
     for (let i = 0; i < points.count; i++) {
       if (points.array[i * 3] < 10 && points.array[i * 3] > -10 &&
-                points.array[i * 3 + 1] < 10 && points.array[i * 3 + 1] > -10) // x,y in [-10,10]
-      {
+                points.array[i * 3 + 1] < 10 && points.array[i * 3 + 1] > -10) { // x,y in [-10,10]
         const key = (10 + Math.round(points.array[i * 3])) * 100 + (Math.round(points.array[i * 3 + 1]) + 10);
-        if (center_points[key]) {
+        if (ceneterPonts[key]) {
           // save only  minimal index
-          if (points.array[i * 3 + 2] < points.array[center_points[key] * 3 + 2]) {
-            center_points[key] = i;
+          if (points.array[i * 3 + 2] < points.array[ceneterPonts[key] * 3 + 2]) {
+            ceneterPonts[key] = i;
           }
         } else {
-          center_points[key] = i;
+          ceneterPonts[key] = i;
         }
       }
     }
 
-    const center_point_indices = [];
-    for (const i in center_points) {
-      center_point_indices.push(center_points[i]);
+    const centerPointsIndices = [];
+    for (const i in ceneterPonts) {
+      centerPointsIndices.push(ceneterPonts[i]);
     }
 
     // console.log(center_point_indices);
-    const points_2d = center_point_indices.map(i => [points.array[i * 3], points.array[i * 3 + 1], points.array[i * 3 + 2]]);
-    const pointsArray = points_2d.flatMap(x => x);
+    const points2d = centerPointsIndices.map(i => [points.array[i * 3], points.array[i * 3 + 1], points.array[i * 3 + 2]]);
+    const pointsArray = points2d.flatMap(x => x);
 
-    const sum = points_2d.reduce(function (s, x) {
+    const sum = points2d.reduce(function (s, x) {
       return [s[0] + x[0],
         s[1] + x[1],
         s[2] + x[2]];
     }, [0, 0, 0]);
-    const count = points_2d.length;
+    const count = points2d.length;
     const mean = [sum[0] / count, sum[1] / count, sum[2] / count];
 
-    const data_centered = points_2d.map(function (x) {
+    const dataCentered = points2d.map(function (x) {
       return [
         x[0] - mean[0],
         x[1] - mean[1],
@@ -124,9 +121,9 @@ const ml = {
       ];
     });
 
-    const normal_v = this.train(data_centered);
+    const normalV = this.train(dataCentered);
 
-    window.editor.data.world.add_line(mean, [-normal_v[0] * 10, -normal_v[1] * 10, normal_v[2] * 10]);
+    window.editor.data.world.add_line(mean, [-normalV[0] * 10, -normalV[1] * 10, normalV[2] * 10]);
     window.editor.data.world.lidar.reset_points(pointsArray);
     /*
 
@@ -140,13 +137,12 @@ const ml = {
         //data.world.lidar.updatePointsColor();
         */
 
-    return center_point_indices;
+    return centerPointsIndices;
   },
 
-  train: function (data_centered) // data is ?*3 array.
-  {
-    const XY = data_centered.map(function (x) { return x.slice(0, 2); });
-    const Z = data_centered.map(function (x) { return x[2]; });
+  train: function (dataCentered) { // data is ?*3 array.
+    const XY = dataCentered.map(function (x) { return x.slice(0, 2); });
+    const Z = dataCentered.map(function (x) { return x[2]; });
 
     const x = tf.tensor2d(XY);
     const para = tf.variable(tf.tensor2d([[Math.random(), Math.random()]]));
@@ -180,22 +176,22 @@ const ml = {
     // A = tf.expandDims(A, [0]);
 
     let min = 0;
-    let min_index = 0;
+    let minIndex = 0;
     for (let i = 0; i <= 90; i += 1) {
-      const obj = cal_objetive(A, i);
+      const obj = calObjective(A, i);
 
       if (min === 0 || min > obj) {
-        min_index = i;
+        minIndex = i;
         min = obj;
       }
     }
 
-    console.log(min_index, min);
+    console.log(minIndex, min);
     return min;
 
     // end of func
 
-    function cal_objetive (A, theta) {
+    function calObjective (A, theta) {
       const r = theta * Math.PI / 180;
       const bases = tf.tensor2d([[Math.cos(r), -Math.sin(r)],
         [Math.sin(r), Math.cos(r)]]);
@@ -203,31 +199,31 @@ const ml = {
       const proj = tf.matMul(A, bases); // n * 2
       const max = tf.max(proj, 0); // 1*2
       const min = tf.min(proj, 0); // 1*2
-      const dist_to_min = tf.sum(tf.square(tf.sub(proj, min)), 0);
-      const dist_to_max = tf.sum(tf.square(tf.sub(max, proj)), 0);
+      const distToMin = tf.sum(tf.square(tf.sub(proj, min)), 0);
+      const distToMax = tf.sum(tf.square(tf.sub(max, proj)), 0);
 
       // axis 0
       let dist0, dist1; // dist to axis 0, axis 1
-      if (dist_to_min.gather(0).dataSync() < dist_to_max.gather(0).dataSync()) {
+      if (distToMin.gather(0).dataSync() < distToMax.gather(0).dataSync()) {
         dist0 = tf.sub(proj.gather([0], 1), min.gather(0));
       } else {
         dist0 = tf.sub(max.gather(0), proj.gather([0], 1));
       }
 
-      if (dist_to_min.gather(1).dataSync() < dist_to_max.gather(1).dataSync()) {
+      if (distToMin.gather(1).dataSync() < distToMax.gather(1).dataSync()) {
         dist1 = tf.sub(proj.gather([1], 1), min.gather(1));
       } else {
         dist1 = tf.sub(max.gather(1), proj.gather([1], 1));
       }
 
       // concat dist0, dist1
-      const min_dist = tf.concat([dist0, dist1], 1).min(1);
-      return min_dist.sum().dataSync()[0];
+      const minDist = tf.concat([dist0, dist1], 1).min(1);
+      return minDist.sum().dataSync()[0];
     }
   },
 
-  predict_rotation: function (data) {
-    const req = new Request('/api/predict_rotation');
+  predictRotation: function (data) {
+    const req = new Request('/api/predictRotation');
     const init = {
       method: 'POST',
       body: JSON.stringify({ points: data })
@@ -250,7 +246,7 @@ const ml = {
   },
 
   // autoadj is async
-  interpolate_annotation: async function (anns, autoAdj, onFinishOneBox) {
+  interpolateAnnotation: async function (anns, autoAdj, onFinishOneBox) {
     let i = 0;
     while (true) {
       while (i + 1 < anns.length && !(anns[i] && !anns[i + 1])) {
@@ -267,10 +263,10 @@ const ml = {
       if (i < anns.length) {
         const end = i;
         // insert (begin, end)
-        let interpolate_step = annMath.div(annMath.sub(anns[end], anns[start]), (end - start));
+        let step = annMath.div(annMath.sub(anns[end], anns[start]), (end - start));
 
         for (let inserti = start + 1; inserti < end; inserti++) {
-          let tempAnn = annMath.add(anns[inserti - 1], interpolate_step);
+          let tempAnn = annMath.add(anns[inserti - 1], step);
 
           if (autoAdj) {
             try {
@@ -300,7 +296,7 @@ const ml = {
           anns[inserti] = tempAnn;
 
           // adjust step since we have finished annotate one more box.
-          interpolate_step = annMath.div(annMath.sub(anns[end], anns[inserti]), (end - inserti));
+          step = annMath.div(annMath.sub(anns[end], anns[inserti]), (end - inserti));
 
           if (onFinishOneBox) { onFinishOneBox(inserti); }
         }

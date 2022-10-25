@@ -44,15 +44,15 @@ const Header = function (ui, data, cfg, onSceneChanged, onFrameChanged, onObject
   };
 
   this.updateSceneList = function (sceneDescList) {
-    let scene_selector_str = '<option>--scene--</option>';
+    let sceneSelectorStr = '<option>--scene--</option>';
     for (const scene in sceneDescList) {
       if (sceneDescList[scene]) {
         const d = sceneDescList[scene];
-        scene_selector_str += '<option value=' + scene + '>' + scene + ' - ' + (d.scene ? d.scene : '') + ` (${d.label_files}/${d.frames})` + '</option>';
-      } else { scene_selector_str += '<option value=' + scene + '>' + scene + '</option>'; }
+        sceneSelectorStr += '<option value=' + scene + '>' + scene + ' - ' + (d.scene ? d.scene : '') + ` (${d.label_files}/${d.frames})</option>`;
+      } else { sceneSelectorStr += '<option value=' + scene + '>' + scene + '</option>'; }
     }
 
-    this.ui.querySelector('#scene-selector').innerHTML = scene_selector_str;
+    this.ui.querySelector('#scene-selector').innerHTML = sceneSelectorStr;
   };
 
   this.data.readSceneList().then(sceneDescList => {
@@ -83,10 +83,10 @@ const Header = function (ui, data, cfg, onSceneChanged, onFrameChanged, onObject
     const scale = box.scale;
     const pos = box.position;
     const rotation = box.rotation;
-    const points_number = box.world.lidar.getBoxPointsNumber(box);
+    const pointsNumber = box.world.lidar.getBoxPointsNumber(box);
     const distance = Math.sqrt(pos.x * pos.x + pos.y * pos.y).toFixed(2);
 
-    this.boxUi.innerHTML = '<span>' + box.obj_type + '-' + box.obj_track_id +
+    this.boxUi.innerHTML = '<span>' + box.obj_type + '-' + box.obj_id +
                                (box.annotator ? ("</span> | <span title='annotator'>" + box.annotator) : '') +
                                "</span> | <span title='distance'>" + distance +
                                "</span> | <span title='position'>" + pos.x.toFixed(2) + ' ' + pos.y.toFixed(2) + ' ' + pos.z.toFixed(2) +
@@ -94,14 +94,14 @@ const Header = function (ui, data, cfg, onSceneChanged, onFrameChanged, onObject
                                "</span> | <span title='rotation'>" +
                                 (rotation.x * 180 / Math.PI).toFixed(2) + ' ' + (rotation.y * 180 / Math.PI).toFixed(2) + ' ' + (rotation.z * 180 / Math.PI).toFixed(2) +
                                 "</span> | <span title = 'points'>" +
-                                points_number + '</span> ';
+                                pointsNumber + '</span> ';
     if (box.follows) {
-      this.boxUi.innerHTML += '| F:' + box.follows.obj_track_id;
+      this.boxUi.innerHTML += '| F:' + box.follows.obj_id;
     }
   };
 
-  this.setReferenceObject = function (marked_object) {
-    this.refObjUi.innerHTML = '| Ref: ' + marked_object.scene + '/' + marked_object.frame + ': ' + marked_object.ann.obj_type + '-' + marked_object.ann.obj_id;
+  this.setReferenceObject = function (markedObject) {
+    this.refObjUi.innerHTML = '| Ref: ' + markedObject.scene + '/' + markedObject.frame + ': ' + markedObject.ann.obj_type + '-' + markedObject.ann.obj_id;
   };
 
   this.setCurrentObject = function (id) {
@@ -110,17 +110,13 @@ const Header = function (ui, data, cfg, onSceneChanged, onFrameChanged, onObject
   this.unsetCurrentObject = function () {
     this.curObjUi.innerHTML = '';
   };
-  this.set_frame_info = function (scene, frame, on_scene_changed) {
-    if (this.sceneSelectorUi.value != scene) {
+  this.set_frame_info = function (scene, frame, onSceneChanged) {
+    if (this.sceneSelectorUi.value !== scene) {
       this.sceneSelectorUi.value = scene;
-      on_scene_changed(scene);
+      onSceneChanged(scene);
     }
 
     this.frameSelectorUi.value = frame;
-  };
-
-  this.clear_frame_info = function (scene, frame) {
-
   };
 
   this.updateModifiedStatus = function () {

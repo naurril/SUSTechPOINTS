@@ -12,7 +12,7 @@ import { dotproduct, transpose, matmul, eulerAngleToRotationMatrix3By3 } from '.
 function BoxOp () {
   console.log('BoxOp called');
   this.grow_box_distance_threshold = 0.3;
-  this.init_scale_ratio = { x: 2, y: 2, z: 3 };
+  this.initScaleRatio = { x: 2, y: 2, z: 3 };
 
   this.fit_bottom = function (box) {
     const bottom = box.world.lidar.findBottom(box, { x: 2, y: 2, z: 3 });
@@ -25,7 +25,7 @@ function BoxOp () {
   };
 
   this.fit_left = function (box) {
-    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.initScaleRatio);
 
     if (extreme) {
       this.translateBox(box, 'y', extreme.max.y - box.scale.y / 2);
@@ -33,7 +33,7 @@ function BoxOp () {
   };
 
   this.fit_right = function (box) {
-    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.initScaleRatio);
 
     if (extreme) {
       this.translateBox(box, 'y', extreme.min.y + box.scale.y / 2);
@@ -41,7 +41,7 @@ function BoxOp () {
   };
 
   this.fit_front = function (box) {
-    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.initScaleRatio);
 
     if (extreme) {
       this.translateBox(box, 'x', extreme.max.x - box.scale.x / 2);
@@ -49,7 +49,7 @@ function BoxOp () {
   };
 
   this.fit_rear = function (box) {
-    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.init_scale_ratio);
+    const extreme = box.world.lidar.growBox(box, this.grow_box_distance_threshold, this.initScaleRatio);
 
     if (extreme) {
       this.translateBox(box, 'x', extreme.min.x + box.scale.x / 2);
@@ -95,7 +95,7 @@ function BoxOp () {
     return ret;
   };
 
-  this.auto_rotate_xyz = async function (box, callback, apply_mask, onBoxChanged, noscaling, rotate_method) {
+  this.auto_rotate_xyz = async function (box, callback, applyMask, onBoxChanged, noscaling, rotateMethod) {
     const orgBox = box;
     box = {
       position: { x: box.position.x, y: box.position.y, z: box.position.z },
@@ -107,7 +107,7 @@ function BoxOp () {
     // auto grow
     // save scale
     const grow = (box) => {
-      const org_scale = {
+      const orgScale = {
         x: box.scale.x,
         y: box.scale.y,
         z: box.scale.z
@@ -116,13 +116,13 @@ function BoxOp () {
       this.auto_shrink_box(box);
       // now box has been centered.
 
-      const points_indices = box.world.lidar.getPointsInBox(box, 1.0).index;
-      const extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
+      const pointIndices = box.world.lidar.getPointsInBox(box, 1.0).index;
+      const extreme = box.world.lidar.getDimensionOfPoints(pointIndices, box);
       // restore scale
       if (noscaling) {
-        box.scale.x = org_scale.x;
-        box.scale.y = org_scale.y;
-        box.scale.z = org_scale.z;
+        box.scale.x = orgScale.x;
+        box.scale.y = orgScale.y;
+        box.scale.z = orgScale.z;
       }
       //
       return extreme;
@@ -130,24 +130,24 @@ function BoxOp () {
 
     // points is N*3 shape
 
-    const applyRotation = (ret, extreme_after_grow) => {
+    const applyRotation = (ret, extremeAfterGrow) => {
       const angle = ret.angle;
       if (!angle) {
         console.log('prediction not implemented?');
         return;
       }
 
-      // var points_indices = box.world.get_points_indices_of_box(box);
-      const points_indices = box.world.lidar.getPointsInBox(box, 1.0).index;
+      // var points_indices = box.world.getPointIndices(box);
+      const pointIndices = box.world.lidar.getPointsInBox(box, 1.0).index;
 
-      const euler_delta = {
+      const eulerDelta = {
         x: angle[0],
         y: angle[1],
         z: angle[2]
       };
 
-      if (euler_delta.z > Math.PI) {
-        euler_delta.z -= Math.PI * 2;
+      if (eulerDelta.z > Math.PI) {
+        eulerDelta.z -= Math.PI * 2;
       }
 
       /*
@@ -162,34 +162,34 @@ function BoxOp () {
                 box.rotation.z = composite_angel.z;
                 */
 
-      if (apply_mask) {
-        if (apply_mask.x) { box.rotation.x = euler_delta.x; }
-        if (apply_mask.y) { box.rotation.y = euler_delta.y; }
-        if (apply_mask.z) { box.rotation.z = euler_delta.z; }
+      if (applyMask) {
+        if (applyMask.x) { box.rotation.x = eulerDelta.x; }
+        if (applyMask.y) { box.rotation.y = eulerDelta.y; }
+        if (applyMask.z) { box.rotation.z = eulerDelta.z; }
       } else {
-        box.rotation.x = euler_delta.x;
-        box.rotation.y = euler_delta.y;
-        box.rotation.z = euler_delta.z;
+        box.rotation.x = eulerDelta.x;
+        box.rotation.y = eulerDelta.y;
+        box.rotation.z = eulerDelta.z;
       }
 
       // rotation set, now rescaling the box
       // important: should use original points before rotation set
-      let extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
+      let extreme = box.world.lidar.getDimensionOfPoints(pointIndices, box);
 
-      let auto_adj_dimension = [];
+      let autoAdjDimension = [];
 
-      if (apply_mask) {
-        if (apply_mask.x || apply_mask.y) { auto_adj_dimension.push('z'); }
+      if (applyMask) {
+        if (applyMask.x || applyMask.y) { autoAdjDimension.push('z'); }
 
-        if (apply_mask.x || apply_mask.z) { auto_adj_dimension.push('y'); }
+        if (applyMask.x || applyMask.z) { autoAdjDimension.push('y'); }
 
-        if (apply_mask.y || apply_mask.z) { auto_adj_dimension.push('x'); }
+        if (applyMask.y || applyMask.z) { autoAdjDimension.push('x'); }
       } else {
-        auto_adj_dimension = ['x', 'y', 'z'];
+        autoAdjDimension = ['x', 'y', 'z'];
       }
 
       if (!noscaling) {
-        auto_adj_dimension.forEach((axis) => {
+        autoAdjDimension.forEach((axis) => {
           this.translateBox(box, axis, (extreme.max[axis] + extreme.min[axis]) / 2);
           box.scale[axis] = extreme.max[axis] - extreme.min[axis];
         });
@@ -213,9 +213,9 @@ function BoxOp () {
           z: 1 // orgPointInBoxCoord[2],
         };
 
-        if (extreme_after_grow) { extreme = extreme_after_grow; }
+        if (extremeAfterGrow) { extreme = extremeAfterGrow; }
 
-        auto_adj_dimension.forEach((axis) => {
+        autoAdjDimension.forEach((axis) => {
           if (relativePosition[axis] > 0) {
             // stick to max
             this.translateBox(box, axis, extreme.max[axis] - box.scale[axis] / 2);
@@ -253,9 +253,9 @@ function BoxOp () {
       return orgBox;
     };
 
-    const extreme_after_grow = grow(box);
+    const extremeAfterGrow = grow(box);
 
-    if (!rotate_method) {
+    if (!rotateMethod) {
       let points = box.world.lidar.getPointsRelativeCoordinatesOfBoxWithoutRotation(box, 1);
       // let points = box.world.getPointRelativeCoordinatesOfBox(box, 1.0);
 
@@ -268,13 +268,13 @@ function BoxOp () {
         points = this.subsamplePoints(points, 2000);
       }
 
-      const retBox = await ml.predict_rotation(points)
+      const retBox = await ml.predictRotation(points)
         .then(applyRotation)
         .then(postProc);
 
       return retBox;
     }
-    if (rotate_method == 'moving-direction') {
+    if (rotateMethod === 'moving-direction') {
       const estimatedRot = this.estimate_rotation_by_moving_direciton(box);
 
       applyRotation({
@@ -284,7 +284,7 @@ function BoxOp () {
           estimatedRot ? estimatedRot.z : box.rotation.z // use original rotation
         ]
       },
-      extreme_after_grow);
+      extremeAfterGrow);
 
       postProc(box);
       return box;
@@ -296,7 +296,7 @@ function BoxOp () {
           box.rotation.z // use original rotation
         ]
       },
-      extreme_after_grow);
+      extremeAfterGrow);
 
       postProc(box);
       return box;
@@ -319,8 +319,8 @@ function BoxOp () {
     const nextWorld = box.world.data.findWorld(box.world.frameInfo.scene,
       box.world.frameInfo.frameIndex + 1);
 
-    let prevBox = prevWorld ? prevWorld.annotation.findBoxByTrackId(box.obj_track_id) : null;
-    let nextBox = nextWorld ? nextWorld.annotation.findBoxByTrackId(box.obj_track_id) : null;
+    let prevBox = prevWorld ? prevWorld.annotation.findBoxByTrackId(box.obj_id) : null;
+    let nextBox = nextWorld ? nextWorld.annotation.findBoxByTrackId(box.obj_id) : null;
 
     if (prevBox && nextBox) {
       if ((prevBox.annotator && nextBox.annotator) || (!prevBox.annotator && !nextBox.annotator)) {
@@ -353,12 +353,12 @@ function BoxOp () {
     return estimatedRot;
   };
 
-  this.growBox = function (box, minDistance, init_scale_ratio, axies) {
+  this.growBox = function (box, minDistance, initScaleRatio, axies) {
     if (!axies) {
       axies = ['x', 'y', 'z'];
     }
 
-    const extreme = box.world.lidar.growBox(box, minDistance, init_scale_ratio);
+    const extreme = box.world.lidar.growBox(box, minDistance, initScaleRatio);
 
     if (extreme) {
       axies.forEach((axis) => {
@@ -372,7 +372,7 @@ function BoxOp () {
     // box.rotation.x += theta;
     // onBoxChanged(box);
 
-    const points_indices = box.world.lidar.get_points_indices_of_box(box);
+    const pointIndices = box.world.lidar.getPointIndices(box);
 
     const _tempQuaternion = new Quaternion();
     const rotationAxis = new Vector3(0, 1, 0);
@@ -384,7 +384,7 @@ function BoxOp () {
     box.quaternion.multiply(_tempQuaternion.setFromAxisAngle(rotationAxis, -theta)).normalize();
 
     if (sticky) {
-      const extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
+      const extreme = box.world.lidar.getDimensionOfPoints(pointIndices, box);
 
       ['x', 'z'].forEach((axis) => {
         this.translateBox(box, axis, (extreme.max[axis] + extreme.min[axis]) / 2);
@@ -399,21 +399,21 @@ function BoxOp () {
     const points = box.world.lidar.getPointsInBox(box, 2.0);
 
     // 1. find surounding points
-    const side_indices = [];
-    const side_points = [];
+    const sideIndices = [];
+    const sidePoints = [];
     points.position.forEach(function (p, i) {
       if ((p[0] > box.scale.x / 2 || p[0] < -box.scale.x / 2) && (p[1] < box.scale.y / 2 && p[1] > -box.scale.y / 2)) {
-        side_indices.push(points.index[i]);
-        side_points.push(points.position[i]);
+        sideIndices.push(points.index[i]);
+        sidePoints.push(points.position[i]);
       }
     });
 
-    const end_indices = [];
-    const end_points = [];
+    const endIndices = [];
+    const endPoints = [];
     points.position.forEach(function (p, i) {
       if ((p[0] < box.scale.x / 2 && p[0] > -box.scale.x / 2) && (p[1] > box.scale.y / 2 || p[1] < -box.scale.y / 2)) {
-        end_indices.push(points.index[i]);
-        end_points.push(points.position[i]);
+        endIndices.push(points.index[i]);
+        endPoints.push(points.position[i]);
       }
     });
 
@@ -427,19 +427,19 @@ function BoxOp () {
     // box.world.lidar.setSpecPontsColor(end_indices, {x:0,y:0,z:1});
     // box.world.lidar.updatePointsColor();
 
-    const x = end_points.map(function (x) { return x[0]; });
+    const x = endPoints.map(function (x) { return x[0]; });
     // var y = side_points.map(function(x){return x[1]});
-    var z = end_points.map(function (x) { return x[2]; });
-    const z_mean = z.reduce(function (x, y) { return x + y; }, 0) / z.length;
-    var z = z.map(function (x) { return x - z_mean; });
+    let z = endPoints.map(function (x) { return x[2]; });
+    const zMean = z.reduce(function (x, y) { return x + y; }, 0) / z.length;
+    z = z.map(function (x) { return x - zMean; });
     const theta = Math.atan2(dotproduct(x, z), dotproduct(x, x));
     console.log(theta);
 
     this.change_rotation_y(box, theta, false, onBoxChanged);
   };
 
-  this.change_rotation_x = function (box, theta, sticky, onBoxChanged) {
-    const points_indices = box.world.lidar.get_points_indices_of_box(box);
+  this.changeRotationX = function (box, theta, sticky, onBoxChanged) {
+    const piontIndices = box.world.lidar.getPointIndices(box);
 
     // box.rotation.x += theta;
     // onBoxChanged(box);
@@ -448,7 +448,7 @@ function BoxOp () {
     box.quaternion.multiply(_tempQuaternion.setFromAxisAngle(rotationAxis, theta)).normalize();
 
     if (sticky) {
-      const extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
+      const extreme = box.world.lidar.getDimensionOfPoints(piontIndices, box);
 
       ['y', 'z'].forEach((axis) => {
         this.translateBox(box, axis, (extreme.max[axis] + extreme.min[axis]) / 2);
@@ -465,21 +465,21 @@ function BoxOp () {
     const points = box.world.lidar.getPointsInBox(box, 2.0);
 
     // 1. find surounding points
-    const side_indices = [];
-    const side_points = [];
+    const sideIndices = [];
+    const sidePoints = [];
     points.position.forEach(function (p, i) {
       if ((p[0] > box.scale.x / 2 || p[0] < -box.scale.x / 2) && (p[1] < box.scale.y / 2 && p[1] > -box.scale.y / 2)) {
-        side_indices.push(points.index[i]);
-        side_points.push(points.position[i]);
+        sideIndices.push(points.index[i]);
+        sidePoints.push(points.position[i]);
       }
     });
 
-    const end_indices = [];
-    const end_points = [];
+    const endIndices = [];
+    const endPoints = [];
     points.position.forEach(function (p, i) {
       if ((p[0] < box.scale.x / 2 && p[0] > -box.scale.x / 2) && (p[1] > box.scale.y / 2 || p[1] < -box.scale.y / 2)) {
-        end_indices.push(points.index[i]);
-        end_points.push(points.position[i]);
+        endIndices.push(points.index[i]);
+        endPoints.push(points.position[i]);
       }
     });
 
@@ -494,15 +494,15 @@ function BoxOp () {
     // box.world.lidar.updatePointsColor();
     // render();
 
-    const x = side_points.map(function (x) { return x[0]; });
-    const y = side_points.map(function (x) { return x[1]; });
-    var z = side_points.map(function (x) { return x[2]; });
-    const z_mean = z.reduce(function (x, y) { return x + y; }, 0) / z.length;
-    var z = z.map(function (x) { return x - z_mean; });
+    // const x = sidePoints.map(function (x) { return x[0]; });
+    const y = sidePoints.map(function (x) { return x[1]; });
+    let z = sidePoints.map(function (x) { return x[2]; });
+    const zMean = z.reduce(function (x, y) { return x + y; }, 0) / z.length;
+    z = z.map(function (x) { return x - zMean; });
     const theta = Math.atan2(dotproduct(y, z), dotproduct(y, y));
     console.log(theta);
 
-    this.change_rotation_x(box, theta, false, onBoxChanged);
+    this.changeRotationX(box, theta, false, onBoxChanged);
   };
 
   this.translateBox = function (box, axis, delta) {
@@ -543,14 +543,14 @@ function BoxOp () {
 
   this.rotate_z = function (box, theta, sticky) {
     // points indices shall be obtained before rotation.
-    const points_indices = box.world.lidar.get_points_indices_of_box(box);
+    const pointIndices = box.world.lidar.getPointIndices(box);
 
     const _tempQuaternion = new Quaternion();
     const rotationAxis = new Vector3(0, 0, 1);
     box.quaternion.multiply(_tempQuaternion.setFromAxisAngle(rotationAxis, theta)).normalize();
 
     if (sticky) {
-      const extreme = box.world.lidar.get_dimension_of_points(points_indices, box);
+      const extreme = box.world.lidar.getDimensionOfPoints(pointIndices, box);
 
       ['x', 'y'].forEach((axis) => {
         this.translateBox(box, axis, (extreme.max[axis] + extreme.min[axis]) / 2);
@@ -605,13 +605,13 @@ function BoxOp () {
     // if annotator is not null, it's annotated by us algorithms
     const anns = boxList.map(b => (!b || b.annotator) ? null : b.world.annotation.ann_to_vector_global(b));
     console.log(anns);
-    const ret = await ml.interpolate_annotation(anns);
+    const ret = await ml.interpolateAnnotation(anns);
     console.log(ret);
 
     const refObj = boxList.find(b => !!b);
-    const obj_type = refObj.obj_type;
-    const obj_track_id = refObj.obj_track_id;
-    const obj_attr = refObj.obj_attr;
+    const objType = refObj.obj_type;
+    const objId = refObj.obj_id;
+    const objAttr = refObj.obj_attr;
 
     for (let i = 0; i < boxList.length; i++) {
       if (!applyIndList[i]) {
@@ -635,12 +635,12 @@ function BoxOp () {
 
       if (!boxList[i]) {
         // create new box
-        const newBox = world.annotation.add_box(ann.position,
+        const newBox = world.annotation.addBox(ann.position,
           ann.scale,
           ann.rotation,
-          obj_type,
-          obj_track_id,
-          obj_attr);
+          objType,
+          objId,
+          objAttr);
         newBox.annotator = 'i';
         world.annotation.load_box(newBox);
         world.annotation.setModified();
@@ -698,9 +698,9 @@ function BoxOp () {
     };
 
     const refObj = boxList.find(b => !!b);
-    const obj_type = refObj.obj_type;
-    const obj_track_id = refObj.obj_track_id;
-    const obj_attr = refObj.obj_attr;
+    const objType = refObj.obj_type;
+    const objId = refObj.obj_id;
+    const objAttr = refObj.obj_attr;
 
     const onFinishOneBox = (index) => {
       console.log(`auto insert ${index} ${worldList[index].frameInfo.frame}done`);
@@ -715,12 +715,12 @@ function BoxOp () {
         const world = worldList[i];
         const ann = world.annotation.vector_global_to_ann(anns[i]);
 
-        const newBox = world.annotation.add_box(ann.position,
+        const newBox = world.annotation.addBox(ann.position,
           ann.scale,
           ann.rotation,
-          obj_type,
-          obj_track_id,
-          obj_attr);
+          objType,
+          objId,
+          objAttr);
         newBox.annotator = 'a';
         world.annotation.load_box(newBox);
       } else if (boxList[i].annotator) {
@@ -744,7 +744,7 @@ function BoxOp () {
       if (onFinishOneBoxCB) { onFinishOneBoxCB(i); }
     };
 
-    const ret = await ml.interpolate_annotation(anns, autoAdjAsync, onFinishOneBox);
+    const ret = await ml.interpolateAnnotation(anns, autoAdjAsync, onFinishOneBox);
     console.log(ret);
 
     // for (let i = 0; i< boxList.length; i++){

@@ -17,7 +17,7 @@ function Lidar (sceneMeta, world, frameInfo) {
   this.points = null;
   this.points_load_time = 0;
 
-  this.remove_high_ponts = function (pcd, z) {
+  this.removeHighPoints = function (pcd, z) {
     const position = [];
     const color = [];
     const normal = [];
@@ -76,9 +76,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     //     //points.geometry.computeBoundingSphere();
     // }
 
-    if (this.data.cfg.enableFilterPoints)// do some filtering work here
-    {
-      pcd = this.remove_high_ponts(pcd, this.data.cfg.filterPointsZ);
+    if (this.data.cfg.enableFilterPoints) {
+      // do some filtering work here
+      pcd = this.removeHighPoints(pcd, this.data.cfg.filterPointsZ);
     }
 
     const position = pcd.position;
@@ -98,11 +98,11 @@ function Lidar (sceneMeta, world, frameInfo) {
 
       // by default we set all points to same color
       for (let i = 0; i < position.length; ++i) {
-        color.push(this.data.cfg.point_brightness);
+        color.push(this.data.cfg.piontBrightness);
       }
 
       // if enabled intensity we color points by intensity.
-      if (this.data.cfg.color_points === 'intensity' && pcd.intensity.length > 0) {
+      if (this.data.cfg.colorPoints === 'intensity' && pcd.intensity.length > 0) {
         // map intensity to color
         for (let i = 0; i < pcd.intensity.length; ++i) {
           let intensity = pcd.intensity[i];
@@ -155,9 +155,9 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     this.points = mesh;
     this.pcd = pcd;
-    // this.points_backup = mesh;
+    // this.pointsBackup = mesh;
 
-    this.build_points_index();
+    this.buildPointIndices();
     this.points_load_time = new Date().getTime();
 
     // console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded pionts ", this.points_load_time - this.create_time, "ms");
@@ -235,7 +235,7 @@ function Lidar (sceneMeta, world, frameInfo) {
         this.hide_background();
       }
 
-      if (this.data.cfg.color_obj !== 'no') {
+      if (this.data.cfg.colorObject !== 'no') {
         this.color_objects();
       }
 
@@ -252,9 +252,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     if (this.points) {
       // this.world.webglGroup.remove(this.points);
 
-      // if (this.points.points_backup){
-      //     let backup = this.points.points_backup;
-      //     this.points.points_backup = null;
+      // if (this.points.pointsBackup){
+      //     let backup = this.points.pointsBackup;
+      //     this.points.pointsBackup = null;
       //     this.removeAllPoints();
       //     this.points = backup;
 
@@ -272,18 +272,18 @@ function Lidar (sceneMeta, world, frameInfo) {
       this.points.material.size = v;
 
       // this could happen if the points are still loading
-      if (this.points.points_backup) {
-        this.points.points_backup.material.size = v;
+      if (this.points.pointsBackup) {
+        this.points.pointsBackup.material.size = v;
 
-        if (this.points.points_backup.points_backup) {
-          this.points.points_backup.points_backup.material.size = v;
+        if (this.points.pointsBackup.pointsBackup) {
+          this.points.pointsBackup.pointsBackup.material.size = v;
         }
       }
     }
   };
 
   this.color_objects = function () {
-    if (this.data.cfg.color_obj !== 'no') {
+    if (this.data.cfg.colorObject !== 'no') {
       this.world.annotation.boxes.forEach((b) => {
         if (!b.annotator) {
           this.setBoxPointsColor(b);
@@ -293,12 +293,12 @@ function Lidar (sceneMeta, world, frameInfo) {
   };
 
   // color points according to object category
-  this.color_points = function () {
+  this.colorPoints = function () {
     // color all points inside these boxes
     const color = this.points.geometry.getAttribute('color').array;
 
     // step 1, color all points.
-    if (this.data.cfg.color_points === 'intensity' && this.pcd.intensity.length > 0) {
+    if (this.data.cfg.colorPoints === 'intensity' && this.pcd.intensity.length > 0) {
       // by intensity
       for (let i = 0; i < this.pcd.intensity.length; ++i) {
         let intensity = this.pcd.intensity[i];
@@ -315,7 +315,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     } else {
       // mono color
       for (let i = 0; i < this.pcd.position.length; ++i) {
-        color[i] = this.data.cfg.point_brightness;
+        color[i] = this.data.cfg.piontBrightness;
       }
     }
 
@@ -367,49 +367,49 @@ function Lidar (sceneMeta, world, frameInfo) {
     return this.center;
   };
 
-  this.build_points_index = function () {
+  this.buildPointIndices = function () {
     const ps = this.points.geometry.getAttribute('position');
-    const points_index = {};
+    const pointIndices = {};
 
     if (ps) { // points may be empty
       for (let i = 0; i < ps.count; i++) {
-        let k = this.get_position_key(ps.array[i * 3], ps.array[i * 3 + 1], ps.array[i * 3 + 2]);
-        k = this.key_to_str(k);
+        let k = this.getPositionKey(ps.array[i * 3], ps.array[i * 3 + 1], ps.array[i * 3 + 2]);
+        k = this.keyToStr(k);
 
-        if (points_index[k]) {
-          points_index[k].push(i);
+        if (pointIndices[k]) {
+          pointIndices[k].push(i);
         } else {
-          points_index[k] = [i];
+          pointIndices[k] = [i];
         }
       }
     }
 
-    this.points.points_index = points_index;
+    this.points.pointIndices = pointIndices;
   };
 
-  this.points_index_grid_size = 1;
+  this.pointIndexGridSize = 1;
 
-  this.get_position_key = function (x, y, z) {
-    return [Math.floor(x / this.points_index_grid_size),
-      Math.floor(y / this.points_index_grid_size),
-      Math.floor(z / this.points_index_grid_size)];
+  this.getPositionKey = function (x, y, z) {
+    return [Math.floor(x / this.pointIndexGridSize),
+      Math.floor(y / this.pointIndexGridSize),
+      Math.floor(z / this.pointIndexGridSize)];
   };
-  this.key_to_str = function (k) {
+  this.keyToStr = function (k) {
     return k[0] + ',' + k[1] + ',' + k[2];
   };
 
   // candidate pionts, covering the box(center, scale), but larger.
-  this.get_covering_position_indices = function (points, center, scale, rotation, scale_ratio) {
+  this.getCoveringPositionIndices = function (points, center, scale, rotation, scaleRatio) {
     /*
-        var ck = this.get_position_key(center.x, center.y, center.z);
+        var ck = this.getPositionKey(center.x, center.y, center.z);
         var radius = Math.sqrt(scale.x*scale.x + scale.y*scale.y + scale.z*scale.z)/2;
-        var radius_grid = Math.ceil(radius/this.points_index_grid_size);// + 1;
+        var radius_grid = Math.ceil(radius/this.pointIndexGridSize);// + 1;
 
         var indices = [];
         for(var x = -radius_grid; x <= radius_grid; x++){
             for(var y = -radius_grid; y <= radius_grid; y++){
                 for(var z = -radius_grid; z <= radius_grid; z++){
-                    var temp = points.points_index[this.key_to_str([ck[0]+x, ck[1]+y, ck[2]+z])];
+                    var temp = points.pointIndices[this.keyToStr([ck[0]+x, ck[1]+y, ck[2]+z])];
                     if (temp)
                         indices = indices.concat(temp);
                 }
@@ -420,28 +420,28 @@ function Lidar (sceneMeta, world, frameInfo) {
         //return indices;
         */
 
-    if (typeof (scale_ratio) === 'number') {
-      scale_ratio = {
-        x: scale_ratio,
-        y: scale_ratio,
-        z: scale_ratio
+    if (typeof (scaleRatio) === 'number') {
+      scaleRatio = {
+        x: scaleRatio,
+        y: scaleRatio,
+        z: scaleRatio
       };
     }
 
-    const scaled_scale = {
-      x: scale.x * scale_ratio.x,
-      y: scale.y * scale_ratio.y,
-      z: scale.z * scale_ratio.z
+    const scaledScale = {
+      x: scale.x * scaleRatio.x,
+      y: scale.y * scaleRatio.y,
+      z: scale.z * scaleRatio.z
     };
 
-    const box_corners = pxrToXyz(center, scaled_scale, rotation);
-    const extreme = arrayAsVectorRange(box_corners, 4);
+    const boxCorners = pxrToXyz(center, scaledScale, rotation);
+    const extreme = arrayAsVectorRange(boxCorners, 4);
 
     let indices = [];
-    for (let x = Math.floor(extreme.min[0] / this.points_index_grid_size); x <= Math.floor(extreme.max[0] / this.points_index_grid_size); x++) {
-      for (let y = Math.floor(extreme.min[1] / this.points_index_grid_size); y <= Math.floor(extreme.max[1] / this.points_index_grid_size); y++) {
-        for (let z = Math.floor(extreme.min[2] / this.points_index_grid_size); z <= Math.floor(extreme.max[2] / this.points_index_grid_size); z++) {
-          const temp = points.points_index[this.key_to_str([x, y, z])];
+    for (let x = Math.floor(extreme.min[0] / this.pointIndexGridSize); x <= Math.floor(extreme.max[0] / this.pointIndexGridSize); x++) {
+      for (let y = Math.floor(extreme.min[1] / this.pointIndexGridSize); y <= Math.floor(extreme.max[1] / this.pointIndexGridSize); y++) {
+        for (let z = Math.floor(extreme.min[2] / this.pointIndexGridSize); z <= Math.floor(extreme.max[2] / this.pointIndexGridSize); z++) {
+          const temp = points.pointIndices[this.keyToStr([x, y, z])];
           if (temp) { indices = indices.concat(temp); }
         }
       }
@@ -451,8 +451,8 @@ function Lidar (sceneMeta, world, frameInfo) {
     return indices;
   };
 
-  this.toggle_background = function () {
-    if (this.points.points_backup) { // cannot differentiate highlighted-scene and no-background-whole-scene
+  this.toggleBackground = function () {
+    if (this.points.pointsBackup) { // cannot differentiate highlighted-scene and no-background-whole-scene
       this.cancel_highlight();
     } else {
       this.hide_background();
@@ -461,7 +461,7 @@ function Lidar (sceneMeta, world, frameInfo) {
 
   // hide all points not inside any box
   this.hide_background = function () {
-    if (this.points.points_backup) {
+    if (this.points.pointsBackup) {
       // already hidden, or in highlight mode
       return;
     }
@@ -470,32 +470,32 @@ function Lidar (sceneMeta, world, frameInfo) {
     const pos = this.points.geometry.getAttribute('position');
     const color = this.points.geometry.getAttribute('color');
 
-    const hl_point = [];
-    const hl_color = [];
-    let highlight_point_indices = [];
+    const hlpoints = [];
+    const hlcolor = [];
+    let highlightPointIndices = [];
     this.world.annotation.boxes.forEach(function (box) {
       const indices = _self.getPointIndicesOfBox(_self.points, box, 1);
 
       indices.forEach(function (i) {
-        hl_point.push(pos.array[i * 3]);
-        hl_point.push(pos.array[i * 3 + 1]);
-        hl_point.push(pos.array[i * 3 + 2]);
+        hlpoints.push(pos.array[i * 3]);
+        hlpoints.push(pos.array[i * 3 + 1]);
+        hlpoints.push(pos.array[i * 3 + 2]);
 
-        hl_color.push(color.array[i * 3]);
-        hl_color.push(color.array[i * 3 + 1]);
-        hl_color.push(color.array[i * 3 + 2]);
+        hlcolor.push(color.array[i * 3]);
+        hlcolor.push(color.array[i * 3 + 1]);
+        hlcolor.push(color.array[i * 3 + 2]);
       });
 
-      highlight_point_indices = highlight_point_indices.concat(indices);
+      highlightPointIndices = highlightPointIndices.concat(indices);
     });
 
     // build new geometry
     this.world.data.dbg.alloc('lidar');
     const geometry = new THREE.BufferGeometry();
 
-    if (hl_point.length > 0) {
-      geometry.setAttribute('position', new THREE.Float32BufferAttribute(hl_point, 3));
-      geometry.setAttribute('color', new THREE.Float32BufferAttribute(hl_color, 3));
+    if (hlpoints.length > 0) {
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(hlpoints, 3));
+      geometry.setAttribute('color', new THREE.Float32BufferAttribute(hlcolor, 3));
     }
 
     geometry.computeBoundingSphere();
@@ -506,48 +506,48 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     const mesh = new THREE.Points(geometry, material);
     mesh.name = 'pcd';
-    mesh.points_backup = this.points;
-    mesh.highlight_point_indices = highlight_point_indices;
+    mesh.pointsBackup = this.points;
+    mesh.highlight_point_indices = highlightPointIndices;
 
     // swith geometry
     this.world.webglGroup.remove(this.points);
 
     this.points = mesh;
-    this.build_points_index();
+    this.buildPointIndices();
     this.world.webglGroup.add(mesh);
   };
 
   this.cancel_highlight = function (box) {
-    if (this.points && this.points.points_backup) {
+    if (this.points && this.points.pointsBackup) {
       this.world.annotation.set_box_opacity(this.data.cfg.box_opacity);
 
       // copy colors, maybe changed.
-      if (this.data.cfg.color_obj !== 'no') {
-        const highlight_point_color = this.points.geometry.getAttribute('color');
-        const backup_point_color = this.points.points_backup.geometry.getAttribute('color');
+      if (this.data.cfg.colorObject !== 'no') {
+        const highlightPointColor = this.points.geometry.getAttribute('color');
+        const backupPointColor = this.points.pointsBackup.geometry.getAttribute('color');
 
         this.points.highlight_point_indices.forEach(function (n, i) {
-          backup_point_color.array[n * 3] = highlight_point_color.array[i * 3];
-          backup_point_color.array[n * 3 + 1] = highlight_point_color.array[i * 3 + 1];
-          backup_point_color.array[n * 3 + 2] = highlight_point_color.array[i * 3 + 2];
+          backupPointColor.array[n * 3] = highlightPointColor.array[i * 3];
+          backupPointColor.array[n * 3 + 1] = highlightPointColor.array[i * 3 + 1];
+          backupPointColor.array[n * 3 + 2] = highlightPointColor.array[i * 3 + 2];
         });
       }
 
       // switch
-      const points_backup = this.points.points_backup;
-      this.points.points_backup = null;
+      const pointsBackup = this.points.pointsBackup;
+      this.points.pointsBackup = null;
 
       this.world.webglGroup.remove(this.points);
       this.removeAllPoints(); // this.points is null now
-      this.points = points_backup;
+      this.points = pointsBackup;
 
       if (box) {
         // in highlighted mode, the box my be moved outof the highlighted area, so
         // we need to color them again.
-        if (this.data.cfg.color_obj !== 'no') { this.setBoxPointsColor(box); }
+        if (this.data.cfg.colorObject !== 'no') { this.setBoxPointsColor(box); }
       }
 
-      if (this.data.cfg.color_obj !== 'no') { this.updatePointsColor(); }
+      if (this.data.cfg.colorObject !== 'no') { this.updatePointsColor(); }
 
       this.world.webglGroup.add(this.points);
     }
@@ -591,28 +591,28 @@ function Lidar (sceneMeta, world, frameInfo) {
     const pos = this.points.geometry.getAttribute('position');
     const color = this.points.geometry.getAttribute('color');
 
-    const hl_point = [];
-    const hl_color = [];
+    const hlpoints = [];
+    const hlcolor = [];
 
-    const highlight_point_indices = this.getPointIndicesOfBox(this.points, box, 3);
+    const highlightPointIndices = this.getPointIndicesOfBox(this.points, box, 3);
 
-    highlight_point_indices.forEach(function (i) {
-      hl_point.push(pos.array[i * 3]);
-      hl_point.push(pos.array[i * 3 + 1]);
-      hl_point.push(pos.array[i * 3 + 2]);
+    highlightPointIndices.forEach(function (i) {
+      hlpoints.push(pos.array[i * 3]);
+      hlpoints.push(pos.array[i * 3 + 1]);
+      hlpoints.push(pos.array[i * 3 + 2]);
 
-      hl_color.push(color.array[i * 3]);
-      hl_color.push(color.array[i * 3 + 1]);
-      hl_color.push(color.array[i * 3 + 2]);
+      hlcolor.push(color.array[i * 3]);
+      hlcolor.push(color.array[i * 3 + 1]);
+      hlcolor.push(color.array[i * 3 + 2]);
     });
 
     // build new geometry
     this.world.data.dbg.alloc('lidar');
     const geometry = new THREE.BufferGeometry();
 
-    if (hl_point.length > 0) {
-      geometry.setAttribute('position', new THREE.Float32BufferAttribute(hl_point, 3));
-      geometry.setAttribute('color', new THREE.Float32BufferAttribute(hl_color, 3));
+    if (hlpoints.length > 0) {
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(hlpoints, 3));
+      geometry.setAttribute('color', new THREE.Float32BufferAttribute(hlcolor, 3));
     }
 
     geometry.computeBoundingSphere();
@@ -627,16 +627,16 @@ function Lidar (sceneMeta, world, frameInfo) {
     // swith geometry
     this.world.webglGroup.remove(this.points);
 
-    mesh.points_backup = this.points;
-    mesh.highlight_point_indices = highlight_point_indices;
+    mesh.pointsBackup = this.points;
+    mesh.highlight_point_indices = highlightPointIndices;
     mesh.highlighted_box = box;
 
     this.points = mesh;
-    this.build_points_index();
+    this.buildPointIndices();
     this.world.webglGroup.add(mesh);
   };
 
-  this.get_points_indices_of_box = function (box) {
+  this.getPointIndices = function (box) {
     return this.getPointsOfBoxInternal(this.points, box, 1).index;
   };
 
@@ -652,16 +652,16 @@ function Lidar (sceneMeta, world, frameInfo) {
   this.getPointsDimensionOfBox = function (box, useBoxBottomAsLimit) {
     let p = this.getPointsOfBoxInternal(this.points, box, 1).position; // position is relative to box coordinates
 
-    let lowest_limit = -box.scale.z / 2;
+    let lowestLimit = -box.scale.z / 2;
 
     if (!useBoxBottomAsLimit) {
       const extreme1 = vectorRange(p, 3);
-      lowest_limit = extreme1.min[2];
+      lowestLimit = extreme1.min[2];
     }
 
     // filter out lowest part
     p = p.filter(function (x) {
-      return x[2] - settings.ground_filter_height > lowest_limit;
+      return x[2] - settings.ground_filter_height > lowestLimit;
     });
 
     // compute range again.
@@ -676,7 +676,7 @@ function Lidar (sceneMeta, world, frameInfo) {
       min: {
         x: extreme2.min[0],
         y: extreme2.min[1],
-        z: lowest_limit
+        z: lowestLimit
       }
     };
   };
@@ -684,7 +684,7 @@ function Lidar (sceneMeta, world, frameInfo) {
   // given points and box, calculate new box scale
   // if the box size is fixed, and if corner align for z-axis aligns top,
   // we should filter ground points by the box bottom after aligned.
-  this.get_dimension_of_points = function (indices, box) {
+  this.getDimensionOfPoints = function (indices, box) {
     let p = this.getPointsOfBoxInternal(this.points, box, 1, indices).position;
     const extreme1 = vectorRange(p, 3);
 
@@ -711,17 +711,17 @@ function Lidar (sceneMeta, world, frameInfo) {
   };
 
   // centered, but without rotation
-  this.getPointsRelativeCoordinatesOfBoxWithoutRotation = function (box, scale_ratio) {
-    return this.getPointsOfBoxInternal(this.points, box, scale_ratio).positionWithoutRotation;
+  this.getPointsRelativeCoordinatesOfBoxWithoutRotation = function (box, scaleRatio) {
+    return this.getPointsOfBoxInternal(this.points, box, scaleRatio).positionWithoutRotation;
   };
 
-  this.getPointsInBox = function (box, scale_ratio) {
-    return this.getPointsOfBoxInternal(this.points, box, scale_ratio);
+  this.getPointsInBox = function (box, scaleRatio) {
+    return this.getPointsOfBoxInternal(this.points, box, scaleRatio);
   };
 
-  this.getPointsOfBoxInWorldCoordinates = function (box, scale_ratio) {
+  this.getPointsOfBoxInWorldCoordinates = function (box, scaleRatio) {
     const posArray = this.points.geometry.getAttribute('position').array;
-    const { index, position } = this.getPointsOfBoxInternal(this.points, box, scale_ratio);
+    const { index, position } = this.getPointsOfBoxInternal(this.points, box, scaleRatio);
     const ptsTopPart = [];
     const ptsGroundPart = [];
 
@@ -742,32 +742,32 @@ function Lidar (sceneMeta, world, frameInfo) {
     return [ptsTopPart, ptsGroundPart];
   };
 
-  this.getPointRelativeCoordinatesOfBox = function (box, scale_ratio) {
-    const ret = this.getPointsOfBoxInternal(this.points, box, scale_ratio);
+  this.getPointRelativeCoordinatesOfBox = function (box, scaleRatio) {
+    const ret = this.getPointsOfBoxInternal(this.points, box, scaleRatio);
     return ret.position;
   };
 
-  this.getPointIndicesOfBox = function (points, box, scale_ratio) {
-    return this.getPointsOfBoxInternal(points, box, scale_ratio).index;
+  this.getPointIndicesOfBox = function (points, box, scaleRatio) {
+    return this.getPointsOfBoxInternal(points, box, scaleRatio).index;
   };
 
   // this
-  this.getPointsOfBoxInternal = function (points, box, scale_ratio, point_indices) {
-    if (!scale_ratio) {
-      scale_ratio = 1;
+  this.getPointsOfBoxInternal = function (points, box, scaleRatio, pointIndices) {
+    if (!scaleRatio) {
+      scaleRatio = 1;
     }
     const posArray = points.geometry.getAttribute('position').array;
 
-    const relative_position = [];
-    const relative_position_wo_rotation = [];
+    const relativePosition = [];
+    const relativePositionWoRotation = [];
 
     const r = box.rotation;
     const trans = transpose(eulerAngleToRotationMatrix(r, { x: 0, y: 0, z: 0 }), 4);
 
     const indices = [];
-    let candPointIndices = point_indices;
-    if (!point_indices) {
-      candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, scale_ratio);
+    let candPointIndices = pointIndices;
+    if (!pointIndices) {
+      candPointIndices = this.getCoveringPositionIndices(points, box.position, box.scale, box.rotation, scaleRatio);
     }
 
     candPointIndices.forEach(function (i) {
@@ -780,37 +780,37 @@ function Lidar (sceneMeta, world, frameInfo) {
 
       const tp = matmul(trans, p, 4);
 
-      if (!point_indices) {
+      if (!pointIndices) {
         // if indices is provided by caller, don't filter
-        if ((Math.abs(tp[0]) > box.scale.x / 2 * scale_ratio + 0.01) ||
-                    (Math.abs(tp[1]) > box.scale.y / 2 * scale_ratio + 0.01) ||
-                    (Math.abs(tp[2]) > box.scale.z / 2 * scale_ratio + 0.01)) {
+        if ((Math.abs(tp[0]) > box.scale.x / 2 * scaleRatio + 0.01) ||
+                    (Math.abs(tp[1]) > box.scale.y / 2 * scaleRatio + 0.01) ||
+                    (Math.abs(tp[2]) > box.scale.z / 2 * scaleRatio + 0.01)) {
           return;
         }
 
         indices.push(i);
       }
 
-      relative_position.push([tp[0], tp[1], tp[2]]);
-      relative_position_wo_rotation.push([p[0], p[1], p[2]]);
+      relativePosition.push([tp[0], tp[1], tp[2]]);
+      relativePositionWoRotation.push([p[0], p[1], p[2]]);
     });
 
     // console.log("found indices: " + indices.length);
 
     return {
       index: indices,
-      position: relative_position,
-      positionWithoutRotation: relative_position_wo_rotation
+      position: relativePosition,
+      positionWithoutRotation: relativePositionWoRotation
     };
   };
 
-  this.findTop = function (box, init_scale_ratio) {
+  this.findTop = function (box, initScaleRatio) {
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
     const trans = transpose(eulerAngleToRotationMatrix(box.rotation, { x: 0, y: 0, z: 0 }), 4);
 
-    const candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio);
+    const candPointIndices = this.getCoveringPositionIndices(points, box.position, box.scale, box.rotation, initScaleRatio);
     // all cand points are translated into box coordinates
 
     const translatedCandPoints = candPointIndices.map(function (i) {
@@ -826,9 +826,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     let maxZ = -1000;
 
     translatedCandPoints.forEach((tp, i) => {
-      if (Math.abs(tp[0]) < box.scale.x * init_scale_ratio.x / 2 &&
-                Math.abs(tp[1]) < box.scale.y * init_scale_ratio.y / 2 &&
-                Math.abs(tp[2]) < box.scale.z * init_scale_ratio.z / 2) {
+      if (Math.abs(tp[0]) < box.scale.x * initScaleRatio.x / 2 &&
+                Math.abs(tp[1]) < box.scale.y * initScaleRatio.y / 2 &&
+                Math.abs(tp[2]) < box.scale.z * initScaleRatio.z / 2) {
         if (tp[2] > maxZ) { maxZ = tp[2]; }
       }
     });
@@ -836,14 +836,14 @@ function Lidar (sceneMeta, world, frameInfo) {
     return maxZ;
   };
 
-  // find bottom and top points, in range of init_scale_ratio
-  this.findBottom = function (box, init_scale_ratio) {
+  // find bottom and top points, in range of initScaleRatio
+  this.findBottom = function (box, initScaleRatio) {
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
     const trans = transpose(eulerAngleToRotationMatrix(box.rotation, { x: 0, y: 0, z: 0 }), 4);
 
-    const candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio);
+    const candPointIndices = this.getCoveringPositionIndices(points, box.position, box.scale, box.rotation, initScaleRatio);
     // all cand points are translated into box coordinates
 
     const translatedCandPoints = candPointIndices.map(function (i) {
@@ -859,9 +859,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     let minZ = 1000;
 
     translatedCandPoints.forEach((tp, i) => {
-      if (Math.abs(tp[0]) < box.scale.x * init_scale_ratio.x / 2 &&
-                Math.abs(tp[1]) < box.scale.y * init_scale_ratio.y / 2 &&
-                Math.abs(tp[2]) < box.scale.z * init_scale_ratio.z / 2) {
+      if (Math.abs(tp[0]) < box.scale.x * initScaleRatio.x / 2 &&
+                Math.abs(tp[1]) < box.scale.y * initScaleRatio.y / 2 &&
+                Math.abs(tp[2]) < box.scale.z * initScaleRatio.z / 2) {
         if (tp[2] < minZ) { minZ = tp[2]; }
       }
     });
@@ -869,15 +869,15 @@ function Lidar (sceneMeta, world, frameInfo) {
     return minZ;
   };
 
-  this.growBox = function (box, minDistance, init_scale_ratio) {
-    console.log('grow box, minDistance', minDistance, box.scale, init_scale_ratio);
+  this.growBox = function (box, minDistance, initScaleRatio) {
+    console.log('grow box, minDistance', minDistance, box.scale, initScaleRatio);
     // const start_time = new Date().getTime()
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
     const trans = transpose(eulerAngleToRotationMatrix(box.rotation, { x: 0, y: 0, z: 0 }), 4);
 
-    const candPointIndices = this.get_covering_position_indices(points, box.position, box.scale, box.rotation, init_scale_ratio);
+    const candPointIndices = this.getCoveringPositionIndices(points, box.position, box.scale, box.rotation, initScaleRatio);
 
     // todo: different definition.
     let groundLevel = 0.3;
@@ -913,15 +913,15 @@ function Lidar (sceneMeta, world, frameInfo) {
       }
     };
 
-    let inside_points = 0;
+    let insidePoints = 0;
     translatedCandPoints.forEach((tp, i) => {
       if ((Math.abs(tp[0]) > box.scale.x / 2 + 0.01) ||
                 (Math.abs(tp[1]) > box.scale.y / 2 + 0.01) ||
                 (Math.abs(tp[2]) > box.scale.z / 2 + 0.01)) {
-
+        // empty
       } else {
         if ((box.scale.z < 0.6) || ((box.scale.z > 0.6) && (tp[2] > -box.scale.z / 2 + groundLevel))) {
-          inside_points += 1;
+          insidePoints += 1;
 
           if (tp[0] > extreme.max.x) {
             extreme.max.x = tp[0];
@@ -950,8 +950,7 @@ function Lidar (sceneMeta, world, frameInfo) {
       }
     });
 
-    if (inside_points < 10) // too few points, give up.
-    {
+    if (insidePoints < 10) { // too few points, give up.
       return {
         max: {
           x: box.scale.x / 2,
@@ -974,10 +973,10 @@ function Lidar (sceneMeta, world, frameInfo) {
     // });
 
     let extremeAdjusted = true;
-    let loop_count = 0;
+    let loopCount = 0;
     while (extremeAdjusted) {
-      loop_count++;
-      if (loop_count > 100000) {
+      loopCount++;
+      if (loopCount > 100000) {
         console.log('deep loops in growBox');
         break;
       }
@@ -1078,7 +1077,7 @@ function Lidar (sceneMeta, world, frameInfo) {
       if (tp[0] > extreme.max.x || tp[0] < extreme.min.x ||
                 tp[1] > extreme.max.y || tp[1] < extreme.min.y ||
                 tp[2] > extreme.max.z || tp[2] < extreme.min.z) {
-
+        // empty
       } else {
         if (tp[0] > refinedExtremes.max.x && tp[2] > extreme.min.z + groundLevel) {
           refinedExtremes.max.x = tp[0];
@@ -1119,7 +1118,7 @@ function Lidar (sceneMeta, world, frameInfo) {
   this.resetBoxPointsColor = function (box) {
     const color = this.points.geometry.getAttribute('color').array;
     const indices = this.getPointIndicesOfBox(this.points, box, 1.0);
-    if (this.data.cfg.color_points === 'intensity') {
+    if (this.data.cfg.colorPoints === 'intensity') {
       indices.forEach((i) => {
         let intensity = this.pcd.intensity[i];
         intensity *= 8;
@@ -1132,69 +1131,67 @@ function Lidar (sceneMeta, world, frameInfo) {
       });
     } else {
       indices.forEach((i) => {
-        color[i * 3] = this.data.cfg.point_brightness;
-        color[i * 3 + 1] = this.data.cfg.point_brightness;
-        color[i * 3 + 2] = this.data.cfg.point_brightness;
+        color[i * 3] = this.data.cfg.piontBrightness;
+        color[i * 3 + 1] = this.data.cfg.piontBrightness;
+        color[i * 3 + 2] = this.data.cfg.piontBrightness;
       });
     }
   };
 
-  this.setBoxPointsColor = function (box, target_color) {
+  this.setBoxPointsColor = function (box, targetColor) {
     // var pos = this.points.geometry.getAttribute("position");
     const color = this.points.geometry.getAttribute('color');
 
-    if (!target_color) {
-      if (this.data.cfg.color_obj === 'category') {
-        target_color = globalObjectCategory.getColorByType(box.obj_type);
-      } else if (this.data.cfg.color_obj === 'id')// by id
-      {
-        const idx = (box.obj_track_id) ? parseInt(box.obj_track_id) : box.obj_local_id;
-        target_color = globalObjectCategory.getColorById(idx);
-      } else // no color
-      {
-
+    if (!targetColor) {
+      if (this.data.cfg.colorObject === 'category') {
+        targetColor = globalObjectCategory.getColorByType(box.obj_type);
+      } else if (this.data.cfg.colorObject === 'id') {
+        const idx = (box.obj_id) ? parseInt(box.obj_id) : box.objLocalId;
+        targetColor = globalObjectCategory.getColorById(idx);
+      } else {
+        // no color
       }
     }
 
-    if (target_color) {
+    if (targetColor) {
       const indices = this.getPointIndicesOfBox(this.points, box, 1.0);
       indices.forEach(function (i) {
-        color.array[i * 3] = target_color.x;
-        color.array[i * 3 + 1] = target_color.y;
-        color.array[i * 3 + 2] = target_color.z;
+        color.array[i * 3] = targetColor.x;
+        color.array[i * 3 + 1] = targetColor.y;
+        color.array[i * 3 + 2] = targetColor.z;
       });
     }
   };
 
-  this.setSpecPontsColor = function (point_indices, target_color) {
+  this.setSpecPontsColor = function (pointIndices, targetColor) {
     // var pos = this.points.geometry.getAttribute("position");
     const color = this.points.geometry.getAttribute('color');
 
-    point_indices.forEach(function (i) {
-      color.array[i * 3] = target_color.x;
-      color.array[i * 3 + 1] = target_color.y;
-      color.array[i * 3 + 2] = target_color.z;
+    pointIndices.forEach(function (i) {
+      color.array[i * 3] = targetColor.x;
+      color.array[i * 3 + 1] = targetColor.y;
+      color.array[i * 3 + 2] = targetColor.z;
     });
   };
 
   // this is used when pointbrightness is updated.
   this.recolorAllPoints = function () {
-    this.set_points_color({
-      x: this.data.cfg.point_brightness,
-      y: this.data.cfg.point_brightness,
-      z: this.data.cfg.point_brightness
+    this.setPointsColor({
+      x: this.data.cfg.piontBrightness,
+      y: this.data.cfg.piontBrightness,
+      z: this.data.cfg.piontBrightness
     });
-    this.color_points();
+    this.colorPoints();
     this.updatePointsColor();
   };
 
   // set all points to specified color
-  this.set_points_color = function (target_color) {
+  this.setPointsColor = function (targetColor) {
     const color = this.points.geometry.getAttribute('color');
     for (let i = 0; i < color.count; i++) {
-      color.array[i * 3] = target_color.x;
-      color.array[i * 3 + 1] = target_color.y;
-      color.array[i * 3 + 2] = target_color.z;
+      color.array[i * 3] = targetColor.x;
+      color.array[i * 3 + 1] = targetColor.y;
+      color.array[i * 3 + 2] = targetColor.z;
     }
   };
 
@@ -1212,19 +1209,19 @@ function Lidar (sceneMeta, world, frameInfo) {
       this.points.geometry.dispose();
       this.points.material.dispose();
 
-      if (this.points.points_backup) {
+      if (this.points.pointsBackup) {
         this.world.data.dbg.free('lidar');
-        this.points.points_backup.geometry.dispose();
-        this.points.points_backup.material.dispose();
+        this.points.pointsBackup.geometry.dispose();
+        this.points.pointsBackup.material.dispose();
 
-        if (this.points.points_backup.points_backup) {
+        if (this.points.pointsBackup.pointsBackup) {
           this.world.data.dbg.free('lidar');
-          this.points.points_backup.points_backup.geometry.dispose();
-          this.points.points_backup.points_backup.material.dispose();
-          this.points.points_backup.points_backup = null;
+          this.points.pointsBackup.pointsBackup.geometry.dispose();
+          this.points.pointsBackup.pointsBackup.material.dispose();
+          this.points.pointsBackup.pointsBackup = null;
         }
 
-        this.points.points_backup = null;
+        this.points.pointsBackup = null;
       }
 
       this.points = null;
@@ -1261,7 +1258,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     return points;
   };
 
-  this.getCentroid = function (point_indices) {
+  this.getCentroid = function (pointIndices) {
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
@@ -1269,21 +1266,21 @@ function Lidar (sceneMeta, world, frameInfo) {
       x: 0, y: 0, z: 0
     };
 
-    point_indices.forEach(i => {
+    pointIndices.forEach(i => {
       center.x += posArray[i * 3];
       center.y += posArray[i * 3 + 1];
       center.z += posArray[i * 3 + 2];
     });
 
-    center.x /= point_indices.length;
-    center.y /= point_indices.length;
-    center.z /= point_indices.length;
+    center.x /= pointIndices.length;
+    center.y /= pointIndices.length;
+    center.z /= pointIndices.length;
 
     return center;
   };
 
-  this.createBoxByPoints = function (point_indices, camera) {
-    const indices = point_indices;
+  this.createBoxByPoints = function (pointIndices, camera) {
+    const indices = pointIndices;
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
@@ -1300,25 +1297,25 @@ function Lidar (sceneMeta, world, frameInfo) {
             z: (extreme.max[2]+extreme.min[2])/2,
         };
         */
-    const rotation_z = camera.rotation.z + Math.PI / 2;
-    const trans = transpose(eulerAngleToRotationMatrix({ x: 0, y: 0, z: rotation_z }, { x: 0, y: 0, z: 0 }), 4);
+    const rotationZ = camera.rotation.z + Math.PI / 2;
+    const trans = transpose(eulerAngleToRotationMatrix({ x: 0, y: 0, z: rotationZ }, { x: 0, y: 0, z: 0 }), 4);
 
     const center = {
       x: 0, y: 0, z: 0
     };
 
-    point_indices.forEach(i => {
+    pointIndices.forEach(i => {
       center.x += posArray[i * 3];
       center.y += posArray[i * 3 + 1];
       center.z += posArray[i * 3 + 2];
     });
 
-    center.x /= point_indices.length;
-    center.y /= point_indices.length;
-    center.z /= point_indices.length;
+    center.x /= pointIndices.length;
+    center.y /= pointIndices.length;
+    center.z /= pointIndices.length;
     center.z = 0;
 
-    const relative_position = [];
+    const relativePosition = [];
     indices.forEach(function (i) {
       // for (var i  = 0; i < pos.count; i++){
       const x = posArray[i * 3];
@@ -1326,28 +1323,28 @@ function Lidar (sceneMeta, world, frameInfo) {
       const z = posArray[i * 3 + 2];
       const p = [x - center.x, y - center.y, z - center.z, 1];
       const tp = matmul(trans, p, 4);
-      relative_position.push([tp[0], tp[1], tp[2]]);
+      relativePosition.push([tp[0], tp[1], tp[2]]);
     });
 
-    const relative_extreme = vectorRange(relative_position);
+    const relativeExtreme = vectorRange(relativePosition);
     const scale = {
-      x: relative_extreme.max[0] - relative_extreme.min[0],
-      y: relative_extreme.max[1] - relative_extreme.min[1],
-      z: relative_extreme.max[2] - relative_extreme.min[2]
+      x: relativeExtreme.max[0] - relativeExtreme.min[0],
+      y: relativeExtreme.max[1] - relativeExtreme.min[1],
+      z: relativeExtreme.max[2] - relativeExtreme.min[2]
     };
 
     // enlarge scale a little
 
     // adjust center
-    this.world.annotation.translate_box_position(center, rotation_z, 'x', relative_extreme.min[0] + scale.x / 2);
-    this.world.annotation.translate_box_position(center, rotation_z, 'y', relative_extreme.min[1] + scale.y / 2);
-    this.world.annotation.translate_box_position(center, rotation_z, 'z', relative_extreme.min[2] + scale.z / 2);
+    this.world.annotation.translateBoxPosition(center, rotationZ, 'x', relativeExtreme.min[0] + scale.x / 2);
+    this.world.annotation.translateBoxPosition(center, rotationZ, 'y', relativeExtreme.min[1] + scale.y / 2);
+    this.world.annotation.translateBoxPosition(center, rotationZ, 'z', relativeExtreme.min[2] + scale.z / 2);
 
     scale.x += 0.02;
     scale.y += 0.02;
     scale.z += 0.02;
 
-    return this.world.annotation.add_box(center, scale, { x: 0, y: 0, z: rotation_z }, 'Unknown', '');
+    return this.world.annotation.addBox(center, scale, { x: 0, y: 0, z: rotationZ }, 'Unknown', '');
   };
 }
 

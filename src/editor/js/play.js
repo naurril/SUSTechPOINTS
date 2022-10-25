@@ -52,8 +52,8 @@ function PlayControl (data) {
       if (!scope.stop_play_flag && !scope.pausePlayFlag) {
         const world = await scope.data.getWorld(sceneMeta.scene, frame);
 
-        if (world.preloaded()) // found, data ready
-        {
+        if (world.preloaded()) {
+          // found, data ready
           scope.data.activateWorld(
             world,
             function () { // on load finished
@@ -63,10 +63,10 @@ function PlayControl (data) {
               // play next frame
               const frameIndex = world.frameInfo.frameIndex;
               if (frameIndex + 1 < sceneMeta.frames.length) {
-                const next_frame = sceneMeta.frames[frameIndex + 1];
+                const nextFrame = sceneMeta.frames[frameIndex + 1];
                 setTimeout(
                   function () {
-                    playFrame(sceneMeta, next_frame, onLoadWorldFinished);
+                    playFrame(sceneMeta, nextFrame, onLoadWorldFinished);
                   },
                   1000 / fps);
               } else {
@@ -100,23 +100,23 @@ function PlayControl (data) {
 
   //     stop_play_flag = false;
 
-  //     var sceneMeta = data.get_current_world_scene_meta();
+  //     var sceneMeta = data.getCurrentWorldSceneMeta();
   //     var sceneName= sceneMeta.scene;
 
   //     playFrame(sceneMeta, data.world.frameInfo.frame);
 
   //     function playFrame(sceneMeta, frame){
-  //         load_world(sceneName, frame);
+  //         loadWorld(sceneName, frame);
 
   //         if (!stop_play_flag)
   //         {
   //             var frameIndex = sceneMeta.frames.findIndex(function(x){return x == frame;});
   //             if (frameIndex+1 < sceneMeta.frames.length)
   //             {
-  //                 next_frame = sceneMeta.frames[frameIndex+1];
+  //                 nextFrame = sceneMeta.frames[frameIndex+1];
   //                 setTimeout(
   //                     function(){
-  //                         playFrame(sceneMeta, next_frame);
+  //                         playFrame(sceneMeta, nextFrame);
   //                     },
   //                     100);
   //             }

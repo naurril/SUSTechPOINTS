@@ -72,7 +72,7 @@ class OrbitControls extends EventDispatcher {
     this.enablePan = true;
     this.panSpeed = 1.0;
     this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
-    this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
+    this.keyPanSpeed = 7.0; // pixels moved per arrow key push
 
     // Set to true to automatically rotate around the target
     // If auto-rotate is enabled, you must call controls.update() in your animation loop
@@ -236,8 +236,8 @@ class OrbitControls extends EventDispatcher {
         // using small-angle approximation cos(x/2) = 1 - x^2 / 8
 
         if (zoomChanged ||
-					lastPosition.distanceToSquared(scope.object.position) > EPS ||
-					8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+          lastPosition.distanceToSquared(scope.object.position) > EPS ||
+          8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
           scope.dispatchEvent(_changeEvent);
 
           lastPosition.copy(scope.object.position);

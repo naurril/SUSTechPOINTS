@@ -12,7 +12,7 @@ class App extends React.Component {
     window.editor.show();
 
     if (scene && frame) {
-      window.editor.load_world(scene, frame, () => {
+      window.editor.loadWorld(scene, frame, () => {
         window.editor.onWindowResize();
       });
     }

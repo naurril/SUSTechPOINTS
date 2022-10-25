@@ -2,14 +2,6 @@
 import { globalObjectCategory } from '../obj_cfg.js';
 
 class AttrEditor {
-  /*
-                                <div id="attr-editor">
-									<input title="attribute" id="attr-input" type="text" size="10" placeholder="attribute">
-									<div id="attr-selector">
-									</div>
-								</div>
-    */
-
   constructor (ui, eventHandler) {
     this.ui = ui;
     this.eventHandler = eventHandler;
@@ -50,8 +42,8 @@ class AttrEditor {
 
       const clickedAttr = event.target.innerText;
 
-      if (objCurrentAttrs.find(x => x == clickedAttr)) {
-        objCurrentAttrs = objCurrentAttrs.filter(x => x != clickedAttr);
+      if (objCurrentAttrs.find(x => x === clickedAttr)) {
+        objCurrentAttrs = objCurrentAttrs.filter(x => x !== clickedAttr);
         event.target.className = 'attr-item';
       } else {
         objCurrentAttrs.push(clickedAttr);
@@ -74,18 +66,18 @@ class AttrEditor {
     };
   }
 
-  setAttrOptions (obj_type, obj_attr) {
+  setAttrOptions (objType, objAttr) {
     let attrs = ['static', 'occluded'];
 
-    if (globalObjectCategory.objTypeMap[obj_type] && globalObjectCategory.objTypeMap[obj_type].attr) { attrs = attrs.concat(globalObjectCategory.objTypeMap[obj_type].attr); }
+    if (globalObjectCategory.objTypeMap[objType] && globalObjectCategory.objTypeMap[objType].attr) { attrs = attrs.concat(globalObjectCategory.objTypeMap[objType].attr); }
 
     // merge attrs
     let objAttrs = [];
 
-    if (obj_attr) {
-      objAttrs = obj_attr.split(',').map(a => a.trim());
+    if (objAttr) {
+      objAttrs = objAttr.split(',').map(a => a.trim());
       objAttrs.forEach(a => {
-        if (!attrs.find(x => x == a)) {
+        if (!attrs.find(x => x === a)) {
           attrs.push(a);
         }
       });
@@ -94,7 +86,7 @@ class AttrEditor {
     let items = '';
 
     attrs.forEach(a => {
-      if (objAttrs.find(x => x == a)) {
+      if (objAttrs.find(x => x === a)) {
         items += `<div class='attr-item attr-selected'>${a}</div>`;
       } else {
         items += `<div class='attr-item'>${a}</div>`;
@@ -103,7 +95,11 @@ class AttrEditor {
 
     this.ui.querySelector('#attr-selector').innerHTML = items;
 
-    if (obj_attr) { this.ui.querySelector('#attr-input').value = obj_attr; } else { this.ui.querySelector('#attr-input').value = ''; }
+    if (objAttr) {
+      this.ui.querySelector('#attr-input').value = objAttr;
+    } else {
+      this.ui.querySelector('#attr-input').value = '';
+    }
   }
 }
 

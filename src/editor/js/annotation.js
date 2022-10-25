@@ -22,7 +22,7 @@ function Annotation (sceneMeta, world, frameInfo) {
   };
   this.resetModified = function () { this.modified = false; };
 
-  this.sort_boxes = function () {
+  this.sortBoxes = function () {
     this.boxes = this.boxes.sort(function (x, y) {
       return x.position.y - y.position.y;
     });
@@ -30,7 +30,7 @@ function Annotation (sceneMeta, world, frameInfo) {
   this.findBoxByTrackId = function (id) {
     if (this.boxes) {
       const box = this.boxes.find(function (x) {
-        return x.obj_track_id == id;
+        return x.obj_id === id;
       });
       return box;
     }
@@ -39,12 +39,12 @@ function Annotation (sceneMeta, world, frameInfo) {
   };
 
   this.findIntersectedBoxes = function (box) {
-    return this.boxes.filter(b => b != box).filter(b => intersect(box, b));
+    return this.boxes.filter(b => b !== box).filter(b => intersect(box, b));
   };
 
   this.preload = function (onPreloadFinished) {
     this.onPreloadFinished = onPreloadFinished;
-    this.load_annotation((boxes) => this.proc_annotation(boxes));
+    this.loadAnnotation((boxes) => this.procAnnotation(boxes));
   };
 
   this.goCmdReceived = false;
@@ -55,7 +55,7 @@ function Annotation (sceneMeta, world, frameInfo) {
 
     if (this.preloaded) {
       // this.boxes.forEach(b=>this.webglScene.add(b));
-      if (this.data.cfg.color_obj != 'no') {
+      if (this.data.cfg.colorObject !== 'no') {
         this.color_boxes();
       }
 
@@ -113,7 +113,7 @@ function Annotation (sceneMeta, world, frameInfo) {
         }
       },
       obj_type: box.obj_type,
-      obj_id: String(box.obj_track_id),
+      obj_id: String(box.obj_id),
       obj_attr: box.obj_attr
       // vertices: vertices,
     };
@@ -269,8 +269,8 @@ function Annotation (sceneMeta, world, frameInfo) {
     return box;
   };
 
-  this.createCuboid = function (pos, scale, rotation, obj_type, track_id, obj_attr) {
-    const mesh = this.new_bbox_cube(parseInt('0x' + globalObjectCategory.getObjCfgByType(obj_type).color.slice(1)));
+  this.createCuboid = function (pos, scale, rotation, objType, objId, objAttr) {
+    const mesh = this.new_bbox_cube(parseInt('0x' + globalObjectCategory.getObjCfgByType(objType).color.slice(1)));
     mesh.position.x = pos.x;
     mesh.position.y = pos.y;
     mesh.position.z = pos.z;
@@ -283,10 +283,10 @@ function Annotation (sceneMeta, world, frameInfo) {
     mesh.rotation.y = rotation.y;
     mesh.rotation.z = rotation.z;
 
-    mesh.obj_track_id = track_id; // tracking id
-    mesh.obj_type = obj_type;
-    mesh.obj_attr = obj_attr;
-    mesh.obj_local_id = this.get_new_box_local_id();
+    mesh.obj_id = String(objId); // tracking id
+    mesh.obj_type = objType;
+    mesh.obj_attr = objAttr;
+    mesh.objLocalId = this.getNewBoxLocalId();
 
     mesh.world = this.world;
 
@@ -296,11 +296,11 @@ function Annotation (sceneMeta, world, frameInfo) {
      pos:  offset position, after transformed
     */
 
-  this.add_box = function (pos, scale, rotation, obj_type, track_id, obj_attr) {
-    const mesh = this.createCuboid(pos, scale, rotation, obj_type, track_id, obj_attr);
+  this.addBox = function (pos, scale, rotation, objType, trackId, objAttr) {
+    const mesh = this.createCuboid(pos, scale, rotation, objType, trackId, objAttr);
 
     this.boxes.push(mesh);
-    this.sort_boxes();
+    this.sortBoxes();
 
     this.webglGroup.add(mesh);
 
@@ -315,21 +315,21 @@ function Annotation (sceneMeta, world, frameInfo) {
     this.webglGroup.remove(box);
   };
 
-  this.remove_box = function (box) {
+  this.removeBox = function (box) {
     this.world.data.dbg.free('box');
     box.geometry.dispose();
     box.material.dispose();
-    // selected_box.dispose();
-    this.boxes = this.boxes.filter(function (x) { return x != box; });
+    // selectedBox.dispose();
+    this.boxes = this.boxes.filter(function (x) { return x !== box; });
   };
 
-  this.set_box_opacity = function (box_opacity) {
+  this.set_box_opacity = function (boxOpacity) {
     this.boxes.forEach(function (x) {
-      x.material.opacity = box_opacity;
+      x.material.opacity = boxOpacity;
     });
   };
 
-  this.translate_box_position = function (pos, theta, axis, delta) {
+  this.translateBoxPosition = function (pos, theta, axis, delta) {
     switch (axis) {
       case 'x':
         pos.x += delta * Math.cos(theta);
@@ -342,35 +342,37 @@ function Annotation (sceneMeta, world, frameInfo) {
       case 'z':
         pos.z += delta;
         break;
+      default:
+        break;
     }
   };
 
-  this.find_boxes_inside_rect = function (x, y, w, h, camera) {
-    const selected_boxes_by_rect = [];
+  this.findBoxesInsideRect = function (x, y, w, h, camera) {
+    const selectedBoxesByRect = [];
 
-    if (!this.boxes) { return selected_boxes_by_rect; }
+    if (!this.boxes) { return selectedBoxesByRect; }
 
     const p = new THREE.Vector3();
 
     for (let i = 0; i < this.boxes.length; i++) {
-      const box_center = this.boxes[i].position;
+      const boxCenter = this.boxes[i].position;
 
-      const pw = this.world.lidarPosToScene(box_center);
+      const pw = this.world.lidarPosToScene(boxCenter);
       p.set(pw.x, pw.y, pw.z);
       p.project(camera);
       p.x = p.x / p.z;
       p.y = p.y / p.z;
       // console.log(p);
       if ((p.x > x) && (p.x < x + w) && (p.y > y) && (p.y < y + h)) {
-        selected_boxes_by_rect.push(this.boxes[i]);
+        selectedBoxesByRect.push(this.boxes[i]);
       }
     }
 
-    console.log('select boxes', selected_boxes_by_rect.length);
-    return selected_boxes_by_rect;
+    console.log('select boxes', selectedBoxesByRect.length);
+    return selectedBoxesByRect;
   };
 
-  this.proc_annotation = function (boxes) {
+  this.procAnnotation = function (boxes) {
     if (this.destroyed) {
       console.error('received boxes after destroyed.');
       return;
@@ -391,23 +393,23 @@ function Annotation (sceneMeta, world, frameInfo) {
     this.boxes_load_time = new Date().getTime();
     // console.log(this.boxes_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded boxes ", this.boxes_load_time - this.create_time, "ms");
 
-    this.sort_boxes();
+    this.sortBoxes();
 
     this._afterPreload();
   };
 
-  this.load_annotation = function (on_load) {
+  this.loadAnnotation = function (onLoad) {
     if (this.data.cfg.disableLabels) {
-      on_load([]);
+      onLoad([]);
     } else {
-      jsonrpc('/api/load_annotation' + '?scene=' + this.frameInfo.scene + '&frame=' + this.frameInfo.frame).then(ret => {
-        if (ret.objs) { on_load(ret.objs); } else { on_load(ret); }
+      jsonrpc('/api/loadAnnotation?scene=' + this.frameInfo.scene + '&frame=' + this.frameInfo.frame).then(ret => {
+        if (ret.objs) { onLoad(ret.objs); } else { onLoad(ret); }
       });
     }
   };
 
   this.reloadAnnotation = function (done) {
-    this.load_annotation(ann => {
+    this.loadAnnotation(ann => {
       this.reapplyAnnotation(ann, done);
     });
   };
@@ -422,20 +424,20 @@ function Annotation (sceneMeta, world, frameInfo) {
     const pendingBoxList = [];
 
     boxes.forEach(nb => { // nb is annotation format, not a true box
-      const old_box = this.boxes.find(function (x) {
-        return x.obj_track_id == nb.obj_id && x.obj_track_id != '' && nb.obj_id != '' && x.obj_type == nb.obj_type;
+      const oldBox = this.boxes.find(function (x) {
+        return x.obj_id === nb.obj_id && x.obj_id !== '' && nb.obj_id !== '' && x.obj_type === nb.obj_type;
       });
 
-      if (old_box) {
+      if (oldBox) {
         // found
         // update psr
-        delete old_box.delete; // unmark delete flag
-        old_box.position.set(nb.psr.position.x, nb.psr.position.y, nb.psr.position.z);
-        old_box.scale.set(nb.psr.scale.x, nb.psr.scale.y, nb.psr.scale.z);
-        old_box.rotation.set(nb.psr.rotation.x, nb.psr.rotation.y, nb.psr.rotation.z);
-        old_box.obj_attr = nb.obj_attr;
-        old_box.annotator = nb.annotator;
-        old_box.changed = false; // clear changed flag.
+        delete oldBox.delete; // unmark delete flag
+        oldBox.position.set(nb.psr.position.x, nb.psr.position.y, nb.psr.position.z);
+        oldBox.scale.set(nb.psr.scale.x, nb.psr.scale.y, nb.psr.scale.z);
+        oldBox.rotation.set(nb.psr.rotation.x, nb.psr.rotation.y, nb.psr.rotation.z);
+        oldBox.obj_attr = nb.obj_attr;
+        oldBox.annotator = nb.annotator;
+        oldBox.changed = false; // clear changed flag.
       } else {
         // not found
         const box = this.createOneBoxByAnn(nb);
@@ -452,7 +454,7 @@ function Annotation (sceneMeta, world, frameInfo) {
 
       this.webglGroup.remove(b);
 
-      this.remove_box(b);
+      this.removeBox(b);
     });
 
     pendingBoxList.forEach(b => {
@@ -502,21 +504,21 @@ function Annotation (sceneMeta, world, frameInfo) {
     });
   };
 
-  this.box_local_id = 0;
-  this.get_new_box_local_id = function () {
-    const ret = this.box_local_id;
-    this.box_local_id += 1;
+  this.boxLocalId = 0;
+  this.getNewBoxLocalId = function () {
+    const ret = this.boxLocalId;
+    this.boxLocalId += 1;
     return ret;
   };
 
   this.color_box = function (box) {
-    if (this.data.cfg.color_obj == 'category' || this.data.cfg.color_obj == 'no') {
+    if (this.data.cfg.colorObject === 'category' || this.data.cfg.colorObject === 'no') {
       const color = globalObjectCategory.getColorByType(box.obj_type);
       box.material.color.r = color.x;
       box.material.color.g = color.y;
       box.material.color.b = color.z;
     } else {
-      const color = globalObjectCategory.getColorById(box.obj_track_id);
+      const color = globalObjectCategory.getColorById(box.obj_id);
       box.material.color.r = color.x;
       box.material.color.g = color.y;
       box.material.color.b = color.z;

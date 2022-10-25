@@ -269,7 +269,7 @@ class Api(object):
     # data  N*3 numpy array
     @cherrypy.expose    
     @cherrypy.tools.json_out()
-    def predict_rotation(self):
+    def predictRotation(self):
       cl = cherrypy.request.headers['Content-Length']
       rawbody = cherrypy.request.body.readline().decode('UTF-8')
       
@@ -289,7 +289,7 @@ class Api(object):
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
-    def load_annotation(self, scene, frame):
+    def loadAnnotation(self, scene, frame):
       return scene_reader.read_annotations(scene, frame)
 
 
@@ -335,7 +335,7 @@ class Api(object):
 
     # @cherrypy.expose    
     # @cherrypy.tools.json_out()
-    # def load_ego_pose(self, scene, frame):
+    # def loadEgoPose(self, scene, frame):
     #   return scene_reader.read_ego_pose(scene, frame)
 
 

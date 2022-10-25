@@ -19,8 +19,8 @@ document.body.addEventListener('keydown', event => {
 async function createMainEditor () {
   const template = document.querySelector('#editor-template');
   const maindiv = document.querySelector('#main-editor');
-  const main_ui = template.content.cloneNode(true);
-  maindiv.appendChild(main_ui); // input parameter is changed after `append`
+  const mainUi = template.content.cloneNode(true);
+  maindiv.appendChild(mainUi); // input parameter is changed after `append`
 
   const editorCfg = pointsGlobalConfig;
 
@@ -52,8 +52,7 @@ async function start () {
     console.log('webgl check faild.', warning);
   }
 
-  const url_string = window.location.href;
-  const url = new URL(url_string);
+  const url = new URL(window.location.href);
 
   const userToken = url.searchParams.get('token');
 
@@ -70,7 +69,7 @@ async function start () {
   const frame = url.searchParams.get('frame');
 
   if (scene && frame) {
-    mainEditor.load_world(scene, frame);
+    mainEditor.loadWorld(scene, frame);
   }
 }
 

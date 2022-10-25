@@ -20,9 +20,9 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
 
   if (!this.color) {
     this.color = [
-      this.world.data.cfg.point_brightness,
-      this.world.data.cfg.point_brightness,
-      this.world.data.cfg.point_brightness
+      this.world.data.cfg.piontBrightness,
+      this.world.data.cfg.piontBrightness,
+      this.world.data.cfg.piontBrightness
     ];
   }
 
@@ -123,19 +123,19 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
   };
 
   this.filterPoints = function (position) {
-    const filtered_position = [];
+    const filteredPosition = [];
 
     if (window.pointsGlobalConfig.enableFilterPoints) {
       for (let i = 0; i <= position.length; i += 3) {
         if (position[i + 2] <= window.pointsGlobalConfig.filterPointsZ) {
-          filtered_position.push(position[i]);
-          filtered_position.push(position[i + 1]);
-          filtered_position.push(position[i + 2]);
+          filteredPosition.push(position[i]);
+          filteredPosition.push(position[i + 1]);
+          filteredPosition.push(position[i + 2]);
         }
       }
     }
 
-    return filtered_position;
+    return filteredPosition;
   };
 
   this.calcTransformMatrix = function () {
@@ -167,7 +167,7 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
 
     // install callback for box changing
     this.calib_box.onBoxChanged = () => {
-      this.move_lidar(this.calib_box);
+      this.moveLidar(this.calib_box);
     };
 
     // position = this.transformPointsByOffset(position);
@@ -288,20 +288,20 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
   this.move_points = function (box) {
     const points = this.lidar_points;
     const trans = eulerAngleToRotationMatrix3By3(box.rotation);
-    const rotated_points = matmul(trans, points, 3);
+    const rotatedPoints = matmul(trans, points, 3);
     const translation = [box.position.x, box.position.y, box.position.z];
-    const translated_points = rotated_points.map((p, i) => {
+    const translatedPoints = rotatedPoints.map((p, i) => {
       return p + translation[i % 3];
     });
 
-    const filtered_position = this.filterPoints(translated_points);
-    return filtered_position;
+    const filteredPosition = this.filterPoints(translatedPoints);
+    return filteredPosition;
   };
 
-  this.move_lidar = function (box) {
-    const translated_points = this.move_points(box);
+  this.moveLidar = function (box) {
+    const translatedPoints = this.move_points(box);
 
-    const elements = this.buildGeometry(translated_points);
+    const elements = this.buildGeometry(translatedPoints);
 
     // remove old points
     this.unload(true);
@@ -309,8 +309,7 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
 
     this.elements = elements;
     // _self.points_backup = mesh;
-    if (this.goCmdReceived) // this should be always true
-    {
+    if (this.goCmdReceived) { // this should be always true
       this.webglGroup.add(this.elements.points);
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.add(a)); }
     }

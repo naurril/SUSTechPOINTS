@@ -52,7 +52,7 @@ class Data
         }
 
         let world = this.worldList.find((w)=>{
-            return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
+            return w.frameInfo.scene ===sceneName && w.frameInfo.frame ===frame;
         })
         if (world) // found!
             return world;
@@ -82,7 +82,7 @@ class Data
 
     findWorld(sceneName, frameIndex){
         let world = this.worldList.find((w)=>{
-            return w.frameInfo.scene == sceneName && w.frameInfo.frameIndex == frameIndex;
+            return w.frameInfo.scene ===sceneName && w.frameInfo.frameIndex ===frameIndex;
         })
         if (world) // found!
             return world;
@@ -110,9 +110,9 @@ class Data
 
         if (this.offsetList.length === 0)
         {
-            let [x,y,z] = this.lastSeedOffset;
+            let [x,y,] = this.lastSeedOffset;
 
-            if (x == y)
+            if (x ===y)
             {  
                 x = x+1;
                 y = 0;
@@ -126,16 +126,16 @@ class Data
             
             this.offsetList.push([x,y,0]);
             
-            if (x != 0)  this.offsetList.push([-x,y,0]);
-            if (y != 0)  this.offsetList.push([x,-y,0]);
-            if (x * y != 0)  this.offsetList.push([-x,-y,0]);
+            if (x !== 0)  this.offsetList.push([-x,y,0]);
+            if (y !== 0)  this.offsetList.push([x,-y,0]);
+            if (x * y !== 0)  this.offsetList.push([-x,-y,0]);
 
-            if (x != y) {
+            if (x !== y) {
                 this.offsetList.push([y,x,0]);
             
-                if (y != 0)  this.offsetList.push([-y,x,0]);
-                if (x != 0)  this.offsetList.push([y,-x,0]);
-                if (x * y != 0)  this.offsetList.push([-y,-x,0]);
+                if (y !== 0)  this.offsetList.push([-y,x,0]);
+                if (x !== 0)  this.offsetList.push([y,-x,0]);
+                if (x * y !== 0)  this.offsetList.push([-y,-x,0]);
             }
         }
 
@@ -180,17 +180,16 @@ class Data
     deleteOtherWorldsExcept=function(keepScene){
         // release resources if scene changed
         this.worldList.forEach(w=>{
-            if (w.frameInfo.scene != keepScene){
+            if (w.frameInfo.scene !== keepScene){
                 //if (!w.active)
-                {
                     this.returnOffset(w.offsetIndex);
                     w.deleteAll();
 
                     this.removeRefEgoPoseOfScene(w.frameInfo.scene);
-                }
+
             }
         })
-        this.worldList = this.worldList.filter(w=>w.frameInfo.scene==keepScene);
+        this.worldList = this.worldList.filter(w=>w.frameInfo.scene === keepScene);
     };
     
 
@@ -244,7 +243,7 @@ class Data
         
         let _need_create = (frame)=>{
             let world = this.worldList.find((w)=>{
-                return w.frameInfo.scene == sceneName && w.frameInfo.frame == frame;
+                return w.frameInfo.scene ===sceneName && w.frameInfo.frame ===frame;
             })
             
             return !world;
@@ -268,7 +267,7 @@ class Data
 
     onAnnotationUpdatedByOthers(scene, frames){
         frames.forEach(f=>{
-            let world = this.worldList.find(w=>(w.frameInfo.scene==scene && w.frameInfo.frame==f));
+            let world = this.worldList.find(w=>(w.frameInfo.scene === scene && w.frameInfo.frame === f));
             if (world)
                 world.annotation.reloadAnnotation();
         })
@@ -326,7 +325,7 @@ class Data
         
         window.pointsGlobalConfig.color_obj = scheme;
 
-        // if (window.pointsGlobalConfig.color_obj != "no"){
+        // if (window.pointsGlobalConfig.color_obj !== "no"){
         //     this.world.lidar.color_points();
         // } else {
         //     this.world.lidar.set_points_color({
@@ -342,7 +341,7 @@ class Data
 
         // toto: move to world
         this.worldList.forEach(w=>{
-            if (window.pointsGlobalConfig.color_obj == "no")
+            if (window.pointsGlobalConfig.color_obj ==="no")
             {
                 w.lidar.color_points();
             }
@@ -411,7 +410,7 @@ class Data
     };
 
 
-    get_current_world_scene_meta(){
+    getCurrentWorldSceneMeta(){
         return this.getMetaBySceneName(this.world.frameInfo.scene);
     };
 

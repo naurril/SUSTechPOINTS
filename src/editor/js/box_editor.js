@@ -5,10 +5,9 @@ import { saveWorldList, reloadWorldList } from './save.js';
 import { objIdManager } from './obj_id_list.js';
 import { globalKeyDownManager } from './keydown_manager.js';
 import { ml } from './ml.js';
-import { BooleanKeyframeTrack } from 'three';
+
 import { checkScene } from './error_check.js';
 import { logger } from './log.js';
-import { AutoAdjust } from './auto-adjust.js';
 import { globalObjectCategory } from './obj_cfg.js';
 
 /*
@@ -95,7 +94,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
       this.selected = true;
       this.selectEventId = eventId;
     } else {
-      if (!eventId || (this.selectEventId == eventId)) {
+      if (!eventId || (this.selectEventId === eventId)) {
         // cancel only you selected.
         this.ui.className = '';
         this.selected = false;
@@ -162,7 +161,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
       return;
     }
 
-    if (cmd.op == 'translate') {
+    if (cmd.op === 'translate') {
       for (const axis in cmd.params.delta) {
         this.boxOp.translateBox(this.box, axis, cmd.params.delta[axis]);
         // this.boxOp.translateBox(this.box, "y", delta.y);
@@ -218,7 +217,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
         this.boxView.attachBox(this.pseudoBox);
       }
 
-      this.focusImageContext.clear_canvas();
+      this.focusImageContext.clearCanvas();
 
       this.box = null;
     }
@@ -264,7 +263,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
   };
 
   this.onDelBox = function () {
-    const box = this.box;
+    // const box = this.box;
     this.detach('donthide');
   };
 
@@ -312,7 +311,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
   };
 
   this.resize = function (width, height) {
-    // if (height + "px" == this.ui.style.height &&  width + "px" == this.ui.style.width)
+    // if (height + "px" === this.ui.style.height &&  width + "px" === this.ui.style.width)
     // {
     //     return;
     // }
@@ -326,7 +325,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
     this.ui.style.resize = option;
     this.ui.style['z-index'] = '0';
 
-    if (option == 'both') {
+    if (option === 'both') {
       this.lastSize = {
         width: 0,
         height: 0
@@ -336,19 +335,18 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
         const rect = elements[0].contentRect;
         console.log('sub-views resized.', rect);
 
-        if (rect.height == 0 || rect.width == 0) {
+        if (rect.height === 0 || rect.width === 0) {
           return;
         }
 
-        if (rect.height != this.lastSize.height || rect.width != this.lastSize.width) {
+        if (rect.height !== this.lastSize.height || rect.width !== this.lastSize.width) {
           // viewManager will clear backgound
           // so this render is effectiveless.
           // this.boxView.render();
 
           // save
 
-          if (this.boxEditorManager) // there is no manager for box editor in main ui
-          {
+          if (this.boxEditorManager) { // there is no manager for box editor in main ui
             window.pointsGlobalConfig.setItem('batchModeSubviewSize', { width: rect.width, height: rect.height });
             this.boxEditorManager.onSubViewsResize(rect.width, rect.height);
           } else {
@@ -369,7 +367,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
 // parentUi  #batch-box-editor
 function BoxEditorManager (parentUi, viewManager, objectTrackView,
   cfg, boxOp, globalHeader, contextMenu, configMenu,
-  funcOnBoxChanged, funcOnBoxRemoved, func_on_annotation_reloaded) {
+  funcOnBoxChanged, funcOnBoxRemoved, funcOnAnnotationReloaded) {
   this.viewManager = viewManager;
   this.objectTrackView = objectTrackView;
   this.boxOp = boxOp;
@@ -417,12 +415,12 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   this.calculateBestSubviewSize = function (batchSize) {
     const parentRect = this.parentUi.getBoundingClientRect();
     const headerRect = this.boxEditorHeaderUi.getBoundingClientRect();
-    const editorsGroupRect = this.boxEditorGroupUi.getBoundingClientRect();
+    // const editorsGroupRect = this.boxEditorGroupUi.getBoundingClientRect();
 
     const availableHeight = parentRect.height - headerRect.height;
     const availableWidth = parentRect.width;
 
-    if (availableHeight == 0 || availableWidth == 0) {
+    if (availableHeight === 0 || availableWidth === 0) {
       this.batchSizeUpdated = true;
       return;
     }
@@ -462,7 +460,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     this.calculateBestSubviewSize(batchSize);
 
     this.batchSize = batchSize;
-    if (this.parentUi.style.display != 'none') {
+    if (this.parentUi.style.display !== 'none') {
       this.edit(this.editingTarget.data,
         this.editingTarget.sceneMeta,
         this.editingTarget.frame,
@@ -502,7 +500,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     // this.parentUi.querySelector("#object-track-id-editor").value=objTrackId;
     // this.parentUi.querySelector("#object-category-selector").value=objType;
 
-    let centerIndex = sceneMeta.frames.findIndex(f => f == frame);
+    let centerIndex = sceneMeta.frames.findIndex(f => f === frame);
     this.editingTarget.frameIndex = centerIndex;
 
     if (centerIndex < 0) {
@@ -532,7 +530,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       editor.setIndex(editorIndex);
       editor.resize(window.pointsGlobalConfig.batchModeSubviewSize.width, window.pointsGlobalConfig.batchModeSubviewSize.height);
 
-      if (this.editingTarget.frame == frame) {
+      if (this.editingTarget.frame === frame) {
         editor.setSelected(true);
       }
 
@@ -578,7 +576,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       case 's':
         this.activeEditorList().forEach(e => e.setSelected(true));
         return true;
-        break;
+        // break;
       case 'a':
         this.autoAnnotateSelectedFrames();
         break;
@@ -623,7 +621,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.updateInterpolatedBoxes = async function () {
     const editorList = this.activeEditorList();
-    const applyIndList = editorList.map(e => e.box && e.box.annotator == 'i');
+    const applyIndList = editorList.map(e => e.box && e.box.annotator === 'i');
 
     const boxList = editorList.map(e => e.box);
     const worldList = editorList.map(e => e.target.world);
@@ -633,7 +631,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     this.globalHeader.updateModifiedStatus();
     // this.viewManager.render();
     editorList.forEach(e => {
-      if (e.box && e.box.annotator == 'i') {
+      if (e.box && e.box.annotator === 'i') {
         e.boxView.onBoxChanged();
       }
     });
@@ -644,7 +642,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     const boxList = editorList.map(e => e.box);
     const anns = boxList.map(b => b ? b.world.annotation.ann_to_vector_global(b) : null);
 
-    const ret = await ml.interpolate_annotation(anns);
+    const ret = await ml.interpolateAnnotation(anns);
 
     editorList.forEach((e, i) => {
       if (!e.box) {
@@ -662,8 +660,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   const onBoxChangedInBatchMode = function (box) {
-    if (box.boxEditor) // if in batch mode with less than 40 windows, some box don't have editor attached.
-    { box.boxEditor.update(); } // render.
+    if (box.boxEditor) { // if in batch mode with less than 40 windows, some box don't have editor attached.
+      box.boxEditor.update();
+    } // render.
 
     box.world.annotation.setModified();
   };
@@ -689,13 +688,15 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     // if interpolate only one box, remove it if exist.
     // no matter who is the annotator.
-    if (selectedEditors.length == 1) {
+    if (selectedEditors.length === 1) {
       if (selectedEditors[0].box) {
         funcOnBoxRemoved(selectedEditors[0].box, true);
       }
     }
 
-    selectedEditors.forEach(e => applyIndList[e.index] = true);
+    selectedEditors.forEach(e => {
+      applyIndList[e.index] = true;
+    });
     this.interpolate(applyIndList);
 
     this.updateAutoGeneratedBoxes();
@@ -738,7 +739,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
                 `Delete <span class="red">${selectedEditors.length}</span> selected boxes?`,
                 ['yes', 'no'],
                 (btn) => {
-                  if (btn == 'yes') {
+                  if (btn === 'yes') {
                     selectedEditors.forEach(e => {
                       if (e.box) { funcOnBoxRemoved(e.box, true); }
                     });
@@ -759,7 +760,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.autoAnnotateSelectedFrames = function () {
     const applyIndList = this.activeEditorList().map(e => false); // all shoud be applied.
-    this.getSelectedEditors().forEach(e => applyIndList[e.index] = true);
+    this.getSelectedEditors().forEach(e => {
+      applyIndList[e.index] = true;
+    });
     this.autoAnnotate(applyIndList);
   };
 
@@ -770,7 +773,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       const editors = this.getSelectedEditors();
 
       if (editors.includes(firingEditor)) {
-        editors.filter(x => x != firingEditor).forEach(e => {
+        editors.filter(x => x !== firingEditor).forEach(e => {
           if (e.box && !e.box.annotator) {
             e.executeOpCmd(cmd);
           }
@@ -810,15 +813,15 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       case 'cm-select-all':
         this.activeEditorList().forEach(e => e.setSelected(true));
         return false;// don't hide context menu
-        break;
+        // break;
       case 'cm-select-all-previous':
         this.activeEditorList().forEach(e => e.setSelected(e.index <= this.firingBoxEditor.index));
         return false;// don't hide context menu
-        break;
+        // break;
       case 'cm-select-all-next':
         this.activeEditorList().forEach(e => e.setSelected(e.index >= this.firingBoxEditor.index));
         return false;// don't hide context menu
-        break;
+        // break;
 
       case 'cm-delete':
         this.deleteSelectedBoxes({ x: event.clientX, y: event.clientY });
@@ -840,7 +843,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       case 'cm-auto-annotate-wo-rotation':
         {
           const applyIndList = this.activeEditorList().map(e => false); // all shoud be applied.
-          this.getSelectedEditors().forEach(e => applyIndList[e.index] = true);
+          this.getSelectedEditors().forEach(e => {
+            applyIndList[e.index] = true;
+          });
           this.autoAnnotate(applyIndList, 'dontrotate');
         }
         break;
@@ -989,12 +994,12 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       case 'cm-reset-size':
         {
           const b = this.firingBoxEditor.box;
-          const obj_type = b.obj_type;
-          const obj_cfg = globalObjectCategory.getObjCfgByType(obj_type);
+          const objType = b.obj_type;
+          const objCfg = globalObjectCategory.getObjCfgByType(objType);
 
-          b.scale.x = obj_cfg.size[0];
-          b.scale.y = obj_cfg.size[1];
-          b.scale.z = obj_cfg.size[2];
+          b.scale.x = objCfg.size[0];
+          b.scale.y = objCfg.size[1];
+          b.scale.z = objCfg.size[2];
           funcOnBoxChanged(b);
         }
         break;
@@ -1017,7 +1022,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
       case 'cm-sync-size':
         this.editingTarget.data.worldList.forEach(w => {
-          const box = w.annotation.boxes.find(b => b.obj_track_id == this.firingBoxEditor.target.objTrackId);
+          const box = w.annotation.boxes.find(b => b.obj_id === this.firingBoxEditor.target.objTrackId);
           if (box && box !== this.firingBoxEditor.box) {
             box.scale.x = this.firingBoxEditor.box.scale.x;
             box.scale.y = this.firingBoxEditor.box.scale.y;
@@ -1035,7 +1040,6 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
         break;
       case 'cm-reload':
-
         {
           const selectedEditors = this.getSelectedEditors();
           this.reloadAnnotation(selectedEditors);
@@ -1045,9 +1049,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         break;
 
       case 'cm-goto-this-frame':
-        {
-          this.gotoThisFrame();
-        }
+        this.gotoThisFrame();
         break;
       case 'cm-follow-static-objects':
         {
@@ -1062,6 +1064,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
           // this.viewManager.render();
           this.updateAutoGeneratedBoxes();
         }
+        break;
+      default:
+        console.log("unknown command.", event.currentTarget.id);
         break;
     }
 
@@ -1107,24 +1112,22 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         break;
       case 'v':
       case 'Escape':
-        {
-          // let selected = this.getSelectedEditors();
-          // if (selected.length >= 2){
-          //     selected.forEach(e=>e.setSelected(false));
-          // }
-          // else
-          {
-            logger.log('exiting batchedit.');
-            this.hide();
-            logger.log('hide batch edit window.');
-            this.reset();
-            logger.log('reset batch edit window.');
-            if (this.onExit) {
-              this.onExit();
-              logger.log('called exit cb.');
-            }
-          }
+
+        // let selected = this.getSelectedEditors();
+        // if (selected.length >= 2){
+        //     selected.forEach(e=>e.setSelected(false));
+        // }
+        // else
+        logger.log('exiting batchedit.');
+        this.hide();
+        logger.log('hide batch edit window.');
+        this.reset();
+        logger.log('reset batch edit window.');
+        if (this.onExit) {
+          this.onExit();
+          logger.log('called exit cb.');
         }
+
         break;
       case 'PageUp':
       case '3':
@@ -1148,7 +1151,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   const keydownHandler = (event) => this.keydownHandler(event);
 
   this.hide = function () {
-    if (this.parentUi.style.display != 'none') {
+    if (this.parentUi.style.display !== 'none') {
       this.parentUi.style.display = 'none';
       this.toolbox.style.display = 'none';
       // document.removeEventListener("keydown", keydownHandler);
@@ -1156,7 +1159,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     }
   };
   this.show = function () {
-    if (this.parentUi.style.display == 'none') {
+    if (this.parentUi.style.display === 'none') {
       this.parentUi.style.display = '';
       // document.addEventListener("keydown", keydownHandler);
       globalKeyDownManager.register(keydownHandler, 'batch-editor');
@@ -1165,7 +1168,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.render = function () {
-    if (this.parentUi.style.display != 'none') {
+    if (this.parentUi.style.display !== 'none') {
       this.viewManager.render();
     }
   };
@@ -1191,7 +1194,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       });
 
       // reload main view
-      if (func_on_annotation_reloaded) { func_on_annotation_reloaded(); }
+      if (funcOnAnnotationReloaded) { funcOnAnnotationReloaded(); }
       // render all, at last
 
       this.viewManager.render();
@@ -1209,7 +1212,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
                 `Discard changes to ${modifiedFrames.length} frames, continue to reload?`,
                 ['yes', 'no'],
                 (choice) => {
-                  if (choice == 'yes') {
+                  if (choice === 'yes') {
                     reloadWorldList(worldList, done);
                   }
                 }
@@ -1264,8 +1267,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   //     e.stopPropagation();
   // });
 
-  // this.parentUi.querySelector("#object-track-id-editor").onchange = (ev)=>this.object_track_id_changed(ev);
-  // this.parentUi.querySelector("#object-category-selector").onchange = (ev)=>this.object_category_changed(ev);
+  // this.parentUi.querySelector("#object-track-id-editor").onchange = (ev)=>this.objectIdChanged(ev);
+  // this.parentUi.querySelector("#object-category-selector").onchange = (ev)=>this.objectTypeChanged(ev);
 
   // this should follow addToolBox
 
@@ -1301,7 +1304,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       tracks,
       (targetFrame) => { // onExit
         this.getSelectedEditors().forEach(e => e.setSelected(false));
-        this.activeEditorList().find(e => e.target.world.frameInfo.frame == targetFrame).setSelected(true);
+        this.activeEditorList().find(e => e.target.world.frameInfo.frame === targetFrame).setSelected(true);
       }
     );
   };
@@ -1353,7 +1356,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     const editors = this.activeEditorList();
     const lastEditor = editors[editors.length - 1];
-    if (lastEditor.target.world.frameInfo.frameIndex == maxFrameIndex) {
+    if (lastEditor.target.world.frameInfo.frameIndex === maxFrameIndex) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
         this.nextObj();
       } else {
@@ -1372,7 +1375,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.prevBatch = function () {
     const firstEditor = this.activeEditorList()[0];
-    if (firstEditor.target.world.frameInfo.frameIndex == 0) {
+    if (firstEditor.target.world.frameInfo.frameIndex === 0) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
         this.prevObj();
       } else {
@@ -1390,7 +1393,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.prevObj = function () {
-    let idx = objIdManager.objectList.findIndex(x => x.id == this.editingTarget.objTrackId);
+    let idx = objIdManager.objectList.findIndex(x => x.id === this.editingTarget.objTrackId);
 
     const objNum = objIdManager.objectList.length;
 
@@ -1409,11 +1412,11 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.gotoFrame = function (frameID) {
     this.getSelectedEditors().forEach(e => e.setSelected(false));
-    this.activeEditorList().find(e => e.target.world.frameInfo.frame == frameID).setSelected(true);
+    this.activeEditorList().find(e => e.target.world.frameInfo.frame === frameID).setSelected(true);
   };
 
   this.gotoObjectFrame = function (frameId, objId) {
-    if (objId != this.editingTarget.objTrackId) {
+    if (objId !== this.editingTarget.objTrackId) {
       const obj = objIdManager.getObjById(objId);
 
       this.edit(
@@ -1426,11 +1429,11 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     }
 
     this.getSelectedEditors().forEach(e => e.setSelected(false));
-    this.activeEditorList().find(e => e.target.world.frameInfo.frame == frameId).setSelected(true);
+    this.activeEditorList().find(e => e.target.world.frameInfo.frame === frameId).setSelected(true);
   };
 
   this.nextObj = function () {
-    let idx = objIdManager.objectList.findIndex(x => x.id == this.editingTarget.objTrackId && x.category == this.editingTarget.objType);
+    let idx = objIdManager.objectList.findIndex(x => x.id === this.editingTarget.objTrackId && x.category === this.editingTarget.objType);
 
     const objNum = objIdManager.objectList.length;
 
@@ -1470,26 +1473,26 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     this.globalHeader.updateModifiedStatus();
   };
 
-  this.object_track_id_changed = function (event) {
+  this.objectIdChanged = function (event) {
     let id = event.currentTarget.value;
 
-    if (id == 'new') {
+    if (id === 'new') {
       id = objIdManager.generateNewUniqueId();
       this.parentUi.querySelector('#object-track-id-editor').value = id;
     }
 
     this.activeEditorList().forEach(e => {
       if (e.box) {
-        e.box.obj_track_id = id;
+        e.box.obj_id = id;
       }
     });
   };
 
-  this.object_category_changed = function (event) {
-    const obj_type = event.currentTarget.value;
+  this.objectTypeChanged = function (event) {
+    const objType = event.currentTarget.value;
     this.activeEditorList().forEach(e => {
       if (e.box) {
-        e.box.obj_type = obj_type;
+        e.box.obj_type = objType;
       }
     });
   };
@@ -1528,7 +1531,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
       // resizable for the first editor
 
-      // if (this.editorList.length == 0)
+      // if (this.editorList.length === 0)
       // {
       //     editor.setResize("both");
       // }
@@ -1550,23 +1553,21 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.parentUi.onmousedown = (event) => {
-    if (event.which != 1) { return; }
+    if (event.which !== 1) { return; }
 
     const eventId = Date.now();
 
-    const select_start_pos = {
+    const selectStartPos = {
       x: event.clientX,
       y: event.clientY
     };
 
-    console.log('box editor manager, on mouse down.', select_start_pos);
+    console.log('box editor manager, on mouse down.', selectStartPos);
 
-    const select_end_pos = {
+    const selectEndPos = {
       x: event.clientX,
       y: event.clientY
     };
-
-    let leftMouseDown = true;
 
     // a1<a2, b1<b2
     function lineIntersect (a1, a2, b1, b2) {
@@ -1578,36 +1579,35 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     // a,b: left, right, right, bottom
     function intersect (domRect, mouseA, mouseB) {
-      return (lineIntersect(select_end_pos.x, select_start_pos.x, domRect.left, domRect.right) &&
-                    lineIntersect(select_end_pos.y, select_start_pos.y, domRect.top, domRect.bottom));
+      return (lineIntersect(selectEndPos.x, selectStartPos.x, domRect.left, domRect.right) &&
+                    lineIntersect(selectEndPos.y, selectStartPos.y, domRect.top, domRect.bottom));
     }
 
     this.parentUi.onmousemove = (event) => {
-      select_end_pos.x = event.clientX;
-      select_end_pos.y = event.clientY;
+      selectEndPos.x = event.clientX;
+      selectEndPos.y = event.clientY;
 
       this.editorList.forEach(e => {
         const rect = e.ui.getBoundingClientRect();
-        const intersected = intersect(rect, select_start_pos, select_end_pos);
+        const intersected = intersect(rect, selectStartPos, selectEndPos);
 
         e.setSelected(intersected, event.ctrlKey ? eventId : null);
       });
     };
 
     this.parentUi.onmouseup = (event) => {
-      if (event.which != 1) { return; }
+      if (event.which !== 1) { return; }
 
-      leftMouseDown = false;
       this.parentUi.onmousemove = null;
       this.parentUi.onmouseup = null;
 
-      if (event.clientX == select_start_pos.x && event.clientY == select_start_pos.y) { // click
+      if (event.clientX === selectStartPos.x && event.clientY === selectStartPos.y) { // click
         const ed = this.getEditorByMousePosition(event.clientX, event.clientY);
 
         if (event.shiftKey) {
           const selectedEditors = this.getSelectedEditors();
-          if (selectedEditors.length == 0) {
-
+          if (selectedEditors.length === 0) {
+            // do nothing
           } else if (ed.index < selectedEditors[0].index) {
             this.activeEditorList().forEach(e => {
               if (e.index >= ed.index && e.index < selectedEditors[0].index) {
@@ -1627,7 +1627,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
           const selectedEditors = this.getSelectedEditors();
 
           if (ed) {
-            if (ed.selected && selectedEditors.length == 1) {
+            if (ed.selected && selectedEditors.length === 1) {
               ed.setSelected(false);
             } else {
               selectedEditors.forEach(e => e.setSelected(false));
