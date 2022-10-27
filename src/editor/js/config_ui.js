@@ -12,28 +12,28 @@ class ConfigUi {
 
     this.clickableItems = {
       '#cfg-increase-size': (event) => {
-        this.editor.data.scale_point_size(1.2);
+        this.editor.data.scalePointSize(1.2);
         this.editor.render();
         this.editor.boxEditorManager.render();
         return false;
       },
 
       '#cfg-decrease-size': (event) => {
-        this.editor.data.scale_point_size(0.8);
+        this.editor.data.scalePointSize(0.8);
         this.editor.render();
         this.editor.boxEditorManager.render();
         return false;
       },
 
       '#cfg-increase-brightness': (event) => {
-        this.editor.data.scale_point_brightness(1.2);
+        this.editor.data.scalePointBrightness(1.2);
         this.editor.render();
         this.editor.boxEditorManager.render();
         return false;
       },
 
       '#cfg-decrease-brightness': (event) => {
-        this.editor.data.scale_point_brightness(0.8);
+        this.editor.data.scalePointBrightness(0.8);
         this.editor.render();
         this.editor.boxEditorManager.render();
         return false;
@@ -84,7 +84,7 @@ class ConfigUi {
 
         // let scheme = document.documentElement.className;
 
-        if (checked) { this.editor.data.set_box_opacity(0); } else { this.editor.data.set_box_opacity(1); }
+        if (checked) { this.editor.data.setBoxOpacity(0); } else { this.editor.data.setBoxOpacity(1); }
 
         this.editor.render();
         this.editor.boxEditorManager.render();
@@ -136,7 +136,7 @@ class ConfigUi {
 
       '#cfg-color-object-scheme': (event) => {
         const value = event.currentTarget.value;
-        this.editor.data.set_obj_color_scheme(value);
+        this.editor.data.setObjColorScheme(value);
         this.editor.render();
         this.editor.imageContextManager.render2dImage();
 

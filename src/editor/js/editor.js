@@ -99,7 +99,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     //
     this.scene = new THREE.Scene();
 
-    this.data.set_webglScene(this.scene);
+    this.data.setWebglScene(this.scene);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -448,7 +448,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.cancelFocus = function (box) {
     box.in_highlight = false;
     // viewState.lockObjInHighlight = false; // when user unhighlight explicitly, set it to false
-    this.data.world.lidar.cancel_highlight(box);
+    this.data.world.lidar.cancelHightlight(box);
     this.floatLabelManager.restoreAll();
 
     this.viewManager.mainView.save_orbit_state(box.scale);
@@ -459,7 +459,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     if (this.editorCfg.disableMainView) { return; }
 
     if (box) {
-      this.data.world.lidar.highlight_box_points(box);
+      this.data.world.lidar.highlightBoxPoints(box);
 
       this.floatLabelManager.hideAll();
       this.viewManager.mainView.orbit.saveState();
@@ -485,7 +485,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       const b = w.annotation.findBoxByTrackId(box.obj_id);
       if (b) {
         w.resetCoordinateOffset();
-        w.lidar.highlight_box_points(b);
+        w.lidar.highlightBoxPoints(b);
       }
     });
 
@@ -495,7 +495,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.cancel4Dworm = function () {
     this.data.worldList.forEach(w => {
       w.restoreCoordinateOffset();
-      w.lidar.cancel_highlight();
+      w.lidar.cancelHightlight();
     });
 
     this.render();
@@ -660,7 +660,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         this.playControl.stopPlay();
         break;
       case 'cm-pause':
-        this.playControl.pause_resume_play();
+        this.playControl.pauseResumePlay();
         break;
 
       case 'cm-prev-object':
@@ -1896,9 +1896,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         this.selectedBox.position.z = 0;
         break;
       default:
-        console.log("unknown command", command);
+        console.log('unknown command', command);
         break;
-      
     }
 
     this.onBoxChanged(this.selectedBox);
@@ -1932,11 +1931,11 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     switch (ev.key) {
       case '+':
       case '=':
-        this.data.scale_point_size(1.2);
+        this.data.scalePointSize(1.2);
         this.render();
         break;
       case '-':
-        this.data.scale_point_size(0.8);
+        this.data.scalePointSize(0.8);
         this.render();
         break;
       case '1':
@@ -1992,7 +1991,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         break;
       case ' ': // Spacebar
         // this.viewManager.mainView.transformControl.enabled = ! this.viewManager.mainView.transformControl.enabled;
-        this.playControl.pause_resume_play();
+        this.playControl.pauseResumePlay();
         break;
 
       case '5':
@@ -2360,7 +2359,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     this.autoAdjust.syncFollowers(box);
 
     // if (box === this.data.world.radar_box){
-    //     this.data.world.move_radar(box);
+    //     this.data.world.moveRadar(box);
     // }
 
     if (box.onBoxChanged) {

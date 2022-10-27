@@ -1066,7 +1066,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         }
         break;
       default:
-        console.log("unknown command.", event.currentTarget.id);
+        console.log('unknown command.', event.currentTarget.id);
         break;
     }
 

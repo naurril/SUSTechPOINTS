@@ -8,16 +8,24 @@ import { settings } from './settings.js';
 import { loadfile } from './jsonrpc.js';
 import { pointcloudReader } from './lib/pointcloud_reader';
 
-function Lidar (sceneMeta, world, frameInfo) {
-  this.world = world;
-  this.data = world.data;
-  this.frameInfo = frameInfo;
-  this.sceneMeta = sceneMeta;
+class Lidar {
+  constructor (sceneMeta, world, frameInfo) {
+    this.world = world;
+    this.data = world.data;
+    this.frameInfo = frameInfo;
+    this.sceneMeta = sceneMeta;
 
-  this.points = null;
-  this.points_load_time = 0;
+    this.points = null;
+    this.points_load_time = 0;
 
-  this.removeHighPoints = function (pcd, z) {
+    this.loaded = false;
+    this.webglScene = null;
+    this.goCmdReceived = false;
+    this.onGoFinished = null;
+    this.pointIndexGridSize = 1;
+  }
+
+  removeHighPoints (pcd, z) {
     const position = [];
     const color = [];
     const normal = [];
@@ -54,9 +62,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     pcd.normal = normal;
 
     return pcd;
-  };
+  }
 
-  this.processPcd = function (pcd) {
+  processPcd (pcd) {
     this.points_parse_time = new Date().getTime();
     // console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "parse pionts ", this.points_parse_time - this.create_time, "ms");
 
@@ -122,12 +130,14 @@ function Lidar (sceneMeta, world, frameInfo) {
       pcd.color = color;
     }
 
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(color, 3));
+    const colorAttribute = new THREE.Float32BufferAttribute(color, 3);
+		colorAttribute.setUsage( THREE.DynamicDrawUsage );
+    geometry.setAttribute('color', colorAttribute);
 
     geometry.computeBoundingSphere();
     // build material
 
-    const material = new THREE.PointsMaterial({ size: this.data.cfg.point_size, vertexColors: THREE.VertexColors });
+    const material = new THREE.PointsMaterial({ size: this.data.cfg.point_size, vertexColors: true});
 
     /*
 
@@ -163,9 +173,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     // console.log(this.points_load_time, this.frameInfo.scene, this.frameInfo.frame, "loaded pionts ", this.points_load_time - this.create_time, "ms");
 
     this._afterPreload();
-  };
+  }
 
-  this.preload = function (onPreloadFinished) {
+  preload (onPreloadFinished) {
     this.onPreloadFinished = onPreloadFinished;
 
     const url = this.frameInfo.get_pcd_path();
@@ -178,9 +188,9 @@ function Lidar (sceneMeta, world, frameInfo) {
       const pcd = pointcloudReader.parse(buffer, url);
       this.processPcd(pcd);
     });
-  };
+  }
 
-  // this.preload_pcdloader = function (onPreloadFinished) {
+  // this.preload_pcdloader  (onPreloadFinished) {
   //   this.onPreloadFinished = onPreloadFinished
 
   //   const loader = new PCDLoader()
@@ -210,7 +220,7 @@ function Lidar (sceneMeta, world, frameInfo) {
   //   )
   // }
 
-  this._afterPreload = function () {
+  _afterPreload () {
     this.preloaded = true;
     // console.log("lidar preloaded");
     // go ahead, may load picture
@@ -220,23 +230,18 @@ function Lidar (sceneMeta, world, frameInfo) {
     if (this.goCmdReceived) {
       this.go(this.webglScene, this.onGoFinished);
     }
-  };
+  }
 
-  this.loaded = false;
-  this.webglScene = null;
-  this.goCmdReceived = false;
-  this.onGoFinished = null;
-
-  this.go = function (webglScene, onGoFinished) {
+  go (webglScene, onGoFinished) {
     this.webglScene = webglScene;
 
     if (this.preloaded) {
       if (!this.world.data.cfg.show_background) {
-        this.hide_background();
+        this.hideBackground();
       }
 
       if (this.data.cfg.colorObject !== 'no') {
-        this.color_objects();
+        this.colorObjectgs();
       }
 
       if (onGoFinished) { onGoFinished(); }
@@ -244,10 +249,10 @@ function Lidar (sceneMeta, world, frameInfo) {
       this.goCmdReceived = true;
       this.onGoFinished = onGoFinished;
     }
-  };
+  }
 
-  this.unload = function () {
-    this.cancel_highlight();
+  unload () {
+    this.cancelHightlight();
 
     if (this.points) {
       // this.world.webglGroup.remove(this.points);
@@ -260,14 +265,14 @@ function Lidar (sceneMeta, world, frameInfo) {
 
       // }
     }
-  };
+  }
 
-  this.deleteAll = function () {
+  deleteAll () {
     this.removeAllPoints();
     this.destroyed = true;
-  };
+  }
 
-  this.set_point_size = function (v) {
+  setPointSize (v) {
     if (this.points) {
       this.points.material.size = v;
 
@@ -280,9 +285,9 @@ function Lidar (sceneMeta, world, frameInfo) {
         }
       }
     }
-  };
+  }
 
-  this.color_objects = function () {
+  colorObjectgs () {
     if (this.data.cfg.colorObject !== 'no') {
       this.world.annotation.boxes.forEach((b) => {
         if (!b.annotator) {
@@ -290,10 +295,10 @@ function Lidar (sceneMeta, world, frameInfo) {
         }
       });
     }
-  };
+  }
 
   // color points according to object category
-  this.colorPoints = function () {
+  colorPoints () {
     // color all points inside these boxes
     const color = this.points.geometry.getAttribute('color').array;
 
@@ -320,12 +325,12 @@ function Lidar (sceneMeta, world, frameInfo) {
     }
 
     // step 2 color objects
-    this.color_objects();
+    this.colorObjectgs();
 
     // this.updatePointsColor();
-  };
+  }
 
-  this.transformPointsByEgoPose = function (points) {
+  transformPointsByEgoPose (points) {
     if (!this.world.transLidar) { return points; }
 
     const newPoints = [];
@@ -336,17 +341,17 @@ function Lidar (sceneMeta, world, frameInfo) {
       newPoints.push(p[2]);
     }
     return newPoints;
-  };
+  }
 
-  this.get_all_points = function () {
+  getAllPoints () {
     return this.points.geometry.getAttribute('position').array;
-  };
+  }
 
-  this.get_all_colors = function () {
+  getAllColors () {
     return this.points.geometry.getAttribute('color').array;
-  };
+  }
 
-  this.computeCenter = function () {
+  computeCenter () {
     if (!this.center) {
       const position = this.points.geometry.getAttribute('position');
       // computer center position
@@ -365,9 +370,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     }
 
     return this.center;
-  };
+  }
 
-  this.buildPointIndices = function () {
+  buildPointIndices () {
     const ps = this.points.geometry.getAttribute('position');
     const pointIndices = {};
 
@@ -385,21 +390,20 @@ function Lidar (sceneMeta, world, frameInfo) {
     }
 
     this.points.pointIndices = pointIndices;
-  };
+  }
 
-  this.pointIndexGridSize = 1;
-
-  this.getPositionKey = function (x, y, z) {
+  getPositionKey (x, y, z) {
     return [Math.floor(x / this.pointIndexGridSize),
       Math.floor(y / this.pointIndexGridSize),
       Math.floor(z / this.pointIndexGridSize)];
-  };
-  this.keyToStr = function (k) {
+  }
+
+  keyToStr (k) {
     return k[0] + ',' + k[1] + ',' + k[2];
-  };
+  }
 
   // candidate pionts, covering the box(center, scale), but larger.
-  this.getCoveringPositionIndices = function (points, center, scale, rotation, scaleRatio) {
+  getCoveringPositionIndices (points, center, scale, rotation, scaleRatio) {
     /*
         var ck = this.getPositionKey(center.x, center.y, center.z);
         var radius = Math.sqrt(scale.x*scale.x + scale.y*scale.y + scale.z*scale.z)/2;
@@ -449,18 +453,18 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     // console.log("found indices 2: " + indices.length);
     return indices;
-  };
+  }
 
-  this.toggleBackground = function () {
+  toggleBackground () {
     if (this.points.pointsBackup) { // cannot differentiate highlighted-scene and no-background-whole-scene
-      this.cancel_highlight();
+      this.cancelHightlight();
     } else {
-      this.hide_background();
+      this.hideBackground();
     }
-  };
+  }
 
   // hide all points not inside any box
-  this.hide_background = function () {
+  hideBackground () {
     if (this.points.pointsBackup) {
       // already hidden, or in highlight mode
       return;
@@ -500,7 +504,7 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     geometry.computeBoundingSphere();
 
-    const material = new THREE.PointsMaterial({ size: _self.data.cfg.point_size, vertexColors: THREE.VertexColors });
+    const material = new THREE.PointsMaterial({ size: _self.data.cfg.point_size, vertexColors: true});
 
     material.sizeAttenuation = false;
 
@@ -515,9 +519,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     this.points = mesh;
     this.buildPointIndices();
     this.world.webglGroup.add(mesh);
-  };
+  }
 
-  this.cancel_highlight = function (box) {
+  cancelHightlight (box) {
     if (this.points && this.points.pointsBackup) {
       this.world.annotation.set_box_opacity(this.data.cfg.box_opacity);
 
@@ -551,16 +555,16 @@ function Lidar (sceneMeta, world, frameInfo) {
 
       this.world.webglGroup.add(this.points);
     }
-  };
+  }
 
-  this.reset_points = function (points) { // coordinates of points
+  resetPoints (points) { // coordinates of points
     this.world.data.dbg.alloc('lidar');
     const geometry = new THREE.BufferGeometry();
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
     geometry.computeBoundingSphere();
 
-    const material = new THREE.PointsMaterial({ size: this.data.cfg.point_size });
+    const material = new THREE.PointsMaterial({ size: this.data.cfg.point_size, vertexColors: true });
 
     material.sizeAttenuation = false;
 
@@ -573,9 +577,9 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     this.points = mesh;
     this.world.webglGroup.add(mesh);
-  };
+  }
 
-  this.highlight_box_points = function (box) {
+  highlightBoxPoints (box) {
     if (this.points.highlighted_box) {
       // already highlighted.
       return;
@@ -617,7 +621,7 @@ function Lidar (sceneMeta, world, frameInfo) {
 
     geometry.computeBoundingSphere();
 
-    const material = new THREE.PointsMaterial({ size: _self.data.cfg.point_size, vertexColors: THREE.VertexColors });
+    const material = new THREE.PointsMaterial({ size: _self.data.cfg.point_size, vertexColors: true});
 
     material.sizeAttenuation = false;
 
@@ -634,22 +638,22 @@ function Lidar (sceneMeta, world, frameInfo) {
     this.points = mesh;
     this.buildPointIndices();
     this.world.webglGroup.add(mesh);
-  };
+  }
 
-  this.getPointIndices = function (box) {
+  getPointIndices (box) {
     return this.getPointsOfBoxInternal(this.points, box, 1).index;
-  };
+  }
 
-  this.get_points_of_box_in_box_coord = function (box) {
+  getPointsOfBoxInBoxCoord (box) {
     return this.getPointsOfBoxInternal(this.points, box, 1).position;
-  };
+  }
 
   // IMPORTANT
   // ground plane affects auto-adjustment
   // we don't count in the ponits of lowest part to reduce the affection.
   // note how the 'lower part' is defined, we count
   // lowest_part_type has two options: lowest_point, or lowest_box
-  this.getPointsDimensionOfBox = function (box, useBoxBottomAsLimit) {
+  getPointsDimensionOfBox (box, useBoxBottomAsLimit) {
     let p = this.getPointsOfBoxInternal(this.points, box, 1).position; // position is relative to box coordinates
 
     let lowestLimit = -box.scale.z / 2;
@@ -679,12 +683,12 @@ function Lidar (sceneMeta, world, frameInfo) {
         z: lowestLimit
       }
     };
-  };
+  }
 
   // given points and box, calculate new box scale
   // if the box size is fixed, and if corner align for z-axis aligns top,
   // we should filter ground points by the box bottom after aligned.
-  this.getDimensionOfPoints = function (indices, box) {
+  getDimensionOfPoints (indices, box) {
     let p = this.getPointsOfBoxInternal(this.points, box, 1, indices).position;
     const extreme1 = vectorRange(p, 3);
 
@@ -708,18 +712,18 @@ function Lidar (sceneMeta, world, frameInfo) {
         z: extreme1.min[2]
       }
     };
-  };
+  }
 
   // centered, but without rotation
-  this.getPointsRelativeCoordinatesOfBoxWithoutRotation = function (box, scaleRatio) {
+  getPointsRelativeCoordinatesOfBoxWithoutRotation (box, scaleRatio) {
     return this.getPointsOfBoxInternal(this.points, box, scaleRatio).positionWithoutRotation;
-  };
+  }
 
-  this.getPointsInBox = function (box, scaleRatio) {
+  getPointsInBox (box, scaleRatio) {
     return this.getPointsOfBoxInternal(this.points, box, scaleRatio);
-  };
+  }
 
-  this.getPointsOfBoxInWorldCoordinates = function (box, scaleRatio) {
+  getPointsOfBoxInWorldCoordinates (box, scaleRatio) {
     const posArray = this.points.geometry.getAttribute('position').array;
     const { index, position } = this.getPointsOfBoxInternal(this.points, box, scaleRatio);
     const ptsTopPart = [];
@@ -740,19 +744,19 @@ function Lidar (sceneMeta, world, frameInfo) {
     });
 
     return [ptsTopPart, ptsGroundPart];
-  };
+  }
 
-  this.getPointRelativeCoordinatesOfBox = function (box, scaleRatio) {
+  getPointRelativeCoordinatesOfBox (box, scaleRatio) {
     const ret = this.getPointsOfBoxInternal(this.points, box, scaleRatio);
     return ret.position;
-  };
+  }
 
-  this.getPointIndicesOfBox = function (points, box, scaleRatio) {
+  getPointIndicesOfBox (points, box, scaleRatio) {
     return this.getPointsOfBoxInternal(points, box, scaleRatio).index;
-  };
+  }
 
   // this
-  this.getPointsOfBoxInternal = function (points, box, scaleRatio, pointIndices) {
+  getPointsOfBoxInternal (points, box, scaleRatio, pointIndices) {
     if (!scaleRatio) {
       scaleRatio = 1;
     }
@@ -802,9 +806,9 @@ function Lidar (sceneMeta, world, frameInfo) {
       position: relativePosition,
       positionWithoutRotation: relativePositionWoRotation
     };
-  };
+  }
 
-  this.findTop = function (box, initScaleRatio) {
+  findTop (box, initScaleRatio) {
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
@@ -834,10 +838,10 @@ function Lidar (sceneMeta, world, frameInfo) {
     });
 
     return maxZ;
-  };
+  }
 
   // find bottom and top points, in range of initScaleRatio
-  this.findBottom = function (box, initScaleRatio) {
+  findBottom (box, initScaleRatio) {
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
@@ -867,9 +871,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     });
 
     return minZ;
-  };
+  }
 
-  this.growBox = function (box, minDistance, initScaleRatio) {
+  growBox (box, minDistance, initScaleRatio) {
     console.log('grow box, minDistance', minDistance, box.scale, initScaleRatio);
     // const start_time = new Date().getTime()
     const points = this.points;
@@ -1108,14 +1112,14 @@ function Lidar (sceneMeta, world, frameInfo) {
     refinedExtremes.min.z -= groundLevel;
     console.log('refined extreme', JSON.stringify(refinedExtremes));
     return refinedExtremes;
-  };
+  }
 
-  this.getBoxPointsNumber = function (box) {
+  getBoxPointsNumber (box) {
     const indices = this.getPointIndicesOfBox(this.points, box, 1.0);
     return indices.length;
-  };
+  }
 
-  this.resetBoxPointsColor = function (box) {
+  resetBoxPointsColor (box) {
     const color = this.points.geometry.getAttribute('color').array;
     const indices = this.getPointIndicesOfBox(this.points, box, 1.0);
     if (this.data.cfg.colorPoints === 'intensity') {
@@ -1136,9 +1140,9 @@ function Lidar (sceneMeta, world, frameInfo) {
         color[i * 3 + 2] = this.data.cfg.piontBrightness;
       });
     }
-  };
+  }
 
-  this.setBoxPointsColor = function (box, targetColor) {
+  setBoxPointsColor (box, targetColor) {
     // var pos = this.points.geometry.getAttribute("position");
     const color = this.points.geometry.getAttribute('color');
 
@@ -1161,9 +1165,9 @@ function Lidar (sceneMeta, world, frameInfo) {
         color.array[i * 3 + 2] = targetColor.z;
       });
     }
-  };
+  }
 
-  this.setSpecPontsColor = function (pointIndices, targetColor) {
+  setSpecPontsColor (pointIndices, targetColor) {
     // var pos = this.points.geometry.getAttribute("position");
     const color = this.points.geometry.getAttribute('color');
 
@@ -1172,10 +1176,10 @@ function Lidar (sceneMeta, world, frameInfo) {
       color.array[i * 3 + 1] = targetColor.y;
       color.array[i * 3 + 2] = targetColor.z;
     });
-  };
+  }
 
   // this is used when pointbrightness is updated.
-  this.recolorAllPoints = function () {
+  recolorAllPoints () {
     this.setPointsColor({
       x: this.data.cfg.piontBrightness,
       y: this.data.cfg.piontBrightness,
@@ -1183,27 +1187,27 @@ function Lidar (sceneMeta, world, frameInfo) {
     });
     this.colorPoints();
     this.updatePointsColor();
-  };
+  }
 
   // set all points to specified color
-  this.setPointsColor = function (targetColor) {
+  setPointsColor (targetColor) {
     const color = this.points.geometry.getAttribute('color');
     for (let i = 0; i < color.count; i++) {
       color.array[i * 3] = targetColor.x;
       color.array[i * 3 + 1] = targetColor.y;
       color.array[i * 3 + 2] = targetColor.z;
     }
-  };
+  }
 
-  this.updatePointsColor = function () {
+  updatePointsColor () {
     if (this.points) { // some time points may fail to load.
       this.points.geometry.getAttribute('color').needsUpdate = true;
       // this.points.geometry.removeAttribute("color");
       // this.points.geometry.setAttribute("color", new THREE.Float32BufferAttribute(color.array, 3 ));
     }
-  };
+  }
 
-  this.removeAllPoints = function () {
+  removeAllPoints () {
     if (this.points) {
       this.world.data.dbg.free('lidar');
       this.points.geometry.dispose();
@@ -1228,9 +1232,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     } else {
       console.error('destroy empty world!');
     }
-  };
+  }
 
-  this.selectPointsByViewRect = function (x, y, w, h, camera) {
+  selectPointsByViewRect (x, y, w, h, camera) {
     const posArray = this.points.geometry.getAttribute('position').array;
 
     const indices = [];
@@ -1256,9 +1260,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     // this.updatePointsColor();
 
     return points;
-  };
+  }
 
-  this.getCentroid = function (pointIndices) {
+  getCentroid (pointIndices) {
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
 
@@ -1277,9 +1281,9 @@ function Lidar (sceneMeta, world, frameInfo) {
     center.z /= pointIndices.length;
 
     return center;
-  };
+  }
 
-  this.createBoxByPoints = function (pointIndices, camera) {
+  createBoxByPoints (pointIndices, camera) {
     const indices = pointIndices;
     const points = this.points;
     const posArray = points.geometry.getAttribute('position').array;
@@ -1345,7 +1349,7 @@ function Lidar (sceneMeta, world, frameInfo) {
     scale.z += 0.02;
 
     return this.world.annotation.addBox(center, scale, { x: 0, y: 0, z: rotationZ }, 'Unknown', '');
-  };
+  }
 }
 
 export { Lidar };

@@ -1,24 +1,25 @@
+class PlayControl {
+  constructor (data) {
+    this.data = data;
+    this.stop_play_flag = true;
+    this.pausePlayFlag = false;
+    this.onLoadWorldFinished = null;
+  }
 
-function PlayControl (data) {
-  this.data = data;
-  this.stop_play_flag = true;
-  this.pausePlayFlag = false;
-
-  this.pause_resume_play = function () {
+  pauseResumePlay () {
     this.pausePlayFlag = !this.pausePlayFlag;
 
     if (!this.pausePlayFlag && !this.stop_play_flag) {
       this.play(this.onLoadWorldFinished);
     }
-  };
+  }
 
-  this.stopPlay = function () {
+  stopPlay () {
     this.stop_play_flag = true;
     this.pausePlayFlag = false;
-  };
+  }
 
-  this.onLoadWorldFinished = null;
-  this.play = function (onLoadWorldFinished, fps = 2) {
+  play (onLoadWorldFinished, fps = 2) {
     this.onLoadWorldFinished = onLoadWorldFinished;
 
     if (!this.data.meta) {
@@ -26,35 +27,27 @@ function PlayControl (data) {
       return;
     }
 
-    // if (this.stop_play_flag == false && !resume){
-    //     return;
-    // }
-
     this.stop_play_flag = false;
     this.pausePlayFlag = false;
 
-    const sceneMeta = data.world.sceneMeta;
+    const sceneMeta = this.data.world.sceneMeta;
 
-    const scope = this;
+    let startFrame = this.data.world.frameInfo.frame;
 
-    let startFrame = data.world.frameInfo.frame;
-
-    const currentFrameIndex = sceneMeta.frames.findIndex(function (x) { return x === data.world.frameInfo.frame; });
+    const currentFrameIndex = sceneMeta.frames.findIndex((x) => x === this.data.world.frameInfo.frame);
     if (currentFrameIndex === sceneMeta.frames.length - 1) {
       // this is the last frmae
       // we go to first frame.
       startFrame = sceneMeta.frames[0];
     }
 
-    playFrame(sceneMeta, startFrame, onLoadWorldFinished);
-
-    async function playFrame (sceneMeta, frame, onLoadWorldFinished) {
-      if (!scope.stop_play_flag && !scope.pausePlayFlag) {
-        const world = await scope.data.getWorld(sceneMeta.scene, frame);
+    const playFrame = async (sceneMeta, frame, onLoadWorldFinished) => {
+      if (!this.stop_play_flag && !this.pausePlayFlag) {
+        const world = await this.data.getWorld(sceneMeta.scene, frame);
 
         if (world.preloaded()) {
           // found, data ready
-          scope.data.activateWorld(
+          this.data.activateWorld(
             world,
             function () { // on load finished
               // views[0].detach_control();
@@ -70,7 +63,7 @@ function PlayControl (data) {
                   },
                   1000 / fps);
               } else {
-                scope.stopPlay();
+                this.stopPlay();
               }
             }, true);
         } else {
@@ -84,49 +77,10 @@ function PlayControl (data) {
             10);
         }
       }
-    }
-  };
+    };
 
-  // function play_current_scene_without_buffer(){
-
-  //     if (!data.meta){
-  //         console.log("no meta data! cannot play");
-  //         return;
-  //     }
-
-  //     if (stop_play_flag== false){
-  //         return;
-  //     }
-
-  //     stop_play_flag = false;
-
-  //     var sceneMeta = data.getCurrentWorldSceneMeta();
-  //     var sceneName= sceneMeta.scene;
-
-  //     playFrame(sceneMeta, data.world.frameInfo.frame);
-
-  //     function playFrame(sceneMeta, frame){
-  //         loadWorld(sceneName, frame);
-
-  //         if (!stop_play_flag)
-  //         {
-  //             var frameIndex = sceneMeta.frames.findIndex(function(x){return x == frame;});
-  //             if (frameIndex+1 < sceneMeta.frames.length)
-  //             {
-  //                 nextFrame = sceneMeta.frames[frameIndex+1];
-  //                 setTimeout(
-  //                     function(){
-  //                         playFrame(sceneMeta, nextFrame);
-  //                     },
-  //                     100);
-  //             }
-  //             else{
-  //                 stop_play_flag = true;
-  //             }
-
-  //         }
-  //     };
-  // }
+    playFrame(sceneMeta, startFrame, onLoadWorldFinished);
+  }
 }
 
 export { PlayControl };

@@ -2,40 +2,43 @@ import * as THREE from 'three';
 import { loadfile } from './jsonrpc.js';
 // import { PCDLoader } from './lib/PCDLoader.js'
 import { pointcloudReader } from './lib/pointcloud_reader.js';
-import { matmul, eulerAngleToRotationMatrix3By3 } from './util.js';
+import { eulerAngleToRotationMatrix3By3, matmul } from './util.js';
 
 // todo: clean arrows
 
-function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
-  this.world = world;
-  this.frameInfo = frameInfo;
-  this.name = auxLidarName;
-  this.sceneMeta = sceneMeta;
-  this.coordinatesOffset = world.coordinatesOffset;
+class AuxLidar {
+  constructor (sceneMeta, world, frameInfo, auxLidarName) {
+    this.world = world;
+    this.frameInfo = frameInfo;
+    this.name = auxLidarName;
+    this.sceneMeta = sceneMeta;
+    this.coordinatesOffset = world.coordinatesOffset;
 
-  this.showPointsOnly = true;
-  this.showCalibBox = false;
-  // this.cssStyleSelector = this.sceneMeta.calib.aux_lidar[this.name].cssstyleselector;
-  this.color = this.sceneMeta.calib.aux_lidar[this.name].color;
+    this.showPointsOnly = true;
+    this.showCalibBox = false;
+    // this.cssStyleSelector = this.sceneMeta.calib.aux_lidar[this.name].cssstyleselector;
+    this.color = this.sceneMeta.calib.aux_lidar[this.name].color;
 
-  if (!this.color) {
-    this.color = [
-      this.world.data.cfg.piontBrightness,
-      this.world.data.cfg.piontBrightness,
-      this.world.data.cfg.piontBrightness
-    ];
+    if (!this.color) {
+      this.color = [
+        this.world.data.cfg.piontBrightness,
+        this.world.data.cfg.piontBrightness,
+        this.world.data.cfg.piontBrightness
+      ];
+    }
+
+    this.lidar_points = null; // read from file, centered at 0
+    this.elements = null; // geometry points
+
+    this.preloaded = false;
+    this.loaded = false;
+
+    this.goCmdReceived = false;
+    this.webglScene = null;
+    this.onGoFinished = null;
   }
 
-  this.lidar_points = null; // read from file, centered at 0
-  this.elements = null; // geometry points
-
-  this.preloaded = false;
-  this.loaded = false;
-
-  this.goCmdReceived = false;
-  this.webglScene = null;
-  this.onGoFinished = null;
-  this.go = function (webglScene, onGoFinished) {
+  go (webglScene, onGoFinished) {
     this.webglScene = webglScene;
 
     if (this.preloaded) {
@@ -54,29 +57,29 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     this.goCmdReceived = true;
     this.onGoFinished = onGoFinished;
     // }
-  };
+  }
 
-  this.showCalibBox = function () {
+  showCalibBox () {
     this.showCalibBox = true;
     this.webglGroup.add(this.calib_box);
-  };
+  }
 
-  this.hideCalibBox = function () {
+  hideCalibBox () {
     this.showCalibBox = false;
     this.webglGroup.remove(this.calib_box);
-  };
+  }
 
-  this.get_unoffset_lidar_points = function () {
+  getUnoffsetLidarPoints () {
     if (this.elements) {
       const pts = this.elements.points.geometry.getAttribute('position').array;
       return pts.map((p, i) => p - this.world.coordinatesOffset[i % 3]);
     } else {
       return [];
     }
-  };
+  }
 
   // todo: what if it's not preloaded yet
-  this.unload = function (deepBox) {
+  unload (deepBox) {
     if (this.elements) {
       this.webglGroup.remove(this.elements.points);
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.remove(a)); }
@@ -84,10 +87,10 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
       if (!deepBox) { this.webglGroup.remove(this.calib_box); }
     }
     this.loaded = false;
-  };
+  }
 
   // todo: its possible to remove points before preloading,
-  this.deleteAll = function (deepBox) {
+  deleteAll (deepBox) {
     if (this.loaded) {
       this.unload();
     }
@@ -120,9 +123,9 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     }
 
     this.destroyed = true;
-  };
+  }
 
-  this.filterPoints = function (position) {
+  filterPoints (position) {
     const filteredPosition = [];
 
     if (window.pointsGlobalConfig.enableFilterPoints) {
@@ -136,9 +139,9 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     }
 
     return filteredPosition;
-  };
+  }
 
-  this.calcTransformMatrix = function () {
+  calcTransformMatrix () {
     const translate = this.sceneMeta.calib.aux_lidar[this.name].translation;
     const rotation = this.sceneMeta.calib.aux_lidar[this.name].rotation;
 
@@ -148,9 +151,9 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
 
     this.webglGroup.matrix.copy(m);
     this.webglGroup.matrixAutoUpdate = false;
-  };
+  }
 
-  this.processPcd = function (pcd) {
+  processPcd (pcd) {
     if (this.destroyed) {
       console.error('received aux_lidar after destroyed.');
       return;
@@ -171,7 +174,7 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     };
 
     // position = this.transformPointsByOffset(position);
-    // position = this.move_points(this.calib_box);
+    // position = this.movePoints(this.calib_box);
 
     const elements = this.buildGeometry(position);
     this.elements = elements;
@@ -184,9 +187,9 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     // this.points_backup = mesh;
 
     this._afterPreload();
-  };
+  }
 
-  this.preload = function (onPreloadFinished) {
+  preload (onPreloadFinished) {
     this.onPreloadFinished = onPreloadFinished;
 
     const url = this.frameInfo.get_aux_lidar_path(this.name);
@@ -200,10 +203,10 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
       const pcd = pointcloudReader.parse(buffer, url);
       this.processPcd(pcd);
     });
-  };
+  }
 
   // internal funcs below
-  this._afterPreload = function () {
+  _afterPreload () {
     this.preloaded = true;
     console.log(`lidar ${this.auxLidarName} preloaded`);
     if (this.onPreloadFinished) {
@@ -212,9 +215,9 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     if (this.goCmdReceived) {
       this.go(this.webglScene, this.onGoFinished);
     }
-  };
+  }
 
-  this.createCalibBox = function () {
+  createCalibBox () {
     if (this.sceneMeta.calib.aux_lidar && this.sceneMeta.calib.aux_lidar[this.name]) {
       return this.world.annotation.createCuboid(
         {
@@ -242,9 +245,9 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
         'lidar',
         this.name);
     }
-  };
+  }
 
-  this.buildPoints = function (position) {
+  buildPoints (position) {
     // build geometry
     this.world.data.dbg.alloc('aux lidar');
     const geometry = new THREE.BufferGeometry();
@@ -266,7 +269,7 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     let pointSize = this.sceneMeta.calib.aux_lidar[this.name].point_size;
     if (!pointSize) { pointSize = 1; }
 
-    const material = new THREE.PointsMaterial({ size: pointSize, vertexColors: THREE.VertexColors });
+    const material = new THREE.PointsMaterial({ size: pointSize, vertexColors: true});
     // material.size = 2;
     material.sizeAttenuation = false;
 
@@ -275,17 +278,17 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
     mesh.name = 'lidar';
 
     return mesh;
-  };
+  }
 
-  this.buildGeometry = function (position) {
+  buildGeometry (position) {
     const points = this.buildPoints(position);
 
     return {
       points
     };
-  };
+  }
 
-  this.move_points = function (box) {
+  movePoints (box) {
     const points = this.lidar_points;
     const trans = eulerAngleToRotationMatrix3By3(box.rotation);
     const rotatedPoints = matmul(trans, points, 3);
@@ -296,10 +299,10 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
 
     const filteredPosition = this.filterPoints(translatedPoints);
     return filteredPosition;
-  };
+  }
 
-  this.moveLidar = function (box) {
-    const translatedPoints = this.move_points(box);
+  moveLidar (box) {
+    const translatedPoints = this.movePoints(box);
 
     const elements = this.buildGeometry(translatedPoints);
 
@@ -313,69 +316,72 @@ function AuxLidar (sceneMeta, world, frameInfo, auxLidarName) {
       this.webglGroup.add(this.elements.points);
       if (!this.showPointsOnly) { this.elements.arrows.forEach(a => this.webglGroup.add(a)); }
     }
-  };
+  }
 }
 
-function AuxLidarManager (sceneMeta, world, frameInfo) {
-  this.lidarList = [];
+class AuxLidarManager {
+  constructor (sceneMeta, world, frameInfo) {
+    this.lidarList = [];
 
-  if (world.data.cfg.enableAuxLidar && sceneMeta.aux_lidar) {
-    const lidars = [];
+    if (world.data.cfg.enableAuxLidar && sceneMeta.aux_lidar) {
+      const lidars = [];
 
-    for (const r in sceneMeta.calib.aux_lidar) {
-      if (!sceneMeta.calib.aux_lidar[r].disable) { lidars.push(r); }
+      for (const r in sceneMeta.calib.aux_lidar) {
+        if (!sceneMeta.calib.aux_lidar[r].disable) { lidars.push(r); }
+      }
+
+      this.lidarList = lidars.map(name => {
+        return new AuxLidar(sceneMeta, world, frameInfo, name);
+      });
     }
 
-    this.lidarList = lidars.map(name => {
-      return new AuxLidar(sceneMeta, world, frameInfo, name);
-    });
+    this.showCalibBox = false;
   }
 
-  this.getAllBoxes = function () {
+  getAllBoxes () {
     if (this.showCalibBox) {
       return this.lidarList.map(r => r.calib_box);
     } else {
       return [];
     }
-  };
+  }
 
-  this.preloaded = function () {
+  preloaded () {
     for (const r in this.lidarList) {
       if (!this.lidarList[r].preloaded) { return false; }
     }
     return true;
-  };
+  }
 
-  this.go = function (webglScene, onGoFinished) {
+  go (webglScene, onGoFinished) {
     this.lidarList.forEach(r => r.go(webglScene, onGoFinished));
-  };
+  }
 
-  this.preload = function (onPreloadFinished) {
+  preload (onPreloadFinished) {
     this.lidarList.forEach(r => r.preload(onPreloadFinished));
-  };
+  }
 
-  this.unload = function () {
+  unload () {
     this.lidarList.forEach(r => r.unload());
-  };
+  }
 
-  this.deleteAll = function () {
+  deleteAll () {
     this.lidarList.forEach(r => r.deleteAll());
-  };
+  }
 
-  this.getOperableObjects = function () {
+  getOperableObjects () {
     return this.lidarList.flatMap(r => r.getOperableObjects());
-  };
+  }
 
-  this.showCalibBox = false;
-  this.showCalibBox = function () {
+  showCalibBox () {
     this.showCalibBox = true;
     this.lidarList.forEach(r => r.showCalibBox());
-  };
+  }
 
-  this.hideCalibBox = function () {
+  hideCalibBox () {
     this.showCalibBox = false;
     this.lidarList.forEach(r => r.hideCalibBox());
-  };
+  }
 }
 
 export { AuxLidarManager };

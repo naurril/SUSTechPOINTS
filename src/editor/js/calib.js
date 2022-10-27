@@ -86,18 +86,18 @@ class Calib {
   load () {
     jsonrpc('/api/load_calib?scene=' + this.world.frameInfo.scene + '&frame=' + this.world.frameInfo.frame)
       .then(ret => {
-      this.calib = ret;
+        this.calib = ret;
 
-      // console.log(this.world.frameInfo.frame, "calib", "loaded");
-      this.preloaded = true;
+        // console.log(this.world.frameInfo.frame, "calib", "loaded");
+        this.preloaded = true;
 
-      if (this.onPreloadFinished) {
-        this.onPreloadFinished();
-      }
-      if (this.goCmdReceived) {
-        this.go(this.webglScene, this.onGoFinished);
-      }
-    });
+        if (this.onPreloadFinished) {
+          this.onPreloadFinished();
+        }
+        if (this.goCmdReceived) {
+          this.go(this.webglScene, this.onGoFinished);
+        }
+      });
   }
 
   go (webglScene, onGoFinished) {
