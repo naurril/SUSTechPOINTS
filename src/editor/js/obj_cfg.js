@@ -16,7 +16,7 @@ class ObjectCategory {
       Bicycle: { color: '#ff8800', size: [1.6, 0.6, 1.2], attr: ['laying down'] },
 
       Motorcycle: { color: '#aaaa00', size: [1.6, 0.6, 1.2], attr: ['umbrella'] },
-      MotorcyleRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', '1 passenger', '2 passengers', '3 passengers'] },
+      MotorcycleRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', '1 passenger', '2 passengers', '3 passengers'] },
 
       PoliceCar: { color: '#86af49', size: [4.5, 1.8, 1.5] },
       TourCar: { color: '#86af49', size: [4.4, 1.5, 2.2] },
