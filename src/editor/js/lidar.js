@@ -106,7 +106,7 @@ class Lidar {
 
       // by default we set all points to same color
       for (let i = 0; i < position.length; ++i) {
-        color.push(this.data.cfg.piontBrightness);
+        color.push(this.data.cfg.pointBrightness);
       }
 
       // if enabled intensity we color points by intensity.
@@ -320,7 +320,7 @@ class Lidar {
     } else {
       // mono color
       for (let i = 0; i < this.pcd.position.length; ++i) {
-        color[i] = this.data.cfg.piontBrightness;
+        color[i] = this.data.cfg.pointBrightness;
       }
     }
 
@@ -523,7 +523,7 @@ class Lidar {
 
   cancelHightlight (box) {
     if (this.points && this.points.pointsBackup) {
-      this.world.annotation.set_box_opacity(this.data.cfg.box_opacity);
+      this.world.annotation.setBoxOpacity(this.data.cfg.box_opacity);
 
       // copy colors, maybe changed.
       if (this.data.cfg.colorObject !== 'no') {
@@ -586,7 +586,7 @@ class Lidar {
     }
 
     // hide all other boxes
-    this.world.annotation.set_box_opacity(0);
+    this.world.annotation.setBoxOpacity(0);
 
     // keep myself
     box.material.opacity = 1;
@@ -1135,9 +1135,9 @@ class Lidar {
       });
     } else {
       indices.forEach((i) => {
-        color[i * 3] = this.data.cfg.piontBrightness;
-        color[i * 3 + 1] = this.data.cfg.piontBrightness;
-        color[i * 3 + 2] = this.data.cfg.piontBrightness;
+        color[i * 3] = this.data.cfg.pointBrightness;
+        color[i * 3 + 1] = this.data.cfg.pointBrightness;
+        color[i * 3 + 2] = this.data.cfg.pointBrightness;
       });
     }
   }
@@ -1181,9 +1181,9 @@ class Lidar {
   // this is used when pointbrightness is updated.
   recolorAllPoints () {
     this.setPointsColor({
-      x: this.data.cfg.piontBrightness,
-      y: this.data.cfg.piontBrightness,
-      z: this.data.cfg.piontBrightness
+      x: this.data.cfg.pointBrightness,
+      y: this.data.cfg.pointBrightness,
+      z: this.data.cfg.pointBrightness
     });
     this.colorPoints();
     this.updatePointsColor();

@@ -323,7 +323,7 @@ function Annotation (sceneMeta, world, frameInfo) {
     this.boxes = this.boxes.filter(function (x) { return x !== box; });
   };
 
-  this.set_box_opacity = function (boxOpacity) {
+  this.setBoxOpacity = function (boxOpacity) {
     this.boxes.forEach(function (x) {
       x.material.opacity = boxOpacity;
     });

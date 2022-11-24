@@ -14,7 +14,7 @@ class Config {
     this.enableDynamicGroundLevel = true;
     this.coordinateSystem = 'utm';
     this.point_size = 1;
-    this.piontBrightness = 0.6;
+    this.pointBrightness = 0.6;
     this.box_opacity = 1;
     this.show_background = true;
     this.colorObject = 'category';

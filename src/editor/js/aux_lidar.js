@@ -21,9 +21,9 @@ class AuxLidar {
 
     if (!this.color) {
       this.color = [
-        this.world.data.cfg.piontBrightness,
-        this.world.data.cfg.piontBrightness,
-        this.world.data.cfg.piontBrightness
+        this.world.data.cfg.pointBrightness,
+        this.world.data.cfg.pointBrightness,
+        this.world.data.cfg.pointBrightness
       ];
     }
 

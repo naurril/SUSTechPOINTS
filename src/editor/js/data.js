@@ -257,7 +257,7 @@ class Data {
   }
 
   scalePointBrightness (v) {
-    this.cfg.point_brightness *= v;
+    this.cfg.pointBrightness *= v;
 
     // if (this.world){
     //     this.world.lidar.recolorAllPoints();
@@ -287,9 +287,9 @@ class Data {
   }
 
   setObjColorScheme (scheme) {
-    window.pointsGlobalConfig.color_obj = scheme;
+    window.pointsGlobalConfig.colorObject = scheme;
 
-    // if (window.pointsGlobalConfig.color_obj !== "no"){
+    // if (window.pointsGlobalConfig.colorObject !== "no"){
     //     this.world.lidar.color_points();
     // } else {
     //     this.world.lidar.set_points_color({
@@ -304,8 +304,8 @@ class Data {
 
     // toto: move to world
     this.worldList.forEach(w => {
-      if (window.pointsGlobalConfig.color_obj === 'no') {
-        w.lidar.color_points();
+      if (window.pointsGlobalConfig.colorObject === 'no') {
+        w.lidar.colorPoints();
       } else {
         w.lidar.colorObjectgs();
       }

@@ -2383,7 +2383,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.updateBoxPointsColor = function (box) {
     if (this.data.cfg.colorObject !== 'no') {
       if (box.last_info) {
-        box.world.lidar.setBoxPointsColor(box.last_info, { x: this.data.cfg.piontBrightness, y: this.data.cfg.piontBrightness, z: this.data.cfg.piontBrightness });
+        box.world.lidar.setBoxPointsColor(box.last_info, { x: this.data.cfg.pointBrightness, y: this.data.cfg.pointBrightness, z: this.data.cfg.pointBrightness });
       }
 
       box.world.lidar.setBoxPointsColor(box);
