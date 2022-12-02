@@ -37,9 +37,15 @@ class FastToolBox {
     this.ui.style.display = 'none';
   }
 
-  show () {
+  show (notools) {
     this.ui.style.display = 'inline-block';
     this.ui.querySelector('#attr-selector').style.display = 'none';
+
+    if (notools) {
+      this.ui.querySelector("#obj-editor-buttons").style.display = 'none';
+    } else {
+      this.ui.querySelector("#obj-editor-buttons").style.display = 'flex';
+    }
   }
 
   setValue (objType, objTrackId, objAttr) {

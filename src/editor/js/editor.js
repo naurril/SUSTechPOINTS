@@ -25,6 +25,7 @@ import { globalKeyDownManager } from './keydown_manager.js';
 import { vectorRange } from './util.js';
 import { checkScene } from './error_check.js';
 import { jsonrpc } from './jsonrpc.js';
+import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 
 function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   // create logger before anything else.
@@ -689,6 +690,10 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
           logger.errorBtn.onclick();
         }
         break;
+      case 'cm-check-frame':
+        this.editBatch(this.data.world.frameInfo.scene, this.data.world.frameInfo.frame)
+        break;
+
       case 'cm-reset-view':
         this.resetView();
         break;
@@ -2466,11 +2471,11 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       self.floatLabelManager.addLabel(b);
     });
 
-    if (this.selectedBox) {
-      // this.floatLabelManager.select_box(this.selectedBox.objLocalId)
-      this.fastToolBox.show();
-      this.fastToolBox.setValue(this.selectedBox.obj_type, this.selectedBox.obj_id, this.selectedBox.obj_attr);
-    }
+    // if (this.selectedBox) {
+    //   // this.floatLabelManager.select_box(this.selectedBox.objLocalId)
+    //   this.fastToolBox.show();
+    //   this.fastToolBox.setValue(this.selectedBox.obj_type, this.selectedBox.obj_id, this.selectedBox.obj_attr);
+    // }
   };
 
   this.add_global_obj_type = function () {
