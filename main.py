@@ -301,6 +301,12 @@ class Api(object):
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
+    def load_all_image_annotation(self, scene, frame, cameras, aux_cameras):
+      return scene_reader.read_all_image_annotations(scene, frame, cameras, aux_cameras)
+
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
     def save_image_annotation(self):
       if args.save=='yes':
 

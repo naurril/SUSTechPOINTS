@@ -290,6 +290,29 @@ def read_image_annotations(scene, frame, camera_type, camera_name):
                 return ann
     return {'objs': []}
 
+
+def read_all_image_annotations(scene, frame, cameras, aux_cameras):
+    ann = {
+        "camera": {},
+        "aux_camera": {}
+    }
+    for c in cameras.split(','):
+        filename = os.path.join(root_dir, scene, "label_fusion", 'camera', c, frame+".json")   # backward compatible
+        if os.path.exists(filename):
+            if (os.path.isfile(filename)):
+                with open(filename,"r") as f:
+                    ann['camera'][c] = json.load(f)
+
+
+    for c in aux_cameras.split(','):
+        filename = os.path.join(root_dir, scene, "label_fusion", 'aux_camera', c, frame+".json")   # backward compatible
+        if os.path.exists(filename):
+            if (os.path.isfile(filename)):
+                with open(filename,"r") as f:
+                    ann['aux_camera'][c] = json.load(f)
+
+    return ann
+
 def read_ego_pose(scene, frame):
     filename = os.path.join(root_dir, scene, "ego_pose", frame+".json")
     if (os.path.isfile(filename)):

@@ -123,7 +123,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     if (!this.editorCfg.disableRangeCircle) { this.addRangeCircle(); }
 
     this.floatLabelManager = new FloatLabelManager(this.editorUi, this.container, this.viewManager.mainView, function (box) { self.selectBox(box); });
-    this.fastToolBox = new FastToolBox(this.editorUi.querySelector('#obj-editor'), (event) => this.handleFastToolEvent(event));
+    this.fastToolBox = new FastToolBox(this.editorUi.querySelector('#obj-editor'));
     // this.controlGui = this.init_gui();
 
     this.axis = new THREE.AxesHelper(1);
@@ -347,7 +347,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     }
   };
 
-  this.handleFastToolEvent = function (event) {
+  this.handleFastToolboxEvent = (event) =>{
     const self = this;
     switch (event.currentTarget.id) {
       case 'label-del':
@@ -1061,6 +1061,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     // hide something
     this.imageContextManager.hide();
     this.floatLabelManager.hide();
+    this.fastToolBox.hide();
 
     // this.floatLabelManager.showFastToolbox();
 
@@ -1085,7 +1086,9 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         this.imageContextManager.show();
         this.floatLabelManager.show();
 
-        if (targetTrackId) { this.viewState.lockObjTrackId = targetTrackId; }
+        if (targetTrackId) { 
+          this.viewState.lockObjTrackId = targetTrackId; 
+        }
 
         this.onLoadWorldFinished(this.data.world);
 
@@ -1638,7 +1641,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
       this.fastToolBox.setPos(this.floatLabelManager.getLabelEditorPos(this.selectedBox.objLocalId));
       this.fastToolBox.setValue(object.obj_type, object.obj_id, object.obj_attr);
-      this.fastToolBox.show();
+      this.fastToolBox.show(this.handleFastToolboxEvent);
 
       this.boxOp.highlightBox(this.selectedBox);
 

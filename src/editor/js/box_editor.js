@@ -47,6 +47,8 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
     scale: { x: 1, y: 1, z: 1 }
   };
 
+  this.fastToolbox = window.editor.fastToolBox;
+
   this.copyPseudoBox = function (b) {
     this.pseudoBox.position.x = b.position.x;
     this.pseudoBox.position.y = b.position.y;
@@ -93,15 +95,51 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
       this.ui.className = 'selected';
       this.selected = true;
       this.selectEventId = eventId;
-    } else {
+
+
+      this.fastToolbox.show(this.handleFastToolboxEvent, 'notools');      
+      this.fastToolbox.setPos({
+        top: this.ui.getClientRects()[0].y+"px",
+        left:this.ui.getClientRects()[0].x+"px",
+      });
+      this.fastToolbox.target = this;
+      if (this.box) {
+        this.fastToolbox.setValue(this.box.obj_type, this.box.obj_id, this.box.obj_attr);
+      }
+
+    } else {      
       if (!eventId || (this.selectEventId === eventId)) {
         // cancel only you selected.
         this.ui.className = '';
         this.selected = false;
         this.selectEventId = null;
+
+        if (this === this.fastToolbox.target) {
+          this.fastToolbox.hide();
+        }
       }
     }
   };
+
+  this.handleFastToolboxEvent = (event)=>{
+    switch (event.currentTarget.id) {
+      case 'object-category-selector':
+        this.box.obj_type = event.currentTarget.value;
+        funcOnBoxChanged(this.box);
+        break;
+      case 'object-track-id-editor':
+        this.box.obj_id = event.currentTarget.value;
+        funcOnBoxChanged(this.box);
+        break;
+      case 'attr-input':
+        this.box.obj_attr = event.currentTarget.value;
+        funcOnBoxChanged(this.box);
+        break;
+      default:
+        console.log('unknown event');
+        break;
+    }
+  }
 
   // this.onContextMenu = (event)=>{
   //     if (this.boxEditorManager)  // there is no manager for box editor in main ui
@@ -197,6 +235,10 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
       if (this.isInBatchMode()) {
         this.boxEditorManager.onBoxChanged(this);
       }
+
+      // if (this.selected) {
+      //   this.fastToolbox.setValue(this.box.obj_type, this.box.obj_id, this.box.obj_attr);
+      // }
     }
   };
 

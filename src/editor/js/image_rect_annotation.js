@@ -41,7 +41,26 @@ class ImageRectAnnotation {
     return jsonrpc(`/api/load_image_annotation?scene=${this.scene}&frame=${this.frame}&camera_type=${cameraType}&camera_name=${cameraName}`);
   }
 
+  fetchAll () {
+    const aux_cameras = this.sceneMeta.aux_camera.reduce((a,b)=>a+','+b);
+    const cameras = this.sceneMeta.camera.reduce((a,b)=>a+','+b);
+    return jsonrpc(`/api/load_all_image_annotation?scene=${this.scene}&frame=${this.frame}&cameras=${cameras}&aux_cameras=${aux_cameras}`);
+  }
+
   loadAll () {
+    this.fetchAll().then(ret=>{
+      this.anns = ret;
+      this.preloaded = true;
+      if (this.onPreloadFinished) {
+        this.onPreloadFinished();
+      }
+      if (this.goCmdReceived) {
+        this.go(this.webglScene, this.onGoFinished);
+      }
+    })
+  }
+
+  loadOneByOne() {
     let annsAsync = [];
     if (this.sceneMeta.aux_camera) {
       annsAsync = annsAsync.concat(this.sceneMeta.aux_camera.map(c => {
