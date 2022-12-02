@@ -9,7 +9,15 @@ class ObjectIdManager {
 
   // todo: should use all worldlist
   generateNewUniqueId (world) {
+    
+
+    const maxIdInWorld = parseInt(world.annotation.maxBoxId());
+    if (this.maxId < maxIdInWorld) {
+      this.maxId = maxIdInWorld;
+    }
+
     this.maxId += 1;
+
     return String(this.maxId);
   }
 

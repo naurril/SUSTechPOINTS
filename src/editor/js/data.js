@@ -162,6 +162,13 @@ class Data {
     this.worldList = this.worldList.filter(w => !disposable(w));
   }
 
+
+  deleteWorld(world){
+      this.worldList = this.worldList.filter(w => w!== world);
+      this.returnOffset(world.offsetIndex);
+      world.deleteAll();    
+  }
+
   deleteOtherWorldsExcept (keepScene) {
     // release resources if scene changed
     this.worldList.forEach(w => {
@@ -307,7 +314,7 @@ class Data {
       if (window.pointsGlobalConfig.colorObject === 'no') {
         w.lidar.colorPoints();
       } else {
-        w.lidar.colorObjectgs();
+        w.lidar.colorObjects();
       }
 
       w.lidar.updatePointsColor();

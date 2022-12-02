@@ -124,9 +124,13 @@ def get_one_scene(s):
                     calib_name, ext = os.path.splitext(c)
                     if os.path.isfile(calib_file) and ext==".json": #ignore directories.
                         #print(calib_file)
-                        with open(calib_file)  as f:
-                            cal = json.load(f)
-                            calib[sensor_type][calib_name] = cal
+                        try:
+                            with open(calib_file)  as f:
+                                cal = json.load(f)
+                                calib[sensor_type][calib_name] = cal
+                        except: 
+                            print('reading calib failed: ', f)
+                            assert False, f
 
         
             # if os.path.exists(os.path.join(scene_dir, "calib", "radar")):

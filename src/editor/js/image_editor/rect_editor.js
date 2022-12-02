@@ -64,15 +64,15 @@ class RectEditor {
 
     this.cfgUi.querySelector('#hide-floating-labels').onchange = (e) => {
       const checked = e.currentTarget.checked;
-      if (checked) { 
+      if (checked) {
         this.floatingLabelsVisible = false;
         this.hideFloatingLabels();
       } else {
-        this.floatingLabelsVisible = true
-        if ((this.canvas.querySelector('#svg-rects').style.display !== 'none') 
-          ||(this.canvas.querySelector('#svg-boxes').style.display !== 'none') ){
-            this.showFloatingLabels();
-        }        
+        this.floatingLabelsVisible = true;
+        if ((this.canvas.querySelector('#svg-rects').style.display !== 'none') ||
+          (this.canvas.querySelector('#svg-boxes').style.display !== 'none')) {
+          this.showFloatingLabels();
+        }
       }
     };
 
@@ -117,8 +117,6 @@ class RectEditor {
       });
 
       this.save();
-
-
     };
 
     this.point = {};
@@ -185,8 +183,8 @@ class RectEditor {
   hide3dBox () {
     this.canvas.querySelector('#svg-boxes').style.display = 'none';
 
-    if (this.canvas.querySelector('#svg-rects').style.display === 'none') { 
-      this.hideFloatingLabels(); 
+    if (this.canvas.querySelector('#svg-rects').style.display === 'none') {
+      this.hideFloatingLabels();
     }
   }
 
@@ -198,8 +196,8 @@ class RectEditor {
   hide2dBox () {
     this.canvas.querySelector('#svg-rects').style.display = 'none';
 
-    if (this.canvas.querySelector('#svg-boxes').style.display === 'none') { 
-      this.hideFloatingLabels(); 
+    if (this.canvas.querySelector('#svg-boxes').style.display === 'none') {
+      this.hideFloatingLabels();
     }
   }
 
@@ -601,8 +599,7 @@ class RectEditor {
   showFloatingLabels () {
     if (this.floatingLabelsVisible) {
       this.floatingLabelsUi.style.display = 'inherit';
-    }
-    else {
+    } else {
       this.floatingLabelsUi.style.display = 'none';
     }
   }

@@ -73,7 +73,7 @@ class Mouse {
     if (event.which === 3) {
       this.operationState.key_pressed = false;
     } else if (event.which === 1) {
-      console.log('mouse left key down!');
+      //console.log('mouse left key down!');
       if (event.ctrlKey || event.shiftKey) {
         event.stopPropagation();
         event.preventDefault();
@@ -89,7 +89,7 @@ class Mouse {
 
     const array = this.getMousePosition(this.domElement, event.offsetX, event.offsetY);
     this.onDownPosition.fromArray(array);
-    console.log('mouse down', array);
+    //console.log('mouse down', array);
 
     this.on_mouse_up = (e) => { this.onMouseUp(e); };
     this.domElement.addEventListener('mouseup', this.on_mouse_up, false);
@@ -137,14 +137,14 @@ class Mouse {
     const array = this.getMousePosition(this.domElement, event.offsetX, event.offsetY);
     this.onUpPosition.fromArray(array);
 
-    console.log('mouse up', array);
+   //console.log('mouse up', array);
 
     if (this.onDownPosition.distanceTo(this.onUpPosition) === 0) {
       if (event.which === 3) {
         // right click
         // if no other key pressed, we consider this as a right click
         if (!this.operationState.key_pressed) {
-          console.log('right clicked.');
+          //console.log('right clicked.');
           this.handleRightClick(event);
         }
       } else {
@@ -181,7 +181,7 @@ class Mouse {
           h = this.onDownPosition.y - this.onUpPosition.y;
         }
 
-        console.log('select rect', x, y, w, h);
+        //console.log('select rect', x, y, w, h);
         this.handleSelectRect(x, y, w, h, event.ctrlKey, event.shiftKey);
       }
     }

@@ -1,5 +1,5 @@
 // import { eulerAngleToRotationMatrix, eulerAngleToRotationMatrix3By3, matmul, matmul2 , mat} from './util.js';
-export function FrameInfo(data, sceneMeta, sceneName, frame) {
+export function FrameInfo (data, sceneMeta, sceneName, frame) {
   this.data = data;
   this.sceneMeta = sceneMeta;
   this.dir = '';
@@ -9,14 +9,6 @@ export function FrameInfo(data, sceneMeta, sceneName, frame) {
   this.frameIndex = this.sceneMeta.frames.findIndex(function (x) { return x === frame; });
   this.transform_matrix = this.sceneMeta.point_transform_matrix;
   this.annotation_format = this.sceneMeta.boxtype; // xyz(24 number), csr(center, scale, rotation, 9 number)
-
-
-
-
-
-
-
-
 
   // this.set = function(scene, frameIndex, frame, transform_matrix, annotation_format){
   //         this.scene = scene;
@@ -70,7 +62,7 @@ export function FrameInfo(data, sceneMeta, sceneName, frame) {
     input is coordinates of 8 vertices
     bottom-left-front, bottom-right-front, bottom-right-back, bottom-left-back
     top-left-front,    top-right-front,    top-right-back,    top-left-back
- 
+
     this format is what SECOND/PointRcnn save their results.
     */
   this.python_xyz_to_psr = function (text) {

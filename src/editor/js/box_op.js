@@ -358,7 +358,13 @@ function BoxOp () {
       axies = ['x', 'y', 'z'];
     }
 
-    const extreme = box.world.lidar.growBox(box, minDistance, initScaleRatio);
+    let extreme = box.world.lidar.growBox(box, minDistance, initScaleRatio);
+    // if (extreme.insidePoints === 0) {
+    //   initScaleRatio.z *= 5;
+    //   initScaleRatio.x *= 2;
+    //   initScaleRatio.y *= 2;
+    //   extreme = box.world.lidar.growBox(box, minDistance, initScaleRatio);
+    // }
 
     if (extreme) {
       axies.forEach((axis) => {

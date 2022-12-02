@@ -10,7 +10,6 @@ import { Calib } from './calib.js';
 import { ImageRectAnnotation } from './image_rect_annotation.js';
 import { FrameInfo } from './frame_info';
 
-
 function Images (sceneMeta, imageType, sceneName, frame) {
   this.loaded = function () {
     for (const n in this.names) {

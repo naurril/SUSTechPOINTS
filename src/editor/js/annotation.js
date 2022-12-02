@@ -27,6 +27,19 @@ function Annotation (sceneMeta, world, frameInfo) {
       return x.position.y - y.position.y;
     });
   };
+
+  this.maxBoxId = function() {
+
+    let id = 0;
+    this.boxes.forEach(x=>{
+      if (x.obj_id > id) {
+        id = x.obj_id;
+      }
+    });
+
+    return id;
+  };
+
   this.findBoxByTrackId = function (id) {
     if (this.boxes) {
       const box = this.boxes.find(function (x) {

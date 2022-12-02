@@ -1,9 +1,9 @@
 import json
 import os
 
-
+import re
 import math
-
+import argparse
 
 __all__ = ['wgs2gcj', 'gcj2wgs', 'gcj2wgs_exact',
            'distance', 'gcj2bd', 'bd2gcj', 'wgs2bd', 'bd2wgs']
@@ -146,21 +146,38 @@ def bd2wgs(bdLat, bdLng):
 
 
 
-root_dir = './data'
+
+parser = argparse.ArgumentParser(description='manage tags')
+parser.add_argument('data', type=str, default='./', help="")
+parser.add_argument('--scenes', type=str, default='.*', help="")
+parser.add_argument('--all_frames', type=str, default='no', help="")
+args = parser.parse_args()
+
+
+root_dir =  args.data #'/home/lie/nas2/proj01_scenes_raw'
 scenes = os.listdir(root_dir)
 scenes.sort()
-csv = "pose.csv"
+
+csv = "proj01_scenes_raw_pose.csv"
 with open(csv,'w') as foutput:
     foutput.write("scene,latlng,latlng_cn\n")
     for s in scenes:
+        if not re.fullmatch(args.scenes, s):
+            continue
+
         print(s)
         geo_files = os.listdir(os.path.join(root_dir, s, 'ego_pose'))
         geo_files.sort()
-        print(geo_files[0])
 
-        with open(os.path.join(root_dir, s, 'ego_pose', geo_files[0])) as f:
-            pose = json.load(f)
-            #print(pose['lat'],pose['lng'])
+        if args.all_frames == 'no':
+            geo_files = geo_files[0:1]
 
-            gps_bd = wgs2gcj(float(pose['lat']), float(pose['lng']))
-            foutput.write(s+',"'+pose['lng']+','+pose['lat'] + '","'+str(gps_bd[1])+',' +str(gps_bd[0])+ '"\n')
+        for file in geo_files:
+            print(file)
+            if os.path.exists(os.path.join(root_dir, s, 'ego_pose', file)):
+                with open(os.path.join(root_dir, s, 'ego_pose', file)) as f:
+                    pose = json.load(f)
+                    #print(pose['lat'],pose['lng'])
+
+                    gps_bd = wgs2gcj(float(pose['lat']), float(pose['lng']))
+                    foutput.write(s+","+file+',"'+pose['lng']+','+pose['lat'] + '","'+str(gps_bd[1])+',' +str(gps_bd[0])+ '"\n')

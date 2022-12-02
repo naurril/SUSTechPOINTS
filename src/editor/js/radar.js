@@ -256,7 +256,7 @@ class Radar {
     let pointSize = this.sceneMeta.calib.radar[this.name].point_size;
     if (!pointSize) { pointSize = 2; }
 
-    const material = new THREE.PointsMaterial({ size: pointSize, vertexColors: true});
+    const material = new THREE.PointsMaterial({ size: pointSize, vertexColors: true });
     // material.size = 2;
     material.sizeAttenuation = false;
 

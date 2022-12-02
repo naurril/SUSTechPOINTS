@@ -220,7 +220,7 @@ def proj_pts3d_to_img(pts):
     imgfinal = imgpos2[0:2,:]/imgpos2[2:,:]
     return imgfinal
     
-def box_to_2d_points(box):
+def boxTo2dPoints(box):
     "box is a ndarray"
     box3d = psr_to_xyz(box[0], box[1], box[2])
     return proj_pts3d_to_img(box3d)
@@ -289,7 +289,7 @@ for f in frames:
         color_index = (color_index+1) % len(colorlist)
         
         box_array = box_to_nparray(l["psr"])
-        points_in_image = box_to_2d_points(box_array)
+        points_in_image = boxTo2dPoints(box_array)
         if points_in_image is not None:
             points_in_image = points_in_image.T
             pts = np.int32(points_in_image)

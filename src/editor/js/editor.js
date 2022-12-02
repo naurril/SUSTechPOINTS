@@ -357,7 +357,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         // self.autoAdjust.mark_bbox(self.selectedBox);
         // event.currentTarget.blur();
         {
-          const id = objIdManager.generateNewUniqueId();
+          const id = objIdManager.generateNewUniqueId(this.data.world);
           self.fastToolBox.setValue(self.selectedBox.obj_type, id, self.selectedBox.obj_attr);
           self.setObjectId(id);
         }
@@ -620,40 +620,16 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
       case 'cm-reload':
 
-        reloadWorldList([this.data.world], () => {
-          this.onLoadWorldFinished(this.data.world);
-          this.header.updateModifiedStatus();
-        });
+        // reloadWorldList([this.data.world], () => {
+        //   this.onLoadWorldFinished(this.data.world);
+        //   this.header.updateModifiedStatus();
+        // });
+        this.reloadCurrentWorld();
 
         break;
 
       case 'cm-reload-all':
-        {
-          const modifiedFrames = this.data.worldList.filter(w => w.annotation.modified);
-
-          if (modifiedFrames.length > 0) {
-            this.infoBox.show(
-              'Confirm',
-                        `Discard changes to ${modifiedFrames.length} frames, continue to reload?`,
-                        ['yes', 'no'],
-                        (choice) => {
-                          if (choice === 'yes') {
-                            reloadWorldList(this.data.worldList, () => {
-                              this.onLoadWorldFinished(this.data.world);
-                              this.header.updateModifiedStatus();
-                            });
-                          }
-                        }
-            );
-          } else {
-            reloadWorldList(this.data.worldList, () => {
-              this.onLoadWorldFinished(this.data.world);
-              this.header.updateModifiedStatus();
-            });
-
-            objIdManager.forceUpdate();
-          }
-        }
+        this.reloadAllWorlds();
         break;
 
       case 'cm-stop':
@@ -1410,7 +1386,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     const box = this.createBoxByPoints(points, initRoationZ);
 
-    const id = objIdManager.generateNewUniqueId();
+    const id = objIdManager.generateNewUniqueId(this.data.world);
     box.obj_id = id;
 
     // this.scene.add(box);
@@ -1756,7 +1732,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     return box;
   };
 
-  this.addBoxOnMousePose = function (objType) {
+  this.addBoxOnMousePosition = function (objType) {
     // todo: move to this.data.world
     const globalP = this.mouse.getMouseLocationInWorld();
 
@@ -1773,9 +1749,17 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       z: objCfg.size[2]
     };
 
-    pos.z = -1.8 + scale.z / 2; // -1.8 is height of lidar
+    const groundLevel = this.data.world.lidar.computeGroundLevel({
+      position: pos,
+      scale, 
+      rotation
+    });
 
-    const id = objIdManager.generateNewUniqueId();
+    console.log("ground level", groundLevel);
+
+    pos.z = groundLevel + scale.z / 2; // -1.8 is height of lidar
+
+    const id = objIdManager.generateNewUniqueId(this.data.world);
 
     objIdManager.addObject({
       category: objType,
@@ -2226,6 +2210,59 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     this.viewManager.mainView.orbit.update();
   };
 
+  this.reloadCurrentWorld = function(){
+    this.deactivateCurrentWorld();
+    this.data.deleteWorld(this.data.world);
+    this.loadWorld(
+      this.data.world.frameInfo.scene, 
+      this.data.world.frameInfo.frame);
+  }
+
+  this.reloadAllWorlds = function(){
+
+    const doReload = ()=>{
+      this.deactivateCurrentWorld();
+
+      //this.data.deleteWorld(this.data.world);
+      this.data.worldList.forEach(w=>{
+         this.data.deleteWorld(w);
+      });
+
+      this.loadWorld(
+        this.data.world.frameInfo.scene, 
+        this.data.world.frameInfo.frame);
+
+
+      // this.data.worldList.forEach(w=>{
+      //   this.data.deleteWorld(w);
+      //   this.loadWorld(
+      //     w.frameInfo.scene, 
+      //     w.frameInfo.frame);
+      // });
+
+      // objIdManager.forceUpdate();
+
+
+    }
+
+
+    const modifiedFrames = this.data.worldList.filter(w => w.annotation.modified);
+    if (modifiedFrames.length > 0) {
+      this.infoBox.show(
+        'Confirm',
+                  `Discard changes to ${modifiedFrames.length} frames, continue to reload?`,
+                  ['yes', 'no'],
+                  (choice) => {
+                    if (choice === 'yes') {
+                      doReload();
+                    }
+                  }
+      );
+    } else {
+      doReload();
+    }
+  }
+
   this.loadWorld = async function (sceneName, frame, onFinished) {
     this.data.dbg.dump();
 
@@ -2267,6 +2304,15 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       );
     }
   };
+
+  this.deactivateCurrentWorld = function() {
+      this.unselectBox(null, true);
+      this.unselectBox(null, true);
+
+      if (this.data.world) {
+        this.data.world.deactivate();
+      }
+  }
 
   this.removeBox = function (box, render = true) {
     if (box === this.selectedBox) {
@@ -2442,7 +2488,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     this.contextMenu.installMenu('newSubMenu', this.editorUi.querySelector('#new-submenu'), (event) => {
       const objType = event.currentTarget.getAttribute('uservalue');
-      const box = this.addBoxOnMousePose(objType);
+      const box = this.addBoxOnMousePosition(objType);
       // switch_bbox_type(event.currentTarget.getAttribute("uservalue"));
       // self.boxOp.growBox(box, 0.2, {x:2, y:2, z:3});
       // self.auto_shrink_box(box);

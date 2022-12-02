@@ -6,7 +6,7 @@ import re
 import argparse
 
 
-parser = argparse.ArgumentParser(description='start web server for sem-seg')        
+parser = argparse.ArgumentParser(description='statistic of labels')        
 parser.add_argument('--users', type=str,default='.*', help="")
 args = parser.parse_args()
 

@@ -16,22 +16,29 @@ function reloadWorldList (worldList, done) {
         frame: w.frameInfo.frame
       };
     });
-    jsonrpc('/api/loadworldlist', 'POST', para).then(anns => {
-      // load annotations
-      anns.forEach(a => {
-        const world = worldList.find(w => {
-          return (w.frameInfo.scene === a.scene &&
-                            w.frameInfo.frame === a.frame);
-        });
-        if (world) {
-          world.annotation.reapplyAnnotation(a.annotation.objs ? a.annotation.objs : a.annotation);
-        } else {
-          console.error('bug?');
-        }
-      });
 
-      if (done) { done(); }
-    });
+    
+    // jsonrpc('/api/loadworldlist', 'POST', para).then(anns => {
+    //   // load annotations
+    //   anns.forEach(a => {
+    //     const world = worldList.find(w => {
+    //       return (w.frameInfo.scene === a.scene &&
+    //                         w.frameInfo.frame === a.frame);
+    //     });
+    //     if (world) {
+    //       world.annotation.reapplyAnnotation(a.annotation.objs ? a.annotation.objs : a.annotation);
+    //     } else {
+    //       console.error('bug?');
+    //     }
+    //   });
+
+    //   if (done) { done(); }
+    // });
+
+    const data = worldList[0].data;
+    data.deleteWorldList(worldList);
+    
+
   },
 
   500);

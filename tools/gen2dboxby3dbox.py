@@ -13,9 +13,10 @@ import argparse
 import re
 
 
-parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
+parser = argparse.ArgumentParser(description='generate 2d boxes by 3d boxes')        
 parser.add_argument('data_folder', type=str, default='./data', help="")
 parser.add_argument('--scenes', type=str, default='.*', help="")
+parser.add_argument('--frames', type=str, default='.*', help="")
 parser.add_argument('--camera_types', type=str, default='aux_camera', help="")
 parser.add_argument('--camera_names', type=str, default='front', help="")
 parser.add_argument('--image_width', type=int, default=640, help="")
@@ -116,6 +117,8 @@ def proj_pts3d_to_img(pts, extrinsic_matrix, intrinsic_matrix, width, height):
 
 def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, intrinsic, objs):
 
+    print(camera_type, camera)
+
     label2d_file = os.path.join(data_folder, scene, 'label_fusion', camera_type, camera, frame+".json")
 
     if os.path.exists(label2d_file):
@@ -146,6 +149,7 @@ def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, int
             'objs': []
         }
 
+    print(len(label['objs']), 'manual boxes')
     for o in objs:
 
         label_index = None
@@ -154,6 +158,7 @@ def gen_2dbox_for_frame_camera(scene, frame, camera_type, camera, extrinsic, int
                 label_index = idx
                 continue
         
+        # manually anotated 2d-rectange.dont overwrite.
         if label_index is not None:
             continue
 
@@ -296,7 +301,8 @@ def gen_2dbox_for_one_scene(scene):
     frames = list(frames)
     frames.sort()
     for frame in frames:
-        gen_2dbox_for_frame(scene, frame, calibs)
+        if re.fullmatch(args.frames, frame):
+            gen_2dbox_for_frame(scene, frame, calibs)
 
 
 for s in scenes:
