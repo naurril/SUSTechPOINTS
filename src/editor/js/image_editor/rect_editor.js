@@ -213,6 +213,24 @@ class RectEditor {
         this.selectedRect.data.obj_id = rect.obj_id;
         this.selectedRect.data.obj_type = rect.obj_type;
         this.selectedRect.data.obj_attr = rect.obj_attr;
+        
+        this.selectedRect.data.annotator = '3dbox';
+        this.updateDivLabel(this.selectedRect);
+        this.ctrl.rectUpdated();
+        this.save();
+      }
+    }
+  }
+
+  onResetByRemoveGroundPoints () {
+    if (this.selectedRect) {
+      const rect = this.image.generate2dRectByPointsByIdByRemoveGroundPoints(this.selectedRect.data.obj_id);
+      if (rect) {
+        this.modifyRectangle(this.selectedRect, rect.rect);
+        this.selectedRect.data.rect = rect.rect;
+        this.selectedRect.data.obj_id = rect.obj_id;
+        this.selectedRect.data.obj_type = rect.obj_type;
+        this.selectedRect.data.obj_attr = rect.obj_attr;
         // modifying individual rect means final annotation
         delete this.selectedRect.data.annotator;
         this.updateDivLabel(this.selectedRect);
@@ -239,6 +257,9 @@ class RectEditor {
       }
     }
   }
+
+
+
   hide3dBox () {
     this.canvas.querySelector('#svg-boxes').style.display = 'none';
 

@@ -771,6 +771,28 @@ class ImageContext extends ResizableMoveableView {
     return null;
   }
 
+
+
+  generate2dRectByPointsByIdByRemoveGroundPoints (id) {
+    const calib = this.getCalib();
+    if (!calib) {
+      return [];
+    }
+
+    const img = this.world[this.cameraType].getImageByName(this.cameraName);
+
+    if (!img || img.width === 0) {
+      return [];
+    }
+
+    const box = this.world.annotation.boxes.find(b => b.obj_id === id);
+
+    window.editor.removeGroundPoints(box);
+
+    return this.generate2dRectByPointsById(id);
+  }
+
+
   generate2dRectByBoxById (id) {
     const calib = this.getCalib();
     if (!calib) {

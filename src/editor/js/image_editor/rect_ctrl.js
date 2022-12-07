@@ -54,6 +54,10 @@ class RectCtrl {
       this.editor.onResetBy3DBox();
     };
 
+    this.toolBoxUi.querySelector('#label-remove-ground-points').onclick = (e) => {
+      this.editor.onResetByRemoveGroundPoints();
+    };
+
     this.objTypeEditor = new ObjTypeEditor(this.toolBoxUi.querySelector('#object-category-selector'));
     this.attrEditor = new AttrEditor(this.toolBoxUi.querySelector('#attr-editor'), this.eventHandler.bind(this));
 

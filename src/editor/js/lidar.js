@@ -723,7 +723,7 @@ class Lidar {
     return this.getPointsOfBoxInternal(this.points, box, scaleRatio);
   }
 
-  getPointsOfBoxInWorldCoordinates (box, scaleRatio) {
+  getPointsOfBoxInWorldCoordinates (box, scaleRatio, groundLevel=0.3) {
     const posArray = this.points.geometry.getAttribute('position').array;
     const { index, position } = this.getPointsOfBoxInternal(this.points, box, scaleRatio);
     const ptsTopPart = [];
@@ -732,7 +732,7 @@ class Lidar {
     // const groundHeight = Math.min(0.5, box.scale.z * 0.2)
 
     index.forEach((v, i) => {
-      if (position[i][2] < -box.scale.z / 2 + 0.3) {
+      if (position[i][2] < -box.scale.z / 2 + groundLevel) {
         ptsGroundPart.push(posArray[v * 3]);
         ptsGroundPart.push(posArray[v * 3 + 1]);
         ptsGroundPart.push(posArray[v * 3 + 2]);

@@ -2307,7 +2307,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         // unselect first time
         this.viewManager.mainView.transformControl.detach();
       }
-      
+
       this.unselectBox(null, true);
       this.unselectBox(null, true);
 
@@ -2478,6 +2478,17 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     } else {
       this.header.clear_box_info();
     }
+  };
+
+  this.removeGroundPoints = function(box) {
+    if (!box) {
+      return;
+    }
+
+    box.scale.z = box.scale.z - 0.05;
+    box.position.z = box.position.z + 0.025;
+    this.onBoxChanged(box);
+
   };
 
   this.render2dLabels = function (world) {
