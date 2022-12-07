@@ -127,8 +127,7 @@
 						<div id="floating-labels" class="non-selectable"></div>
 					</div>
 
-					<div id="images-wrapper">
-					</div>
+
 					
 					
 					<div id="main-box-editor-wrapper"></div>
@@ -320,6 +319,11 @@
 						
 					</div>
 
+					<div id="images-wrapper">
+					</div>
+					
+
+
 				</div>
 				
 				<div id="context-menu-wrapper" class="non-selectable">
@@ -489,14 +493,19 @@
 							<div class="menu-item-text">Stat</div>				
 						</div>
 
-						<div class="menu-item" id="cm-check-scene">
+						<div class="menu-item" id="cm-check-3d-labels">
 							<div class="menu-item-icon"></div>
-							<div class="menu-item-text">Check scene</div>				
+							<div class="menu-item-text">Check 3d labels</div>				
 						</div>
 
-						<div class="menu-item" id="cm-check-frame">
+						<div class="menu-item" id="cm-check-2d-labels">
 							<div class="menu-item-icon"></div>
-							<div class="menu-item-text">Check frame</div>				
+							<div class="menu-item-text">Check 2d labels</div>				
+						</div>
+
+						<div class="menu-item" id="cm-show-all-objs">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">Show all objects</div>				
 						</div>
 
 					</div>
@@ -992,7 +1001,7 @@
 
 							<div class="menu-item menu-seperator"></div>
 							<div class="menu-item" id="cfg-show-log">
-								<span>Show logs</span>
+								<span>Show output window</span>
 							</div>
 
 							<div class="menu-item" id="cfg-take-screenshot">
@@ -1172,7 +1181,7 @@
 					</div>
 				</div>
 
-				<div id="log-wrapper" class="popup-window-wrapper" tabindex='-1'>
+				<div id="log-wrapper" class="popup-window-wrapper">
 					<div id="view">
 						<div id="header">
 							<span id="title">Output</span>
@@ -1204,11 +1213,14 @@
 						<div id="tabs">
 							<div id = "tab-log" class="tab-button tab-selected">Logs</div>
 							<div id = "tab-error" class="tab-button">Errors</div>
+							<div id = "tab-object" class="tab-button">Objects</div>
 						</div>
 						<div id="content">
 							<div id="content-logs">
 							</div>
 							<div id="content-errors">
+							</div>
+							<div id="content-objects">
 							</div>
 						</div>
 					</div>
@@ -1544,8 +1556,12 @@
 											reset view										
 									</div>
 									
-									<div id='generate-by-3d-boxes' class="menu-item">										
-										generate by 3d boxes
+									<div id='generate-by-3d-points' class="menu-item">										
+										generate by 3d points
+									</div>
+
+									<div id='check-rects' class="menu-item">										
+										check rects
 									</div>
 								</div>
 							</div>
@@ -1565,13 +1581,21 @@
 										<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
 									</g></svg>
 								</div>
-								<div id="label-reset-by-3dbox" class="ui-button"  title="regenerate by 3d box">
+								<div id="label-reset-by-3d-points" class="ui-button"  title="reset by 3d points">
 									<!-- <span class="ui-icon ui-icon-trash"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
 										<circle  cx=12 cy=12 r=8 />
 										<circle  cx=12 cy=12 r=1 />
 									</g></svg>
 								</div>
+
+								<div id="label-reset-by-3d-box" class="ui-button"  title="reset by 3d box corners">
+									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
+										<rect x="6" y="6" width="12" height="12"/>	
+									</g></svg>
+								</div>
+
 							</div>
 							<div class="obj-editor-row">
 								<select title="category"  id="object-category-selector"></select>							
@@ -1595,7 +1619,7 @@
 							</div>
 
 							<div class = "obj-editor-row">
-								
+								<div id="rect-info"></div>
 							</div>
 
 						</div>

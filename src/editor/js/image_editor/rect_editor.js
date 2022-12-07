@@ -1,5 +1,7 @@
 
 import { DropdownMenu } from '../common/sensible_dropdown_menu';
+import { logger } from '../log';
+import { calculate_rect_iou } from '../util';
 import { RectCtrl } from './rect_ctrl';
 
 class RectEditor {
@@ -80,7 +82,44 @@ class RectEditor {
       this.resetView();
     };
 
-    this.cfgUi.querySelector('#generate-by-3d-boxes').onclick = (e) => {
+    this.cfgUi.querySelector('#check-rects').onclick = (e) => {
+
+      const logs = [];
+      const rects = this.image.generate2dRects();
+      // insert new
+      rects.forEach(r => {
+        const existedRect = this.findRectById(r.obj_id);
+
+        if (!existedRect) {
+          logs.push(
+            {
+              frame_id: this.image.world.frameInfo.frame,
+              obj_id: r.obj_id,
+              obj_type: r.obj_type,
+              obj_attr: r.obj_attr,
+              desc: 'rect missing',
+            });
+        } else {
+          const iou = calculate_rect_iou(existedRect.data.rect, r.rect)
+          if (iou < 0.7) {
+            logs.push(
+              {
+                frame_id: this.image.world.frameInfo.frame,
+                obj_id: r.obj_id,
+                obj_type: r.obj_type,
+                obj_attr: r.obj_attr,
+                desc: `iou ${iou}`
+              });
+          }          
+        }
+      });
+
+      logger.show();
+      logger.errorBtn.onclick();
+      logger.setErrorsContent(logs);
+    }
+
+    this.cfgUi.querySelector('#generate-by-3d-points').onclick = (e) => {
       if (!this.cfg.enableImageAnnotation) { return; }
 
       const rects = this.image.generate2dRects();
@@ -88,7 +127,7 @@ class RectEditor {
       // delete all generated and not modified boxes.
 
       Array.from(this.rects.children).forEach(r => {
-        if (r.data.annotator === '3dbox') {
+        if (r.data.annotator) {
           this.removeRect(r);
         }
       });
@@ -105,7 +144,7 @@ class RectEditor {
               obj_attr: r.obj_attr,
               annotator: '3dbox'
             });
-        } else if (existedRect.data.annotator === '3dbox') {
+        } else if (existedRect.data.annotator) {
           this.addRect(r.rect,
             {
               obj_id: r.obj_id,
@@ -165,21 +204,41 @@ class RectEditor {
     }
   }
 
-  onResetBy3DBox () {
+  onResetBy3DPoints () {
     if (this.selectedRect) {
-      const rect = this.image.generate2dRectById(this.selectedRect.data.obj_id);
+      const rect = this.image.generate2dRectByPointsById(this.selectedRect.data.obj_id);
       if (rect) {
         this.modifyRectangle(this.selectedRect, rect.rect);
         this.selectedRect.data.rect = rect.rect;
         this.selectedRect.data.obj_id = rect.obj_id;
         this.selectedRect.data.obj_type = rect.obj_type;
         this.selectedRect.data.obj_attr = rect.obj_attr;
+        // modifying individual rect means final annotation
+        delete this.selectedRect.data.annotator;
+        this.updateDivLabel(this.selectedRect);
         this.ctrl.rectUpdated();
         this.save();
       }
     }
   }
 
+  onResetBy3DBox () {
+    if (this.selectedRect) {
+      const rect = this.image.generate2dRectByBoxById(this.selectedRect.data.obj_id);
+      if (rect) {
+        this.modifyRectangle(this.selectedRect, rect.rect);
+        this.selectedRect.data.rect = rect.rect;
+        this.selectedRect.data.obj_id = rect.obj_id;
+        this.selectedRect.data.obj_type = rect.obj_type;
+        this.selectedRect.data.obj_attr = rect.obj_attr;
+        // modifying individual rect means final annotation
+        delete this.selectedRect.data.annotator;
+        this.updateDivLabel(this.selectedRect);
+        this.ctrl.rectUpdated();
+        this.save();
+      }
+    }
+  }
   hide3dBox () {
     this.canvas.querySelector('#svg-boxes').style.display = 'none';
 
@@ -511,6 +570,10 @@ class RectEditor {
     const objs = Array.from(this.rects.children).map(svg => svg.data);
     data.objs = objs;
 
+    if (this.version) {
+      data.version = this.version;
+    }
+
     // jsonrpc('/api/save_image_annotation', 'POST', data).then(ret=>{
     const ret = this.store.save(data);
     console.log('saved', ret);
@@ -527,6 +590,10 @@ class RectEditor {
     if (ret.frame !== this.frame || ret.cameraType !== this.cameraType || ret.cameraName !== this.cameraName) {
       console.log('lagged data. ignored.');
       return;
+    }
+
+    if (ret.version) {
+      this.version = ret.version;
     }
 
     ret.objs.forEach(r => {
@@ -607,7 +674,7 @@ class RectEditor {
   updateDivLabel (svg) {
     svg.divLabel.className = 'float-label ' + svg.data.obj_type;
     svg.divLabel.innerText = svg.data.obj_type + (svg.data.obj_attr ? (',' + svg.data.obj_attr) : '') +
-            (svg.data.obj_id ? (',' + svg.data.obj_id) : '');
+            (svg.data.obj_id ? (',' + svg.data.obj_id) : '') + (svg.data.annotator ? (',' + svg.data.annotator) : '');
 
     const p = this.svgPointToUiPoint({ x: svg.data.rect.x1, y: svg.data.rect.y1 });
 

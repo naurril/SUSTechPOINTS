@@ -1,4 +1,9 @@
 
+
+#
+# check labels for consecutive frames.
+#
+
 import json
 import os
 import sys

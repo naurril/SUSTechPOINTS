@@ -735,7 +735,7 @@ class ImageContext extends ResizableMoveableView {
     }).filter(x => !!x);
   }
 
-  generate2dRectById (id) {
+  generate2dRectByPointsById (id) {
     const calib = this.getCalib();
     if (!calib) {
       return [];
@@ -770,6 +770,41 @@ class ImageContext extends ResizableMoveableView {
 
     return null;
   }
+
+  generate2dRectByBoxById (id) {
+    const calib = this.getCalib();
+    if (!calib) {
+      return [];
+    }
+
+    const img = this.world[this.cameraType].getImageByName(this.cameraName);
+
+    if (!img || img.width === 0) {
+      return [];
+    }
+
+    const box = this.world.annotation.boxes.find(b => b.obj_id === id);
+
+    if (box) {
+      const corners4d = pxrToXyz(box.position, box.scale, box.rotation)
+      const corners = vector4to3(corners4d)
+      const cornersOnImg = points3dToImage2d(corners, calib, true, null, img.width, img.height);
+
+      if (cornersOnImg.length > 3) {
+        const range = this.find2dPointsRange(cornersOnImg);
+
+        return {
+          rect: { x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+          obj_id: box.obj_id,
+          obj_type: box.obj_type,
+          obj_attr: box.obj_attr
+        };
+      }
+    }
+
+    return null;
+  }
+
 
   drawSvg () {
     // draw picture
@@ -1254,8 +1289,8 @@ function points3dHomoToImage2d (points3d, calib, acceptPartial = false, saveMap,
         let x = imgfinal[i * 2];
         let y = imgfinal[i * 2 + 1];
 
-        x = Math.round(x);
-        y = Math.round(y);
+        // x = Math.round(x);
+        // y = Math.round(y);
         if (x >= 0 && x < imageDx && y >= 0 && y < imageDy) {
           if (saveMap) {
             saveMap[imageDx * y + x] = [i, posInCameraSpace[i * 4 + 0], posInCameraSpace[i * 4 + 1], posInCameraSpace[i * 4 + 2]]; // save index? a little dangerous! //[points3d[i*4+0], points3d[i*4+1], points3d[i*4+2]];

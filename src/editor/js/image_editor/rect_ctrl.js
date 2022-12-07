@@ -46,7 +46,11 @@ class RectCtrl {
       this.editor.onDel();
     };
 
-    this.toolBoxUi.querySelector('#label-reset-by-3dbox').onclick = (e) => {
+    this.toolBoxUi.querySelector('#label-reset-by-3d-points').onclick = (e) => {
+      this.editor.onResetBy3DPoints();
+    };
+
+    this.toolBoxUi.querySelector('#label-reset-by-3d-box').onclick = (e) => {
       this.editor.onResetBy3DBox();
     };
 
@@ -100,6 +104,8 @@ class RectCtrl {
     // this.toolBoxUi.querySelector("#attr-input").value = this.g.data.box3d.obj_attr;
 
     this.attrEditor.setAttrOptions(b.obj_type, b.obj_attr);
+
+    this.toolBoxUi.querySelector('#rect-info').innerText = `${(b.rect.x2 - b.rect.x1).toFixed(1)},${(b.rect.y2 - b.rect.y1).toFixed(1)}`
   }
 
   showFloatingToolBox () {

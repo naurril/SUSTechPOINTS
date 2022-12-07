@@ -6,9 +6,10 @@ import { objIdManager } from './obj_id_list.js';
 import { globalKeyDownManager } from './keydown_manager.js';
 import { ml } from './ml.js';
 
-import { checkScene } from './error_check.js';
+import { check3dLabels } from './error_check.js';
 import { logger } from './log.js';
 import { globalObjectCategory } from './obj_cfg.js';
+import { start } from './main.js';
 
 /*
 2 ways to attach and edit a box
@@ -97,14 +98,20 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
       this.selectEventId = eventId;
 
 
-      this.fastToolbox.show(this.handleFastToolboxEvent, 'notools');      
-      this.fastToolbox.setPos({
-        top: this.ui.getClientRects()[0].y+"px",
-        left:this.ui.getClientRects()[0].x+"px",
-      });
-      this.fastToolbox.target = this;
+     
       if (this.box) {
-        this.fastToolbox.setValue(this.box.obj_type, this.box.obj_id, this.box.obj_attr);
+        const rect = this.ui.getClientRects()[0];
+
+        if (rect) {
+          this.fastToolbox.show(this.handleFastToolboxEvent, 'notools');      
+          this.fastToolbox.setPos({
+            top: rect.y+"px",
+            left:rect.x+"px",
+          });
+
+          this.fastToolbox.target = this;
+          this.fastToolbox.setValue(this.box.obj_type, this.box.obj_id, this.box.obj_attr);
+        }
       }
 
     } else {      
@@ -535,7 +542,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     this.reset();
 
     this.editingTarget.frameIndex = sceneMeta.frames.findIndex(f => f === frame);
-    this.editingTarget.startIndex = startIndex;
+    
     this.editingTarget.data = data;
     this.editingTarget.sceneMeta = sceneMeta;
 
@@ -548,8 +555,18 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     boxes = boxes.sort((a,b)=>a.obj_type > b.obj_type?1:-1);
 
-    boxes = boxes.slice(startIndex, startIndex+this.batchSize);
+    if (startIndex === -1)
+    {
+      startIndex = boxes.length - (boxes.length % this.batchSize);
+    }
 
+    if (startIndex === boxes.length) {
+      startIndex -= this.batchSize;
+    }
+
+    this.editingTarget.startIndex = startIndex;
+    boxes = boxes.slice(startIndex, startIndex+this.batchSize);
+  
     boxes.forEach((box, editorIndex)=>{
       const editor = this.addEditor();
       editor.setIndex(editorIndex);
@@ -1115,7 +1132,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       case 'cm-check':
         {
           const scene = this.editingTarget.sceneMeta.scene;
-          checkScene(scene);
+          check3dLabels(scene);
           logger.show();
           logger.errorBtn.onclick();
         }
@@ -1232,10 +1249,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         logger.log('hide batch edit window.');
         this.reset();
         logger.log('reset batch edit window.');
-        if (this.onExit) {
-          this.onExit();
-          logger.log('called exit cb.');
-        }
+        this.exit();
 
         break;
       case 'PageUp':
@@ -1256,6 +1270,20 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     return false;
   };
+
+  this.exit = function() {
+
+    if (this.onExit) {
+
+      if (this.isCheckingFrameMode) {
+        this.onExit(this.editingTarget.frame);
+      } else {
+        this.onExit();
+      }
+
+      logger.log('called exit cb.');
+    }
+  }
 
   const keydownHandler = (event) => this.keydownHandler(event);
 
@@ -1348,7 +1376,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     this.hide();
 
     this.reset();
-    if (this.onExit) { this.onExit(targetFrame, targetTrackId); }
+    if (this.onExit) { 
+      this.onExit(targetFrame, targetTrackId); 
+    }
   };
 
   this.autoAnnotate = async function (applyIndList, dontRotate) {
@@ -1454,7 +1484,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     this.reset();
 
-    if (this.onExit) { this.onExit(); }
+    this.exit();
   };
 
   this.toolbox.querySelector('#next').onclick = () => {
@@ -1564,7 +1594,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex - 1, 0)],
         this.editingTarget.objType,
-        0);
+        -1);
     }
   }
 

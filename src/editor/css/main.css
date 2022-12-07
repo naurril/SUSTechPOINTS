@@ -1034,7 +1034,7 @@ td {
 	height: 100%;
 	width: 100%;
 }
-#log-wrapper #content #content-logs,#content-errors {
+#log-wrapper #content #content-logs,#content-errors,#content-objects {
 	height: 100%;
 	width: 100%;
 	line-height: 1.5;

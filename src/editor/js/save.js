@@ -1,5 +1,5 @@
 
-import { checkScene } from './error_check.js';
+import { check3dLabels } from './error_check.js';
 import { jsonrpc } from './jsonrpc.js';
 import { logger } from './log.js';
 
@@ -63,7 +63,7 @@ function saveWorldList (worldList) {
       window.editor.header.updateModifiedStatus();
 
       if (window.editor.editorCfg.autoCheckScene) {
-        checkScene(scene);
+        check3dLabels(scene);
       }
     });
 

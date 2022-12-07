@@ -10,6 +10,7 @@ class LogWindow extends PopupDialog {
     this.viewUi = this.ui.querySelector('#view');
     this.logsContentUi = this.ui.querySelector('#content-logs');
     this.errorsContentUi = this.ui.querySelector('#content-errors');
+    this.objectsContentUi = this.ui.querySelector('#content-objects');
     this.clearBtn = this.ui.querySelector('#btn-clear');
 
     this.clearBtn.onclick = () => { this.logsContentUi.innerHTML = ''; };
@@ -17,22 +18,40 @@ class LogWindow extends PopupDialog {
 
     this.logBtn = this.ui.querySelector('#tab-log');
     this.errorBtn = this.ui.querySelector('#tab-error');
+    this.objectBtn = this.ui.querySelector('#tab-object');
 
     this.logBtn.onclick = () => {
       this.logBtn.className = 'tab-button tab-selected';
       this.errorBtn.className = 'tab-button';
+      this.objectBtn.className =  'tab-button';
 
       this.logsContentUi.style.display = 'inherit';
       this.errorsContentUi.style.display = 'none';
+      this.objectsContentUi.style.display = 'none';
     };
 
     this.errorBtn.onclick = () => {
       this.errorBtn.className = 'tab-button tab-selected';
       this.logBtn.className = 'tab-button';
+      this.objectBtn.className =  'tab-button';
 
       this.logsContentUi.style.display = 'none';
       this.errorsContentUi.style.display = 'inherit';
+      this.objectsContentUi.style.display = 'none';
     };
+
+    this.objectBtn.onclick = () => {
+      this.errorBtn.className = 'tab-button';
+      this.logBtn.className = 'tab-button';
+      this.objectBtn.className =  'tab-button tab-selected';
+
+      this.logsContentUi.style.display = 'none';
+      this.errorsContentUi.style.display = 'none';
+      this.objectsContentUi.style.display = 'inherit';
+
+      this.setObjectsContent();
+    };
+
 
     this.resizeObserver = new ResizeObserver(elements => {
       if (elements[0].contentRect.height === 0) { return; }
@@ -54,7 +73,7 @@ class LogWindow extends PopupDialog {
 
   setErrorsContent (errors) {
     const summary = `${errors.length} warnings.<br>`;
-    const text = errors.map(r => `<a class='log-object-frame-id'>${r.frame_id},${r.obj_id}</a>, ${r.desc}<br>`).reduce((a, b) => a + b, summary);
+    const text = errors.map(r => `<a class='log-object-frame-id'>${r.frame_id},${r.obj_id}</a>,${r.camera_type?r.camera_type:''}, ${r.camera?r.camera:''}, ${r.desc}<br>`).reduce((a, b) => a + b, summary);
     this.errorsContentUi.innerHTML = text;
 
     this.errorsContentUi.querySelectorAll('.log-object-frame-id').forEach(ele => {
@@ -62,6 +81,22 @@ class LogWindow extends PopupDialog {
         const obj = event.currentTarget.innerHTML.split(',');
         console.log('click', obj);
         window.editor.currentMainEditor.gotoObjectFrame(...obj); // frameid, objid
+      };
+    });
+  }
+
+  setObjectsContent() {    
+    const boxes = window.editor.data.world.annotation.boxes.concat();
+
+    const objects = boxes.sort((a,b)=>a.obj_id - b.obj_id);
+    const text = objects.map(r => `<a class='log-object-frame-id'>${r.obj_id},${r.obj_type}</a><br>`).reduce((a, b) => a + b, '');
+    this.objectsContentUi.innerHTML = text;
+
+    this.objectsContentUi.querySelectorAll('.log-object-frame-id').forEach(ele => {
+      ele.onclick = (event) => {
+        const obj = event.currentTarget.innerHTML.split(',');
+        console.log('click', obj);
+        window.editor.currentMainEditor.gotoObjectFrame(window.editor.data.world.frameInfo.frame, obj[0]); // frameid, objid
       };
     });
   }

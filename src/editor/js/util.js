@@ -561,6 +561,38 @@ function intersect (boxA, boxB) {
   return cornersAinB(boxA, boxB) || cornersAinB(boxB, boxA);
 }
 
+function calculate_rect_iou(a,b) {
+    const i = intersect(a, b)
+
+    if (i['x2'] < i['x1'] || i['y2'] < i['y1']) {
+        return 0
+    } else {
+        return area(i)/(area(a)+area(b) - area(i))
+    }
+
+    
+      function area(r) {
+          return (r['x2'] - r['x1']) * (r['y2'] - r['y1'])
+      }
+      
+      
+      function intersect(a,b){
+          const x1 = Math.max(a['x1'], b['x1'])
+          const y1 = Math.max(a['y1'], b['y1'])
+      
+          const x2 = Math.min(a['x2'], b['x2'])
+          const y2 = Math.min(a['y2'], b['y2'])
+      
+          return {
+              'x1': x1,
+              'x2': x2,
+              'y1': y1,
+              'y2': y2
+          }
+        }
+}
+
+
 export {
   dotproduct, vectorRange, arrayAsVectorRange, arrayAsVectorIndexRange, vector4to3, vector3Nomalize, pxrToXyz, matmul,
   matmul2,
@@ -569,5 +601,6 @@ export {
   transpose,
   mat,
   normalizeAngle,
-  intersect
+  intersect,
+  calculate_rect_iou
 };

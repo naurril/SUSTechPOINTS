@@ -23,7 +23,7 @@ import { ConfigUi } from './config_ui.js';
 import { MovableView } from './common/popup_dialog.js';
 import { globalKeyDownManager } from './keydown_manager.js';
 import { vectorRange } from './util.js';
-import { checkScene } from './error_check.js';
+import { check3dLabels, check2dLabels } from './error_check.js';
 import { jsonrpc } from './jsonrpc.js';
 import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 
@@ -682,15 +682,25 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         break;
         /// object
 
-      case 'cm-check-scene':
+      case 'cm-check-3d-labels':
         {
           const scene = this.data.world.frameInfo.scene;
-          checkScene(scene);
+          check3dLabels(scene);
           logger.show();
           logger.errorBtn.onclick();
         }
         break;
-      case 'cm-check-frame':
+
+      case 'cm-check-2d-labels':
+          {
+            const scene = this.data.world.frameInfo.scene;
+            check2dLabels(scene);
+            logger.show();
+            logger.errorBtn.onclick();
+          }
+          break;
+
+      case 'cm-show-all-objs':
         this.editBatch(this.data.world.frameInfo.scene, this.data.world.frameInfo.frame)
         break;
 
@@ -2283,18 +2293,21 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     //     return;
     // }
 
-    if (this.selectedBox && this.selectedBox.in_highlight) {
-      this.cancelFocus(this.selectedBox);
-    }
 
-    if (this.viewManager.mainView && this.viewManager.mainView.transformControl.visible) {
-      // unselect first time
-      this.viewManager.mainView.transformControl.detach();
-    }
 
     const world = await this.data.getWorld(sceneName, frame);
 
     if (world !== this.data.world) {
+
+      if (this.selectedBox && this.selectedBox.in_highlight) {
+        this.cancelFocus(this.selectedBox);
+      }
+  
+      if (this.viewManager.mainView && this.viewManager.mainView.transformControl.visible) {
+        // unselect first time
+        this.viewManager.mainView.transformControl.detach();
+      }
+      
       this.unselectBox(null, true);
       this.unselectBox(null, true);
 
@@ -2310,6 +2323,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         },
         true
       );
+    } else {
+      if (onFinished) { onFinished(); }
     }
   };
 
