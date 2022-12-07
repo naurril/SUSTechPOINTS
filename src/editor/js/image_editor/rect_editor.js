@@ -230,9 +230,8 @@ class RectEditor {
         this.selectedRect.data.rect = rect.rect;
         this.selectedRect.data.obj_id = rect.obj_id;
         this.selectedRect.data.obj_type = rect.obj_type;
-        this.selectedRect.data.obj_attr = rect.obj_attr;
-        // modifying individual rect means final annotation
-        delete this.selectedRect.data.annotator;
+        this.selectedRect.data.obj_attr = rect.obj_attr;        
+        this.selectedRect.data.annotator = '3dbox';
         this.updateDivLabel(this.selectedRect);
         this.ctrl.rectUpdated();
         this.save();
