@@ -88,6 +88,7 @@ class RectEditor {
       const rects = this.image.generate2dRects();
       // insert new
       rects.forEach(r => {
+        r = r.byPoints;
         const existedRect = this.findRectById(r.obj_id);
 
         if (!existedRect) {
@@ -112,6 +113,22 @@ class RectEditor {
               });
           }          
         }
+      });
+
+      Array.from(this.rects.children).forEach(x => {
+        const r = x.data;
+        const rect = x.data.rect;
+        if ((Math.abs(rect.x2 - rect.x1) < this.WIDTH * 0.005) || (Math.abs(rect.y2 - rect.y1) < this.WIDTH * 0.005)) {
+          logs.push(
+            {
+              frame_id: this.image.world.frameInfo.frame,
+              obj_id: r.obj_id,
+              obj_type: r.obj_type,
+              obj_attr: r.obj_attr,
+              desc: `too small`
+            });
+        }
+
       });
 
       logger.show();
@@ -140,7 +157,7 @@ class RectEditor {
         const existedRect = this.findRectById(r.obj_id);
 
         if (!existedRect) {
-          r = r.byPoints;
+          r = r.byPoints?r.byPoints:r.byCorners;
           this.addRect(r.rect,
             {
               obj_id: r.obj_id,
@@ -152,7 +169,7 @@ class RectEditor {
 
           if (existedRect.data.annotator === '3dbox') {
             
-            r = r.byPoints;
+            r = r.byPoints ? r.byPoints: r.byCorners;
             this.addRect(r.rect,
               {
                 obj_id: r.obj_id,
@@ -162,7 +179,7 @@ class RectEditor {
               });
               
           } else if (existedRect.data.annotator === 'corners') {
-            r = r.byCorners;
+            r = r.byCorners?r.byCorners:r.byPoints
             this.addRect(r.rect,
               {
                 obj_id: r.obj_id,

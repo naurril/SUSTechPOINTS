@@ -145,6 +145,13 @@ def proc_frame_camera(scene, meta, frame, camera_type, camera, extrinsic, intrin
             else:
                 print(frame, o['obj_id'], 'gen 2dbox failed.')
 
+        if True:
+            if o['rect']['x2'] - o['rect']['x1'] < meta[camera_type][camera]['width'] * 0.005:
+                print(frame, o['obj_id'], 'rect too small')
+            if o['rect']['y2'] - o['rect']['y1'] < meta[camera_type][camera]['width'] * 0.005:
+                print(frame, o['obj_id'], 'rect too small')
+
+
         # if corners_img.shape[0] == 0:
         #     print("rect points all out of image", o['obj_id'])
         #     continue        
