@@ -711,29 +711,21 @@ class ImageContext extends ResizableMoveableView {
       return [];
     }
 
-    return this.world.annotation.boxes.map((box) => {
-      // better remove ground before we calculate the width of the objects.
-      // we assume the objects are all upward.
-      const [points3dTopPart, points3dGroundPart] = this.world.lidar.getPointsOfBoxInWorldCoordinates(box);
-
-      const ptsTopPartOnImg = points3dToImage2d(points3dTopPart, calib, true, null, img.width, img.height);
-      const ptsGroundPartOnImg = points3dToImage2d(points3dGroundPart, calib, true, null, img.width, img.height);
-
-      if (ptsTopPartOnImg && ptsTopPartOnImg.length > 3) {
-        const range = this.find2dPointsRange(ptsTopPartOnImg);
-        const rangeGrd = this.find2dPointsRange(ptsGroundPartOnImg);
-
-        return {
-          rect: { x1: range.minx, y1: range.miny, x2: range.maxx, y2: rangeGrd.maxy ? rangeGrd.maxy : range.maxy },
-          obj_id: box.obj_id,
-          obj_type: box.obj_type,
-          obj_attr: box.obj_attr
-        };
-      } else {
-        return null;
+    const rects = this.world.annotation.boxes
+    .map((box) => {
+      return {
+        obj_id: box.obj_id,
+        byPoints: this.generateRectByPoints(box, img, calib),
+        byCorners: this.generateRectByCorners(box, img, calib),
       }
-    }).filter(x => !!x);
+    })
+    .filter(x => !!x.byPoints || !!x.byCorners);
+    
+   
+    return rects;
   }
+
+
 
   generate2dRectByPointsById (id) {
     const calib = this.getCalib();
@@ -750,7 +742,17 @@ class ImageContext extends ResizableMoveableView {
     const box = this.world.annotation.boxes.find(b => b.obj_id === id);
 
     if (box) {
-      const [points3dTopPart, points3dGroundPart] = this.world.lidar.getPointsOfBoxInWorldCoordinates(box);
+      return this.generateRectByPoints(box, img, calib);
+    }
+
+    return null;
+  }
+
+  generateRectByPoints(box, img, calib) {
+    // better remove ground before we calculate the width of the objects.
+    // we assume the objects are all upward.      
+
+    const [points3dTopPart, points3dGroundPart] = this.world.lidar.getPointsOfBoxInWorldCoordinates(box);
 
       const ptsTopPartOnImg = points3dToImage2d(points3dTopPart, calib, true, null, img.width, img.height);
       const ptsGroundPartOnImg = points3dToImage2d(points3dGroundPart, calib, true, null, img.width, img.height);
@@ -763,33 +765,34 @@ class ImageContext extends ResizableMoveableView {
           rect: { x1: range.minx, y1: range.miny, x2: range.maxx, y2: rangeGrd.maxy ? rangeGrd.maxy : range.maxy },
           obj_id: box.obj_id,
           obj_type: box.obj_type,
-          obj_attr: box.obj_attr
+          obj_attr: box.obj_attr,
+          annotator: '3dbox'
         };
       }
-    }
 
-    return null;
+      return null;
   }
-
-
 
   generate2dRectByPointsByIdByRemoveGroundPoints (id) {
     const calib = this.getCalib();
     if (!calib) {
-      return [];
+      return null;
     }
 
     const img = this.world[this.cameraType].getImageByName(this.cameraName);
 
     if (!img || img.width === 0) {
-      return [];
+      return null;
     }
 
     const box = this.world.annotation.boxes.find(b => b.obj_id === id);
 
-    window.editor.removeGroundPoints(box);
-
-    return this.generate2dRectByPointsById(id);
+    if (box) {
+      window.editor.removeGroundPoints(box);
+      return this.generateRectByPoints(box, img, calib);
+    } else {
+      return null;
+    }
   }
 
 
@@ -808,25 +811,32 @@ class ImageContext extends ResizableMoveableView {
     const box = this.world.annotation.boxes.find(b => b.obj_id === id);
 
     if (box) {
-      const corners4d = pxrToXyz(box.position, box.scale, box.rotation)
-      const corners = vector4to3(corners4d)
-      const cornersOnImg = points3dToImage2d(corners, calib, true, null, img.width, img.height);
-
-      if (cornersOnImg.length > 3) {
-        const range = this.find2dPointsRange(cornersOnImg);
-
-        return {
-          rect: { x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
-          obj_id: box.obj_id,
-          obj_type: box.obj_type,
-          obj_attr: box.obj_attr
-        };
-      }
+      return this.generateRectByCorners(box, img, calib);
     }
 
     return null;
   }
 
+
+  generateRectByCorners(box, img, calib) {
+    const corners4d = pxrToXyz(box.position, box.scale, box.rotation)
+    const corners = vector4to3(corners4d)
+    const cornersOnImg = points3dToImage2d(corners, calib, true, null, img.width, img.height);
+
+    if (cornersOnImg.length > 3) {
+      const range = this.find2dPointsRange(cornersOnImg);
+
+      return {
+        rect: { x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+        obj_id: box.obj_id,
+        obj_type: box.obj_type,
+        obj_attr: box.obj_attr,
+        annotator: 'corners'
+      };
+    }
+
+    return null;
+  }
 
   drawSvg () {
     // draw picture

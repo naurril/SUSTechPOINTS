@@ -214,3 +214,25 @@ def gen_2dbox_for_obj_pts(box3d_pts, extrinsic, intrinsic, width, height):
                 "y2": q2[1] if img_pts_ground.shape[0]>1 else p2[1] #p2[1]
             }
     return None
+
+
+def gen_2dbox_for_obj_corners(box3d, extrinsic, intrinsic, width, height):
+
+    corners = box3d_to_corners(box3d)
+    corners_img = proj_pts3d_to_img(corners, extrinsic, intrinsic,width, height) 
+    if corners_img.shape[0] == 0:
+        print("rect points all out of image", o['obj_id'])
+        return None
+        
+    corners_img = corners_img[:, 0:2]
+    p1 = np.min(corners_img, axis=0)
+    p2 = np.max(corners_img, axis=0)
+
+    rect = {
+            "x1": p1[0],
+            "y1": p1[1],
+            "x2": p2[0],
+            "y2": p2[1]
+        }
+
+    return rect

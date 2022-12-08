@@ -2485,8 +2485,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       return;
     }
 
-    box.scale.z = box.scale.z - 0.05;
-    box.position.z = box.position.z + 0.025;
+    box.scale.z = box.scale.z - 0.04;
+    box.position.z = box.position.z + 0.02;
     this.onBoxChanged(box);
 
   };

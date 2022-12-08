@@ -58,6 +58,10 @@ class RectCtrl {
       this.editor.onResetByRemoveGroundPoints();
     };
 
+    this.toolBoxUi.querySelector('#label-follow-other-image').onclick = (e) => {
+      this.editor.onResetByFollowOtherImage();
+    };
+
     this.objTypeEditor = new ObjTypeEditor(this.toolBoxUi.querySelector('#object-category-selector'));
     this.attrEditor = new AttrEditor(this.toolBoxUi.querySelector('#attr-editor'), this.eventHandler.bind(this));
 
@@ -109,7 +113,7 @@ class RectCtrl {
 
     this.attrEditor.setAttrOptions(b.obj_type, b.obj_attr);
 
-    this.toolBoxUi.querySelector('#rect-info').innerText = `${(b.rect.x2 - b.rect.x1).toFixed(1)},${(b.rect.y2 - b.rect.y1).toFixed(1)}`
+    this.toolBoxUi.querySelector('#rect-info').innerText = `pixel ${(b.rect.x2 - b.rect.x1).toFixed(1)},${(b.rect.y2 - b.rect.y1).toFixed(1)}, ${b.annotator?b.annotator:''}`
   }
 
   showFloatingToolBox () {
