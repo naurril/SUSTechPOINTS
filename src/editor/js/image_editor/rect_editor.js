@@ -88,7 +88,7 @@ class RectEditor {
       const rects = this.image.generate2dRects();
       // insert new
       rects.forEach(r => {
-        r = r.byPoints;
+        r = r.byPoints?r.byPoints:r.byCorners;
         const existedRect = this.findRectById(r.obj_id);
 
         if (!existedRect) {
@@ -136,14 +136,14 @@ class RectEditor {
       logger.setErrorsContent(logs);
     }
 
-    this.cfgUi.querySelector('#generate-by-3d-points').onclick = (e) => {
+    this.cfgUi.querySelector('#generate-by-3d-labels').onclick = (e) => {
       if (!this.cfg.enableImageAnnotation) { return; }
 
       const rects = this.image.generate2dRects();
 
       // delete all generated and not modified boxes.
 
-      const pendingDelRects = Array.from(this.rects.children).filter(r => (r.data.annotator === '3dbox'|| r.data.annotator === 'corners'));
+      let pendingDelRects = Array.from(this.rects.children).filter(r => (r.data.annotator === '3dbox'|| r.data.annotator === 'corners'));
       
       //     //this.removeRect(r);
       //     // replace
@@ -154,10 +154,12 @@ class RectEditor {
 
       // insert new
       rects.forEach(r => {
-        const existedRect = this.findRectById(r.obj_id);
+        
 
-        if (!existedRect) {
-          r = r.byPoints?r.byPoints:r.byCorners;
+        const method = this.getGeneratingMethodForObject(r.obj_id);
+        if (method === '3dbox') {
+            
+          r = r.byPoints ? r.byPoints: r.byCorners;
           this.addRect(r.rect,
             {
               obj_id: r.obj_id,
@@ -165,10 +167,24 @@ class RectEditor {
               obj_attr: r.obj_attr,
               annotator: r.annotator,
             });
-        } else {
-
-          if (existedRect.data.annotator === '3dbox') {
             
+        } else if (method === 'corners') {
+          r = r.byCorners?r.byCorners:r.byPoints
+          this.addRect(r.rect,
+            {
+              obj_id: r.obj_id,
+              obj_type: r.obj_type,
+              obj_attr: r.obj_attr,
+              annotator: r.annotator,
+            });
+
+        } else {
+          // keep current box.
+          // remove it from pending to be deleted.
+          const existedRect = this.findRectById(r.obj_id);
+          if (existedRect) {
+            pendingDelRects = pendingDelRects.filter(rect=>rect!= existedRect);
+          } else {
             r = r.byPoints ? r.byPoints: r.byCorners;
             this.addRect(r.rect,
               {
@@ -177,23 +193,13 @@ class RectEditor {
                 obj_attr: r.obj_attr,
                 annotator: r.annotator,
               });
-              
-          } else if (existedRect.data.annotator === 'corners') {
-            r = r.byCorners?r.byCorners:r.byPoints
-            this.addRect(r.rect,
-              {
-                obj_id: r.obj_id,
-                obj_type: r.obj_type,
-                obj_attr: r.obj_attr,
-                annotator: r.annotator,
-              });
-
-          } else {
-            // keep current box.
-          }
+          }          
         }
+
       });
 
+
+      // remove old rects.
       pendingDelRects.forEach(r => this.removeRect(r));
 
 
@@ -298,11 +304,7 @@ class RectEditor {
     }
   }
 
-  onResetByFollowOtherImage() {
-    if (!this.selectedRect) {
-      return;
-    }
-
+  getGeneratingMethodForObject(id) {
     let annotators = ['manual', 'corners', '3dbox']; //priority
     let annotator = 2; //3dbox
 
@@ -310,7 +312,7 @@ class RectEditor {
 
     ['camera', 'aux_camera'].forEach(camera_type => {
       Object.keys(anns[camera_type]).forEach(camera=>{
-        const rect = anns[camera_type][camera].objs.find(a=>a.obj_id === this.selectedRect.data.obj_id);
+        const rect = anns[camera_type][camera].objs.find(a=>a.obj_id === id);
         if (rect) {
           if (!rect.annotator) {
             if (annotator > 0) {
@@ -330,14 +332,25 @@ class RectEditor {
       });
     });
     
-    console.log(this.selectedRect.data.obj_id, annotators[annotator]);
+    //console.log(this.selectedRect.data.obj_id, annotators[annotator]);
 
-    if (annotator == 1) { //corners
+    return annotators[annotator];
+  }
+
+  onResetByFollowOtherImage() {
+    if (!this.selectedRect) {
+      return;
+    }
+
+    const method = this.getGeneratingMethodForObject(this.selectedRect.data.obj_id);
+
+    if (method === 'corners') { //corners
       this.onResetBy3DBox();
-    } else if (annotator == 2) {
+    } else if (method === '3dbox') {
       this.onResetBy3DPoints();
     } else {
       //manual, do nothing.
+      //this.onResetBy3DBox();
     }
 
   }
@@ -856,6 +869,7 @@ class RectEditor {
       this.selectedRect = rect;
 
       rect.classList.add('svg-rect-selected');
+      rect.divLabel.classList.add('div-rect-selected');
 
       if (this.cfg.enableImageAnnotation) {
         this.ctrl.attachRect(rect);
@@ -881,6 +895,7 @@ class RectEditor {
   cancelSelection () {
     if (this.selectedRect) {
       this.selectedRect.classList.remove('svg-rect-selected');
+      this.selectedRect.divLabel.classList.remove('div-rect-selected');
     }
     // this.canvas.querySelectorAll('.rect-svg-selected').forEach(e=>{
     //     e.setAttribute("class", "rect-svg");

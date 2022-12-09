@@ -757,12 +757,25 @@ class ImageContext extends ResizableMoveableView {
       const ptsTopPartOnImg = points3dToImage2d(points3dTopPart, calib, true, null, img.width, img.height);
       const ptsGroundPartOnImg = points3dToImage2d(points3dGroundPart, calib, true, null, img.width, img.height);
 
+      
+
       if (ptsTopPartOnImg && ptsTopPartOnImg.length > 3) {
         const range = this.find2dPointsRange(ptsTopPartOnImg);
         const rangeGrd = this.find2dPointsRange(ptsGroundPartOnImg);
 
+        let rect = { 
+          x1: range.minx, 
+          y1: range.miny, 
+          x2: range.maxx, 
+          y2: rangeGrd.maxy ? rangeGrd.maxy : range.maxy 
+        };
+
+        if ((rect.x2 - rect.x1 < 3) ||  (rect.y2 - rect.y1 < 3)) {
+          return null;
+        }
+
         return {
-          rect: { x1: range.minx, y1: range.miny, x2: range.maxx, y2: rangeGrd.maxy ? rangeGrd.maxy : range.maxy },
+          rect: rect,
           obj_id: box.obj_id,
           obj_type: box.obj_type,
           obj_attr: box.obj_attr,
@@ -826,8 +839,19 @@ class ImageContext extends ResizableMoveableView {
     if (cornersOnImg.length > 3) {
       const range = this.find2dPointsRange(cornersOnImg);
 
+      let rect = { 
+        x1: range.minx, 
+        y1: range.miny, 
+        x2: range.maxx, 
+        y2: range.maxy,
+      };
+
+      if ((rect.x2 - rect.x1 < 3) ||  (rect.y2 - rect.y1 < 3)) {
+        return null;
+      }
+
       return {
-        rect: { x1: range.minx, y1: range.miny, x2: range.maxx, y2: range.maxy},
+        rect: rect,
         obj_id: box.obj_id,
         obj_type: box.obj_type,
         obj_attr: box.obj_attr,
