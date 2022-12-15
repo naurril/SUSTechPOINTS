@@ -9,6 +9,7 @@ import { ml } from './ml.js';
 import { check3dLabels } from './error_check.js';
 import { logger } from './log.js';
 import { globalObjectCategory } from './obj_cfg.js';
+import { jsonrpc } from './jsonrpc.js';
 
 /*
 2 ways to attach and edit a box
@@ -653,7 +654,11 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   }
 
 
-  this.edit = function (data, sceneMeta, frame, objTrackId, objType, onExit) {
+  this.prepareFramesForObjType = async function(scene, objType){
+    this.editingTarget.frames = await jsonrpc(`/api/queryFrames?scene=${scene}&objtype=${objType}`)
+  }
+
+  this.edit = async function (data, sceneMeta, frame, objTrackId, objType, onExit) {
 
     this.show();
     this.reset();
@@ -669,6 +674,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     }
     
     if (objTrackId === undefined) {
+
+      await this.prepareFramesForObjType(sceneMeta.scene, objType);
+
       this.editObjectsInFrame(data, sceneMeta, frame, objType);
     } else {
       this.editObjById(data, sceneMeta, frame, objTrackId, objType);
@@ -1512,14 +1520,18 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   }
 
 
-  this.getNextFrameByObjType = async function(data, sceneMeta, currentFrameIndex, objType, step=1) {
-    console.log(`next obj ${objType}, from  ${currentFrameIndex}`)
+  this.getNextFrameByObjType = async function(data, sceneMeta, currentFrame, objType, step=1) {
+
+    const frames = this.editingTarget.frames;
+    let currentFrameIndex = frames.findIndex(x=>x===currentFrame);
+
+    console.log(`next obj ${objType}, from  ${currentFrame}`)
     let frameIndex;
     
     for (frameIndex = currentFrameIndex + step; 
-      frameIndex < data.world.sceneMeta.frames.length && frameIndex >=0;
+      frameIndex < frames.length && frameIndex >=0;
       frameIndex+=step) {
-        const frame = sceneMeta.frames[frameIndex];
+        const frame = frames[frameIndex];
         const world = await data.getWorld(sceneMeta.scene, frame);
         data.forcePreloadScene(sceneMeta.scene, world);
     
@@ -1567,7 +1579,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       const frameIndex = await this.getNextFrameByObjType(
         this.editingTarget.data,
         this.editingTarget.sceneMeta,
-        this.editingTarget.frameIndex,
+        this.editingTarget.frame,
         this.editingTarget.objType);
 
       if (frameIndex >= this.editingTarget.data.world.sceneMeta.frames.length ) {
@@ -1646,7 +1658,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       const frameIndex = await this.getNextFrameByObjType(
         this.editingTarget.data,
         this.editingTarget.sceneMeta,
-        this.editingTarget.frameIndex,
+        this.editingTarget.frame,
         this.editingTarget.objType,
         -1);
 

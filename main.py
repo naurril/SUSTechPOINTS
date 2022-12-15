@@ -514,7 +514,42 @@ class Api(object):
         scenes = usercfg[userid]['scenes']
       else:
         scenes = ".*"
+
       return scene_reader.get_all_scene_desc(scenes)
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def queryFrames(self, scene, objtype):
+      return self.get_frames_by_objtype(os.path.join(datacfg['global']['rootdir'],scene), objtype)
+
+    def get_frames_by_objtype(self, path, objtype):
+      label_folder = os.path.join(path, "label")
+      if not os.path.isdir(label_folder):
+        return []
+        
+      files = os.listdir(label_folder)      
+      files.sort()
+      files = filter(lambda x: x.split(".")[-1]=="json", files)
+
+
+      def contain_objtype(f):
+          if  not os.path.exists(f):
+            return False
+          with open(f) as fd:
+              ann = json.load(fd)
+              if 'objs' in ann:
+                boxes = ann['objs']
+              else:
+                boxes = ann
+              for b in boxes:
+                if b['obj_type'] == objtype:
+                  return True
+          return False
+
+      files = filter(lambda f: contain_objtype(os.path.join(path, "label", f)), files)
+      frames = map(lambda x: os.path.splitext(x)[0], files)
+
+      return list(frames)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
@@ -532,6 +567,8 @@ class Api(object):
 
 
       def file_2_objs(f):
+          if  not os.path.exists(f):
+            return []
           with open(f) as fd:
               ann = json.load(fd)
               if 'objs' in ann:
