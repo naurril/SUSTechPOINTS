@@ -152,7 +152,7 @@ class Data {
       return distant; // && !w.active && !w.annotation.modified;
     };
 
-    const distantWorldList = this.worldList.filter(w => disposable(w));
+    const distantWorldList = this.worldList.filter(w => (disposable(w) && (w !=this.world)));
 
     distantWorldList.forEach(w => {
       this.returnOffset(w.offsetIndex);
@@ -359,10 +359,11 @@ class Data {
   activateWorld (world, onFinished, show) {
     if (show) {
       this.world = world;
-
-      this.deleteOtherWorldsExcept(world.frameInfo.scene);
-      this.deleteDistantWorlds(world);
     }
+    
+    this.deleteOtherWorldsExcept(world.frameInfo.scene);
+    this.deleteDistantWorlds(world);
+    
     world.activate(this.webglScene, onFinished);
   }
 

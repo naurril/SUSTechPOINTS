@@ -16,9 +16,9 @@ class LabelChecker:
         self.load_labels()
 
         self.def_labels = [
-        "Car","Pedestrian","Van","Bus","Truck","ScooterRider","Scooter","BicycleRider","Bicycle","Motorcycle","MotorcyleRider","PoliceCar","TourCar","RoadWorker","Child",
+        "Car","Pedestrian","Van","Bus","Truck","ScooterRider","Scooter","BicycleRider","Bicycle","Motorcycle","MotorcycleRider","PoliceCar","TourCar","RoadWorker","Child",
         "BabyCart","Cart","Cone","FireHydrant","SaftyTriangle","PlatformCart","ConstructionCart","RoadBarrel","TrafficBarrier","LongVehicle","BicycleGroup","ConcreteTruck",
-        "Tram","Excavator","Animal","TrashCan","ForkLift","Trimotorcycle","FreightTricycle,","Crane","RoadRoller","Bulldozer","DontCare","Misc","Unknown","Unknown1","Unknown2",
+        "Tram","Excavator","Animal","TrashCan","ForkLift","Trimotorcycle","FreightTricycle","Crane","RoadRoller","Bulldozer","DontCare","Misc","Unknown","Unknown1","Unknown2",
         "Unknown3","Unknown4","Unknown5",
         ]
 
@@ -53,28 +53,30 @@ class LabelChecker:
         obj_ids = {}
 
         files.sort()
-        print(files)
+        #print(files)
 
 
         for id in self.frame_ids:
             f = id+".json"
             print(f)
-            with open(os.path.join(label_folder, f),'r') as fp:
-                l = json.load(fp)
 
-                if 'objs' in l:
-                    l = l['objs']
-                #print(l)
-                frame_id = os.path.splitext(f)[0]
-                labels[frame_id] = l
+            if os.path.exists(os.path.join(label_folder, f)):
+                with open(os.path.join(label_folder, f),'r') as fp:
+                    l = json.load(fp)
 
-                for o in l:
-                    obj_id = o['obj_id']
-                    if frame_id:
-                        if obj_ids.get(obj_id):
-                            obj_ids[obj_id].append([frame_id,o])
-                        else:
-                            obj_ids[obj_id] = [[frame_id,o]]
+                    if 'objs' in l:
+                        l = l['objs']
+                    #print(l)
+                    frame_id = os.path.splitext(f)[0]
+                    labels[frame_id] = l
+
+                    for o in l:
+                        obj_id = o['obj_id']
+                        if frame_id:
+                            if obj_ids.get(obj_id):
+                                obj_ids[obj_id].append([frame_id,o])
+                            else:
+                                obj_ids[obj_id] = [[frame_id,o]]
 
         self.labels = labels
         self.obj_ids = obj_ids
@@ -96,11 +98,11 @@ class LabelChecker:
 
 
     def check_obj_type(self, frame_id, o):
-        if not o["obj_type"] in self.def_labels:
+        if not o["obj_type"] in self.def_labels or o["obj_type"] == '':
             self.push_message(frame_id, o["obj_id"], "object type {} not recognizable".format(o["obj_type"]))
     
     def check_obj_id(self, frame_id, o):
-        if not o["obj_id"]:
+        if not o["obj_id"] or o["obj_id"] == '':
             self.push_message(frame_id, "", "object {} id absent".format(o["obj_type"]))
 
     def check_frame_duplicate_id(self, frame_id, objs):
@@ -186,9 +188,9 @@ class LabelChecker:
 
         self.check_one_frame(lambda f,o: self.check_frame_duplicate_id(f,o))
 
-        self.check_one_obj(lambda id, o: self.check_obj_size(id ,o))
-        self.check_one_obj(lambda id, o: self.check_obj_direction(id ,o))
-        self.check_one_obj(lambda id, o: self.check_obj_type_consistency(id ,o))
+        # self.check_one_obj(lambda id, o: self.check_obj_size(id ,o))
+        # self.check_one_obj(lambda id, o: self.check_obj_direction(id ,o))
+        # self.check_one_obj(lambda id, o: self.check_obj_type_consistency(id ,o))
 
 if __name__ == "__main__":
     ck = LabelChecker(sys.argv[1])

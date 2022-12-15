@@ -603,7 +603,9 @@ function BoxOp () {
 
       // box.material.opacity = box.world.data.cfg.box_opacity;
 
-      box.world.annotation.color_box(box);
+      if (box.world && box.world.annotation) {
+        box.world.annotation.color_box(box);
+      }
     }
   };
 

@@ -9,7 +9,6 @@ import { ml } from './ml.js';
 import { check3dLabels } from './error_check.js';
 import { logger } from './log.js';
 import { globalObjectCategory } from './obj_cfg.js';
-import { start } from './main.js';
 
 /*
 2 ways to attach and edit a box
@@ -110,7 +109,7 @@ function BoxEditor (parentUi, boxEditorManager, viewManager, cfg, boxOp,
           });
 
           this.fastToolbox.target = this;
-          this.fastToolbox.setValue(this.box.obj_type, this.box.obj_id, this.box.obj_attr);
+          this.fastToolbox.setValue(this.box.obj_type, this.box.obj_id, this.box.obj_attr, this.box);
         }
       }
 
@@ -535,7 +534,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     if (!world.preloaded()) {
       console.log("waiting, not loaded.");
       window.editor.infoBox.show('Notice',`frame loading in progress.`);
-      return;
+//      return;
     }
 
     this.show();
@@ -551,7 +550,16 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     this.editingTarget.frame = frame;
 
+
     let boxes = world.annotation.boxes.concat();
+    if (objType) {
+      boxes = boxes.filter(x=>x.obj_type == objType);
+    }
+
+    if (boxes.length === 0) {
+      window.editor.infoBox.show('Info', `Frame ${frame} contains no object of type ${this.editingTarget.objType}.`);
+      return;
+    }
 
     boxes = boxes.sort((a,b)=>a.obj_type > b.obj_type?1:-1);
 
@@ -773,7 +781,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   // manager
   this.onBoxChanged = function (e) {
 
-    if (this.isCheckingFrameMode) {
+    if (this.isCheckingFrameMode()) {
       return;
     }
 
@@ -1143,7 +1151,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         break;
 
       case 'cm-sync-size':
-        if (this.isCheckingFrameMode) {
+        if (this.isCheckingFrameMode()) {
 
         } else {
           this.editingTarget.data.worldList.forEach(w => {
@@ -1275,7 +1283,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     if (this.onExit) {
 
-      if (this.isCheckingFrameMode) {
+      if (this.isCheckingFrameMode()) {
         this.onExit(this.editingTarget.frame);
       } else {
         this.onExit();
@@ -1425,7 +1433,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.showTrajectory = () => {
 
-    if (this.isCheckingFrameMode) {
+    if (this.isCheckingFrameMode()) {
       return;
     }
 
@@ -1496,11 +1504,36 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.nextBatch = function() {
-    if (this.isCheckingFrameMode) {
+    if (this.isCheckingFrameMode()) {
       this.nextObjectBatch();
     } else {
       this.nextFrameBatch();
     }
+  }
+
+
+  this.getNextFrameByObjType = async function(data, sceneMeta, currentFrameIndex, objType, step=1) {
+    console.log(`next obj ${objType}, from  ${currentFrameIndex}`)
+    let frameIndex;
+    
+    for (frameIndex = currentFrameIndex + step; 
+      frameIndex < data.world.sceneMeta.frames.length && frameIndex >=0;
+      frameIndex+=step) {
+        const frame = sceneMeta.frames[frameIndex];
+        const world = await data.getWorld(sceneMeta.scene, frame);
+        data.forcePreloadScene(sceneMeta.scene, world);
+    
+        if (!world.annotation.preloaded) {
+          console.log("waiting, not loaded.");
+          window.editor.infoBox.show('Notice',`frame loading in progress.`);
+          return frameIndex - step;
+        }
+
+        if (world.annotation.boxes.find(x=> x.obj_type == objType)) {
+          return frameIndex;
+        }
+    }
+    return frameIndex;
   }
 
   this.nextObjectBatch =  async function() {
@@ -1514,6 +1547,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     );
 
     let boxes = world.annotation.boxes.concat();
+    if (this.editingTarget.objType) {
+      boxes = boxes.filter(x=>x.obj_type === this.editingTarget.objType);
+    }
     //boxes = boxes.sort((a,b)=>a.obj_type > b.obj_type?1:-1);
 
     //boxes = boxes.slice(lastObjIndex, lastObjIndex+this.batchSize);
@@ -1528,11 +1564,28 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       // next frame
       console.log("next frame");
 
+      const frameIndex = await this.getNextFrameByObjType(
+        this.editingTarget.data,
+        this.editingTarget.sceneMeta,
+        this.editingTarget.frameIndex,
+        this.editingTarget.objType);
+
+      if (frameIndex >= this.editingTarget.data.world.sceneMeta.frames.length ) {
+        window.editor.infoBox.show('Info', 'last frame.');
+        return;
+      }
+
+
+      // find next frame that contains editingTarget.objType
+
       this.editObjectsInFrame(this.editingTarget.data,
         this.editingTarget.sceneMeta,
-        this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex + 1, this.editingTarget.sceneMeta.frames.length-1)],
+        this.editingTarget.sceneMeta.frames[frameIndex],
         this.editingTarget.objType,
         0);
+
+
+      
     }
   }
 
@@ -1559,7 +1612,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.prevBatch = function() {
-    if (this.isCheckingFrameMode) {
+    if (this.isCheckingFrameMode()) {
       this.prevObjectBatch();
     } else {
       this.prevFrameBatch();
@@ -1575,7 +1628,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       this.editingTarget.frame
     );
 
-    let boxes = world.annotation.boxes.concat();
+    //let boxes = world.annotation.boxes.concat();
     //boxes = boxes.sort((a,b)=>a.obj_type > b.obj_type?1:-1);
 
     //boxes = boxes.slice(lastObjIndex, lastObjIndex+this.batchSize);
@@ -1590,9 +1643,21 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       // next frame
       console.log("prev frame");
 
+      const frameIndex = await this.getNextFrameByObjType(
+        this.editingTarget.data,
+        this.editingTarget.sceneMeta,
+        this.editingTarget.frameIndex,
+        this.editingTarget.objType,
+        -1);
+
+      if (frameIndex < 0) {
+        window.editor.infoBox.show('Info', 'First frame.');
+        return;
+      }
+
       this.editObjectsInFrame(this.editingTarget.data,
         this.editingTarget.sceneMeta,
-        this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex - 1, 0)],
+        this.editingTarget.sceneMeta.frames[frameIndex],
         this.editingTarget.objType,
         -1);
     }

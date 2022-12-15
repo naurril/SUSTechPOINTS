@@ -359,7 +359,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         // event.currentTarget.blur();
         {
           const id = objIdManager.generateNewUniqueId(this.data.world);
-          self.fastToolBox.setValue(self.selectedBox.obj_type, id, self.selectedBox.obj_attr);
+          self.fastToolBox.setValue(self.selectedBox.obj_type, id, self.selectedBox.obj_attr, self.selectedBox);
           self.setObjectId(id);
         }
         break;
@@ -652,7 +652,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         {
           let info = {
             'scend-id': this.data.world.frameInfo.scene,
-            frame: this.data.world.frameInfo.frame
+            frame: this.data.world.frameInfo.frame,
+            index: this.data.world.frameInfo.frameIndex,
           };
 
           if (this.data.world.frameInfo.sceneMeta.desc) {
@@ -703,7 +704,10 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       case 'cm-show-all-objs':
         this.editBatch(this.data.world.frameInfo.scene, this.data.world.frameInfo.frame)
         break;
-
+      case 'cm-show-all-objs-by-type':
+        this.editBatch(this.data.world.frameInfo.scene, this.data.world.frameInfo.frame, undefined, this.selectedBox.obj_type)
+        break;
+        break;
       case 'cm-reset-view':
         this.resetView();
         break;
@@ -742,7 +746,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         this.setObjectId(this.autoAdjust.marked_object.ann.obj_id);
         this.fastToolBox.setValue(this.selectedBox.obj_type,
           this.selectedBox.obj_id,
-          this.selectedBox.obj_attr);
+          this.selectedBox.obj_attr, 
+          this.selectedBox);
 
         break;
       case 'cm-change-id-to-ref-in-scene':
@@ -762,7 +767,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         this.setObjectId(this.autoAdjust.marked_object.ann.obj_id);
         this.fastToolBox.setValue(this.selectedBox.obj_type,
           this.selectedBox.obj_id,
-          this.selectedBox.obj_attr);
+          this.selectedBox.obj_attr,
+          this.selectedBox);
 
         break;
       case 'cm-follow-ref':
@@ -1100,7 +1106,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
           this.viewState.lockObjTrackId = targetTrackId; 
         }
 
-        this.onLoadWorldFinished(this.data.world);
+        
 
         // if (this.selectedBox){
         //     // attach again, restore box.boxEditor
@@ -1122,6 +1128,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
           this.loadWorld(this.data.world.frameInfo.scene, targetFrame, () => { // onfinished
             this.makeVisible(targetTrackId);
           });
+        } else {
+          this.onLoadWorldFinished(this.data.world);
         }
       }
     );
@@ -1436,7 +1444,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       this.boxOp.auto_rotate_xyz(box, () => {
         box.obj_type = globalObjectCategory.guessObjTypeByDimension(box.scale);
         this.floatLabelManager.setObjectType(box.objLocalId, box.obj_type);
-        this.fastToolBox.setValue(box.obj_type, box.obj_id, box.obj_attr);
+        this.fastToolBox.setValue(box.obj_type, box.obj_id, box.obj_attr, box);
         this.onBoxChanged(box);
       });
     }
@@ -1650,7 +1658,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       // this.floatLabelManager.select_box(this.selectedBox.objLocalId);
 
       this.fastToolBox.setPos(this.floatLabelManager.getLabelEditorPos(this.selectedBox.objLocalId));
-      this.fastToolBox.setValue(object.obj_type, object.obj_id, object.obj_attr);
+      this.fastToolBox.setValue(object.obj_type, object.obj_id, object.obj_attr, object);      
       this.fastToolBox.show(this.handleFastToolboxEvent);
 
       this.boxOp.highlightBox(this.selectedBox);

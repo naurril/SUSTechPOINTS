@@ -2,7 +2,6 @@
 
 
 import logging
-from typing import overload
 
 logging.basicConfig(filename='./logs/sustechpoints.log',
   format='%(asctime)s %(message)s', 
@@ -33,6 +32,12 @@ from cherrypy.process.plugins import Monitor
 parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
 parser.add_argument('--save', type=str, choices=['yes','no'],default='yes', help="")
 args = parser.parse_args()
+
+datacfg_file = 'conf/data.conf'
+datacfg = configparser.ConfigParser()
+datacfg.read(datacfg_file)
+print(datacfg['global']['rootdir'])
+
 
 usercfg_file = 'conf/user.conf'
 usercfg = configparser.ConfigParser()
@@ -206,7 +211,7 @@ class Api(object):
             return {'result':"fail", 'cause':"saving disabled for current user"}
 
           logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
-          with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
+          with open(os.path.join(datacfg['global']['rootdir'], scene, "label", frame+".json"),'w') as f:
             json.dump(d, f, indent=2, sort_keys=True)
           
         return {'result':"success"}
@@ -254,7 +259,7 @@ class Api(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def check3dlabels(self, scene):
-      ck = check.LabelChecker(os.path.join("./data", scene))
+      ck = check.LabelChecker(os.path.join(datacfg['global']['rootdir'], scene))
       ck.check()
       #print(ck.messages)
       return ck.messages
@@ -262,7 +267,7 @@ class Api(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def check2dlabels(self, scene):
-      ck = check_fusion.FusionLabelChecker(os.path.join("./data", scene))
+      ck = check_fusion.FusionLabelChecker(os.path.join(datacfg['global']['rootdir'], scene))
       ck.check()
       #print(ck.messages)
       return ck.messages
@@ -514,7 +519,7 @@ class Api(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def objs_of_scene(self, scene):
-      return self.get_all_objs(os.path.join("./data",scene))
+      return self.get_all_objs(os.path.join(datacfg['global']['rootdir'],scene))
 
     def get_all_objs(self, path):
       label_folder = os.path.join(path, "label")
@@ -595,7 +600,7 @@ root_config = {
 
 root_config['/data'] = {
       'tools.staticdir.on': True,
-      'tools.staticdir.dir': "./data"
+      'tools.staticdir.dir': datacfg['global']['rootdir'],
     }
 api_config = {}
 
@@ -603,7 +608,7 @@ if authcfg['global']['auth'] == 'yes':
   if authcfg['global']['method'] == 'password':
     root_config['/data'] = {
         'tools.staticdir.on': True,
-        'tools.staticdir.dir': "./data",
+        'tools.staticdir.dir': datacfg['global']['rootdir'],
         'tools.caching.on': True,
 
         'tools.auth_digest.on': True,
@@ -631,7 +636,7 @@ if authcfg['global']['auth'] == 'yes':
   else: #token
     root_config['/data'] = {
         'tools.staticdir.on': True,
-        'tools.staticdir.dir': "./data",
+        'tools.staticdir.dir': datacfg['global']['rootdir'],
         'tools.caching.on': True,
         'tools.gzip.on': True,
         'tools.etags.on': True,

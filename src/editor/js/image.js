@@ -198,6 +198,7 @@ class ImageContext extends ResizableMoveableView {
     // });
 
     this.ui.addEventListener('contextmenu', e => e.preventDefault());
+    this.contentUi.addEventListener('click', e=>this.manager.bringUpMe(this));
     this.canvas = this.ui.querySelector('#maincanvas-svg');
 
     this.rectEditor = new RectEditor(this.canvas,

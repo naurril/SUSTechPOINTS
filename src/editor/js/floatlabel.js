@@ -51,12 +51,15 @@ class FastToolBox {
     }
   }
 
-  setValue (objType, objTrackId, objAttr) {
+  setValue (objType, objTrackId, objAttr, obj) {
     this.objTypeEditor.setValue(objType);
 
     this.attrEditor.setAttrOptions(objType, objAttr);
 
     this.ui.querySelector('#object-track-id-editor').value = objTrackId;
+
+    const s = obj.scale;
+    this.ui.querySelector("#object-info").innerHTML = `L ${s.x.toFixed(2)}, W ${s.y.toFixed(2)}, H ${s.z.toFixed(2)}`;
   }
 
   setPos (pos) {
