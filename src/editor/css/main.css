@@ -392,7 +392,7 @@ canvas {
 	background-color: var(--widget-background-color);
 }
 
-#new-submenu, #saveall-submenu, #play-submenu, #goto-submenu, #cm-fit-submenu, #cm-this-submenu {
+#new-submenu, #show-submenu, #saveall-submenu, #play-submenu, #goto-submenu, #cm-fit-submenu, #cm-this-submenu {
 	display: none;
 	position: absolute;	
 	/* left:100%;
@@ -402,11 +402,12 @@ canvas {
 	background-color: var(--widget-background-color);
 }
 
-#new-submenu {
+#new-submenu, #show-submenu {
 	width: 250px;
 }
 
-.cm-new-item {
+
+.cm-new-item, .cm-show-item {
 	float: left;
 }
 

@@ -653,7 +653,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
           let info = {
             'scend-id': this.data.world.frameInfo.scene,
             frame: this.data.world.frameInfo.frame,
-            index: this.data.world.frameInfo.frameIndex,
+            index: this.data.world.frameInfo.getFrameIndex(),
           };
 
           if (this.data.world.frameInfo.sceneMeta.desc) {
@@ -1004,7 +1004,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
   this.ensurePreloaded = function () {
     let worldList = this.data.worldList.filter(w => w.frameInfo.scene === this.data.world.frameInfo.scene);
-    worldList = worldList.sort((a, b) => a.frameInfo.frameIndex - b.frameInfo.frameIndex);
+    worldList = worldList.sort((a, b) => a.frameInfo.getFrameIndex() - b.frameInfo.getFrameIndex());
 
     // const meta = this.data.getCurrentWorldSceneMeta();
 
@@ -1027,7 +1027,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     if (!this.ensurePreloaded()) { return; }
 
     let worldList = this.data.worldList.filter(w => w.frameInfo.scene === this.data.world.frameInfo.scene);
-    worldList = worldList.sort((a, b) => a.frameInfo.frameIndex - b.frameInfo.frameIndex);
+    worldList = worldList.sort((a, b) => a.frameInfo.getFrameIndex() - b.frameInfo.getFrameIndex());
     const boxList = worldList.map(w => w.annotation.findBoxByTrackId(this.selectedBox.obj_id));
 
     const applyIndList = boxList.map(b => true);
@@ -1057,7 +1057,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     if (!this.ensurePreloaded()) { return; }
 
     let worldList = this.data.worldList.filter(w => w.frameInfo.scene === this.data.world.frameInfo.scene);
-    worldList = worldList.sort((a, b) => a.frameInfo.frameIndex - b.frameInfo.frameIndex);
+    worldList = worldList.sort((a, b) => a.frameInfo.getFrameIndex() - b.frameInfo.getFrameIndex());
 
     const boxList = worldList.map(w => w.annotation.findBoxByTrackId(this.selectedBox.obj_id));
 
@@ -2110,7 +2110,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     const sceneMeta = this.data.getCurrentWorldSceneMeta();
 
-    const frameIndex = this.data.world.frameInfo.frameIndex - 1;
+    const frameIndex = this.data.world.frameInfo.getFrameIndex() - 1;
 
     if (frameIndex < 0) {
       console.log('first frame');
@@ -2133,11 +2133,11 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   this.nextFrame = function () {
     if (!this.data.meta) { return; }
 
-    const sceneMeta = this.data.getCurrentWorldSceneMeta();
+    const sceneMeta = this.data.world.sceneMeta;
 
     const numFrames = sceneMeta.frames.length;
 
-    const frameIndex = (this.data.world.frameInfo.frameIndex + 1);
+    const frameIndex = this.data.world.frameInfo.getFrameIndex() + 1;
 
     if (frameIndex >= numFrames) {
       console.log('last frame');
@@ -2515,11 +2515,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     // }
   };
 
-  this.add_global_obj_type = function () {
-    this.imageContextManager.buildCssStyle();
-
-    const objTypeMap = globalObjectCategory.objTypeMap;
-
+  this.installNewMenu = function(objTypeMap) {
     // submenu of new
     let items = '';
     for (const o in objTypeMap) {
@@ -2544,6 +2540,35 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
       return true;
     });
+  }
+
+  this.installShowMenu = function(objTypeMap) {
+    // submenu of new
+    let items = '';
+    for (const o in objTypeMap) {
+      items += '<div class="menu-item cm-show-item ' + o + '" id="cm-show-' + o + '" uservalue="' + o + '"><div class="menu-item-text">' + o + '</div></div>';
+    }
+
+    this.editorUi.querySelector('#show-submenu').innerHTML = items;
+
+    this.contextMenu.installMenu('showSubMenu', this.editorUi.querySelector('#show-submenu'), (event) => {
+      const objType = event.currentTarget.getAttribute('uservalue');
+      this.editBatch(this.data.world.frameInfo.scene,
+        this.data.world.frameInfo.frame,
+        undefined,
+        objType);      
+      return true;
+    });
+  }
+
+
+  this.add_global_obj_type = function () {
+    this.imageContextManager.buildCssStyle();
+
+    const objTypeMap = globalObjectCategory.objTypeMap;
+
+    this.installNewMenu(objTypeMap);
+    this.installShowMenu(objTypeMap);
   };
 
   this.interpolate_selected_object = function () {

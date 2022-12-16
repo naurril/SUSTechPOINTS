@@ -104,6 +104,7 @@ function Annotation (sceneMeta, world, frameInfo) {
 
   this.deleteAll = function () {
     this.remove_all_boxes();
+    this.webglGroup = null;
     this.destroyed = true;
   };
   this.boxToAnn = function (box) {

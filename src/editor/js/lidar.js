@@ -1258,8 +1258,12 @@ class Lidar {
   removeAllPoints () {
     if (this.points) {
       this.world.data.dbg.free('lidar');
+      this.world.webglGroup.remove(this.points);
       this.points.geometry.dispose();
       this.points.material.dispose();
+
+      
+
 
       if (this.points.pointsBackup) {
         this.world.data.dbg.free('lidar');

@@ -49,12 +49,12 @@ class PlayControl {
           // found, data ready
           this.data.activateWorld(
             world,
-            function () { // on load finished
+            ()=> { // on load finished
               // views[0].detach_control();
               onLoadWorldFinished(world);
 
               // play next frame
-              const frameIndex = world.frameInfo.frameIndex;
+              const frameIndex = world.frameInfo.getFrameIndex();
               if (frameIndex + 1 < sceneMeta.frames.length) {
                 const nextFrame = sceneMeta.frames[frameIndex + 1];
                 setTimeout(

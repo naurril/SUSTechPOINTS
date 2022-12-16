@@ -42,8 +42,8 @@ class ImageRectAnnotation {
   }
 
   fetchAll () {
-    const aux_cameras = this.sceneMeta.aux_camera.reduce((a,b)=>a+','+b);
-    const cameras = this.sceneMeta.camera.reduce((a,b)=>a+','+b);
+    const aux_cameras = this.sceneMeta.aux_camera.reduce((a,b)=>a+','+b, '');
+    const cameras = this.sceneMeta.camera.reduce((a,b)=>a+','+b, '');
     return jsonrpc(`/api/load_all_image_annotation?scene=${this.scene}&frame=${this.frame}&cameras=${cameras}&aux_cameras=${aux_cameras}`);
   }
 

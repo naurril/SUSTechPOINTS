@@ -654,8 +654,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   }
 
 
-  this.prepareFramesForObjType = async function(scene, objType){
-    this.editingTarget.frames = await jsonrpc(`/api/queryFrames?scene=${scene}&objtype=${objType}`)
+  this.prepareFramesForObjType = async function(data, sceneMeta, objType){
+    const frames = await jsonrpc(`/api/queryFrames?scene=${sceneMeta.scene}&objtype=${objType}`)
+    data.setViewFrames(sceneMeta, frames);
   }
 
   this.edit = async function (data, sceneMeta, frame, objTrackId, objType, onExit) {
@@ -675,7 +676,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     
     if (objTrackId === undefined) {
 
-      await this.prepareFramesForObjType(sceneMeta.scene, objType);
+      await this.prepareFramesForObjType(data, sceneMeta, objType);
 
       this.editObjectsInFrame(data, sceneMeta, frame, objType);
     } else {
@@ -1289,6 +1290,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.exit = function() {
 
+    this.editingTarget.data.resetViewFrames(this.editingTarget.sceneMeta);
+
     if (this.onExit) {
 
       if (this.isCheckingFrameMode()) {
@@ -1311,6 +1314,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       globalKeyDownManager.deregister('batch-editor');
     }
   };
+
   this.show = function () {
     if (this.parentUi.style.display === 'none') {
       this.parentUi.style.display = '';
@@ -1387,6 +1391,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.gotoThisFrame = function () {
+
+    this.editingTarget.data.resetViewFrames(this.editingTarget.sceneMeta);
+
     const targetFrame = this.firingBoxEditor.target.world.frameInfo.frame;
     const targetTrackId = this.firingBoxEditor.target.objTrackId;
     this.hide();
@@ -1522,7 +1529,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.getNextFrameByObjType = async function(data, sceneMeta, currentFrame, objType, step=1) {
 
-    const frames = this.editingTarget.frames;
+    const frames = sceneMeta.frames;
     let currentFrameIndex = frames.findIndex(x=>x===currentFrame);
 
     console.log(`next obj ${objType}, from  ${currentFrame}`)
@@ -1606,7 +1613,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     const editors = this.activeEditorList();
     const lastEditor = editors[editors.length - 1];
-    if (lastEditor.target.world.frameInfo.frameIndex === maxFrameIndex) {
+    if (lastEditor.target.world.frameInfo.getFrameIndex() === maxFrameIndex) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
         this.nextObj();
       } else {
@@ -1678,7 +1685,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.prevFrameBatch = function () {
     const firstEditor = this.activeEditorList()[0];
-    if (firstEditor.target.world.frameInfo.frameIndex === 0) {
+    if (firstEditor.target.world.frameInfo.getFrameIndex() === 0) {
       if (this.batchSize >= this.editingTarget.sceneMeta.frames.length) {
         this.prevObj();
       } else {

@@ -6,9 +6,13 @@ export function FrameInfo (data, sceneMeta, sceneName, frame) {
   this.scene = sceneName;
   this.frame = frame;
   this.pcd_ext = '';
-  this.frameIndex = this.sceneMeta.frames.findIndex(function (x) { return x === frame; });
+  //this.frameIndex = this.sceneMeta.frames.findIndex(function (x) { return x === frame; });
   this.transform_matrix = this.sceneMeta.point_transform_matrix;
   this.annotation_format = this.sceneMeta.boxtype; // xyz(24 number), csr(center, scale, rotation, 9 number)
+
+  this.getFrameIndex = function(){
+    return this.sceneMeta.frames.findIndex(x => x === this.frame);
+  };
 
   // this.set = function(scene, frameIndex, frame, transform_matrix, annotation_format){
   //         this.scene = scene;

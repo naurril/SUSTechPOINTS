@@ -48,21 +48,25 @@ function Images (sceneMeta, imageType, sceneName, frame) {
     const _self = this;
 
     if (this.names) {
-      this.names.forEach(function (cam) {
-        _self.content[cam] = new Image();
-        _self.content[cam].onload = function () {
-          _self.loaded_flag[cam] = true;
-          _self.on_image_loaded();
+      this.names.forEach( (cam) => {
+        const img = new Image();
+        img.onload =  () => {
+          this.loaded_flag[cam] = true;
+          this.on_image_loaded();
         };
-        _self.content[cam].onerror = function () {
-          _self.loaded_flag[cam] = true;
-          _self.on_image_loaded();
+
+        img.onerror =  () => {
+          this.loaded_flag[cam] = true;
+          this.on_image_loaded();
         };
 
         let src = 'data/' + sceneName + '/' + imageType + '/' + cam + '/' + frame + sceneMeta.camera_ext;
-        if (window.pointsGlobalConfig.userToken) { src += '?token=' + window.pointsGlobalConfig.userToken; }
+        if (window.pointsGlobalConfig.userToken) { 
+          src += '?token=' + window.pointsGlobalConfig.userToken; 
+        }
 
-        _self.content[cam].src = src;
+        img.src = src;
+        this.content[cam] = img;
       });
     }
   };
@@ -72,6 +76,14 @@ function Images (sceneMeta, imageType, sceneName, frame) {
       this.onAllLoaded();
     }
   };
+
+  this.deleteAll = function() {
+    for (let cam in this.content) {
+      this.content[cam].onload = null;
+      this.content[cam].onerror = null;
+      this.content[cam] = null;
+    }
+  }
 }
 
 function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
@@ -120,6 +132,12 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
   this.onPreloadFinished = null;
 
   this.on_subitem_preload_finished = function (onPreloadFinished) {
+    if (this.destroyed) {
+      console.log("preloaded after destroyed");
+      return;
+    }
+
+
     if (this.preloaded()) {
       // logger.log(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
 
@@ -464,8 +482,16 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
     this.radars.deleteAll();
     this.aux_lidars.deleteAll();
     this.annotation.deleteAll();
-
+    this.camera.deleteAll();
+    this.aux_camera.deleteAll();
     this.destroyed = true;
+
+    this.lidar = null;
+    this.annotation = null;
+    this.aux_lidars = null;
+    this.radars = null;
+    this.Images = null;
+    
     console.log(this.frameInfo.scene, this.frameInfo.frame, 'destroyed');
     // remove me from buffer
   };
