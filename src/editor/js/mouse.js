@@ -58,6 +58,11 @@ class Mouse {
   }
 
   getIntersects (point, objects) {
+
+    if (!objects) {
+      return [];
+    }
+
     // mouse is temp var
     const mouse = new THREE.Vector2();
     mouse.set(point.x, point.y);
