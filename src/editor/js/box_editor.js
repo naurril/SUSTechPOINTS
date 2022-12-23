@@ -535,11 +535,13 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     if (!world.preloaded()) {
       console.log("waiting, not loaded.");
       window.editor.infoBox.show('Notice',`frame loading in progress.`);
-//      return;
+      // if target frame is far from current world, should not return.      
+      return;
     }
 
     this.show();
     this.reset();
+
 
     this.editingTarget.frameIndex = sceneMeta.frames.findIndex(f => f === frame);
     
