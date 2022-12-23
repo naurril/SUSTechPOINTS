@@ -79,6 +79,7 @@ function Images (sceneMeta, imageType, sceneName, frame) {
 
   this.deleteAll = function() {
     for (let cam in this.content) {
+      this.content[cam].src = null;
       this.content[cam].onload = null;
       this.content[cam].onerror = null;
       this.content[cam] = null;

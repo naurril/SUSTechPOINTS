@@ -205,11 +205,12 @@ class Data {
   }
 
   removeRefEgoPoseOfScene (sceneName) {
-    if (this.refEgoPose[sceneName]) { delete this.refEgoPose[sceneName]; }
+    if (this.refEgoPose[sceneName]) { 
+      delete this.refEgoPose[sceneName]; 
+    }
   }
 
   forcePreloadScene (sceneName, currentWorld) {
-    // this.deleteOtherWorldsExcept(sceneName);
     const meta = currentWorld.sceneMeta;
 
     const currentWorldIndex = currentWorld.frameInfo.getFrameIndex();

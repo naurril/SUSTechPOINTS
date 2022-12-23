@@ -4,6 +4,8 @@ import { globalObjectCategory } from './obj_cfg';
 import { ResizableMoveableView } from './common/popup_dialog';
 import { RectEditor } from './image_editor/rect_editor';
 
+
+// localized imagecontext
 function BoxImageContext (ui) {
   this.ui = ui;
 
@@ -319,6 +321,11 @@ class ImageContext extends ResizableMoveableView {
       }
     };
   }
+  
+  remove () {
+    this.ui.remove();
+  }
+
 
   onDragableUiMouseDown () {
     this.manager.bringUpMe(this);
@@ -336,9 +343,7 @@ class ImageContext extends ResizableMoveableView {
     this.ui.className = this.ui.className.split(' ').filter(x => x !== className);
   }
 
-  remove () {
-    this.ui.remove();
-  }
+
 
   setImageName (name) {
     const [cameraType, cameraName] = name.split(':');
@@ -645,7 +650,7 @@ class ImageContext extends ResizableMoveableView {
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       p.setAttribute('cx', x);
       p.setAttribute('cy', y);
-      p.setAttribute('r', 0.1);
+      p.setAttribute('r', 1);
       // p.setAttribute("stroke-width", "1");
 
       if (pointsColor) {
@@ -914,8 +919,8 @@ class ImageContext extends ResizableMoveableView {
     if (this.cfg.projectLidarToImage) {
       const svg = this.ui.querySelector('#svg-points');
 
-      const lidarPoints = this.world.lidar.get_all_points();
-      const lidarPointsColor = this.world.lidar.get_all_colors();
+      const lidarPoints = this.world.lidar.getAllPoints();
+      const lidarPointsColor = this.world.lidar.getAllColors();
 
       const imageLidarPointMap = [];
       const ptsOnImg = points3dToImage2d(lidarPoints, calib, true, imageLidarPointMap, img.width, img.height);
@@ -1223,7 +1228,12 @@ class ImageContextManager {
 
   removeImage (image) {
     const selectorName = image.autoSwitch ? 'auto' : image.name;
-    this.selectorUi.querySelector('#camera-item-' + selectorName.replace(':', '-')).className = 'camera-item';
+    const item = this.selectorUi.querySelector('#camera-item-' + selectorName.replace(':', '-'))
+    
+    if (item) {
+      item.className = 'camera-item';
+    }
+
     this.images = this.images.filter(x => x !== image);
     image.remove();
   }

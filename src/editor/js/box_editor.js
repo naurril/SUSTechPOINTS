@@ -676,7 +676,9 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     
     if (objTrackId === undefined) {
 
-      await this.prepareFramesForObjType(data, sceneMeta, objType);
+      if (objType !== undefined) {
+        await this.prepareFramesForObjType(data, sceneMeta, objType);
+      }
 
       this.editObjectsInFrame(data, sceneMeta, frame, objType);
     } else {
@@ -1548,7 +1550,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
           return frameIndex - step;
         }
 
-        if (world.annotation.boxes.find(x=> x.obj_type == objType)) {
+        if (!objType || (world.annotation.boxes.find(x=> x.obj_type == objType))) {
           return frameIndex;
         }
     }

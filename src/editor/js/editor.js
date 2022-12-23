@@ -11,7 +11,7 @@ import { Header } from './header.js';
 import { BoxOp } from './box_op.js';
 import { AutoAdjust } from './auto-adjust.js';
 import { PlayControl } from './play.js';
-import { reloadWorldList, saveWorldList } from './save.js';
+import { saveWorldList } from './save.js';
 import { logger, createLogger } from './log.js';
 import { autoAnnotate } from './auto_annotate.js';
 import { CalibTool } from './calib_tool';
@@ -25,7 +25,7 @@ import { globalKeyDownManager } from './keydown_manager.js';
 import { vectorRange } from './util.js';
 import { check3dLabels, check2dLabels } from './error_check.js';
 import { jsonrpc } from './jsonrpc.js';
-import { unstable_renderSubtreeIntoContainer } from 'react-dom';
+
 
 function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   // create logger before anything else.
@@ -596,37 +596,13 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       case 'cm-first-frame':
         this.firstFrmae();
         break;
-        // case 'cm-go-to-10hz':
-        //     this.loadWorld(this.data.world.frameInfo.scene+"_10hz", this.data.world.frameInfo.frame)
-
-        //     // {
-        //     //     let link = document.createElement("a");
-        //     //     //link.download=`${this.data.world.frameInfo.scene}-${this.data.world.frameInfo.frame}-webgl`;
-        //     //     link.href="http://localhost";
-        //     //     link.target="_blank";
-        //     //     link.click();
-        //     // }
-        //     break;
-        // case 'cm-go-to-full-2hz':
-        //     this.loadWorld(this.data.world.frameInfo.scene+"_full_2hz", this.data.world.frameInfo.frame)
-        //     break;
-
-        // case 'cm-go-to-2hz':
-        //     this.loadWorld(this.data.world.frameInfo.scene.split("_")[0], this.data.world.frameInfo.frame)
-        //     break;
 
       case 'cm-save':
         saveWorldList(this.data.worldList);
         break;
 
       case 'cm-reload':
-
-        // reloadWorldList([this.data.world], () => {
-        //   this.onLoadWorldFinished(this.data.world);
-        //   this.header.updateModifiedStatus();
-        // });
         this.reloadCurrentWorld();
-
         break;
 
       case 'cm-reload-all':
@@ -964,6 +940,9 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
   };
 
   this.frame_changed = function (event) {
+
+    this.playControl.stopPlay();
+
     let sceneName = this.editorUi.querySelector('#scene-selector').value;
 
     if (sceneName.length === 0 && this.data.world) {

@@ -191,6 +191,7 @@ class FloatLabelManager {
   removeAllLabels () {
     if (this.labelsUi.children.length > 0) {
       for (let c = this.labelsUi.children.length - 1; c >= 0; c--) {
+        this.labelsUi.children[c].onclick = null;
         this.labelsUi.children[c].remove();
       }
     }
