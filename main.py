@@ -536,6 +536,7 @@ class Api(object):
           if  not os.path.exists(f):
             return False
           with open(f) as fd:
+            try:
               ann = json.load(fd)
               if 'objs' in ann:
                 boxes = ann['objs']
@@ -544,6 +545,9 @@ class Api(object):
               for b in boxes:
                 if b['obj_type'] == objtype:
                   return True
+            except:
+              print(f, 'load failed')
+              return False
           return False
 
       files = filter(lambda f: contain_objtype(os.path.join(path, "label", f)), files)
