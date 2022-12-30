@@ -194,7 +194,8 @@ class AuxLidar {
 
     const url = this.frameInfo.get_aux_lidar_path(this.name);
 
-    loadfile(url).then(buffer => {
+    const [rsp, concel] = loadfile(url);
+    rsp.then(buffer => {
       if (this.destroyed) {
         console.error('received pcd after world been destroyed.');
         return;

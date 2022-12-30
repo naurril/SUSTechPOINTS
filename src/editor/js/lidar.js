@@ -179,7 +179,9 @@ class Lidar {
     this.onPreloadFinished = onPreloadFinished;
 
     const url = this.frameInfo.get_pcd_path();
-    loadfile(url).then(buffer => {
+    const [rsp, cancel] = loadfile(url)
+    this.cancelLoading = cancel
+    rsp.then(buffer => {
       if (this.destroyed) {
         console.error('received pcd after world been destroyed.');
         return;
@@ -1282,6 +1284,10 @@ class Lidar {
 
       this.points = null;
     } else {
+      if (this.cancelLoading) {
+        this.cancelLoading();
+        this.cancelLoading = null;
+      }
       console.error('destroy empty world!');
     }
   }

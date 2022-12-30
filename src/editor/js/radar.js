@@ -181,7 +181,8 @@ class Radar {
     this.onPreloadFinished = onPreloadFinished;
 
     const url = this.frameInfo.get_radar_path(this.name);
-    loadfile(url).then(buffer => {
+    const [rsp,ctl] = loadfile(url)
+    rsp.then(buffer => {
       if (this.destroyed) {
         console.error('received pcd after world been destroyed.');
         return;
