@@ -25,6 +25,7 @@ import { globalKeyDownManager } from './keydown_manager.js';
 import { vectorRange } from './util.js';
 import { check3dLabels, check2dLabels } from './error_check.js';
 import { jsonrpc } from './jsonrpc.js';
+import { MultiClassChooserBox } from './multiclass_chooser_box';
 
 
 function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
@@ -159,6 +160,10 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     this.infoBox = new InfoBox(
       this.editorUi.querySelector('#info-wrapper')
+    );
+
+    this.multiClassChooserBox = new MultiClassChooserBox(
+      this.editorUi.querySelector('#multi-class-chooser-wrapper')
     );
 
     this.cropScene = new CropScene(
@@ -678,12 +683,26 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
           break;
 
       case 'cm-show-all-objs':
-        this.editBatch(this.data.world.frameInfo.scene, this.data.world.frameInfo.frame)
+        this.multiClassChooserBox.show(
+          'Choose classes',          
+          ['yes', 'no'],
+          (btn) => {
+            if (btn === 'yes') {
+              this.editBatch(
+                this.data.world.frameInfo.scene, 
+                this.data.world.frameInfo.frame, 
+                undefined, 
+                this.multiClassChooserBox.getSelectedClasses()
+                )
+            }
+          });
+
+        
         break;
       case 'cm-show-all-objs-by-type':
-        this.editBatch(this.data.world.frameInfo.scene, this.data.world.frameInfo.frame, undefined, this.selectedBox.obj_type)
+        this.editBatch(this.data.world.frameInfo.scene, this.data.world.frameInfo.frame, undefined, [this.selectedBox.obj_type])
         break;
-        break;
+        
       case 'cm-reset-view':
         this.resetView();
         break;
@@ -2521,24 +2540,24 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     });
   }
 
-  this.installShowMenu = function(objTypeMap) {
-    // submenu of new
-    let items = '';
-    for (const o in objTypeMap) {
-      items += '<div class="menu-item cm-show-item ' + o + '" id="cm-show-' + o + '" uservalue="' + o + '"><div class="menu-item-text">' + o + '</div></div>';
-    }
+  // this.installShowMenu = function(objTypeMap) {
+  //   // submenu of new
+  //   let items = '';
+  //   for (const o in objTypeMap) {
+  //     items += '<div class="menu-item cm-show-item ' + o + '" id="cm-show-' + o + '" uservalue="' + o + '"><div class="menu-item-text">' + o + '</div></div>';
+  //   }
 
-    this.editorUi.querySelector('#show-submenu').innerHTML = items;
+  //   this.editorUi.querySelector('#show-submenu').innerHTML = items;
 
-    this.contextMenu.installMenu('showSubMenu', this.editorUi.querySelector('#show-submenu'), (event) => {
-      const objType = event.currentTarget.getAttribute('uservalue');
-      this.editBatch(this.data.world.frameInfo.scene,
-        this.data.world.frameInfo.frame,
-        undefined,
-        objType);      
-      return true;
-    });
-  }
+  //   this.contextMenu.installMenu('showSubMenu', this.editorUi.querySelector('#show-submenu'), (event) => {
+  //     const objType = event.currentTarget.getAttribute('uservalue');
+  //     this.editBatch(this.data.world.frameInfo.scene,
+  //       this.data.world.frameInfo.frame,
+  //       undefined,
+  //       objType);      
+  //     return true;
+  //   });
+  // }
 
 
   this.add_global_obj_type = function () {
@@ -2547,7 +2566,9 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     const objTypeMap = globalObjectCategory.objTypeMap;
 
     this.installNewMenu(objTypeMap);
-    this.installShowMenu(objTypeMap);
+    //this.installShowMenu(objTypeMap);
+
+    this.multiClassChooserBox.setClasses(Object.keys(objTypeMap));
   };
 
   this.interpolate_selected_object = function () {

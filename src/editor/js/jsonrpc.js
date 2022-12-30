@@ -50,13 +50,15 @@ function loadjson (url) {
 
 function loadfile (url) {
   const req = new Request(url);
-  const init = {
+  const controller = new AbortController()
+  const options = {
     headers: {
       'x-user-token': window.pointsGlobalConfig.userToken
-    }
+    },
+    signal: controller.signal,
   };
 
-  return fetch(req, init).then(response => {
+  const resp = fetch(req, options).then(response => {
     if (!response.ok) {
       // throw new Error(`HTTP error! status: ${response.status}`);
       return null;
@@ -64,6 +66,8 @@ function loadfile (url) {
       return response.arrayBuffer();
     }
   });
+
+  return [resp, ()=>controller.abort()];
 }
 
 export { jsonrpc, loadjson, loadfile };

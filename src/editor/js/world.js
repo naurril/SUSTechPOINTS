@@ -79,9 +79,10 @@ function Images (sceneMeta, imageType, sceneName, frame) {
 
   this.deleteAll = function() {
     for (let cam in this.content) {
-      this.content[cam].src = null;
+      
       this.content[cam].onload = null;
       this.content[cam].onerror = null;
+      this.content[cam].src = undefined;
       this.content[cam] = null;
     }
   }
@@ -379,7 +380,7 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
     this.onFinished = onFinished;
     if (this.preloaded()) {
       this.go();
-    }
+      }
   };
 
   this.deactivate = function () {

@@ -555,8 +555,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
 
     let boxes = world.annotation.boxes.concat();
-    if (objType) {
-      boxes = boxes.filter(x=>x.obj_type == objType);
+    if (objType.length > 0) {
+      boxes = boxes.filter(x=>objType.includes(x.obj_type));
     }
 
     if (boxes.length === 0) {
@@ -657,7 +657,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
 
   this.prepareFramesForObjType = async function(data, sceneMeta, objType){
-    const frames = await jsonrpc(`/api/queryFrames?scene=${sceneMeta.scene}&objtype=${objType}`)
+    const frames = await jsonrpc(`/api/queryFrames?scene=${sceneMeta.scene}&objtype=${objType.reduce((a,b)=>a+','+b)}`)
     data.setViewFrames(sceneMeta, frames);
   }
 
@@ -678,7 +678,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     
     if (objTrackId === undefined) {
 
-      if (objType !== undefined) {
+      if (objType.length > 0) {
         await this.prepareFramesForObjType(data, sceneMeta, objType);
       }
 
@@ -1536,7 +1536,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     const frames = sceneMeta.frames;
     let currentFrameIndex = frames.findIndex(x=>x===currentFrame);
 
-    console.log(`next obj ${objType}, from  ${currentFrame}`)
+    console.log(`next obj ${objType}, in frame ${currentFrame}`)
     let frameIndex;
     
     for (frameIndex = currentFrameIndex + step; 
@@ -1552,7 +1552,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
           return frameIndex - step;
         }
 
-        if (!objType || (world.annotation.boxes.find(x=> x.obj_type == objType))) {
+        if (objType.length===0 || (world.annotation.boxes.find(x=> objType.includes(x.obj_type)))) {
           return frameIndex;
         }
     }
@@ -1570,8 +1570,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     );
 
     let boxes = world.annotation.boxes.concat();
-    if (this.editingTarget.objType) {
-      boxes = boxes.filter(x=>x.obj_type === this.editingTarget.objType);
+    if (this.editingTarget.objType.length > 0) {
+      boxes = boxes.filter(x=> this.editingTarget.objType.includes(x.obj_type));
     }
     //boxes = boxes.sort((a,b)=>a.obj_type > b.obj_type?1:-1);
 
