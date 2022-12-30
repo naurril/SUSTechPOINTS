@@ -380,7 +380,7 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
     this.onFinished = onFinished;
     if (this.preloaded()) {
       this.go();
-    }
+      }
   };
 
   this.deactivate = function () {

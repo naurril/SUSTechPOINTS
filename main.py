@@ -523,6 +523,8 @@ class Api(object):
       return self.get_frames_by_objtype(os.path.join(datacfg['global']['rootdir'],scene), objtype)
 
     def get_frames_by_objtype(self, path, objtype):
+
+      objtypes = objtype.split(",")
       label_folder = os.path.join(path, "label")
       if not os.path.isdir(label_folder):
         return []
@@ -542,7 +544,7 @@ class Api(object):
               else:
                 boxes = ann
               for b in boxes:
-                if b['obj_type'] == objtype:
+                if b['obj_type'] in objtypes:
                   return True
           return False
 

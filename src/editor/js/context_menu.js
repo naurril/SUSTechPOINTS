@@ -32,7 +32,7 @@ class ContextMenu {
     const motherMenu = {
       '#cm-goto': '#goto-submenu',
       '#cm-new': '#new-submenu',
-      '#cm-show-objs-of-type': '#show-submenu',
+      //'#cm-show-objs-of-type': '#show-submenu',
       '#cm-play': '#play-submenu',
       '#cm-fit': '#cm-fit-submenu'
       // "#cm-this": "#cm-this-submenu",
