@@ -20,16 +20,13 @@ class MultiClassChooserBox extends PopupDialog {
       };
     }
 
-    this.ui.addEventListener('keydown', (ev) => {
-      // anykey
-      if (ev.shiftKey || ev.ctrlKey || ev.altKey) {
-        //
-      } else {
-        this.hide();
-        ev.preventDefault();
-        ev.stopPropagation();
-      }
-    });
+    this.ui.querySelector("#btn-clear").onclick = ()=>{
+      this.clear();
+    }
+
+    this.ui.querySelector("#btn-all").onclick = ()=>{
+      this.selectAll();
+    }
   }
 
   showButtons (btns) {
@@ -43,12 +40,24 @@ class MultiClassChooserBox extends PopupDialog {
   }
 
   setClasses (classes) {
-    let str  = classes.map(c=>`<input id="class-${c}" type=checkbox>${c}</input> `).reduce((a,b)=>a+b);
+    let str  = classes.map(c=>`<input id="class-${c}" type=checkbox><label for="class-${c}">${c}</label> `).reduce((a,b)=>a+b);
 
     this.contentUi.innerHTML = str;
 
     this.classes = classes;
 
+  }
+
+  clear() {
+    this.classes.forEach(c=>{
+      this.contentUi.querySelector("#class-"+c).checked = false
+    })
+  }
+
+  selectAll() {
+    this.classes.forEach(c=>{
+      this.contentUi.querySelector("#class-"+c).checked = true
+    })
   }
 
   getSelectedClasses () {
