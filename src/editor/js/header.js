@@ -5,6 +5,7 @@ const Header = function (ui, data, cfg, onSceneChanged, onFrameChanged, onObject
   this.ui = ui;
   this.data = data;
   this.cfg = cfg;
+  this.generalInfoUi = ui.querySelector('#general-info');
   this.boxUi = ui.querySelector('#box');
   this.refObjUi = ui.querySelector('#ref-obj');
   this.curObjUi = ui.querySelector('#cur-obj');
@@ -79,6 +80,10 @@ const Header = function (ui, data, cfg, onSceneChanged, onFrameChanged, onObject
     this.boxUi.innerHTML = '';
   };
 
+  this.setGeneralInfo = function(str) {
+    this.generalInfoUi.innerText = str;
+  };
+
   this.updateBoxInfo = function (box) {
     const scale = box.scale;
     const pos = box.position;
@@ -86,7 +91,7 @@ const Header = function (ui, data, cfg, onSceneChanged, onFrameChanged, onObject
     const pointsNumber = box.world.lidar.getBoxPointsNumber(box);
     const distance = Math.sqrt(pos.x * pos.x + pos.y * pos.y).toFixed(2);
 
-    this.boxUi.innerHTML = '<span>' + box.obj_type + '-' + box.obj_id +
+    this.boxUi.innerHTML = '<span> | ' + box.obj_type + '-' + box.obj_id +
                                (box.annotator ? ("</span> | <span title='annotator'>" + box.annotator) : '') +
                                "</span> | <span title='distance'>" + distance +
                                "</span> | <span title='position'>" + pos.x.toFixed(2) + ' ' + pos.y.toFixed(2) + ' ' + pos.z.toFixed(2) +

@@ -542,6 +542,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     this.show();
     this.reset();
 
+    
 
     this.editingTarget.frameIndex = sceneMeta.frames.findIndex(f => f === frame);
     
@@ -585,7 +586,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       editor.setTarget(world, box.obj_id, box.obj_type);
     });
 
-    this.globalHeader.setObject(frame);
+    //this.globalHeader.setObject(frame);
+    this.globalHeader.setGeneralInfo(`${this.editingTarget.frameIndex}/${this.editingTarget.sceneMeta.frames.length}`);
   }
 
   this.editObjById = function(data, sceneMeta, frame, objTrackId, objType) {
