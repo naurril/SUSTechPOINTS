@@ -692,7 +692,8 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
                 this.data.world.frameInfo.scene, 
                 this.data.world.frameInfo.frame, 
                 undefined, 
-                this.multiClassChooserBox.getSelectedClasses()
+                this.multiClassChooserBox.getSelectedClasses(),
+                this.multiClassChooserBox.getAttrs(),
                 )
             }
           });
@@ -1070,7 +1071,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     });
   };
 
-  this.editBatch = function (sceneName, frame, objectTrackId, objectType) {
+  this.editBatch = function (sceneName, frame, objectTrackId, objectType, objectAttr) {
     // this.keydownDisabled = true;
     // hide something
     this.imageContextManager.hide();
@@ -1092,6 +1093,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       frame,
       objectTrackId,
       objectType,
+      objectAttr,
       (targetFrame, targetTrackId) => { // on exit
         this.currentMainEditor = this;
         // this.keydownDisabled = false;

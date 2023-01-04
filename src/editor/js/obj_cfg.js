@@ -9,14 +9,14 @@ class ObjectCategory {
       Bus: { color: '#ffff00', size: [13, 3, 3.5] },
       Truck: { color: '#00ffff', size: [10.0, 2.8, 3] },
 
-      ScooterRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', '1 passenger', '2 passengers', '3 passengers'] },
+      ScooterRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', 'passengers'] },
       Scooter: { color: '#aaaa00', size: [1.6, 0.6, 1.0] },
 
-      BicycleRider: { color: '#88ff00', size: [1.6, 0.6, 1.7], attr: ['umbrella', '1 passenger', '2 passengers', '3 passengers'] },
+      BicycleRider: { color: '#88ff00', size: [1.6, 0.6, 1.7], attr: ['umbrella', 'passengers'] },
       Bicycle: { color: '#ff8800', size: [1.6, 0.6, 1.2], attr: ['laying down'] },
 
       Motorcycle: { color: '#aaaa00', size: [1.6, 0.6, 1.2], attr: ['umbrella'] },
-      MotorcycleRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', '1 passenger', '2 passengers', '3 passengers'] },
+      MotorcycleRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', 'passengers'] },
 
       PoliceCar: { color: '#86af49', size: [4.5, 1.8, 1.5] },
       TourCar: { color: '#86af49', size: [4.4, 1.5, 2.2] },
