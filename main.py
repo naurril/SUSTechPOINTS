@@ -302,19 +302,19 @@ class Api(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def loadAnnotation(self, scene, frame):
-      return scene_reader.read_annotations(scene, frame)
+      return scene_reader.read_annotations(datacfg['global']['rootdir'], scene, frame)
 
 
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def load_image_annotation(self, scene, frame, camera_type, camera_name):
-      return scene_reader.read_image_annotations(scene, frame, camera_type, camera_name)
+      return scene_reader.read_image_annotations(datacfg['global']['rootdir'], scene, frame, camera_type, camera_name)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def load_all_image_annotation(self, scene, frame, cameras, aux_cameras):
-      return scene_reader.read_all_image_annotations(scene, frame, cameras, aux_cameras)
+      return scene_reader.read_all_image_annotations(datacfg['global']['rootdir'], scene, frame, cameras, aux_cameras)
 
 
     @cherrypy.expose    
@@ -360,7 +360,7 @@ class Api(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def load_calib(self, scene, frame):
-      return scene_reader.read_calib(scene, frame)
+      return scene_reader.read_calib(datacfg['global']['rootdir'], scene, frame)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
@@ -379,7 +379,7 @@ class Api(object):
       anns = list(map(lambda w:{
                       "scene": w["scene"],
                       "frame": w["frame"],
-                      "annotation":scene_reader.read_annotations(w["scene"], w["frame"])},
+                      "annotation":scene_reader.read_annotations(datacfg['global']['rootdir'], w["scene"], w["frame"])},
                       worldlist))
 
       return anns
@@ -418,11 +418,7 @@ class Api(object):
 
     #   return {}
 
-    # @cherrypy.expose    
-    # @cherrypy.tools.json_out()
-    # def datameta(self):
-    #   return scene_reader.get_all_scenes()
-    
+
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
@@ -499,7 +495,7 @@ class Api(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def scenemeta(self, scene):
-      meta = scene_reader.get_one_scene(scene)
+      meta = scene_reader.get_one_scene(datacfg['global']['rootdir'], scene)
       return meta
 
     @cherrypy.expose    
@@ -515,16 +511,16 @@ class Api(object):
       else:
         scenes = ".*"
 
-      return scene_reader.get_all_scene_desc(scenes)
+      return scene_reader.get_all_scene_desc(datacfg['global']['rootdir'], scenes)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
-    def queryFrames(self, scene, objtype):
-      return self.get_frames_by_objtype(os.path.join(datacfg['global']['rootdir'],scene), objtype)
+    def queryFrames(self, scene, objtype, objattr):
+      return self.get_frames_by_objtype(os.path.join(datacfg['global']['rootdir'],scene), objtype, objattr)
 
-    def get_frames_by_objtype(self, path, objtype):
+    def get_frames_by_objtype(self, path, objtype, objattr):
 
-      objtypes = objtype.split(",")
+      objtypes = objtype.split(",") if objtype else []
       label_folder = os.path.join(path, "label")
       if not os.path.isdir(label_folder):
         return []
@@ -533,22 +529,35 @@ class Api(object):
       files.sort()
       files = filter(lambda x: x.split(".")[-1]=="json", files)
 
+      print('query', objtypes, objattr)
 
-      def contain_objtype(f):
+      def contain_objs(f):
           if  not os.path.exists(f):
             return False
           with open(f) as fd:
+            try:
               ann = json.load(fd)
               if 'objs' in ann:
                 boxes = ann['objs']
               else:
                 boxes = ann
+
               for b in boxes:
-                if b['obj_type'] in objtypes:
-                  return True
+                if objtypes and not b['obj_type'] in objtypes:
+                  continue
+                  
+                if objattr and (not 'obj_attr' in b  or not objattr in b['obj_attr']):
+                  continue
+              
+                return True
+
+            except:
+              print(f, 'load failed')
+              return False
+
           return False
 
-      files = filter(lambda f: contain_objtype(os.path.join(path, "label", f)), files)
+      files = filter(lambda f: contain_objs(os.path.join(path, "label", f)), files)
       frames = map(lambda x: os.path.splitext(x)[0], files)
 
       return list(frames)

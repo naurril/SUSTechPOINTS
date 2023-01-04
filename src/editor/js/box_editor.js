@@ -527,7 +527,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     this.setBatchSize(this.batchSize);
   };
 
-  this.editObjectsInFrame = async function(data, sceneMeta, frame, objType, startIndex=0) {
+  this.editObjectsInFrame = async function(data, sceneMeta, frame, objType, objAttr, startIndex=0) {
 
     const world = await data.getWorld(sceneMeta.scene, frame);
     world.data.forcePreloadScene(sceneMeta.scene, world);
@@ -551,13 +551,26 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
     this.editingTarget.objTrackId = undefined;
     this.editingTarget.objType = objType;
+    this.editingTarget.objAttr = objAttr;
 
     this.editingTarget.frame = frame;
 
 
     let boxes = world.annotation.boxes.concat();
-    if (objType.length > 0) {
-      boxes = boxes.filter(x=>objType.includes(x.obj_type));
+    if (objType.length > 0 || objAttr.length > 0) {
+      boxes = boxes.filter(x=>{
+
+        if (this.editingTarget.objType.length > 0 && !this.editingTarget.objType.includes(x.obj_type)) {
+          return false;
+        }
+
+        if (this.editingTarget.objAttr && (!x.obj_attr || x.obj_attr.search(this.editingTarget.objAttr) < 0)) {
+          return false;
+        }
+
+        return true;
+
+      });
     }
 
     if (boxes.length === 0) {
@@ -658,12 +671,12 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   }
 
 
-  this.prepareFramesForObjType = async function(data, sceneMeta, objType){
-    const frames = await jsonrpc(`/api/queryFrames?scene=${sceneMeta.scene}&objtype=${objType.reduce((a,b)=>a+','+b)}`)
+  this.prepareFramesForObjType = async function(data, sceneMeta, objType, objAttr){
+    const frames = await jsonrpc(`/api/queryFrames?scene=${sceneMeta.scene}&objtype=${(objType.length>0)?objType.reduce((a,b)=>a+','+b):''}&objattr=${objAttr}`)
     data.setViewFrames(sceneMeta, frames);
   }
 
-  this.edit = async function (data, sceneMeta, frame, objTrackId, objType, onExit) {
+  this.edit = async function (data, sceneMeta, frame, objTrackId, objType, objAttr, onExit) {
 
     this.show();
     this.reset();
@@ -680,11 +693,12 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     
     if (objTrackId === undefined) {
 
-      if (objType.length > 0) {
-        await this.prepareFramesForObjType(data, sceneMeta, objType);
+      if (objType.length > 0 || objAttr.length > 0) {
+        await this.prepareFramesForObjType(data, sceneMeta, objType, objAttr);
       }
 
-      this.editObjectsInFrame(data, sceneMeta, frame, objType);
+      this.editObjectsInFrame(data, sceneMeta, frame, objType, objAttr);
+
     } else {
       this.editObjById(data, sceneMeta, frame, objTrackId, objType);
     }    
@@ -1572,8 +1586,20 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     );
 
     let boxes = world.annotation.boxes.concat();
-    if (this.editingTarget.objType.length > 0) {
-      boxes = boxes.filter(x=> this.editingTarget.objType.includes(x.obj_type));
+    if (this.editingTarget.objType.length > 0 || this.editingTarget.objAttr.length > 0) {
+      boxes = boxes.filter(x=> {
+
+        if (this.editingTarget.objType.length > 0 && !this.editingTarget.objType.includes(x.obj_type)) {
+          return false;
+        }
+
+        if (this.editingTarget.objAttr && (!x.obj_attr || x.obj_attr.search(this.editingTarget.objAttr) < 0)) {
+          return false;
+        }
+
+        return true;
+
+      });
     }
     //boxes = boxes.sort((a,b)=>a.obj_type > b.obj_type?1:-1);
 
@@ -1584,6 +1610,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.frame,
         this.editingTarget.objType,
+        this.editingTarget.objAttr,
         lastObjIndex)
     } else {
       // next frame
@@ -1607,6 +1634,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.sceneMeta.frames[frameIndex],
         this.editingTarget.objType,
+        this.editingTarget.objAttr,
         0);
 
 
@@ -1663,6 +1691,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.frame,
         this.editingTarget.objType,
+        this.editingTarget.objAttr,
         Math.max(this.editingTarget.startIndex - this.batchSize, 0))
     } else {
       // next frame
@@ -1684,6 +1713,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.sceneMeta.frames[frameIndex],
         this.editingTarget.objType,
+        this.editingTarget.objAttr,
         -1);
     }
   }

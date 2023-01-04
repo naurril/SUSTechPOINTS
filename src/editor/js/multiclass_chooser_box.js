@@ -6,7 +6,8 @@ class MultiClassChooserBox extends PopupDialog {
 
     this.mouseDown = false;
     this.mouseDwwnPos = {};
-    this.contentUi = this.ui.querySelector('#content');
+    this.classesUi = this.ui.querySelector('#classes');
+    this.attrsUi = this.ui.querySelector('#attrs');
 
     this.buttons = {
       yes: this.ui.querySelector('#btn-yes'),
@@ -42,7 +43,7 @@ class MultiClassChooserBox extends PopupDialog {
   setClasses (classes) {
     let str  = classes.map(c=>`<input id="class-${c}" type=checkbox><label for="class-${c}">${c}</label> `).reduce((a,b)=>a+b);
 
-    this.contentUi.innerHTML = str;
+    this.classesUi.innerHTML = str;
 
     this.classes = classes;
 
@@ -50,20 +51,24 @@ class MultiClassChooserBox extends PopupDialog {
 
   clear() {
     this.classes.forEach(c=>{
-      this.contentUi.querySelector("#class-"+c).checked = false
+      this.classesUi.querySelector("#class-"+c).checked = false
     })
   }
 
   selectAll() {
     this.classes.forEach(c=>{
-      this.contentUi.querySelector("#class-"+c).checked = true
+      this.classesUi.querySelector("#class-"+c).checked = true
     })
   }
 
   getSelectedClasses () {
     return this.classes.filter(c=>{
-      return this.contentUi.querySelector("#class-"+c).checked
+      return this.classesUi.querySelector("#class-"+c).checked
     })
+  }
+
+  getAttrs() {
+    return this.attrsUi.value;
   }
 
   makeVisible (pointerPosition) {

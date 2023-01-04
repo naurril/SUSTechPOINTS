@@ -3,28 +3,24 @@ import os
 import json
 import re
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
-root_dir = os.path.join(this_dir, "data")
+#this_dir = os.path.dirname(os.path.abspath(__file__))
+#root_dir = os.path.join(this_dir, "data")
 
-def get_all_scenes():
-    all_scenes = get_scene_names()
-    return list(map(get_one_scene, all_scenes))
-
-def get_all_scene_desc(scene_pattern):
+def get_all_scene_desc(root_dir, scene_pattern):
     
-    scenes = get_scene_names()
+    scenes = get_scene_names(root_dir)
     
     descs = {}
 
     for n in scenes:
         if re.fullmatch(scene_pattern, n):
             try:
-                descs[n] = get_scene_desc(n)
+                descs[n] = get_scene_desc(root_dir, n)
             except:
                 print('failed reading scene:', n)
     return descs
 
-def get_scene_names():
+def get_scene_names(root_dir):
       scenes = os.listdir(root_dir)
       scenes = filter(lambda s: not os.path.exists(os.path.join(root_dir, s, "disable")), scenes)
       scenes = list(scenes)
@@ -60,7 +56,7 @@ def get_meta_stat(s):
     
     return stat
 
-def get_scene_desc(s):
+def get_scene_desc(root_dir, s):
     scene_dir = os.path.join(root_dir, s)
     desc = {}
     if os.path.exists(os.path.join(scene_dir, "desc.json")):
@@ -77,7 +73,7 @@ def get_scene_desc(s):
     return desc
     
 
-def get_one_scene(s):
+def get_one_scene(root_dir, s):
     scene = {
         "scene": s,
         "frames": []
@@ -264,7 +260,7 @@ def get_one_scene(s):
     return scene
 
 
-def read_annotations(scene, frame):
+def read_annotations(root_dir, scene, frame):
     "read 3d boxes"
     if not os.path.exists(os.path.join(root_dir, scene, 'label')):
         return []
@@ -280,7 +276,7 @@ def read_annotations(scene, frame):
     return {'objs': []}
 
 
-def read_image_annotations(scene, frame, camera_type, camera_name):
+def read_image_annotations(root_dir, scene, frame, camera_type, camera_name):
     filename = os.path.join(root_dir, scene, "label_fusion", camera_type, camera_name, frame+".json")   # backward compatible
     if os.path.exists(filename):
         if (os.path.isfile(filename)):
@@ -291,7 +287,7 @@ def read_image_annotations(scene, frame, camera_type, camera_name):
     return {'objs': []}
 
 
-def read_all_image_annotations(scene, frame, cameras, aux_cameras):
+def read_all_image_annotations(root_dir, scene, frame, cameras, aux_cameras):
     ann = {
         "camera": {},
         "aux_camera": {}
@@ -313,7 +309,7 @@ def read_all_image_annotations(scene, frame, cameras, aux_cameras):
 
     return ann
 
-def read_ego_pose(scene, frame):
+def read_ego_pose(root_dir, scene, frame):
     filename = os.path.join(root_dir, scene, "ego_pose", frame+".json")
     if (os.path.isfile(filename)):
       with open(filename,"r") as f:
@@ -321,7 +317,7 @@ def read_ego_pose(scene, frame):
         return p
     else:
       return None
-def read_calib(scene, frame):
+def read_calib(root_dir, scene, frame):
 
     calib = {}
 
@@ -345,11 +341,8 @@ def read_calib(scene, frame):
 
     return calib
 
-def save_annotations(scene, frame, anno):
+def save_annotations(root_dir, scene, frame, anno):
     filename = os.path.join(root_dir, scene, "label", frame+".json")
     with open(filename, 'w') as outfile:
             json.dump(anno, outfile)
-
-if __name__ == "__main__":
-    print(get_all_scenes())
 
