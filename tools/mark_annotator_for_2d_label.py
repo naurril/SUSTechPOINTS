@@ -338,8 +338,8 @@ def proc_frame_3dbox(scene, meta, frame, boxes):
             else:
                 id_map[box['obj_id']] += 1
 
-        # [body, ground, ground_level] = crop_box_pts(pts, box)
-        # obj_attr = '' if not 'obj_attr' in box else box['obj_attr']
+        [body, ground, ground_level] = crop_box_pts(pts, box)
+        obj_attr = '' if not 'obj_attr' in box else box['obj_attr']
 
         if False:
             # empty box?
@@ -349,7 +349,7 @@ def proc_frame_3dbox(scene, meta, frame, boxes):
                 modified = True
                 continue
 
-        if False:
+        if True:
             # occluded object?
             distance = box_distance(box)
 
@@ -360,7 +360,7 @@ def proc_frame_3dbox(scene, meta, frame, boxes):
                 #print(box['obj_id'], occluded, obj_attr)
 
                 if occluded and not 'occluded' in obj_attr:
-                    box['obj_attr'] = 'occluded' + ((',' + obj_attr) if obj_attr else '')
+                    box['obj_attr'] = '0' + ((',' + obj_attr) if obj_attr else '')
                     print(frame, box['obj_id'], box['obj_attr'])
                     modified = True
                 # if occluded and (not 'obj_attr' in box  or  not 'occluded' in  box['obj_attr']):

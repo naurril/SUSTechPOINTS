@@ -6,7 +6,7 @@ import argparse
 import re
 
 
-parser = argparse.ArgumentParser(description='start web server for SUSTech POINTS')        
+parser = argparse.ArgumentParser(description='convert image labels to yolo format')        
 parser.add_argument('data_folder', type=str, default='./data', help="")
 parser.add_argument('--scenes', type=str, default='.*', help="")
 parser.add_argument('--camera_types', type=str, default='aux_camera', help="")
@@ -36,7 +36,7 @@ obj_types = [
     'BicycleRider',   
     'Bicycle',        
     'Motorcycle',     
-    'MotorcyleRider', 
+    'MotorcycleRider', 
     'PoliceCar',      
     'TourCar',        
     'RoadWorker',     
@@ -106,16 +106,22 @@ for s in scenes:
             for fname in files:
                 frame = os.path.splitext(fname)[0]
 
-                with open(os.path.join(label_folder, fname)) as f:
-                    label = json.load(f)
+                try:
+                    with open(os.path.join(label_folder, fname)) as f:
+                        label = json.load(f)
 
-                with open(os.path.join(yolo_folder, frame+".txt"), 'w') as f:
-                    for o in label['objs']:
-                        f.write('{} {} {} {} {}\n'.format(obj_type_map[o['obj_type']], 
-                                                            (o['rect']['x1'] + o['rect']['x2'])/2/image_width, 
-                                                            (o['rect']['y1'] + o['rect']['y2'])/2/image_height, 
-                                                            (o['rect']['x2'] - o['rect']['x1'])/image_width, 
-                                                            (o['rect']['y2'] - o['rect']['y1'])/image_height))
+                    with open(os.path.join(yolo_folder, frame+".txt"), 'w') as f:
+                        for o in label['objs']:
+                            if 'obj_type' in o:
+                                f.write('{} {} {} {} {}\n'.format(obj_type_map[o['obj_type']], 
+                                                                (o['rect']['x1'] + o['rect']['x2'])/2/image_width, 
+                                                                (o['rect']['y1'] + o['rect']['y2'])/2/image_height, 
+                                                                (o['rect']['x2'] - o['rect']['x1'])/image_width, 
+                                                                (o['rect']['y2'] - o['rect']['y1'])/image_height))
+                            else:
+                                print('obj type abscent', fname, o)
+                except Exception as e:
+                    print('error', fname, e)
 
 
             

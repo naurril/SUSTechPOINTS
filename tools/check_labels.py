@@ -58,7 +58,7 @@ class LabelChecker:
 
         for id in self.frame_ids:
             f = id+".json"
-            print(f)
+            #print(f)
 
             if os.path.exists(os.path.join(label_folder, f)):
                 with open(os.path.join(label_folder, f),'r') as fp:
@@ -117,6 +117,11 @@ class LabelChecker:
             if obj_id_cnt[id] > 1:
                 self.push_message(frame_id, id, "duplicate object id")               
 
+    def check_obj_size_positivity(self, frame_id, objs):
+        for o in objs:
+            for axis in ['x', 'y', 'z']:
+              if o['psr']['scale'][axis] <= 0:
+                self.push_message(frame_id, o['obj_id'], f"object size {axis} {o['psr']['scale'][axis]} < 0") 
 
     def check_obj_size(self, obj_id, label_list):
 
@@ -136,10 +141,10 @@ class LabelChecker:
 
             for axis in ['x','y','z']:
                 ratio = label["psr"]["scale"][axis] / mean[axis]
-                if ratio < 0.95:
+                if ratio < 0.9:
                     self.push_message(frame_id, obj_id, "dimension {} too small: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
-                elif ratio > 1.05:
+                elif ratio > 1.1:
                     self.push_message(frame_id, obj_id, "dimension {} too large: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
 
@@ -187,15 +192,41 @@ class LabelChecker:
         self.check_one_label(lambda f,o: self.check_obj_id(f, o))
 
         self.check_one_frame(lambda f,o: self.check_frame_duplicate_id(f,o))
+        self.check_one_frame(lambda f,o: self.check_obj_size_positivity(f,o))
 
-        # self.check_one_obj(lambda id, o: self.check_obj_size(id ,o))
-        # self.check_one_obj(lambda id, o: self.check_obj_direction(id ,o))
-        # self.check_one_obj(lambda id, o: self.check_obj_type_consistency(id ,o))
+        self.check_one_obj(lambda id, o: self.check_obj_size(id ,o))
+        self.check_one_obj(lambda id, o: self.check_obj_direction(id ,o))
+        self.check_one_obj(lambda id, o: self.check_obj_type_consistency(id ,o))
 
 if __name__ == "__main__":
-    ck = LabelChecker(sys.argv[1])
-    ck.check()
-    ck.show_messages()
-    
+
+    import argparse
+    import re
+
+    parser = argparse.ArgumentParser(description='check labels')        
+    parser.add_argument('--data', type=str,default='./data', help="")
+    parser.add_argument('--scenes', type=str,default='.*', help="")
+
+    args = parser.parse_args()
+
+
+    data = args.data
+
+    scenes = os.listdir(data)
+    scenes.sort()
+
+    for s in scenes:
+        if not re.fullmatch(args.scenes, s):
+            continue
+        
+        scene_path = os.path.join(data, s)
+        if not os.path.isdir(scene_path):
+            continue
+
+        print(f'checking {s}...')
+        ck = LabelChecker(scene_path)
+        ck.check()
+        ck.show_messages()
+        
 
     

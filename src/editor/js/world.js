@@ -179,9 +179,10 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
       const refPose = this.data.getRefEgoPose(this.frameInfo.scene, thisPose);
 
       // overview
+      // important: this part should be moved to calibration configuration
       // generally we render points on utm-coordinate system.
       // since for each frame we have gps/position info which is based on utm frame.
-      // wo all we need to do is rotate the lidar to appropriate angles and done.
+      // so all we need to do is rotate the lidar to appropriate angles and done.
 
       //
       // the azimuth ouput from novatel is clock-wise, as can be deduced from scene-000011
@@ -197,7 +198,7 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
       const thisRot = {
         x: thisPose.pitch * Math.PI / 180.0,
         y: thisPose.roll * Math.PI / 180.0,
-        z: -thisPose.azimuth * Math.PI / 180.0
+        z: (-thisPose.azimuth - 1.4) * Math.PI / 180.0
       };
 
       const posDelta = {
