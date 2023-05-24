@@ -200,7 +200,7 @@ class ConfigUi {
       },
 
       '#cfg-data-preload-frames': (event) => {
-        const n = event.currentTarget.value;
+        const n = parseInt(event.currentTarget.value);
 
         window.pointsGlobalConfig.setItem('maxWorldNumber', n);
         return false;

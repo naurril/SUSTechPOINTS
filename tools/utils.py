@@ -106,7 +106,7 @@ def box3d_to_corners(b):
     return box3d
 
 
-def proj_pts3d_to_img(pts, extrinsic_matrix, intrinsic_matrix, width, height):
+def proj_pts3d_to_img(pts, extrinsic_matrix, intrinsic_matrix, width=None, height=None):
 
     #print(pts.shape, extrinsic_matrix.shape)
     
@@ -126,10 +126,14 @@ def proj_pts3d_to_img(pts, extrinsic_matrix, intrinsic_matrix, width, height):
 
     imgfinal = imgpos2/imgpos2[:,2:3]
 
+    if width and height:
     
-    filter = (imgfinal[:,0] >= 0) & (imgfinal[:,0] < width) & (imgfinal[:,1] >= 0) & (imgfinal[:,1] < height)
+        filter = (imgfinal[:,0] >= 0) & (imgfinal[:,0] < width) & (imgfinal[:,1] >= 0) & (imgfinal[:,1] < height)
 
-    ret  = imgfinal[filter]
+        ret  = imgfinal[filter]
+    else:
+        ret = imgfinal
+
     #print(ret.shape)
     return ret
 
@@ -177,14 +181,15 @@ def euler_angle_to_rotate_matrix_3x3(eu):
     return R
 
 
-def crop_box_pts(pts, box):
+def crop_box_pts(pts, box, ground_level=0.3):
+    """ return points in box coordinate system"""
     eu = [box['psr']['rotation']['x'], box['psr']['rotation']['y'], box['psr']['rotation']['z']]
     trans_matrix = euler_angle_to_rotate_matrix_3x3(eu)
 
     center = np.array([box['psr']['position']['x'], box['psr']['position']['y'], box['psr']['position']['z']])
     box_pts = np.matmul((pts - center), (trans_matrix))
 
-    ground_level = 0.3
+   
     if box['psr']['scale']['z'] < 2:
         ground_level = box['psr']['scale']['z'] * 0.15
 
@@ -198,7 +203,10 @@ def crop_box_pts(pts, box):
     
     return [box_pts[topfilter], box_pts[groundfilter], ground_level]
 
+
+
 def crop_pts(pts, box):
+    """ return points in lidar coordinate system"""
     eu = [box['psr']['rotation']['x'], box['psr']['rotation']['y'], box['psr']['rotation']['z']]
     trans_matrix = euler_angle_to_rotate_matrix_3x3(eu)
 
@@ -218,7 +226,27 @@ def crop_pts(pts, box):
     groundfilter = filter & (box_pts[:, 2] < -box['psr']['scale']['z']/2+ground_level) & (box_pts[:, 2] > - box['psr']['scale']['z']/2)
     
     
-    return [pts[topfilter], pts[groundfilter]]
+    return [pts[topfilter], pts[groundfilter], topfilter, groundfilter]
+
+
+def color_obj_by_image(pts, box, image, extrinsic, intrinsic):
+    eu = [box['psr']['rotation']['x'], box['psr']['rotation']['y'], box['psr']['rotation']['z']]
+    trans_matrix = euler_angle_to_rotate_matrix_3x3(eu)
+
+    center = np.array([box['psr']['position']['x'], box['psr']['position']['y'], box['psr']['position']['z']])
+    box_pts = np.matmul((pts - center), (trans_matrix))
+    filter =  (box_pts[:, 0] < box['psr']['scale']['x']/2) & (box_pts[:, 0] > - box['psr']['scale']['x']/2) & \
+             (box_pts[:, 1] < box['psr']['scale']['y']/2) & (box_pts[:, 1] > - box['psr']['scale']['y']/2) & \
+             (box_pts[:, 2] < box['psr']['scale']['z']/2) & (box_pts[:, 2] > - box['psr']['scale']['z']/2)
+    
+    target_pts = pts[filter]
+
+    target_img_pts = proj_pts3d_to_img(target_pts, extrinsic, intrinsic)
+
+    target_img_pts = target_img_pts.astype(np.int)[:,0:2]
+    pts_color = image[target_img_pts[:,1],target_img_pts[:,0],:]
+
+    return box_pts[filter], pts_color
 
 def gen_2dbox_for_obj_pts(box3d_pts, extrinsic, intrinsic, width, height):
     img_pts_top = proj_pts3d_to_img(box3d_pts[0], extrinsic, intrinsic, width, height)

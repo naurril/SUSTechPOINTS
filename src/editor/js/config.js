@@ -86,7 +86,11 @@ class Config {
     const ret = window.localStorage.getItem(name);
 
     if (ret) {
-      if (castFunc) { return castFunc(ret); } else { return ret; }
+      if (castFunc) { 
+        return castFunc(ret); 
+      } else { 
+        return ret; 
+      }
     } else {
       return defaultValue;
     }

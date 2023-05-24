@@ -7,7 +7,6 @@
 import os
 import json
 import numpy as np
-import math
 import pypcd.pypcd as pypcd
 import argparse
 import re
@@ -40,32 +39,6 @@ camera_names  = args.camera_names.split(",")
 def prepare_dirs(path):
     if not os.path.exists(path):
             os.makedirs(path)
-
-
-def euler_angle_to_rotate_matrix(eu):
-    theta = eu
-    #Calculate rotation about x axis
-    R_x = np.array([
-        [1,       0,              0],
-        [0,       math.cos(theta[0]),   -math.sin(theta[0])],
-        [0,       math.sin(theta[0]),   math.cos(theta[0])]
-    ])
-
-    #Calculate rotation about y axis
-    R_y = np.array([
-        [math.cos(theta[1]),      0,      math.sin(theta[1])],
-        [0,                       1,      0],
-        [-math.sin(theta[1]),     0,      math.cos(theta[1])]
-    ])
-
-    #Calculate rotation about z axis
-    R_z = np.array([
-        [math.cos(theta[2]),    -math.sin(theta[2]),      0],
-        [math.sin(theta[2]),    math.cos(theta[2]),       0],
-        [0,               0,                  1]])
-
-    R = np.matmul(R_x, np.matmul(R_y, R_z))
-    return R
 
 
 def gen_2dbox_for_frame_camera(scene, meta, frame, camera_type, camera, extrinsic, intrinsic, objs):

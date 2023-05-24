@@ -518,7 +518,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.frame,
         this.editingTarget.objTrackId,
-        this.editingTarget.objType
+        this.editingTarget.objType,
+        this.editingTarget.objAttr,
       );
     }
   };
@@ -694,7 +695,10 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     if (objTrackId === undefined) {
 
       if (objType.length > 0 || objAttr.length > 0) {
-        await this.prepareFramesForObjType(data, sceneMeta, objType, objAttr);
+        if (onExit) {
+          // use onExist as a flag indicating if this is called from maineditor.
+          await this.prepareFramesForObjType(data, sceneMeta, objType, objAttr);
+        }
       }
 
       this.editObjectsInFrame(data, sceneMeta, frame, objType, objAttr);
@@ -952,7 +956,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
           this.editingTarget.sceneMeta,
           this.editingTarget.sceneMeta.frame,
           this.editingTarget.objTrackId,
-          this.editingTarget.objType
+          this.editingTarget.objType,
+          this.editingTarget.objAttr,
         );
         break;
 
@@ -963,7 +968,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
           this.editingTarget.sceneMeta,
           this.editingTarget.sceneMeta.frame,
           this.editingTarget.objTrackId,
-          this.editingTarget.objType
+          this.editingTarget.objType,
+          this.editingTarget.objAttr,
         );
         break;
 
@@ -1659,7 +1665,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.sceneMeta.frames[Math.min(this.editingTarget.frameIndex + this.batchSize / 2, maxFrameIndex)],
         this.editingTarget.objTrackId,
-        this.editingTarget.objType
+        this.editingTarget.objType,
+        this.editingTarget.objAttr,
       );
     }
   };
@@ -1733,7 +1740,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
         this.editingTarget.sceneMeta,
         this.editingTarget.sceneMeta.frames[Math.max(this.editingTarget.frameIndex - this.batchSize / 2, 0)],
         this.editingTarget.objTrackId,
-        this.editingTarget.objType
+        this.editingTarget.objType,
+        this.editingTarget.objAttr,
       );
     }
   };
@@ -1752,7 +1760,8 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
       this.editingTarget.sceneMeta,
       this.editingTarget.sceneMeta.frames[this.editingTarget.frameIndex],
       obj.id,
-      obj.category
+      obj.category,
+      this.editingTarget.objAttr,
     );
   };
 
