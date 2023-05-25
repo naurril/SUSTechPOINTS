@@ -7,17 +7,31 @@ from PIL import Image
 import pypcd.pypcd as pypcd
 import numpy as np
 import json
-from utils import color_obj_by_image, read_scene_meta, get_calib_for_frame
+import open3d as o3d
+from utils import color_obj_by_image, read_scene_meta, get_calib_for_frame, choose_best_camera_for_obj, box_position, SuscapeScene
 
 parser = argparse.ArgumentParser(description='extract 3d object')        
 parser.add_argument('data', type=str, help="")
-parser.add_argument('scene', type=str, help="")
-parser.add_argument('objid', type=str, help="")
-parser.add_argument('--output', type=str, default='./', help="")
+parser.add_argument('--scenes', type=str, default=".*", help="")
+parser.add_argument('--objids', type=str, default=".*", help="")
+parser.add_argument('--output', type=str, default='./output', help="")
 parser.add_argument('--frames', type=str, default='.*', help="")
 parser.add_argument('--camera_type', type=str, default='camera', help="")
-parser.add_argument('--camera', type=str, default='front', help="")
+parser.add_argument('--cameras', type=str, default='front,front_right,front_left,rear_left,rear_right', help="")
+parser.add_argument('--range', type=float, default=20, help="")
+parser.add_argument('--ground_level', type=float, default=0, help="")
 
+parser.set_defaults(mirror=True)
+parser.add_argument('--mirror', action='store_true')
+parser.add_argument('--no-mirror', dest='mirror', action='store_false')
+
+parser.set_defaults(saveall=False)
+parser.add_argument('--saveall', action='store_true')
+parser.add_argument('--no-saveall', dest='saveall', action='store_false')
+
+parser.set_defaults(register=True)
+parser.add_argument('--register', action='store_true')
+parser.add_argument('--no-register', dest='register', action='store_false')
 
 args = parser.parse_args()
 
@@ -32,7 +46,7 @@ def write_color_pcd(pts, color, file):
 VERSION .7
 FIELDS x y z rgb
 SIZE 4 4 4 4
-TYPE F F F F
+TYPE F F F I
 COUNT 1 1 1 1
 WIDTH {size}
 HEIGHT 1
@@ -43,22 +57,19 @@ DATA ascii
         for i,p in enumerate(pts): 
             f.write(f'{p[0]} {p[1]} {p[2]} {c[i]}\n')     
       
-def proc_frame(scene, meta, frame):
-    label_3d_file = os.path.join(args.data, scene, 'label', frame+".json")
+
+def obj_distance(obj):
+    p = box_position(obj['psr'])
+    return np.sqrt(np.sum(p*p))
+
+
+
+
+def read_label(scene, frame):
+    label_3d_file = os.path.join(scene, 'label', frame+".json")
     if not os.path.exists(label_3d_file):
         print("label3d for", frame, 'does not exist')
-        return
-
-    # load lidar points
-    lidar_file = os.path.join(args.data, scene, 'lidar', frame+".pcd")
-    pc = pypcd.PointCloud.from_path(lidar_file)
-    
-    pts =  np.stack([pc.pc_data['x'], 
-                    pc.pc_data['y'], 
-                    pc.pc_data['z']],
-                    axis=-1)
-    pts = pts[(pts[:,0]!=0) | (pts[:,1]!=0) | (pts[:,2]!=0)]
-    #print(pts.shape)
+        return []
 
     with open(label_3d_file) as f:
         try:
@@ -70,21 +81,184 @@ def proc_frame(scene, meta, frame):
     boxes = label_3d
     if 'objs' in boxes:
         boxes = boxes['objs']
+    
+    return boxes
 
+
+def find_obj_by_id(boxes, id):
     for b in boxes:
-        if b['obj_id']==args.objid:
-            # found it!
-            # load image
-            (extrinsic,intrinsic) = get_calib_for_frame(scene, meta, args.camera_type, args.camera, frame)
+        if b['obj_id']==id:
+            return b
+    return None
+
+
+
+def proc_frame(sc, frame, id, output_path=None):
+    
+    boxes = sc.get_boxes_by_frame(frame)
+
+    b = find_obj_by_id(boxes, id)
+    if not b:
+        return None,None
+    
+    dist = int(obj_distance(b))
+    if dist > args.range:
+        #print('box too far away')
+        return None,None
+
+    camera = choose_best_camera_for_obj(b, sc.scene_path, sc.meta, args.camera_type, args.cameras.split(','), frame)
+
+    #print(f'best camera: {camera}')
+
+    (extrinsic,intrinsic) = sc.get_calib_for_frame(args.camera_type, camera, frame)
+    
+    img = Image.open(os.path.join(sc.scene_path, args.camera_type, camera, frame+sc.meta[args.camera_type][camera]['ext']))
+    img = np.asarray(img)
+
+    pts = sc.read_lidar(frame)
+    pts,color,whole = color_obj_by_image(pts, b, img, extrinsic, intrinsic, args.ground_level)
+
+    #print(f'points number in image: {pts.shape[0]}, whole {whole}')
+
+    if pts.shape[0]  and whole:
+
+        if output_path:
             
-            img = Image.open(os.path.join(args.data, scene, args.camera_type, args.camera, frame+meta[args.camera_type][args.camera]['ext']))
-            img = np.asarray(img)
-            pts,color = color_obj_by_image(pts, b, img, extrinsic, intrinsic)
+            if not os.path.exists(output_path):
+                os.makedirs(output_path)
 
-            write_color_pcd(pts, color, 'output.pcd')
-            print(pts.shape, color.shape)
+            file = f"{id}-{frame}-{camera}-{dist}.pcd"
+            write_color_pcd(pts, color, os.path.join(output_path, file))
+            print(f'write {file}, {pts.shape[0]} points')
 
-meta = read_scene_meta(os.path.join(args.data, args.scene))
-for frame in meta['frames']:
-    if re.fullmatch(args.frames, frame):
-        proc_frame(args.scene, meta, frame)
+
+        return pts,color
+
+    return None,None
+
+def register_2_point_clouds(source, target):
+    voxel_radius = [0.2, 0.1, 0.05]
+    max_iter = [50, 30, 14]
+    current_transformation = np.identity(4)
+
+    try:
+        for scale in range(3):
+            iter = max_iter[scale]
+            radius = voxel_radius[scale]
+            # print([iter, radius, scale])
+
+            # print("3-1. Downsample with a voxel size %.2f" % radius)
+            source_down = source.voxel_down_sample(radius)
+            target_down = target.voxel_down_sample(radius)
+
+            # print("3-2. Estimate normal.")
+            source_down.estimate_normals(
+                o3d.geometry.KDTreeSearchParamHybrid(radius=radius * 2, max_nn=30))
+            target_down.estimate_normals(
+                o3d.geometry.KDTreeSearchParamHybrid(radius=radius * 2, max_nn=30))
+
+            # print("3-3. Applying colored point cloud registration")
+            result_icp = o3d.pipelines.registration.registration_colored_icp(
+                source_down, target_down, radius, current_transformation,
+                o3d.pipelines.registration.TransformationEstimationForColoredICP(),
+                o3d.pipelines.registration.ICPConvergenceCriteria(relative_fitness=1e-6,
+                                                                relative_rmse=1e-6,
+                                                                max_iteration=iter))
+            current_transformation = result_icp.transformation
+        
+        # print(result_icp)
+        return current_transformation
+    except:
+        print('icp failed, give up')
+        return np.identity(4)
+
+def register_point_clouds(allpts, allcolors):
+    pcs=[]
+    for p,c in zip(allpts, allcolors):
+        pc = o3d.geometry.PointCloud()
+        pc.points = o3d.utility.Vector3dVector(p)
+        pc.colors = o3d.utility.Vector3dVector(c/256)
+
+        pcs.append(pc)
+
+    # o3d.visualization.draw_geometries(pcs)
+
+    target = pcs[0]
+
+    for pc in pcs:
+        if not pc == target:
+            trans = register_2_point_clouds(pc, target)
+            pc.transform(trans)
+
+    # o3d.visualization.draw_geometries(pcs)
+
+    return pcs
+
+
+def combine_and_save(all_pts, all_color, file):
+    pts = np.concatenate(all_pts, axis=0)
+    color = np.concatenate(all_color, axis=0)
+    # mirror the object
+    if args.mirror:
+        mirrored_pts = pts * np.array([1, -1, 1])
+        pts = np.concatenate([pts, mirrored_pts], axis=0)
+        color = np.concatenate([color, color], axis=0)
+
+    write_color_pcd(pts, color, file)
+    print(f'write {file}, {pts.shape[0]} points')
+    
+
+def proc_scene(scene_name):
+
+    sc = SuscapeScene(args.data, scene_name)
+
+    
+    all_objids = sc.list_objs()
+
+    output_path = os.path.join(args.output, scene_name, 'lidar')
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    for id,objtype in all_objids:
+
+        if not re.fullmatch(args.objids, id):
+            continue
+
+
+        candidate_frames = sc.meta['frames']
+        candidate_frames = list(filter(lambda f: re.fullmatch(args.frames, f), candidate_frames))
+
+        candidate_boxes = {}
+        for frame in candidate_frames:                
+            box = sc.find_box_in_frame(frame, id)
+            if box is None:
+                continue
+            if obj_distance(box) > args.range:
+                continue
+            candidate_boxes[frame] = box
+        
+
+        all_pts=[]
+        all_color=[]
+
+        for frame in candidate_boxes.keys():
+                pts,color = proc_frame(sc, frame, id, output_path if args.saveall else None)
+                if pts is not None:
+                    all_pts.append(pts)
+                    all_color.append(color)
+                
+        if len(all_pts) > 0:
+            combine_and_save(all_pts, all_color, os.path.join(output_path, f"{id}-{objtype}_cmb.pcd"))
+
+            registered = register_point_clouds(all_pts, all_color)
+            all_pts = list(map(lambda p: np.asarray(p.points), registered))
+            all_color = list(map(lambda p: (np.asarray(p.colors)*256).astype(np.int8), registered))
+
+            combine_and_save(all_pts, all_color, os.path.join(output_path, f"{id}-{objtype}_reg.pcd"))
+
+scenes = os.listdir(args.data)
+
+for s in scenes:
+    if re.fullmatch(args.scenes, s):
+        print('processing', s)
+        proc_scene(s)

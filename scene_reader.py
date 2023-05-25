@@ -18,6 +18,7 @@ def get_all_scene_desc(root_dir, scene_pattern):
                 descs[n] = get_scene_desc(root_dir, n)
             except:
                 print('failed reading scene:', n)
+                raise
     return descs
 
 def get_scene_names(root_dir):
@@ -67,7 +68,8 @@ def get_scene_desc(root_dir, s):
         desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'lidar')))
     else:
         desc['frames'] = len(os.listdir(os.path.join(scene_dir, 'image')))
-    desc['label_files'] = len(os.listdir(os.path.join(scene_dir, 'label')))
+
+    #desc['label_files'] = len(os.listdir(os.path.join(scene_dir, 'label')))
     #desc['meta'] = get_meta_stat(s)
 
     return desc
