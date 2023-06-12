@@ -174,7 +174,8 @@ class SuscapeScene:
         
         pts =  np.stack([pc.pc_data['x'], 
                         pc.pc_data['y'], 
-                        pc.pc_data['z']],
+                        pc.pc_data['z'],
+                        pc.pc_data['intensity']],
                         axis=-1)
         pts = pts[(pts[:,0]!=0) | (pts[:,1]!=0) | (pts[:,2]!=0)]
         return pts

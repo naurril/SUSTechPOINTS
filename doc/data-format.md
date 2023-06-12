@@ -11,7 +11,9 @@ the position is the center point of the box, represented in LiDAR coordinate sys
 
 **Rotation**
 
-For rotation we use Euler angle representation (XYZ order, default of THREE.js library). The yaw angle (rotation around z axis, the heading direction of target object) of 0 degree is parallel to the +x axis of the LiDAR system and it's counter-clockwise if viewed from above.
+For rotation we use Euler angle representation (XYZ order, default of THREE.js library). The yaw angle (rotation around z axis, the heading direction of target object) of 0 degree is parallel to the +x axis of the LiDAR system and it's counter-clockwise if viewed from above. 
+
+Three.js uses intrinsic Tait-Bryan angles. This means that rotations are performed with respect to the local coordinate system. That is, for order 'XYZ', the rotation is first around the local-X axis (which is the same as the world-X axis), then around local-Y (which may now be different from the world Y-axis), then local-Z (which may be different from the world Z-axis).
 
 Our tool supports pitch and roll angles, they are rotations around x/y axies of the box's local coordinate system, in which the x-axis goes forward, and the y-axis goes left-hand, the z-axis goes upward.
 

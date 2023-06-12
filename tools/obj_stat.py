@@ -50,7 +50,7 @@ def stat_scene(scene):
             obj_type = l["obj_type"]
             obj_type = classMap[obj_type] if obj_type in classMap else obj_type
 
-            s = np.array([l['psr']['scale']['x'], l['psr']['scale']['y'], l['psr']['scale']['z']])
+            s = np.array([l['psr']['scale']['x'], l['psr']['scale']['y'], l['psr']['scale']['z'],l['psr']['position']['z']])
 
             if obj_type in stat:
                 stat[obj_type]['size'] = (stat[obj_type]['size'] * stat[obj_type]['num'] + s)/(stat[obj_type]['num']+1)

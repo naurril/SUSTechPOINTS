@@ -8,7 +8,7 @@ import pypcd.pypcd as pypcd
 import numpy as np
 import json
 import open3d as o3d
-from utils import color_obj_by_image, read_scene_meta, get_calib_for_frame, choose_best_camera_for_obj, box_position, SuscapeScene
+from utils import color_obj_by_image, choose_best_camera_for_obj, box_position, SuscapeScene
 
 parser = argparse.ArgumentParser(description='extract 3d object')        
 parser.add_argument('data', type=str, help="")
@@ -115,7 +115,7 @@ def proc_frame(sc, frame, id, output_path=None):
     img = Image.open(os.path.join(sc.scene_path, args.camera_type, camera, frame+sc.meta[args.camera_type][camera]['ext']))
     img = np.asarray(img)
 
-    pts = sc.read_lidar(frame)
+    pts = sc.read_lidar(frame)[:, 0:3]
     pts,color,whole = color_obj_by_image(pts, b, img, extrinsic, intrinsic, args.ground_level)
 
     #print(f'points number in image: {pts.shape[0]}, whole {whole}')
@@ -137,6 +137,7 @@ def proc_frame(sc, frame, id, output_path=None):
     return None,None
 
 def register_2_point_clouds(source, target):
+    """register 2 point clouds using ICP-color """
     voxel_radius = [0.2, 0.1, 0.05]
     max_iter = [50, 30, 14]
     current_transformation = np.identity(4)
@@ -173,6 +174,7 @@ def register_2_point_clouds(source, target):
         return np.identity(4)
 
 def register_point_clouds(allpts, allcolors):
+    """register all point clouds to the first one"""
     pcs=[]
     for p,c in zip(allpts, allcolors):
         pc = o3d.geometry.PointCloud()
@@ -196,6 +198,7 @@ def register_point_clouds(allpts, allcolors):
 
 
 def combine_and_save(all_pts, all_color, file):
+    """combine all points and color and save to file"""
     pts = np.concatenate(all_pts, axis=0)
     color = np.concatenate(all_color, axis=0)
     # mirror the object
@@ -209,7 +212,7 @@ def combine_and_save(all_pts, all_color, file):
     
 
 def proc_scene(scene_name):
-
+    """process a scene"""
     sc = SuscapeScene(args.data, scene_name)
 
     
@@ -223,7 +226,6 @@ def proc_scene(scene_name):
 
         if not re.fullmatch(args.objids, id):
             continue
-
 
         candidate_frames = sc.meta['frames']
         candidate_frames = list(filter(lambda f: re.fullmatch(args.frames, f), candidate_frames))
