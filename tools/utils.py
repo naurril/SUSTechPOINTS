@@ -18,13 +18,21 @@ def read_scene_meta(scene):
         if os.path.exists(os.path.join(scene, camera_type)):
             meta[camera_type] = {}
             for c in os.listdir(os.path.join(scene, camera_type)):
-                any_file = os.listdir(os.path.join(scene, camera_type, c))[0]
-                img = Image.open(os.path.join(scene, camera_type, c, any_file))
+                files = os.listdir(os.path.join(scene, camera_type, c))
+                any_file = files[0]
+
                 meta[camera_type][c] = {
-                    'width': img.width,
-                    'height': img.height,
                     'ext': os.path.splitext(any_file)[1]
                 }
+
+                for any_file in files:
+                    if os.path.exists(os.path.join(scene, camera_type, c, any_file)):
+                        img = Image.open(os.path.join(scene, camera_type, c, any_file))
+                        meta[camera_type][c]['width'] = img.width
+                        meta[camera_type][c]['height'] = img.height
+                        break
+                
+                
 
     meta['calib'] = {}
     for camera_type in ['camera',  'aux_camera']:        
@@ -75,12 +83,16 @@ def read_all_obj_ids(scene):
 
 
 class SuscapeScene:
-    def __init__(self, data_root, name):
+    def __init__(self, data_root, name, lidar=None):
         self.name = name
         self.data_root = data_root
         self.scene_path = os.path.join(data_root, name)
         self.meta = read_scene_meta(self.scene_path)
         self.labels = None
+
+        # specified lidar path
+        self.lidar_root = lidar if lidar else data_root
+        self.lidar_path = os.path.join(self.lidar_root, name, 'lidar')
     
     def load_labels(self):
         label_folder = os.path.join(self.scene_path, "label")
@@ -169,14 +181,29 @@ class SuscapeScene:
 
     def read_lidar(self, frame):
         # load lidar points
-        lidar_file = os.path.join(self.scene_path, 'lidar', frame+".pcd")
+        lidar_file = os.path.join(self.lidar_path, frame+".pcd")
         pc = pypcd.PointCloud.from_path(lidar_file)
         
-        pts =  np.stack([pc.pc_data['x'], 
+        data = [pc.pc_data['x'], 
                         pc.pc_data['y'], 
                         pc.pc_data['z'],
-                        pc.pc_data['intensity']],
-                        axis=-1)
+                        pc.pc_data['intensity']]
+        # if pc.pc_data['rgb']:
+        #     data.append(pc.pc_data['rgb'] // 65536 / 256.0)
+        #     data.append(pc.pc_data['rgb'] // 256 % 256 /256.0)
+        #     data.append(pc.pc_data['rgb'] % 256 /256.0)
+        # elif pc.pc_data['r']:
+        #     data.append(pc.pc_data['r'])
+        #     data.append(pc.pc_data['g'])
+        #     data.append(pc.pc_data['b'])'
+
+        # if has field 'rgb', append it to data
+        if 'rgb' in pc.pc_data.dtype.names:
+            data.append(pc.pc_data['rgb'] // 65536 / 256.0)
+            data.append(pc.pc_data['rgb'] // 256 % 256 /256.0)
+            data.append(pc.pc_data['rgb'] % 256 /256.0)
+
+        pts =  np.stack(data, axis=-1)
         pts = pts[(pts[:,0]!=0) | (pts[:,1]!=0) | (pts[:,2]!=0)]
         return pts
 
