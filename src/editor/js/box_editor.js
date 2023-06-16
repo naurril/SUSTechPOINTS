@@ -2,7 +2,6 @@
 import { ProjectiveViewOps } from './side_view_op.js';
 import { BoxImageContext } from './image.js';
 import { saveWorldList, reloadWorldList } from './save.js';
-import { objIdManager } from './obj_id_list.js';
 import { globalKeyDownManager } from './keydown_manager.js';
 import { ml } from './ml.js';
 
@@ -1681,12 +1680,12 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.prevObjectBatch = async function() {
 
-    const lastObjIndex = this.editingTarget.startIndex - this.batchSize;
+    // const lastObjIndex = this.editingTarget.startIndex - this.batchSize;
 
-     let world = await this.editingTarget.data.getWorld(
-      this.editingTarget.sceneMeta.scene,
-      this.editingTarget.frame
-    );
+    // let world = await this.editingTarget.data.getWorld(
+    //   this.editingTarget.sceneMeta.scene,
+    //   this.editingTarget.frame
+    // );
 
     //let boxes = world.annotation.boxes.concat();
     //boxes = boxes.sort((a,b)=>a.obj_type > b.obj_type?1:-1);
@@ -1747,13 +1746,13 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.prevObj = function () {
-    let idx = objIdManager.objectList.findIndex(x => x.id === this.editingTarget.objTrackId);
+    let idx = window.editor.objIdManager.objectList.findIndex(x => x.id === this.editingTarget.objTrackId);
 
-    const objNum = objIdManager.objectList.length;
+    const objNum = window.editor.objIdManager.objectList.length;
 
     idx = (idx + objNum - 1) % objNum;
 
-    const obj = objIdManager.objectList[idx];
+    const obj = window.editor.objIdManager.objectList[idx];
 
     this.edit(
       this.editingTarget.data,
@@ -1772,7 +1771,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
 
   this.gotoObjectFrame = function (frameId, objId) {
     if (objId !== this.editingTarget.objTrackId) {
-      const obj = objIdManager.getObjById(objId);
+      const obj = window.editor.objIdManager.getObjById(objId);
 
       this.edit(
         this.editingTarget.data,
@@ -1788,13 +1787,13 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
   };
 
   this.nextObj = function () {
-    let idx = objIdManager.objectList.findIndex(x => x.id === this.editingTarget.objTrackId && x.category === this.editingTarget.objType);
+    let idx = window.editor.objIdManager.objectList.findIndex(x => x.id === this.editingTarget.objTrackId && x.category === this.editingTarget.objType);
 
-    const objNum = objIdManager.objectList.length;
+    const objNum = window.editor.objIdManager.objectList.length;
 
     idx = (idx + 1) % objNum;
 
-    const obj = objIdManager.objectList[idx];
+    const obj = window.editor.objIdManager.objectList[idx];
 
     this.edit(
       this.editingTarget.data,
@@ -1832,7 +1831,7 @@ function BoxEditorManager (parentUi, viewManager, objectTrackView,
     let id = event.currentTarget.value;
 
     if (id === 'new') {
-      id = objIdManager.generateNewUniqueId();
+      id = window.editor.objIdManager.generateNewUniqueId();
       this.parentUi.querySelector('#object-track-id-editor').value = id;
     }
 

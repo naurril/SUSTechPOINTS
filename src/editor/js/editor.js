@@ -6,7 +6,7 @@ import { Mouse } from './mouse.js';
 import { BoxEditor, BoxEditorManager } from './box_editor.js';
 import { ImageContextManager } from './image.js';
 import { globalObjectCategory } from './obj_cfg.js';
-import { objIdManager } from './obj_id_list.js';
+import { ObjectIdManager } from './obj_id_list.js';
 import { Header } from './header.js';
 import { BoxOp } from './box_op.js';
 import { AutoAdjust } from './auto-adjust.js';
@@ -235,6 +235,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     if (!this.editorCfg.disableGrid) { this.installGridLines(); }
 
+    this.objIdManager = new ObjectIdManager(this.editorUi.querySelector('#object-list-wrapper'));
     window.onbeforeunload = function () {
       return 'Exit?';
       // if we return nothing here (just calling return;) then there will be no pop-up question at all
@@ -363,7 +364,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
         // self.autoAdjust.mark_bbox(self.selectedBox);
         // event.currentTarget.blur();
         {
-          const id = objIdManager.generateNewUniqueId(this.data.world);
+          const id = this.objIdManager.generateNewUniqueId(this.data.world);
           self.fastToolBox.setValue(self.selectedBox.obj_type, id, self.selectedBox.obj_attr, self.selectedBox);
           self.setObjectId(id);
         }
@@ -651,7 +652,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       case 'cm-show-stat':
         {
           const scene = this.data.world.frameInfo.scene;
-          objIdManager.loadObjIdsOfScenes(scene, (objs) => {
+          this.objIdManager.loadObjIdsOfScenes(scene, (objs) => {
             const info = {
               objects: objs.length,
               boxes: objs.reduce((a, b) => a + b.count, 0),
@@ -1157,7 +1158,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     const sceneName = this.data.world.frameInfo.scene; // this.editorUi.querySelector("#scene-selector").value;
 
     const objectTrackId = event.currentTarget.value;
-    const obj = objIdManager.getObjById(objectTrackId);
+    const obj = this.objIdManager.getObjById(objectTrackId);
 
     this.editBatch(sceneName, null, objectTrackId, obj.category);
   };
@@ -1192,7 +1193,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
       // todo: we don't know if the old one is already deleted.
       // could use object count number?
-      objIdManager.addObject({
+      this.objIdManager.addObject({
         category: this.selectedBox.obj_type,
         id: this.selectedBox.obj_id
       });
@@ -1210,7 +1211,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     this.onBoxChanged(this.selectedBox);
 
     //
-    objIdManager.addObject({
+    this.objIdManager.addObject({
       category: this.selectedBox.obj_type,
       id: this.selectedBox.obj_id
     });
@@ -1412,7 +1413,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     const box = this.createBoxByPoints(points, initRoationZ);
 
-    const id = objIdManager.generateNewUniqueId(this.data.world);
+    const id = this.objIdManager.generateNewUniqueId(this.data.world);
     box.obj_id = id;
 
     // this.scene.add(box);
@@ -1429,7 +1430,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     box.obj_type = globalObjectCategory.guessObjTypeByDimension(box.scale);
 
-    objIdManager.addObject({
+    this.objIdManager.addObject({
       category: box.obj_type,
       id: box.obj_id
     });
@@ -1785,9 +1786,9 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     pos.z = groundLevel + scale.z / 2; // -1.8 is height of lidar
 
-    const id = objIdManager.generateNewUniqueId(this.data.world);
+    const id = this.objIdManager.generateNewUniqueId(this.data.world);
 
-    objIdManager.addObject({
+    this.objIdManager.addObject({
       category: objType,
       id
     });
@@ -2204,7 +2205,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     this.select_locked_object();
 
     // loadObjIdsOfScenes(world.frameInfo.scene);
-    objIdManager.setCurrentScene(world.frameInfo.scene);
+    this.objIdManager.setCurrentScene(world.frameInfo.scene);
 
     // preload after the first world loaded
     // otherwise the loading of the first world would be too slow
@@ -2266,7 +2267,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       //     w.frameInfo.frame);
       // });
 
-      // objIdManager.forceUpdate();
+      // this.objIdManager.forceUpdate();
 
 
     }
