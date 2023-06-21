@@ -32,7 +32,7 @@ export function FrameInfo (data, sceneMeta, sceneName, frame) {
   };
 
   this.get_egopose_path = function () {
-    return `data/${this.scene}/ego_pose/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
+    return `data/${this.scene}/lidar_pose/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
   };
 
   this.get_calib_path = function (sensortype, sensorname) {

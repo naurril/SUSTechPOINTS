@@ -5,6 +5,12 @@ import os
 import json
 import numpy as np
 
+import argparse
+parser = argparse.ArgumentParser(description='print dataset statistics by obj classes')        
+parser.add_argument('data', type=str,default='./data', help="")
+parser.add_argument('--use_classmap', type=bool,default=False, help="")
+args = parser.parse_args()
+
 
 classMap = {
         'Motorcycle': 'Scooter',
@@ -19,7 +25,7 @@ classMap = {
         'Excavator': 'Truck',
     }
 
-stat = {}
+obj_stat = {}
 track_stat = {}
 def stat_scene(scene):
     
@@ -48,16 +54,19 @@ def stat_scene(scene):
         for l in objs:
             #color = get_color(l["obj_id"])
             obj_type = l["obj_type"]
-            obj_type = classMap[obj_type] if obj_type in classMap else obj_type
 
-            s = np.array([l['psr']['scale']['x'], l['psr']['scale']['y'], l['psr']['scale']['z'],l['psr']['position']['z']])
+            if args.use_classmap:
+              obj_type = classMap[obj_type] if obj_type in classMap else obj_type
 
-            if obj_type in stat:
-                stat[obj_type]['size'] = (stat[obj_type]['size'] * stat[obj_type]['num'] + s)/(stat[obj_type]['num']+1)
-                stat[obj_type]['num'] += 1
+            s = np.array([[l['psr']['scale']['x'], 
+                           l['psr']['scale']['y'], 
+                           l['psr']['scale']['z'],
+                           l['psr']['position']['z']]])
+
+            if obj_type in obj_stat:
+                obj_stat[obj_type]['size'] = np.concatenate([obj_stat[obj_type]['size'], s], axis=0)
             else:
-                stat[obj_type] = {
-                    'num': 1,
+                obj_stat[obj_type] = {
                     'size': s,
                 }
             
@@ -67,13 +76,10 @@ def stat_scene(scene):
             else:
                 track_stat[obj_track] = 1
 
-    return stat
+    
 
 if __name__=="__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description='print dataset statistics by obj classes')        
-    parser.add_argument('data', type=str,default='./data', help="")
-    args = parser.parse_args()
+
 
     
     for s in os.listdir(args.data):
@@ -82,8 +88,22 @@ if __name__=="__main__":
             print(f"scan {sp}")
             stat_scene(sp)
 
-    for x in stat:
-        print(x, stat[x])
+    
+    # save stat into a pickle file
+    import pickle
+    with open('stat.pkl', 'wb') as f:
+        pickle.dump(obj_stat, f)
+    with open('track_stat.pkl', 'wb') as f:
+        pickle.dump(track_stat, f)
+    
+    # cal mean and std
+    stat = {}
+    for k in obj_stat:
+        stat[k] = {
+            'size_mean': np.mean(obj_stat[k]['size'], axis=0).tolist(),
+            'size_std': np.std(obj_stat[k]['size'], axis=0).tolist(),
+        }
 
-    # for x in track_stat:
-    #     print(x, track_stat[x])
+    # save mean and std into a json file
+    with open('stat.json', 'w') as f:
+        json.dump(stat, f, indent=4)

@@ -246,11 +246,25 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
 
       this.transLidarUtm = new THREE.Matrix4().multiplyMatrices(transEgoUtm, transLidarEgo);
 
-      if (this.data.cfg.coordinateSystem === 'utm') { this.transLidarScene = new THREE.Matrix4().multiplyMatrices(transUtmScene, this.transLidarUtm); } else { this.transLidarScene = transUtmScene; } // only offset.
+      if (this.data.cfg.coordinateSystem === 'utm') { 
+        this.transLidarScene = new THREE.Matrix4().multiplyMatrices(transUtmScene, this.transLidarUtm); 
+      } else { 
+        this.transLidarScene = transUtmScene; 
+      } // only offset.
 
       this.transUtmLidar = new THREE.Matrix4().copy(this.transLidarUtm).invert();
       this.trans_scene_lidar = new THREE.Matrix4().copy(this.transLidarScene).invert();
-    } else {
+    } else if (this.egoPose.lidarPose){
+      const transUtmScene = new THREE.Matrix4().identity().setPosition(this.coordinatesOffset[0], this.coordinatesOffset[1], this.coordinatesOffset[2]);
+
+      this.transLidarUtm = new THREE.Matrix4().set(...this.egoPose.lidarPose)
+      this.transLidarScene = new THREE.Matrix4().multiplyMatrices(transUtmScene, this.transLidarUtm);
+
+      this.transUtmLidar = new THREE.Matrix4().copy(this.transLidarUtm).invert();
+      this.trans_scene_lidar = new THREE.Matrix4().copy(this.transLidarScene).invert();
+    
+    }
+    else{
       const transUtmScene = new THREE.Matrix4().identity().setPosition(this.coordinatesOffset[0], this.coordinatesOffset[1], this.coordinatesOffset[2]);
       const id = new THREE.Matrix4().identity();
 

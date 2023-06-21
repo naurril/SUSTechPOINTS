@@ -6,12 +6,13 @@
 
 import json
 import os
-import sys
 import numpy as np
 
 class LabelChecker:
-    def __init__(self, path):
+    # path: scene path
+    def __init__(self, path, cfg=None):
         self.path = path
+        self.cfg = cfg
         self.load_frame_ids()
         self.load_labels()
 
@@ -25,6 +26,18 @@ class LabelChecker:
         self.max_rotation_delta = {'x': 10*np.pi/180, 'y': 10*np.pi/180, 'z': 30*np.pi/180}
 
         self.messages = []
+
+        self.prepare_cfg()
+
+    def prepare_cfg(self):
+        # if self.cfg is string, read as a json file
+
+        # check if self.cfg is a string
+        if isinstance(self.cfg, str):
+            if os.path.exists(self.cfg):
+                with open(self.cfg, 'r') as f:
+                    self.cfg = json.load(f)
+    
     
     def clear_messages(self):
         self.messages = []
@@ -130,6 +143,7 @@ class LabelChecker:
         if label_list[0][1]['obj_type'] == 'Pedestrian' or label_list[0][1]['obj_type'] == 'Child':
             return
             
+        # intra-instances consistency
         mean = {}
         for axis in ['x','y','z']:
             vs = list(map(lambda l: float(l[1]["psr"]["scale"][axis]), label_list))
@@ -147,6 +161,18 @@ class LabelChecker:
                 elif ratio > 1.1:
                     self.push_message(frame_id, obj_id, "dimension {} too large: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
+
+        # overall size reasonable?
+
+        if self.cfg:
+            size_mean = self.cfg[label_list[0][1]['obj_type']]['size_mean']
+            size_std = self.cfg[label_list[0][1]['obj_type']]['size_std']
+
+            for i,axis in enumerate(['x','y','z']):
+                if mean[axis] > size_mean[i] + 3 * size_std[i]:
+                    self.push_message(label_list[0][0], obj_id, "dimension {} too large: {}, mean {}, std {}".format(axis, label["psr"]["scale"][axis], size_mean[i], size_std[i]))
+    
+
 
     def check_obj_direction(self, obj_id, label_list):
 
@@ -206,10 +232,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='check labels')        
     parser.add_argument('--data', type=str,default='./data', help="")
     parser.add_argument('--scenes', type=str,default='.*', help="")
+    parser.add_argument('--cfg', type=str, default='./data/stat.json', help="")
 
     args = parser.parse_args()
 
-
+    args.cfg = os.path.abspath(args.cfg)
     data = args.data
 
     scenes = os.listdir(data)
@@ -224,7 +251,7 @@ if __name__ == "__main__":
             continue
 
         print(f'checking {s}...')
-        ck = LabelChecker(scene_path)
+        ck = LabelChecker(scene_path, args.cfg)
         ck.check()
         ck.show_messages()
         

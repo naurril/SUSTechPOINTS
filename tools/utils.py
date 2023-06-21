@@ -207,6 +207,11 @@ class SuscapeScene:
         pts = pts[(pts[:,0]!=0) | (pts[:,1]!=0) | (pts[:,2]!=0)]
         return pts
 
+    def read_ego_pose(self, frame):
+        pose_file = os.path.join(self.scene_path, 'ego_pose', frame+'.json')
+        with open(pose_file) as f:
+            pose = json.load(f)
+            return pose
 
 def euler_angle_to_rotate_matrix(eu, t):  # ZYX order.
     theta = eu
@@ -429,6 +434,16 @@ def crop_pts(pts, box):
     
     return [pts[topfilter], pts[groundfilter], topfilter, groundfilter]
 
+def remove_box(pts, box, ground_level=0.0, scaling = 1.0):
+    eu = [box['psr']['rotation']['x'], box['psr']['rotation']['y'], box['psr']['rotation']['z']]
+    trans_matrix = euler_angle_to_rotate_matrix_3x3(eu)
+
+    center = np.array([box['psr']['position']['x'], box['psr']['position']['y'], box['psr']['position']['z']])
+    box_pts = np.matmul((pts - center), (trans_matrix))
+    filter_3d =  (box_pts[:, 0] < box['psr']['scale']['x']* scaling /2) & (box_pts[:, 0] > - box['psr']['scale']['x']* scaling /2) & \
+             (box_pts[:, 1] < box['psr']['scale']['y']* scaling /2) & (box_pts[:, 1] > - box['psr']['scale']['y']* scaling /2) & \
+             (box_pts[:, 2] < box['psr']['scale']['z'] * scaling /2) & (box_pts[:, 2] > - box['psr']['scale']['z']/2 + ground_level)
+    return ~filter_3d
 
 def color_obj_by_image(pts, box, image, extrinsic, intrinsic, ground_level=0):
     eu = [box['psr']['rotation']['x'], box['psr']['rotation']['y'], box['psr']['rotation']['z']]
