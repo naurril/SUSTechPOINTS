@@ -19,8 +19,30 @@ parser.add_argument('--camera_type', type=str, default='camera', help="")
 parser.add_argument('--cameras', type=str, default='rear,rear_left,rear_right,front_left,front_right,front', help="") # order matters
 parser.add_argument('--output_format', type=str, default='pcd', choices=['pcd', 'bin'], help="")
 parser.add_argument('--camera_channels', type=int, default=3, help="")
+parser.set_defaults(overwrite=True)
+parser.add_argument('--overwrite', action='store_true')
+parser.add_argument('--no-overwrite', dest='overwrite', action='store_false')
+parser.add_argument('--masks', type=str, default='.*', help="")
+
 args = parser.parse_args()
 
+
+
+camera_masks = {}
+def prepare_camera_masks():
+    for f in os.listdir(args.masks):
+        if not f.endswith('.png'):
+            continue
+        m = os.path.splitext(f)[0]
+        if not m:
+            continue
+        mask = np.array(Image.open(os.path.join(args.masks, f)))
+        mask = (mask ==0 ).astype(np.uint8)
+        mask = np.expand_dims(mask, axis=2)
+        camera_masks[m] = mask
+
+if args.masks != '':
+    prepare_camera_masks()
 
 def write_bin(data, color, file):
     
@@ -86,6 +108,8 @@ def color_frame(sc, frame, file):
             if os.path.exists(img_path):
                 img = Image.open(img_path)
                 img = np.asarray(img)      
+                if camera_masks[camera] is not None:
+                    img = img * camera_masks[camera]
                 imgpts, filter_in_frontview = proj_pts3d_to_img(pts, extrinsic, intrinsic)
 
                 imgpts = imgpts[:,0:2]
@@ -119,14 +143,14 @@ def proc_scene(scene_name):
     prepare_dir(os.path.join(args.output, scene_name, 'lidar'))
 
     for frame in sc.meta['frames']:
-        file = os.path.join(args.output, scene_name, 'lidar', frame+'.' + args.output_format)
-        if not os.path.exists(file):
-            color_frame(sc, frame, file)
+        if re.fullmatch(args.frames, frame):
+            file = os.path.join(args.output, scene_name, 'lidar', frame+'.' + args.output_format)
+            if not os.path.exists(file) or args.overwrite:
+                color_frame(sc, frame, file)
     
 
-
-
 scenes = os.listdir(args.data)
+scenes.sort()
 for s in scenes:
     if re.fullmatch(args.scenes, s):
         print('processing', s)

@@ -165,12 +165,16 @@ class LabelChecker:
         # overall size reasonable?
 
         if self.cfg:
-            size_mean = self.cfg[label_list[0][1]['obj_type']]['size_mean']
-            size_std = self.cfg[label_list[0][1]['obj_type']]['size_std']
+            objtype = label_list[0][1]['obj_type']
+            if objtype in self.cfg:
+                size_mean = self.cfg[label_list[0][1]['obj_type']]['size_mean']
+                size_std = self.cfg[label_list[0][1]['obj_type']]['size_std']
 
-            for i,axis in enumerate(['x','y','z']):
-                if mean[axis] > size_mean[i] + 3 * size_std[i]:
-                    self.push_message(label_list[0][0], obj_id, "dimension {} too large: {}, mean {}, std {}".format(axis, label["psr"]["scale"][axis], size_mean[i], size_std[i]))
+                for i,axis in enumerate(['x','y','z']):
+                    if mean[axis] > size_mean[i] + 3 * size_std[i]:
+                        self.push_message(label_list[0][0], obj_id, "dimension {} too large: {}, mean {}, std {}".format(axis, label["psr"]["scale"][axis], size_mean[i], size_std[i]))
+            else:
+                print("no cfg for", objtype)
     
 
 
@@ -232,7 +236,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='check labels')        
     parser.add_argument('--data', type=str,default='./data', help="")
     parser.add_argument('--scenes', type=str,default='.*', help="")
-    parser.add_argument('--cfg', type=str, default='./data/stat.json', help="")
+    parser.add_argument('--cfg', type=str, default='./stat.json', help="")
 
     args = parser.parse_args()
 
