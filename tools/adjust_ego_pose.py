@@ -51,8 +51,8 @@ def register_2_point_clouds(source, target, trans_init):
 
 def remove_objects(pts, objs):
     
-    # remove egocar head
-    filter = (pts[:,1] > 4) | (pts[:,1] < -4)
+    # remove egocar head & tail
+    filter = (pts[:,1] > 4) | (pts[:,1] < -4) | (pts[:,0] > 2) | (pts[:,0] < -2)
 
     for obj in objs:
         filter = filter & remove_box(pts[:, :3], obj, 0, 1.1) 
