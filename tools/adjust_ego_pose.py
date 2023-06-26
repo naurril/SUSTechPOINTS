@@ -11,8 +11,6 @@ parser = argparse.ArgumentParser(description='adjust ego pose')
 parser.add_argument('data', type=str, help="")
 parser.add_argument('--lidar', type=str, default="", help="")
 parser.add_argument('--scenes', type=str, default=".*", help="")
-parser.add_argument('--output', type=str, default='./output', help="")
-
 args = parser.parse_args()
 
 def draw_registration_result(source, target, transformation):

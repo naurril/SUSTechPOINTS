@@ -361,6 +361,8 @@ def choose_best_camera_for_obj(obj, scene_path, meta, camera_type, cameras, fram
     else:
         return None
     
+
+# default rotation order: xyz
 def euler_angle_to_rotate_matrix_3x3(eu):
     theta = eu
     #Calculate rotation about x axis
@@ -393,7 +395,7 @@ def crop_box_pts(pts, box, ground_level=0.3):
     trans_matrix = euler_angle_to_rotate_matrix_3x3(eu)
 
     center = np.array([box['psr']['position']['x'], box['psr']['position']['y'], box['psr']['position']['z']])
-    box_pts = np.matmul((pts - center), (trans_matrix))
+    box_pts = np.matmul((pts - center), (trans_matrix))   # M^-1 * x = M^T * x = (x^T * M)^T
 
    
     if box['psr']['scale']['z'] < 2:
@@ -458,7 +460,7 @@ def color_obj_by_image(pts, box, image, extrinsic, intrinsic, ground_level=0):
     target_pts = pts[filter_3d]
 
     imgpts, filter_in_frontview = proj_pts3d_to_img(target_pts, extrinsic, intrinsic)
-    imgpts = imgpts.astype(np.int)[:,0:2]
+    imgpts = imgpts.astype(np.int32)[:,0:2]
 
     height, width,_ = image.shape
     filter_inside_img = (imgpts[:,0] >= 0) & (imgpts[:,0] < width) & (imgpts[:,1] >= 0) & (imgpts[:,1] < height)

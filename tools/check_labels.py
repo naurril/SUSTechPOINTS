@@ -7,6 +7,50 @@
 import json
 import os
 import numpy as np
+import math
+
+def euler_angle_to_rotate_matrix_3x3(eu):
+    theta = eu
+    #Calculate rotation about x axis
+    R_x = np.array([
+        [1,       0,              0],
+        [0,       np.cos(theta[0]),   -np.sin(theta[0])],
+        [0,       np.sin(theta[0]),   np.cos(theta[0])]
+    ])
+
+    #Calculate rotation about y axis
+    R_y = np.array([
+        [np.cos(theta[1]),      0,      np.sin(theta[1])],
+        [0,                       1,      0],
+        [-np.sin(theta[1]),     0,      np.cos(theta[1])]
+    ])
+
+    #Calculate rotation about z axis
+    R_z = np.array([
+        [np.cos(theta[2]),    -np.sin(theta[2]),      0],
+        [np.sin(theta[2]),    np.cos(theta[2]),       0],
+        [0,               0,                  1]])
+
+    R = np.matmul(R_x, np.matmul(R_y, R_z))
+    return R
+
+def rotation_angles(R) :
+ 
+ 
+    sy = math.sqrt(R[0,0] * R[0,0] +  R[1,0] * R[1,0])
+ 
+    singular = sy < 1e-6
+ 
+    if  not singular :
+        x = math.atan2(R[2,1] , R[2,2])
+        y = math.atan2(-R[2,0], sy)
+        z = math.atan2(R[1,0], R[0,0])
+    else :
+        x = math.atan2(-R[1,2], R[1,1])
+        y = math.atan2(-R[2,0], sy)
+        z = 0
+ 
+    return [x, y, z]
 
 class LabelChecker:
     # path: scene path
@@ -15,6 +59,7 @@ class LabelChecker:
         self.cfg = cfg
         self.load_frame_ids()
         self.load_labels()
+        self.load_lidar_poses()
 
         self.def_labels = [
         "Car","Pedestrian","Van","Bus","Truck","ScooterRider","Scooter","BicycleRider","Bicycle","Motorcycle","MotorcycleRider","PoliceCar","TourCar","RoadWorker","Child",
@@ -59,17 +104,35 @@ class LabelChecker:
         ids.sort()
         self.frame_ids = ids
 
+    def load_lidar_poses(self):
+        pose_folder = os.path.join(self.path, 'lidar_pose')
+        files = os.listdir(pose_folder)
+        poses = {}
+
+        files.sort()
+        #print(files)
+
+        for i,id in enumerate(self.frame_ids):
+            f = id+".json"
+            #print(f)
+
+            if os.path.exists(os.path.join(pose_folder, f)):
+                with open(os.path.join(pose_folder, f),'r') as fp:
+                    p = json.load(fp)
+                    poses[id] = p
+        
+        self.lidar_poses = poses
     def load_labels(self):
         label_folder = os.path.join(self.path, 'label')
         files = os.listdir(label_folder)
         labels = {}
-        obj_ids = {}
+        objs = {}
 
         files.sort()
         #print(files)
 
 
-        for id in self.frame_ids:
+        for i,id in enumerate(self.frame_ids):
             f = id+".json"
             #print(f)
 
@@ -86,13 +149,13 @@ class LabelChecker:
                     for o in l:
                         obj_id = o['obj_id']
                         if frame_id:
-                            if obj_ids.get(obj_id):
-                                obj_ids[obj_id].append([frame_id,o])
+                            if objs.get(obj_id):
+                                objs[obj_id].append([frame_id,o,i])
                             else:
-                                obj_ids[obj_id] = [[frame_id,o]]
+                                objs[obj_id] = [[frame_id,o,i]]
 
         self.labels = labels
-        self.obj_ids = obj_ids
+        self.objs = objs
 
     #templates
     def check_one_label(self, func):
@@ -105,8 +168,8 @@ class LabelChecker:
             func(f, self.labels[f])
 
     def check_one_obj(self, func):
-        for id in self.obj_ids:
-            func(id, self.obj_ids[id])
+        for id in self.objs:
+            func(id, self.objs[id])
 
 
 
@@ -177,21 +240,38 @@ class LabelChecker:
                 print("no cfg for", objtype)
     
 
+    def local_to_world_angles(self, rotation, frame_id):
+        rot_l = euler_angle_to_rotate_matrix_3x3([rotation['x'], rotation['y'], rotation['z']])
+        pose = np.array(self.lidar_poses[frame_id]["lidarPose"]).reshape([-1, 4]).astype(np.float32)[:3,:3]
+
+        rot_w = np.matmul(pose, rot_l)
+        (x, y, z) = rotation_angles(rot_w)
+
+        return {
+            'x': x, 
+            'y': y, 
+            'z': z
+        }
+
 
     def check_obj_direction(self, obj_id, label_list):
 
+
+        world_angles = list(map(lambda l: self.local_to_world_angles(l[1]['psr']['rotation'], l[0]), label_list))
+
+        if obj_id == '35':
+            print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_angles)))
+            print(obj_id, list(map(lambda x: x[1]['psr']['rotation']['z']*180/np.pi, label_list)))
 
         #print("check obj direction", obj_id)
         for i in range(1, len(label_list)):
             l = label_list[i]
             pl = label_list[i-1]
             frame_id = l[0]
-            label = l[1]
-            plabel = pl[1]
 
             #print("check obj direction", obj_id, frame_id)            
             for axis in ['x','y','z']:
-                rotation_delta = label['psr']['rotation'][axis] -  plabel['psr']['rotation'][axis]
+                rotation_delta = world_angles[i][axis] -  world_angles[i-1][axis]
                 
                 if rotation_delta > np.pi:
                     rotation_delta =  2*np.pi - rotation_delta
