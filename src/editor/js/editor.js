@@ -547,7 +547,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       const boxList = this.data.worldList.map(w => w.annotation.findBoxByTrackId(objId));
       const applyIndList = this.data.worldList.map(w => (w === this.data.world));
 
-      await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
+      await this.boxOp.interpolateAsync(worldList, boxList, applyIndList, 'ignoreEmpty');
 
       this.select_locked_object();
 
