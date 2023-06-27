@@ -547,7 +547,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       const boxList = this.data.worldList.map(w => w.annotation.findBoxByTrackId(objId));
       const applyIndList = this.data.worldList.map(w => (w === this.data.world));
 
-      await this.boxOp.interpolateAsync(worldList, boxList, applyIndList, 'ignoreEmpty');
+      await this.boxOp.interpolateAsync(worldList, boxList, applyIndList);
 
       this.select_locked_object();
 
@@ -1031,7 +1031,7 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
     const boxList = worldList.map(w => w.annotation.findBoxByTrackId(this.selectedBox.obj_id));
 
     const applyIndList = boxList.map(b => true);
-    this.boxOp.interpolateAsync(worldList, boxList, applyIndList).then(ret => {
+    this.boxOp.interpolateAsync(worldList, boxList, applyIndList, 'ignoreEmpty').then(ret => {
       this.header.updateModifiedStatus();
       this.viewManager.render();
     });

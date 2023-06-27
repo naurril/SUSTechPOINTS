@@ -161,7 +161,16 @@ class Trajectory extends PopupDialog {
 
     let scale = Math.max(maxX - minX, maxY - minY);
 
-    if (scale === 0) { scale = 1; } else { scale = 800 / scale; } // svg view is 1000*1000
+    if (scale < 0.001){
+      scale = 0.001
+    }
+
+    
+    if (scale === 0) { 
+      scale = 1; 
+    } else { 
+      scale = 800 / scale; 
+    } // svg view is 1000*1000
 
     this.posScale = scale;
     this.posTrans = {

@@ -68,12 +68,23 @@ class LabelChecker:
         "Unknown3","Unknown4","Unknown5",
         ]
 
+        self.static_classes = [
+            "Scooter", "Bicycle","Motorcycle",
+        "Cone","FireHydrant","SaftyTriangle","ConstructionCart","RoadBarrel","TrafficBarrier","BicycleGroup",
+        "TrashCan","RoadRoller","Bulldozer","DontCare","Misc","Unknown","Unknown1","Unknown2",
+        "Unknown3","Unknown4","Unknown5",
+        ]
+
         self.max_rotation_delta = {'x': 10*np.pi/180, 'y': 10*np.pi/180, 'z': 30*np.pi/180}
+        self.max_position_delta = {'x': 0.3, 'y': 0.3, 'z':0.3}
 
         self.messages = []
 
         self.prepare_cfg()
 
+    def is_static(self, obj):
+        return obj['obj_type'] in self.static_classes or ('obj_attr' in obj and 'static' in obj['obj_attr'])
+    
     def prepare_cfg(self):
         # if self.cfg is string, read as a json file
 
@@ -203,14 +214,31 @@ class LabelChecker:
 
         #print("object", obj_id, len(label_list), "instances")
 
-        if label_list[0][1]['obj_type'] == 'Pedestrian' or label_list[0][1]['obj_type'] == 'Child':
-            return
-            
+        # overall size reasonable?
         # intra-instances consistency
         mean = {}
         for axis in ['x','y','z']:
             vs = list(map(lambda l: float(l[1]["psr"]["scale"][axis]), label_list))
             mean[axis] = np.array(vs).mean()
+
+
+        if self.cfg:
+            objtype = label_list[0][1]['obj_type']
+            if objtype in self.cfg:
+                size_mean = self.cfg[label_list[0][1]['obj_type']]['size_mean']
+                size_std = self.cfg[label_list[0][1]['obj_type']]['size_std']
+
+                for i,axis in enumerate(['x','y','z']):
+                    if mean[axis] > size_mean[i] + 3 * size_std[i] or mean[axis] < size_mean[i] - 3 * size_std[i]:
+                        self.push_message(label_list[0][0], obj_id, "dimension {} too large: {}, mean {}, std {}".format(axis, label_list[0][1]["psr"]["scale"][axis], size_mean[i], size_std[i]))
+            else:
+                print("no cfg for", objtype)
+
+
+        if label_list[0][1]['obj_type'] == 'Pedestrian' or label_list[0][1]['obj_type'] == 'Child':
+            return
+            
+
         
         for l in label_list:
             frame_id = l[0]
@@ -225,19 +253,7 @@ class LabelChecker:
                     self.push_message(frame_id, obj_id, "dimension {} too large: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
 
-        # overall size reasonable?
-
-        if self.cfg:
-            objtype = label_list[0][1]['obj_type']
-            if objtype in self.cfg:
-                size_mean = self.cfg[label_list[0][1]['obj_type']]['size_mean']
-                size_std = self.cfg[label_list[0][1]['obj_type']]['size_std']
-
-                for i,axis in enumerate(['x','y','z']):
-                    if mean[axis] > size_mean[i] + 3 * size_std[i]:
-                        self.push_message(label_list[0][0], obj_id, "dimension {} too large: {}, mean {}, std {}".format(axis, label["psr"]["scale"][axis], size_mean[i], size_std[i]))
-            else:
-                print("no cfg for", objtype)
+        
     
 
     def local_to_world_angles(self, rotation, frame_id):
@@ -253,21 +269,24 @@ class LabelChecker:
             'z': z
         }
 
-
+    
     def check_obj_direction(self, obj_id, label_list):
 
 
         world_angles = list(map(lambda l: self.local_to_world_angles(l[1]['psr']['rotation'], l[0]), label_list))
 
-        if obj_id == '35':
-            print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_angles)))
-            print(obj_id, list(map(lambda x: x[1]['psr']['rotation']['z']*180/np.pi, label_list)))
+        # if obj_id == '35':
+        #     print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_angles)))
+        #     print(obj_id, list(map(lambda x: x[1]['psr']['rotation']['z']*180/np.pi, label_list)))
 
         #print("check obj direction", obj_id)
         for i in range(1, len(label_list)):
             l = label_list[i]
             pl = label_list[i-1]
             frame_id = l[0]
+
+            if l[2] - pl[2] > 3:  #missing frames
+                continue
 
             #print("check obj direction", obj_id, frame_id)            
             for axis in ['x','y','z']:
@@ -280,6 +299,45 @@ class LabelChecker:
 
                 if rotation_delta > self.max_rotation_delta[axis] or rotation_delta < - self.max_rotation_delta[axis]:
                     self.push_message(frame_id, obj_id, "rotation {} delta too large: {}".format(axis, rotation_delta * 180/np.pi))
+                    #return
+
+    def local_to_world_position(self, position, frame_id):
+        p_l = np.array([position['x'], position['y'], position['z'], 1]).T
+        pose = np.array(self.lidar_poses[frame_id]["lidarPose"]).reshape([-1, 4]).astype(np.float32)
+
+        p_w = np.matmul(pose, p_l)
+        
+        return {
+            "x": p_w[0],
+            'y': p_w[1],
+            'z': p_w[2]        
+        }
+
+    def check_obj_position(self, obj_id, label_list):
+        world_position = list(map(lambda l: self.local_to_world_position(l[1]['psr']['position'], l[0]), label_list))
+
+        # if obj_id == '35':
+        #     print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_position)))
+        #     print(obj_id, list(map(lambda x: x[1]['psr']['position'], label_list)))
+
+        #print("check obj direction", obj_id)
+        for i in range(1, len(label_list)):
+            l = label_list[i]
+            pl = label_list[i-1]
+            frame_id = l[0]
+
+            if l[2] - pl[2] > 3:  #missing frames
+                continue
+
+            #print("check obj direction", obj_id, frame_id)            
+            for axis in ['x','y','z']:
+                delta = world_position[i][axis] -  world_position[i-1][axis]
+                
+                
+
+                if (self.is_static(l[1]) or axis == 'z') and  np.abs(delta) > self.max_position_delta[axis]:
+                    self.push_message(frame_id, obj_id, "position {} delta too large: {}".format(axis, delta))
+
                     #return
 
     def check_obj_type_consistency(self, obj_id, label_list):
@@ -306,6 +364,7 @@ class LabelChecker:
 
         self.check_one_obj(lambda id, o: self.check_obj_size(id ,o))
         self.check_one_obj(lambda id, o: self.check_obj_direction(id ,o))
+        self.check_one_obj(lambda id, o: self.check_obj_position(id ,o))
         self.check_one_obj(lambda id, o: self.check_obj_type_consistency(id ,o))
 
 if __name__ == "__main__":
