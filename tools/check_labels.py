@@ -9,34 +9,39 @@ import os
 import numpy as np
 import math
 
-def euler_angle_to_rotate_matrix_3x3(eu):
+def euler_angle_to_rotate_matrix3x3(eu):  # ZYX order.
     theta = eu
     #Calculate rotation about x axis
     R_x = np.array([
         [1,       0,              0],
-        [0,       np.cos(theta[0]),   -np.sin(theta[0])],
-        [0,       np.sin(theta[0]),   np.cos(theta[0])]
+        [0,       math.cos(theta[0]),   -math.sin(theta[0])],
+        [0,       math.sin(theta[0]),   math.cos(theta[0])]
     ])
 
     #Calculate rotation about y axis
     R_y = np.array([
-        [np.cos(theta[1]),      0,      np.sin(theta[1])],
+        [math.cos(theta[1]),      0,      math.sin(theta[1])],
         [0,                       1,      0],
-        [-np.sin(theta[1]),     0,      np.cos(theta[1])]
+        [-math.sin(theta[1]),     0,      math.cos(theta[1])]
     ])
 
     #Calculate rotation about z axis
     R_z = np.array([
-        [np.cos(theta[2]),    -np.sin(theta[2]),      0],
-        [np.sin(theta[2]),    np.cos(theta[2]),       0],
+        [math.cos(theta[2]),    -math.sin(theta[2]),      0],
+        [math.sin(theta[2]),    math.cos(theta[2]),       0],
         [0,               0,                  1]])
 
     R = np.matmul(R_x, np.matmul(R_y, R_z))
     return R
 
+def euler_angle_to_rotate_matrix(eu, t):  # ZYX order.
+    m =  np.eye(4)
+    m[:3, :3] = euler_angle_to_rotate_matrix3x3(eu)
+    m[:3, 3] = t
+    return m
+
+
 def rotation_angles(R) :
- 
- 
     sy = math.sqrt(R[0,0] * R[0,0] +  R[1,0] * R[1,0])
  
     singular = sy < 1e-6
@@ -76,7 +81,8 @@ class LabelChecker:
         ]
 
         self.max_rotation_delta = {'x': 10*np.pi/180, 'y': 10*np.pi/180, 'z': 30*np.pi/180}
-        self.max_position_delta = {'x': 0.3, 'y': 0.3, 'z':0.3}
+        self.max_position_delta_static = {'x': 0.3, 'y': 0.3, 'z':0.3}
+        self.max_position_delta_dynamic = {'x': 1, 'y': 0.5, 'z':0.3} # percentage
 
         self.messages = []
 
@@ -256,25 +262,30 @@ class LabelChecker:
         
     
 
-    def local_to_world_angles(self, rotation, frame_id):
-        rot_l = euler_angle_to_rotate_matrix_3x3([rotation['x'], rotation['y'], rotation['z']])
-        pose = np.array(self.lidar_poses[frame_id]["lidarPose"]).reshape([-1, 4]).astype(np.float32)[:3,:3]
+    def local_to_world_pose(self, rotation, position, frame_id):
+        pose_local = euler_angle_to_rotate_matrix([rotation['x'], rotation['y'], rotation['z']],
+                                             [position['x'], position['y'], position['z']])
+        pose_lidar = np.array(self.lidar_poses[frame_id]["lidarPose"]).reshape([-1, 4]).astype(np.float32)
 
-        rot_w = np.matmul(pose, rot_l)
-        (x, y, z) = rotation_angles(rot_w)
+        pose_world = np.matmul(pose_lidar, pose_local)
+        
+        return pose_world
 
-        return {
-            'x': x, 
-            'y': y, 
-            'z': z
-        }
+    def check_obj_pose(self, obj_id, label_list):
 
-    
-    def check_obj_direction(self, obj_id, label_list):
+        # print('checking ', obj_id)
+        world_poses = list(map(lambda l: self.local_to_world_pose(l[1]['psr']['rotation'], l[1]['psr']['position'], l[0]), label_list))
 
+        relative_poses = list(map(lambda x: np.matmul(np.linalg.inv(world_poses[x-1]), world_poses[x]), range(1, len(label_list))))
+        relative_poses = [np.eye(4)] + relative_poses
 
-        world_angles = list(map(lambda l: self.local_to_world_angles(l[1]['psr']['rotation'], l[0]), label_list))
+        expected_positions = list(map(lambda x: (world_poses[x-1][:3, 3]*(label_list[x+1][2]-label_list[x][2]) + world_poses[x+1][:3, 3]*(label_list[x][2]-label_list[x-1][2])) / (label_list[x+1][2]-label_list[x-1][2]), 
+                                                 range(1, len(label_list)-1)))
+        expected_positions = [world_poses[0][:3, 3]] + expected_positions + [world_poses[-1][:3, 3]]
 
+        expected_relative_positions = list(map(lambda x: np.matmul(world_poses[x][:3,:3].T, expected_positions[x]-world_poses[x][:3, 3]), range(0, len(label_list))))
+
+        # print(expected_relative_positions)
         # if obj_id == '35':
         #     print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_angles)))
         #     print(obj_id, list(map(lambda x: x[1]['psr']['rotation']['z']*180/np.pi, label_list)))
@@ -288,9 +299,15 @@ class LabelChecker:
             if l[2] - pl[2] > 3:  #missing frames
                 continue
 
+            # relative pose of current frame to previous frame
+            pose_relative = relative_poses[i]
+
+            angles_relative = rotation_angles(pose_relative[:3, :3])
+            position_relative = pose_relative[:3, 3]
+
             #print("check obj direction", obj_id, frame_id)            
-            for axis in ['x','y','z']:
-                rotation_delta = world_angles[i][axis] -  world_angles[i-1][axis]
+            for ai, axis in enumerate(['x','y','z']):
+                rotation_delta = angles_relative[ai]
                 
                 if rotation_delta > np.pi:
                     rotation_delta =  2*np.pi - rotation_delta
@@ -300,45 +317,17 @@ class LabelChecker:
                 if rotation_delta > self.max_rotation_delta[axis] or rotation_delta < - self.max_rotation_delta[axis]:
                     self.push_message(frame_id, obj_id, "rotation {} delta too large: {}".format(axis, rotation_delta * 180/np.pi))
                     #return
-
-    def local_to_world_position(self, position, frame_id):
-        p_l = np.array([position['x'], position['y'], position['z'], 1]).T
-        pose = np.array(self.lidar_poses[frame_id]["lidarPose"]).reshape([-1, 4]).astype(np.float32)
-
-        p_w = np.matmul(pose, p_l)
-        
-        return {
-            "x": p_w[0],
-            'y': p_w[1],
-            'z': p_w[2]        
-        }
-
-    def check_obj_position(self, obj_id, label_list):
-        world_position = list(map(lambda l: self.local_to_world_position(l[1]['psr']['position'], l[0]), label_list))
-
-        # if obj_id == '35':
-        #     print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_position)))
-        #     print(obj_id, list(map(lambda x: x[1]['psr']['position'], label_list)))
-
-        #print("check obj direction", obj_id)
-        for i in range(1, len(label_list)):
-            l = label_list[i]
-            pl = label_list[i-1]
-            frame_id = l[0]
-
-            if l[2] - pl[2] > 3:  #missing frames
-                continue
-
-            #print("check obj direction", obj_id, frame_id)            
-            for axis in ['x','y','z']:
-                delta = world_position[i][axis] -  world_position[i-1][axis]
-                
                 
 
-                if (self.is_static(l[1]) or axis == 'z') and  np.abs(delta) > self.max_position_delta[axis]:
-                    self.push_message(frame_id, obj_id, "position {} delta too large: {}".format(axis, delta))
+                position_delta = expected_relative_positions[i][ai]
+                # distance = np.linalg.norm(position_relative)
+                # distance = 1 if distance<1 else distance
+                
 
-                    #return
+                if self.is_static(l[1]) and np.abs(position_delta) > self.max_position_delta_static[axis]:
+                    self.push_message(frame_id, obj_id, "position {} delta too large: {}".format(axis, position_delta))
+                elif np.abs(position_delta) > self.max_position_delta_dynamic[axis]:
+                    self.push_message(frame_id, obj_id, "position {} delta too large: {}".format(axis, position_delta))
 
     def check_obj_type_consistency(self, obj_id, label_list):
         for i in range(1, len(label_list)):
@@ -363,8 +352,7 @@ class LabelChecker:
         self.check_one_frame(lambda f,o: self.check_obj_size_positivity(f,o))
 
         self.check_one_obj(lambda id, o: self.check_obj_size(id ,o))
-        self.check_one_obj(lambda id, o: self.check_obj_direction(id ,o))
-        self.check_one_obj(lambda id, o: self.check_obj_position(id ,o))
+        self.check_one_obj(lambda id, o: self.check_obj_pose(id ,o))
         self.check_one_obj(lambda id, o: self.check_obj_type_consistency(id ,o))
 
 if __name__ == "__main__":
