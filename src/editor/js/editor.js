@@ -2484,10 +2484,18 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       // this.boxEditor.boxView.render();
 
       // this.updateSubviewRangeByWindowResize(box);
+
+      this.updateTrajectoryWindow();
     } else {
       this.header.clear_box_info();
     }
   };
+
+  this.updateTrajectoryWindow = function (){
+    if (this.objectTrackView.visible()) {
+      this.showTrajectory()
+    }
+  }
 
   this.removeGroundPoints = function(box) {
     if (!box) {

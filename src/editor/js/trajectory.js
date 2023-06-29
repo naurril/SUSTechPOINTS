@@ -165,7 +165,7 @@ class Trajectory extends PopupDialog {
       scale = 0.001
     }
 
-    
+
     if (scale === 0) { 
       scale = 1; 
     } else { 
@@ -191,22 +191,37 @@ class Trajectory extends PopupDialog {
     ];
   }
 
+  highlightOneTrack(frameid){
+
+
+    const svg = this.ui.querySelector('#svg-arrows');
+
+    const highlight = svg.querySelector('.object-track-highlight-frame');
+    if (highlight) {
+      highlight.setAttribute('class', 'one-track');
+    }
+
+    const g = svg.querySelector(`#track-${frameid.replace('.', '-')}`);
+    g.setAttribute('class', 'one-track object-track-highlight-frame');
+  }
+
   drawOneTrace (x, y, orgX, orgY, theta, label, highlight) {
     const svg = this.ui.querySelector('#svg-arrows');
 
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.innerHTML = `<title>${label}</title>`;
     g.setAttribute('class', 'one-track');
+    g.setAttribute('id', `track-${label.replace('.', '-')}`);
 
     g.ondblclick = (e) => {
       if (this.funcOnExit) {
-        this.hide();
+        //this.hide();
         this.funcOnExit(label);
       }
     };
 
     if (highlight) {
-      g.setAttribute('class', 'one-track object-track-current-frame');
+      g.setAttribute('class', 'one-track object-track-highlight-frame');
     }
 
     svg.appendChild(g);

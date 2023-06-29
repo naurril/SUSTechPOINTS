@@ -258,8 +258,8 @@ class Api(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def check3dlabels(self, scene):
-      ck = check.LabelChecker(os.path.join(datacfg['global']['rootdir'], scene), './stat.json')
+    def check3dlabels(self, scene, objid):
+      ck = check.LabelChecker(os.path.join(datacfg['global']['rootdir'], scene), objid, './stat.json')
       ck.check()
       #print(ck.messages)
       return ck.messages

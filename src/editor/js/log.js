@@ -69,9 +69,19 @@ class LogWindow extends PopupDialog {
 
     this.logid = 0;
     this.maxLogLength = 10000; // stringLength;
+    this.errors = []
   }
 
-  setErrorsContent (errors) {
+  setErrorsContent (errors, objid) {
+
+    if (objid) {
+      this.errors = this.errors.filter(x=>x.obj_id!=objid).concat(errors);
+      errors = this.errors;
+    } else {
+      this.errors = errors;
+    }
+
+    this.erros = this.errors.sort((a,b)=>(a.obj_id > b.obj_id)?1:-1);
     const summary = `${errors.length} warnings.<br>`;
     const text = errors.map(r => `<a class='log-object-frame-id'>${r.frame_id},${r.obj_id}</a>,${r.camera_type?r.camera_type:''}, ${r.camera?r.camera:''}, ${r.desc}<br>`).reduce((a, b) => a + b, summary);
     this.errorsContentUi.innerHTML = text;
@@ -88,7 +98,7 @@ class LogWindow extends PopupDialog {
   setObjectsContent() {    
     const boxes = window.editor.data.world.annotation.boxes.concat();
 
-    const objects = boxes.sort((a,b)=>a.obj_id - b.obj_id);
+    const objects = boxes.sort((a,b)=>(a.obj_id > b.obj_id)?1:-1);
     const text = objects.map(r => `<a class='log-object-frame-id'>${r.obj_id},${r.obj_type}</a><br>`).reduce((a, b) => a + b, '');
     this.objectsContentUi.innerHTML = text;
 

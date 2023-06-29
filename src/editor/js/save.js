@@ -44,6 +44,13 @@ function reloadWorldList (worldList, done) {
   500);
 }
 
+
+var saveCallback = null;
+
+function installSaveCallback(name, func){
+  saveCallback = func;
+}
+
 function saveWorldList (worldList) {
   // pendingSaveList = pendingSaveList.concat(worldList);
 
@@ -64,6 +71,10 @@ function saveWorldList (worldList) {
 
       if (window.editor.editorCfg.autoCheckScene) {
         check3dLabels(scene);
+      }
+
+      if (saveCallback) {
+        saveCallback();
       }
     });
 
@@ -110,4 +121,4 @@ function doSaveWorldList (worldList, done) {
   });
 }
 
-export { saveWorldList, reloadWorldList };
+export { saveWorldList, reloadWorldList, installSaveCallback };

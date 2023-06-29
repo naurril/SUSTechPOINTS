@@ -59,8 +59,10 @@ def rotation_angles(R) :
 
 class LabelChecker:
     # path: scene path
-    def __init__(self, path, cfg=None):
+    def __init__(self, path, objid='', cfg=None):
+        print('label checking', path, objid)
         self.path = path
+        self.objid = objid
         self.cfg = cfg
         self.load_frame_ids()
         self.load_labels()
@@ -165,6 +167,10 @@ class LabelChecker:
 
                     for o in l:
                         obj_id = o['obj_id']
+
+                        if self.objid != '' and obj_id != self.objid:
+                            continue
+
                         if frame_id:
                             if objs.get(obj_id):
                                 objs[obj_id].append([frame_id,o,i])
@@ -290,7 +296,7 @@ class LabelChecker:
 
 
         def is_relative_yaw_valid(prev, next):
-            return np.linalg.norm(world_poses[next][:2,3] - world_poses[prev][:2,3]) > label_list[0][1]['psr']['scale']['x'] * 0.5* (next-prev)
+            return np.linalg.norm(world_poses[next][:2,3] - world_poses[prev][:2,3]) > label_list[0][1]['psr']['scale']['x'] * 0.5 * (next-prev) /2
         
         def calc_relative_yaw(prev, next, curr):
             return np.arctan2(world_poses[next][1,3] - world_poses[prev][1,3], world_poses[next][0,3] - world_poses[prev][0,3]) - rotation_angles(world_poses[curr][:3,:3])[2]
@@ -403,7 +409,7 @@ if __name__ == "__main__":
             continue
 
         print(f'checking {s}...')
-        ck = LabelChecker(scene_path, args.cfg)
+        ck = LabelChecker(scene_path, '', args.cfg)
         ck.check()
         ck.show_messages()
         
