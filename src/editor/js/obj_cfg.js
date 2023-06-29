@@ -3,17 +3,17 @@
 class ObjectCategory {
   constructor () {
     this.objTypeMap = {
-      Car: { color: '#86af49', size: [4.5, 1.8, 1.5], attr: ['door open', 'trunk open'] },
+      Car: { color: '#86af49', size: [4.43, 1.97, 1.63], attr: ['door open', 'trunk open'] },
       Pedestrian: { color: '#ff0000', size: [0.4, 0.5, 1.7], attr: ['umbrella', 'sitting', 'squating', 'bending over', 'luggage'] },
-      Van: { color: '#00ff00', size: [4.5, 1.8, 1.5], attr: ['door open', 'trunk open'] },
+      Van: { color: '#00ff00', size: [4.57, 1.98, 2.02], attr: ['door open', 'trunk open'] },
       Bus: { color: '#ffff00', size: [13, 3, 3.5] },
-      Truck: { color: '#00ffff', size: [10.0, 2.8, 3] },
+      Truck: { color: '#00ffff', size: [7.63, 2.6, 3] },
 
-      ScooterRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', 'passengers'] },
-      Scooter: { color: '#aaaa00', size: [1.6, 0.6, 1.0] },
+      ScooterRider: { color: '#ff8800', size: [1.72, 0.75, 1.59], attr: ['umbrella', 'passengers'] },
+      Scooter: { color: '#aaaa00', size: [1.63, 0.66, 1.21] },
 
-      BicycleRider: { color: '#88ff00', size: [1.6, 0.6, 1.7], attr: ['umbrella', 'passengers'] },
-      Bicycle: { color: '#ff8800', size: [1.6, 0.6, 1.2], attr: ['laying down'] },
+      BicycleRider: { color: '#88ff00', size: [1.67, 0.68, 1.68], attr: ['umbrella', 'passengers'] },
+      Bicycle: { color: '#ff8800', size: [1.57, 0.57, 1.14], attr: ['laying down'] },
 
       Motorcycle: { color: '#aaaa00', size: [1.6, 0.6, 1.2], attr: ['umbrella'] },
       MotorcycleRider: { color: '#ff8800', size: [1.6, 0.6, 1.6], attr: ['umbrella', 'passengers'] },
@@ -22,15 +22,15 @@ class ObjectCategory {
       TourCar: { color: '#86af49', size: [4.4, 1.5, 2.2] },
 
       RoadWorker: { color: '#ff0000', size: [0.4, 0.5, 1.7] },
-      Child: { color: '#ff0000', size: [0.4, 0.5, 1.2] },
+      Child: { color: '#ff0000', size: [0.5, 0.5, 1.2] },
 
       // Crowd:          {color: '#ff0000',  size:[1.6, 0.6, 1.2]},
 
       BabyCart: { color: '#ff0000', size: [0.8, 0.5, 1.0] },
       Cart: { color: '#ff0000', size: [0.8, 0.5, 1.0] },
-      Cone: { color: '#ff0000', size: [0.3, 0.3, 0.6] },
+      Cone: { color: '#ff0000', size: [0.3, 0.3, 0.7] },
       FireHydrant: { color: '#ff0000', size: [0.4, 0.4, 0.6] },
-      SaftyTriangle: { color: '#ff0000', size: [0.3, 0.4, 0.4] },
+      SaftyTriangle: { color: '#ff0000', size: [0.33, 0.68, 0.56] },
       PlatformCart: { color: '#ff0000', size: [1.2, 0.8, 1.0] },
       ConstructionCart: { color: '#ff0000', size: [1.2, 0.8, 1.0] },
       RoadBarrel: { color: '#ff0000', size: [0.5, 0.5, 0.6] },

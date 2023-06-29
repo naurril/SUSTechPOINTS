@@ -273,6 +273,9 @@ class LabelChecker:
 
     def check_obj_pose(self, obj_id, label_list):
 
+        if len(label_list) < 2:
+            return
+        
         # print('checking ', obj_id)
         world_poses = list(map(lambda l: self.local_to_world_pose(l[1]['psr']['rotation'], l[1]['psr']['position'], l[0]), label_list))
 
@@ -285,6 +288,21 @@ class LabelChecker:
 
         expected_relative_positions = list(map(lambda x: np.matmul(world_poses[x][:3,:3].T, expected_positions[x]-world_poses[x][:3, 3]), range(0, len(label_list))))
 
+
+        def is_relative_yaw_valid(prev, next):
+            return np.linalg.norm(world_poses[next][:2,3] - world_poses[prev][:2,3]) > label_list[0][1]['psr']['scale']['x'] * 0.5* (next-prev)
+        
+        def calc_relative_yaw(prev, next, curr):
+            return np.arctan2(world_poses[next][1,3] - world_poses[prev][1,3], world_poses[next][0,3] - world_poses[prev][0,3]) - rotation_angles(world_poses[curr][:3,:3])[2]
+        # calc angles by world position, convert it into local coord system.
+        expected_relative_yaw = list(map(lambda x: calc_relative_yaw(x-1, x+1, x), range(1, len(label_list)-1)))
+        expected_relative_yaw = [calc_relative_yaw(0, 1, 0)] + expected_relative_yaw + [calc_relative_yaw(len(label_list)-2, len(label_list)-1, len(label_list)-1)]
+        
+        expected_relative_yaw_valid = list(map(lambda x: is_relative_yaw_valid(x-1,x+1), range(1, len(label_list)-1)))
+        expected_relative_yaw_valid = [is_relative_yaw_valid(0,1)] + expected_relative_yaw_valid + [is_relative_yaw_valid(len(label_list)-2, len(label_list)-1)]
+    
+        #print(expected_relative_yaw)
+        print(list(map(lambda x: rotation_angles(relative_poses[x][:3,:3])[2], range(1, len(label_list)-1))))
         # print(expected_relative_positions)
         # if obj_id == '35':
         #     print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_angles)))
@@ -318,6 +336,9 @@ class LabelChecker:
                     self.push_message(frame_id, obj_id, "rotation {} delta too large: {}".format(axis, rotation_delta * 180/np.pi))
                     #return
                 
+                if axis == 'z' and expected_relative_yaw_valid[i] and expected_relative_yaw[i] > self.max_rotation_delta['z']:
+                    self.push_message(frame_id, obj_id, "yaw diff to expecte {} too large: {}".format(axis, expected_relative_yaw[i] * 180/np.pi))
+                    #return
 
                 position_delta = expected_relative_positions[i][ai]
                 # distance = np.linalg.norm(position_relative)
