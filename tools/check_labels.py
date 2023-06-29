@@ -299,7 +299,13 @@ class LabelChecker:
             return np.linalg.norm(world_poses[next][:2,3] - world_poses[prev][:2,3]) > label_list[0][1]['psr']['scale']['x'] * 0.5 * (next-prev) /2
         
         def calc_relative_yaw(prev, next, curr):
-            return np.arctan2(world_poses[next][1,3] - world_poses[prev][1,3], world_poses[next][0,3] - world_poses[prev][0,3]) - rotation_angles(world_poses[curr][:3,:3])[2]
+            ret = np.arctan2(world_poses[next][1,3] - world_poses[prev][1,3], world_poses[next][0,3] - world_poses[prev][0,3]) - rotation_angles(world_poses[curr][:3,:3])[2]
+
+            if ret > np.pi:
+                ret -=  2 * np.pi
+            elif ret < -np.pi:
+                ret += 2 * np.pi
+            return ret
         # calc angles by world position, convert it into local coord system.
         expected_relative_yaw = list(map(lambda x: calc_relative_yaw(x-1, x+1, x), range(1, len(label_list)-1)))
         expected_relative_yaw = [calc_relative_yaw(0, 1, 0)] + expected_relative_yaw + [calc_relative_yaw(len(label_list)-2, len(label_list)-1, len(label_list)-1)]
@@ -308,7 +314,7 @@ class LabelChecker:
         expected_relative_yaw_valid = [is_relative_yaw_valid(0,1)] + expected_relative_yaw_valid + [is_relative_yaw_valid(len(label_list)-2, len(label_list)-1)]
     
         #print(expected_relative_yaw)
-        print(list(map(lambda x: rotation_angles(relative_poses[x][:3,:3])[2], range(1, len(label_list)-1))))
+        #print(list(map(lambda x: rotation_angles(relative_poses[x][:3,:3])[2], range(1, len(label_list)-1))))
         # print(expected_relative_positions)
         # if obj_id == '35':
         #     print(obj_id, list(map(lambda x: x['z']*180/np.pi, world_angles)))
@@ -342,7 +348,7 @@ class LabelChecker:
                     self.push_message(frame_id, obj_id, "rotation {} delta too large: {}".format(axis, rotation_delta * 180/np.pi))
                     #return
                 
-                if axis == 'z' and expected_relative_yaw_valid[i] and expected_relative_yaw[i] > self.max_rotation_delta['z']:
+                if axis == 'z' and expected_relative_yaw_valid[i] and np.abs(expected_relative_yaw[i]) > self.max_rotation_delta['z']:
                     self.push_message(frame_id, obj_id, "yaw diff to expecte {} too large: {}".format(axis, expected_relative_yaw[i] * 180/np.pi))
                     #return
 
