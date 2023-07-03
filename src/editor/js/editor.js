@@ -723,6 +723,9 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
       case 'cm-interpolate-background':
         this.interpolateInBackground();
         break;
+      case 'cm-re-interpolate-background':
+        this.reinterpolateInBackground();
+        break;
       case 'cm-show-trajectory':
 
         this.showTrajectory();
@@ -1020,6 +1023,44 @@ function Editor (editorUi, wrapperUi, editorCfg, data, name = 'editor') {
 
     return true;
   };
+
+  this.reinterpolateInBackground = function () {
+    if (!this.ensureBoxTrackIdExist()) { return; }
+
+    if (!this.ensurePreloaded()) { return; }
+
+    this.infoBox.show(
+      'Confirm',
+      're-interpolte in all frames? this will delete all other instances of this object.',
+      ['yes', 'no'],
+      (btn) => {
+        if (btn === 'yes') {
+          // delete all others
+          this.data.worldList.forEach(w => {
+            const box = w.annotation.boxes.find(b => b.obj_id === this.selectedBox.obj_id);
+            if (box && box !== this.selectedBox) {
+              w.annotation.unload_box(box);
+              w.annotation.removeBox(box);
+              // saveList.push(w);
+              w.annotation.setModified();
+            }
+          });
+
+          // interpolate
+          let worldList = this.data.worldList.filter(w => w.frameInfo.scene === this.data.world.frameInfo.scene);
+          worldList = worldList.sort((a, b) => a.frameInfo.getFrameIndex() - b.frameInfo.getFrameIndex());
+          const boxList = worldList.map(w => w.annotation.findBoxByTrackId(this.selectedBox.obj_id));
+      
+          const applyIndList = boxList.map(b => true);
+          this.boxOp.interpolateAsync(worldList, boxList, applyIndList, 'ignoreEmpty').then(ret => {
+            this.header.updateModifiedStatus();
+            this.viewManager.render();
+          });
+
+        }
+      });
+  };
+
 
   this.interpolateInBackground = function () {
     if (!this.ensureBoxTrackIdExist()) { return; }
