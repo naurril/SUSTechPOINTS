@@ -110,10 +110,12 @@ class LabelChecker:
         for m in self.messages:
             print(m["frame_id"], m["obj_id"], m["desc"])
 
-    def push_message(self, frame, obj_id, desc):
+    def push_message(self, frame, obj, desc):
         self.messages.append({
             "frame_id": frame,
-            "obj_id": obj_id,
+            "obj_id": obj["obj_id"] if "obj_id" in obj else "",
+            "obj_type": obj["obj_type"] if "obj_type" in obj else "",
+            "obj_attr": obj["obj_attr"] if "obj_attr" in obj else "",
             "desc": desc
         })
     
@@ -198,11 +200,11 @@ class LabelChecker:
 
     def check_obj_type(self, frame_id, o):
         if not o["obj_type"] in self.def_labels or o["obj_type"] == '':
-            self.push_message(frame_id, o["obj_id"], "object type {} not recognizable".format(o["obj_type"]))
+            self.push_message(frame_id, o, "object type {} not recognizable".format(o["obj_type"]))
     
     def check_obj_id(self, frame_id, o):
         if not o["obj_id"] or o["obj_id"] == '':
-            self.push_message(frame_id, "", "object {} id absent".format(o["obj_type"]))
+            self.push_message(frame_id, o, "object {} id absent".format(o["obj_type"]))
 
     def check_frame_duplicate_id(self, frame_id, objs):
         obj_id_cnt = {}
@@ -214,13 +216,13 @@ class LabelChecker:
         
         for id in obj_id_cnt:
             if obj_id_cnt[id] > 1:
-                self.push_message(frame_id, id, "duplicate object id")               
+                self.push_message(frame_id, {"obj_id":id}, f"duplicate object id")               
 
     def check_obj_size_positivity(self, frame_id, objs):
         for o in objs:
             for axis in ['x', 'y', 'z']:
               if o['psr']['scale'][axis] <= 0:
-                self.push_message(frame_id, o['obj_id'], f"object size {axis} {o['psr']['scale'][axis]} < 0") 
+                self.push_message(frame_id, o, f"object size {axis} {o['psr']['scale'][axis]} < 0")
 
     def check_obj_size(self, obj_id, label_list):
 
@@ -228,6 +230,7 @@ class LabelChecker:
 
         # overall size reasonable?
         # intra-instances consistency
+
         mean = {}
         for axis in ['x','y','z']:
             vs = list(map(lambda l: float(l[1]["psr"]["scale"][axis]), label_list))
@@ -242,12 +245,12 @@ class LabelChecker:
 
                 for i,axis in enumerate(['x','y','z']):
                     if mean[axis] > size_mean[i] + 3 * size_std[i] or mean[axis] < size_mean[i] - 3 * size_std[i]:
-                        self.push_message(label_list[0][0], obj_id, "dimension {} too large: {}, mean {}, std {}".format(axis, label_list[0][1]["psr"]["scale"][axis], size_mean[i], size_std[i]))
+                        self.push_message(label_list[0][0], label_list[0][1], "dimension {} abnormal: {}, mean {}, std {}".format(axis, label_list[0][1]["psr"]["scale"][axis], size_mean[i], size_std[i]))
             else:
                 print("no cfg for", objtype)
 
 
-        if label_list[0][1]['obj_type'] == 'Pedestrian' or label_list[0][1]['obj_type'] == 'Child':
+        if label_list[0][1]['obj_type'] == 'Pedestrian' or label_list[0][1]['obj_type'] == 'Child' or label_list[0][1]['obj_type']=='RoadWorker':
             return
             
 
@@ -259,10 +262,10 @@ class LabelChecker:
             for axis in ['x','y','z']:
                 ratio = label["psr"]["scale"][axis] / mean[axis]
                 if ratio < 0.9:
-                    self.push_message(frame_id, obj_id, "dimension {} too small: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
+                    self.push_message(frame_id, label, "dimension {} too small: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
                 elif ratio > 1.1:
-                    self.push_message(frame_id, obj_id, "dimension {} too large: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
+                    self.push_message(frame_id, label, "dimension {} too large: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
 
         
@@ -345,11 +348,11 @@ class LabelChecker:
                     rotation_delta =  2*np.pi + rotation_delta
 
                 if rotation_delta > self.max_rotation_delta[axis] or rotation_delta < - self.max_rotation_delta[axis]:
-                    self.push_message(frame_id, obj_id, "rotation {} delta too large: {}".format(axis, rotation_delta * 180/np.pi))
+                    self.push_message(frame_id, l[1], "rotation {} delta too large: {}".format(axis, rotation_delta * 180/np.pi))
                     #return
                 
                 if axis == 'z' and expected_relative_yaw_valid[i] and np.abs(expected_relative_yaw[i]) > self.max_rotation_delta['z']:
-                    self.push_message(frame_id, obj_id, "yaw diff to expecte {} too large: {}".format(axis, expected_relative_yaw[i] * 180/np.pi))
+                    self.push_message(frame_id,  l[1], "yaw diff to expecte {} too large: {}".format(axis, expected_relative_yaw[i] * 180/np.pi))
                     #return
 
                 position_delta = expected_relative_positions[i][ai]
@@ -358,9 +361,9 @@ class LabelChecker:
                 
 
                 if self.is_static(l[1]) and np.abs(position_delta) > self.max_position_delta_static[axis]:
-                    self.push_message(frame_id, obj_id, "position {} delta too large: {}".format(axis, position_delta))
+                    self.push_message(frame_id,  l[1], "position {} delta too large: {}".format(axis, position_delta))
                 elif np.abs(position_delta) > self.max_position_delta_dynamic[axis]:
-                    self.push_message(frame_id, obj_id, "position {} delta too large: {}".format(axis, position_delta))
+                    self.push_message(frame_id,  l[1], "position {} delta too large: {}".format(axis, position_delta))
 
     def check_obj_type_consistency(self, obj_id, label_list):
         for i in range(1, len(label_list)):
@@ -372,7 +375,7 @@ class LabelChecker:
             plabel = pl[1]
 
             if label['obj_type'] != plabel['obj_type']:
-                self.push_message(frame_id, obj_id, "different object types: {}, previous {}".format(label['obj_type'], plabel['obj_type']))
+                self.push_message(frame_id,  l[1], "different object types: {}, previous {}".format(label['obj_type'], plabel['obj_type']))
                 #return
         pass
     def check(self):

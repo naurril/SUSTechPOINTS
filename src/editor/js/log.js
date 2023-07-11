@@ -83,12 +83,21 @@ class LogWindow extends PopupDialog {
 
     this.erros = this.errors.sort((a,b)=>a.obj_id - b.obj_id);
     const summary = `${errors.length} warnings.<br>`;
-    const text = errors.map(r => `<a class='log-object-frame-id'>${r.frame_id},${r.obj_id}</a>,${r.camera_type?r.camera_type:''}, ${r.camera?r.camera:''}, ${r.desc}<br>`).reduce((a, b) => a + b, summary);
+    
+    function getclass(id) {
+      let clazz = 'log-object-frame-id'
+      if (objid === id){
+        clazz += ' log-object-frame-id-selected'
+      }
+      return clazz;
+    }
+
+    const text = errors.map(r => `<a class='${getclass(r.obj_id)}'>${r.frame_id},${r.obj_id},${r.obj_type?r.obj_type:''},${r.obj_attr?r.obj_attr:''}</a>, ${r.camera_type?r.camera_type:''}, ${r.camera?r.camera:''}, ${r.desc}<br>`).reduce((a, b) => a + b, summary);
     this.errorsContentUi.innerHTML = text;
 
     this.errorsContentUi.querySelectorAll('.log-object-frame-id').forEach(ele => {
       ele.onclick = (event) => {
-        const obj = event.currentTarget.innerHTML.split(',');
+        const obj = event.currentTarget.innerHTML.split(',').slice(0,2);
         console.log('click', obj);
         window.editor.currentMainEditor.gotoObjectFrame(...obj); // frameid, objid
       };

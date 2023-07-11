@@ -1065,6 +1065,10 @@ td {
 	cursor: pointer;
 }
 
+.log-object-frame-id-selected{
+	color: var(--highlight-color);
+}
+
 #move-handle-wrapper {
 	position: absolute;
 	display: none;
