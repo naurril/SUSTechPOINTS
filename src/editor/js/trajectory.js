@@ -192,17 +192,21 @@ class Trajectory extends PopupDialog {
   }
 
   highlightOneTrack(frameid){
-
-
     const svg = this.ui.querySelector('#svg-arrows');
-
-    const highlight = svg.querySelector('.object-track-highlight-frame');
-    if (highlight) {
-      highlight.setAttribute('class', 'one-track');
-    }
-
     const g = svg.querySelector(`#track-${frameid.replace('.', '-')}`);
-    g.setAttribute('class', 'one-track object-track-highlight-frame');
+    if (g) {
+      g.setAttribute('class', 'one-track object-track-highlight-frame');
+    }
+    
+  }
+
+  unhighlightOneTrack(frameid){
+    const svg = this.ui.querySelector('#svg-arrows');
+    const g = svg.querySelector(`#track-${frameid.replace('.', '-')}`);
+    if (g) {
+      g.setAttribute('class', 'one-track');
+    }
+    
   }
 
   drawOneTrace (x, y, orgX, orgY, theta, label, highlight) {

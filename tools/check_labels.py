@@ -59,9 +59,11 @@ def rotation_angles(R) :
 
 class LabelChecker:
     # path: scene path
-    def __init__(self, path, objid='', cfg=None):
-        print('label checking', path, objid)
-        self.path = path
+    def __init__(self, datacfg, scene, objid='', cfg=None):
+        print('label checking', scene, objid)
+
+        self.datacfg = datacfg
+        self.scene = scene
         self.objid = objid
         self.cfg = cfg
         self.load_frame_ids()
@@ -108,7 +110,7 @@ class LabelChecker:
     def show_messages(self):
         print(len(self.messages), 'messages')
         for m in self.messages:
-            print(m["frame_id"], m["obj_id"], m["desc"])
+            print(m["frame_id"], m["obj_id"],m["obj_type"],m["obj_attr"], m["desc"])
 
     def push_message(self, frame, obj, desc):
         self.messages.append({
@@ -120,13 +122,13 @@ class LabelChecker:
         })
     
     def load_frame_ids(self):
-        lidar_files = os.listdir(os.path.join(self.path, 'lidar'))
+        lidar_files = os.listdir(os.path.join(self.datacfg['lidar'], self.scene, 'lidar'))
         ids = list(map(lambda f: os.path.splitext(f)[0], lidar_files))
         ids.sort()
         self.frame_ids = ids
 
     def load_lidar_poses(self):
-        pose_folder = os.path.join(self.path, 'lidar_pose')
+        pose_folder = os.path.join(self.datacfg['lidar_pose'], self.scene, 'lidar_pose')
         files = os.listdir(pose_folder)
         poses = {}
 
@@ -144,7 +146,7 @@ class LabelChecker:
         
         self.lidar_poses = poses
     def load_labels(self):
-        label_folder = os.path.join(self.path, 'label')
+        label_folder = os.path.join(self.datacfg['label'], self.scene, 'label')
         files = os.listdir(label_folder)
         labels = {}
         objs = {}
@@ -261,10 +263,10 @@ class LabelChecker:
 
             for axis in ['x','y','z']:
                 ratio = label["psr"]["scale"][axis] / mean[axis]
-                if ratio < 0.9:
+                if ratio < 0.8:
                     self.push_message(frame_id, label, "dimension {} too small: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
-                elif ratio > 1.1:
+                elif ratio > 1.2:
                     self.push_message(frame_id, label, "dimension {} too large: {}, mean {}".format(axis, label["psr"]["scale"][axis], mean[axis]))
                     #return
 
@@ -285,8 +287,13 @@ class LabelChecker:
         if len(label_list) < 2:
             return
         
-        # print('checking ', obj_id)
+        
         world_poses = list(map(lambda l: self.local_to_world_pose(l[1]['psr']['rotation'], l[1]['psr']['position'], l[0]), label_list))
+
+        if False and obj_id == '1':
+            print('checking ', obj_id)
+            for w in world_poses:
+                print(w[0:3, 3])
 
         relative_poses = list(map(lambda x: np.matmul(np.linalg.inv(world_poses[x-1]), world_poses[x]), range(1, len(label_list))))
         relative_poses = [np.eye(4)] + relative_poses
@@ -398,6 +405,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='check labels')        
     parser.add_argument('--data', type=str,default='./data', help="")
+    parser.add_argument('--dirorg', type=str,  default='scene', choices=['scene,datatype'], help="specify dataset orgnization type")
     parser.add_argument('--scenes', type=str,default='.*', help="")
     parser.add_argument('--cfg', type=str, default='./stat.json', help="")
 
@@ -406,7 +414,21 @@ if __name__ == "__main__":
     args.cfg = os.path.abspath(args.cfg)
     data = args.data
 
-    scenes = os.listdir(data)
+    if args.dirorg == 'scene':
+        datacfg = {
+            'lidar': data,
+            'label': data,
+            'lidar_pose': data,
+        }
+        
+    else:
+        datacfg = {
+            'lidar': data + '/' + 'lidar',
+            'label': data + '/' + 'label',
+            'lidar_pose': data + '/' + 'lidar_pose',
+        }
+
+    scenes = os.listdir(datacfg['lidar'])
     scenes.sort()
 
     for s in scenes:
@@ -418,7 +440,7 @@ if __name__ == "__main__":
             continue
 
         print(f'checking {s}...')
-        ck = LabelChecker(scene_path, '', args.cfg)
+        ck = LabelChecker(datacfg, s, '', args.cfg)
         ck.check()
         ck.show_messages()
         

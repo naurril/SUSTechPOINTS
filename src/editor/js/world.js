@@ -60,7 +60,7 @@ function Images (sceneMeta, imageType, sceneName, frame) {
           this.on_image_loaded();
         };
 
-        let src = 'data/' + sceneName + '/' + imageType + '/' + cam + '/' + frame + sceneMeta.camera_ext;
+        let src = 'data/' +imageType + '/' + sceneName + '/' + imageType + '/' + cam + '/' + frame + sceneMeta.camera_ext;
         if (window.pointsGlobalConfig.userToken) { 
           src += '?token=' + window.pointsGlobalConfig.userToken; 
         }
@@ -263,6 +263,12 @@ function World (data, sceneName, frame, coordinatesOffset, onPreloadFinished) {
       this.transUtmLidar = new THREE.Matrix4().copy(this.transLidarUtm).invert();
       this.trans_scene_lidar = new THREE.Matrix4().copy(this.transLidarScene).invert();
     
+      if (this.data.cfg.coordinateSystem === 'utm') { 
+        this.transLidarScene = new THREE.Matrix4().multiplyMatrices(transUtmScene, this.transLidarUtm); 
+      } else { 
+        this.transLidarScene = transUtmScene; 
+      } // only offset.
+      
     }
     else{
       const transUtmScene = new THREE.Matrix4().identity().setPosition(this.coordinatesOffset[0], this.coordinatesOffset[1], this.coordinatesOffset[2]);

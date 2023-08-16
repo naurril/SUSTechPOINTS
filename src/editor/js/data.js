@@ -10,7 +10,7 @@ class Data {
 
     this.dbg = new Debug();
 
-    this.worldGap = 1000.0;
+    this.worldGap = 10000.0;
     this.worldList = [];
 
     this.createWorldIndex = 0; // this index shall not repeat, so it increases permanently

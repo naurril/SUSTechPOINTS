@@ -74,33 +74,69 @@ class LogWindow extends PopupDialog {
 
   setErrorsContent (errors, objid) {
 
+    let deletedError = [];
+    let newError = [];
     if (objid) {
+      if (errors.length===0){ 
+        deletedError = this.errors.filter(x=>x.obj_id==objid);
+
+        if (deletedError.length=== 0){
+          deletedError = this.deletedError;
+        } else {
+          this.deletedError = deletedError;
+        }
+
+      }
+      
+
+
+      newError = errors;
+
       this.errors = this.errors.filter(x=>x.obj_id!=objid).concat(errors);
       errors = this.errors;
     } else {
       this.errors = errors;
     }
 
-    this.erros = this.errors.sort((a,b)=>a.obj_id - b.obj_id);
+    let displayErrors = deletedError.concat(this.errors);
+
+    displayErrors = displayErrors.sort((a,b)=>a.obj_id - b.obj_id);
+    
     const summary = `${errors.length} warnings.<br>`;
     
-    function getclass(id) {
+    function getclass(r) {
       let clazz = 'log-object-frame-id'
-      if (objid === id){
+      if (newError.find(x=>x === r)){
         clazz += ' log-object-frame-id-selected'
+      }
+      else if (deletedError.find(x=>x === r)){
+        clazz += ' log-object-frame-id-deleted'
       }
       return clazz;
     }
 
-    const text = errors.map(r => `<a class='${getclass(r.obj_id)}'>${r.frame_id},${r.obj_id},${r.obj_type?r.obj_type:''},${r.obj_attr?r.obj_attr:''}</a>, ${r.camera_type?r.camera_type:''}, ${r.camera?r.camera:''}, ${r.desc}<br>`).reduce((a, b) => a + b, summary);
+    const text = displayErrors.map(r => `<a class='${getclass(r)}'>${r.frame_id},${r.obj_id},${r.obj_type?r.obj_type:''},${r.obj_attr?r.obj_attr:''},${r.camera_type?r.camera_type:''},${r.camera?r.camera:''},${r.desc}</a><br>`).reduce((a, b) => a + b, summary);
     this.errorsContentUi.innerHTML = text;
 
     this.errorsContentUi.querySelectorAll('.log-object-frame-id').forEach(ele => {
       ele.onclick = (event) => {
         const obj = event.currentTarget.innerHTML.split(',').slice(0,2);
         console.log('click', obj);
+
+        this.highlightError(obj[1]);
         window.editor.currentMainEditor.gotoObjectFrame(...obj); // frameid, objid
       };
+    });
+  }
+
+  highlightError(objid){
+
+    this.errorsContentUi.querySelectorAll('.log-object-frame-id').forEach(ele => {
+      if (ele.innerHTML.split(',')[1] === objid) {
+        ele.className = 'log-object-frame-id log-object-frame-id-selected';
+      } else {
+        ele.className = ele.className.split(' ').filter(x=>x!=='log-object-frame-id-selected').join(' ');
+      }
     });
   }
 
