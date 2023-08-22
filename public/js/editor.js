@@ -940,7 +940,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
   // };
 
   this.render = function () {
-    console.log("this.render called in editor.js");
+    // console.log("this.render called in editor.js");
     this.viewManager.mainView.render();
     this.boxEditor.boxView.render();
 
@@ -953,7 +953,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
   };
 
   this.resetView = function (targetPos) {
-    console.log('targetpos', targetPos)
+    console.log("targetpos", targetPos);
     if (!targetPos) {
       let center = this.data.world.lidar.computeCenter();
       targetPos = { ...center }; //{x:0, y:0, z:50};
@@ -963,17 +963,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     }
 
     try {
-      console.log("reset 1");
       let pos = this.data.world.lidarPosToScene(targetPos);
-      console.log("reset 2");
       this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z); //object is camera
-      console.log("reset 3");
-      this.viewManager.mainView.orbit.target.set(pos.x, pos.y, 0);
-      console.log("reset 4");
+      // if you use pos.z, it stops working for some reason
+      let center = this.data.world.lidar.computeCenter();
+      this.viewManager.mainView.orbit.target.set(center.x, center.y, center.z);
       this.viewManager.mainView.orbit.update();
-      console.log("reset 5");
       this.render();
-      console.log("reset 6");
     } catch (error) {
       console.log(error);
     }
