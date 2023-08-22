@@ -147,7 +147,7 @@ function ViewManager(
     //cameraOrthoHelper.visible=true;
     //scene.add( cameraOrthoHelper );
 
-    const geometry = new THREE.SphereGeometry(5, 64, 32);
+    const geometry = new THREE.SphereGeometry(0.5, 64, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     let sphere = new THREE.Mesh(geometry, material);
     view.scene.add(sphere)

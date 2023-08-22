@@ -967,7 +967,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
       this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z); //object is camera
       // if you use pos.z, it stops working for some reason
       let center = this.data.world.lidar.computeCenter();
-      this.viewManager.mainView.orbit.target.set(center.x, center.y, center.z);
+      this.viewManager.mainView.orbit.target.set(pos.x, pos.y, center.z);
       this.viewManager.mainView.orbit.update();
       this.render();
     } catch (error) {
