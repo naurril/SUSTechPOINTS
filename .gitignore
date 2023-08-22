@@ -8,3 +8,5 @@ temp
 image_temp
 tools/pypcd
 temp*/
+.DS_Store
+converted/
