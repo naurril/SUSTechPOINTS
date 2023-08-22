@@ -7,7 +7,7 @@ window.pointsGlobalConfig = pointsGlobalConfig;
 
 pointsGlobalConfig.load(); // will populate the object with key value pairs
 
-document.documentElement.className = "theme-" + pointsGlobalConfig.theme; // for switching between light and dark mode?
+document.documentElement.className = "theme-" + pointsGlobalConfig.theme; // for switching between light and dark mode
 
 document.body.addEventListener("keydown", (event) => {
   if (event.ctrlKey && "asdv".indexOf(event.key) !== -1) {

@@ -5,8 +5,12 @@ import { logger } from "./log.js";
 class Data {
   constructor(cfg) {
     this.cfg = cfg;
+    console.log("data constructor called");
   }
 
+  // gets the names of folders from the backend
+  // a scene is in a folder
+  // see get_all_scene_desc in main.py
   async readSceneList() {
     const req = new Request("/get_all_scene_desc");
     let init = {
@@ -24,7 +28,8 @@ class Data {
         }
       })
       .then((ret) => {
-        console.log(ret);
+        console.log("successful request to scene desc /get_all_scene_desc");
+        console.log("response is: ", ret);
         this.sceneDescList = ret;
         return ret;
       })
@@ -39,7 +44,7 @@ class Data {
 
   // multiple world support
   // place world by a offset so they don't overlap
-  dbg = new Debug();
+  dbg = new Debug(); // for counting the current number of memory allocations
 
   worldGap = 1000.0;
   worldList = [];
@@ -102,6 +107,8 @@ class Data {
   offsetList = [[0, 0, 0]];
   lastSeedOffset = [0, 0, 0];
   offsetsAliveCount = 0;
+
+  // called when creating a world
   allocateOffset() {
     // we need to make sure the first frame loaded in a scene
     // got to locate in [0,0,0]
@@ -142,15 +149,25 @@ class Data {
     let ret = this.offsetList.pop();
     this.offsetsAliveCount++;
 
+    console.log({
+      file: "data.js",
+      function: "allocationOffset",
+      offsetsAliveCount: this.offsetsAliveCount,
+      offsetList: this.offsetList,
+    });
+
     return ret;
   }
 
+  // called when deleting a world
   returnOffset(offset) {
     this.offsetList.push(offset);
     this.offsetsAliveCount--;
   }
 
   deleteDistantWorlds(world) {
+    // checks which worlds are "disposable" compared to the current world and deletes them
+    // deletion is done by updating the offset list (returnOffset) and calling deleteAll() on the world
     let currentWorldIndex = world.frameInfo.frame_index;
 
     let disposable = (w) => {
@@ -176,6 +193,7 @@ class Data {
   }
 
   deleteOtherWorldsExcept = function (keepScene) {
+    // deletes all worlds except the one which has the scene as "keepScene"
     // release resources if scene changed
     this.worldList.forEach((w) => {
       if (w.frameInfo.scene != keepScene) {
