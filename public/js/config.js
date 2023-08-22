@@ -107,9 +107,10 @@ class Config{
         ["autoUpdateInterpolatedBoxes", this.toBool],
     ];
 
+    // reads items from local storage, and stores it in "this" object as key value pairs
     load()
-    {
-        this.saveItems.forEach(item=>{
+    {   
+                this.saveItems.forEach(item=>{
             let key = item[0];
             let castFunc = item[1];
 
