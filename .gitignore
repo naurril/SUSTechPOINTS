@@ -1,6 +1,5 @@
-data
 data/*
-data.bk/*
+converted/
 .vscode
 temp
 *.pyc
@@ -10,3 +9,4 @@ tools/pypcd
 temp*/
 .DS_Store
 converted/
+
