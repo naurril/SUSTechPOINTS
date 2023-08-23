@@ -1,11 +1,15 @@
-tensorflow>=2.1
+# Feel free to add more requirements as we go #
+# tensorflow>=2.1 Install later because you can't really push large files to a fork
 jinja2
 cherrypy
 filterpy
 cheroot != 8.4.4
 numpy
 pandas
-open3d
+open3d == 0.16
 laspy
 matplotlib
-tkinter
+tk
+tqdm
+pandas
+argparse
