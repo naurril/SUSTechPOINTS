@@ -150,16 +150,16 @@ function ViewManager(
     const geometry = new THREE.SphereGeometry(0.5, 64, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     let sphere = new THREE.Mesh(geometry, material);
-    view.scene.add(sphere)
-    view.sphere = sphere
+    view.scene.add(sphere);
+    view.sphere = sphere;
     view.render = function () {
       console.log("render mainview.");
 
       this.sphere.position.set(
-        this.orbit.target.x, 
+        this.orbit.target.x,
         this.orbit.target.y,
         this.orbit.target.z
-      )
+      );
 
       if (this.active) {
         //this.switch_camera(false);
