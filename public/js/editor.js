@@ -2410,8 +2410,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
   // };
 
   this.on_load_world_finished = function (world) {
-    document.title = "SUSTech POINTS-" + world.frameInfo.scene;
-    // switch view positoin
+    document.title = "Displaying current folder: " + world.frameInfo.scene;
+    // switch view position
     this.moveAxisHelper(world);
     this.moveRangeCircle(world);
     this.lookAtWorld(world);

@@ -98,7 +98,7 @@ function ViewManager(
       65,
       container.clientWidth / container.clientHeight,
       1,
-      500
+      800
     );
     camera.position.x = 0;
     camera.position.z = 50;
@@ -147,11 +147,14 @@ function ViewManager(
     //cameraOrthoHelper.visible=true;
     //scene.add( cameraOrthoHelper );
 
-    const geometry = new THREE.SphereGeometry(0.5, 64, 32);
+    // Define the sphere representing the user's center of rotation
+    const geometry = new THREE.SphereGeometry(0.025, 64, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     let sphere = new THREE.Mesh(geometry, material);
     view.scene.add(sphere)
     view.sphere = sphere
+
+
     view.render = function () {
       console.log("render mainview.");
 
@@ -172,7 +175,7 @@ function ViewManager(
     };
 
     view.renderAll = function () {
-      console.log("render mainview.");
+      console.log("render all.");
       if (this.active) {
         //this.switch_camera(false);
         this.renderWithCamera(this.camera);
