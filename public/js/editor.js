@@ -989,6 +989,12 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
       this.editorUi.querySelector("#frame-selector").innerHTML =
         "<option>--frame--</option>";
       meta = await this.data.readSceneMetaData(sceneName);
+      // console.log({
+      //   file: "editor.js",
+      //   function: "this.scene_changed",
+      //   message: "meta is the following object",
+      //   meta: meta
+      // })
     }
 
     var frame_selector_str = meta.frames
