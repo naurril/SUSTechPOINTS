@@ -11,6 +11,17 @@ class Data {
   // gets the names of folders from the backend
   // a scene is in a folder
   // see get_all_scene_desc in main.py
+  // below is an example of the response object sent by the backend 
+
+  /* <-- can collapse object in vscode
+    {
+      ".DS_Store": null,
+      "example": null,
+      "example2": null,
+      "example3": null,
+      "example4": null
+  }
+  */
   async readSceneList() {
     const req = new Request("/get_all_scene_desc");
     let init = {
