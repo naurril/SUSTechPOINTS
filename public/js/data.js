@@ -306,6 +306,8 @@ class Data {
   }
 
   webglScene = null;
+  // webglScene, and webglMainScene are both the same 
+  // when this is called from editor.js
   set_webglScene = function (scene, mainScene) {
     this.webglScene = scene;
     this.webglMainScene = mainScene;

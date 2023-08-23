@@ -26,14 +26,18 @@ async function createMainEditor() {
   let dataCfg = pointsGlobalConfig;
 
   let data = new Data(dataCfg);
-  await data.init();
+  await data.init(); // gets the names of all scenes (folders) from the backend
+  // data.sceneDescList is set to this list after the function is done
+  // at this point data.world is null
 
+  // for reference
+  // Editor(editorUi, wrapperUi, editorCfg, data, name = "editor")
   let editor = new Editor(
-    maindiv.lastElementChild,
-    maindiv,
-    editorCfg,
-    data,
-    "main-editor"
+    maindiv.lastElementChild, // I assume this is main_ui, since it was just appended on line 22
+    maindiv, // <div id="main-editor"></div>
+    editorCfg, // it's the same config as everywhere I think
+    data, // the data object which was just created, for now only has the scene (folder) names mostly
+    "main-editor" // the name of the editor
   );
   window.editor = editor;
   editor.run();

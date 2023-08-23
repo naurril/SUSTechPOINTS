@@ -28,18 +28,21 @@ import { checkScene } from "./error_check.js";
 
 function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
   // create logger before anything else.
+  // this is the terminal like thing you see once you open the app
+  // I assume it's used for printing logs and errors
+  // I'm going to treat it as a black box for now, can explore later if needed
   create_logger(
     editorUi.querySelector("#log-wrapper"),
     editorUi.querySelector("#log-button")
   );
   this.logger = logger;
 
-  this.editorCfg = editorCfg;
+  this.editorCfg = editorCfg; // again, same config as last time ig
   this.sideview_enabled = true;
-  this.editorUi = editorUi;
-  this.wrapperUi = wrapperUi;
+  this.editorUi = editorUi; // <template id="editor-template"> which is cloned and added to the div below
+  this.wrapperUi = wrapperUi; // <div id="main-editor"></div>
   this.container = null;
-  this.name = name;
+  this.name = name; // "main-editor"
 
   this.data = data;
   this.scene = null;
@@ -60,6 +63,11 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
       this.lock_obj_in_highlight = focus;
     },
   };
+
+  // the constructor just sets calib.data, and calib.editor
+  // will exlore more later if I see any calls to it. Seems to be handling offsets and camera position,
+  // but I don't fully understand that yet
+  // also this is an example of constructor functions in javascript, (or pseudo-classes)
   this.calib = new Calib(this.data, this);
 
   this.header = null;
@@ -68,39 +76,53 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
   this.boxEditorManager = null;
   this.params = {};
 
+  // the comment next to this is by the original developers, not me
+  // I'm unsure of what the batch editor is or how it is used
   this.currentMainEditor = this; // who is on focus, this or batch-editor-manager?
 
   this.init = function (editorUi) {
     let self = this;
     this.editorUi = editorUi;
 
+    // I assume this is used when you right click and click play
+    // afaik it goes through all the frames (lidar files) in the scene (folder)
     this.playControl = new PlayControl(this.data);
 
+    // this is the thing that pops up when you click the three dots on the dop right
+    // this is for changing the various settings ig, in config_ui.js you can see the functions
+    // to see what happens when something in this menu is clicked
     this.configUi = new ConfigUi(
       editorUi.querySelector("#config-button"),
       editorUi.querySelector("#config-wrapper"),
       this
     );
 
+    // the header where you can select the scene, frame, save and settings
+    // it changes when you select an object, idk how yet
     this.header = new Header(
       editorUi.querySelector("#header"),
       this.data,
       this.editorCfg,
+      // onSceneChanged
       (e) => {
         this.scene_changed(e.currentTarget.value);
         //event.currentTarget.blur();
       },
+      // onFrameChanged
       (e) => {
         this.frame_changed(e);
       },
+      // onObjectSelected
       (e) => {
         this.object_changed(e);
       },
+      // onCameraChanged
       (e) => {
         this.camera_changed(e);
       }
     );
 
+    // the comment below is by the original developers
     //
     // that way, the operation speed may be better
     // if we load all worlds, we can speed up batch-mode operations, but the singl-world operations slows down.
@@ -111,24 +133,31 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
 
     this.data.set_webglScene(this.scene, this.mainScene);
 
+    // setting antialiasing to false will make it perform better
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       preserveDrawingBuffer: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
+    // theres the header, and then theres this container div inside of a content div
     this.container = editorUi.querySelector("#container");
+    // renderer.domElement is the canvas where the render draws it's output
     this.container.appendChild(this.renderer.domElement);
 
+    // I assume this is for drawing boxes around the objects
     this.boxOp = new BoxOp(this.data);
+
     this.viewManager = new ViewManager(
-      this.container,
-      this.scene,
-      this.mainScene,
-      this.renderer,
+      this.container, // mainViewContainer
+      this.scene, // webglScene
+      this.mainScene, // webglMainScene
+      this.renderer, // renderer
+      // globalRenderFunc
       function () {
         self.render();
       },
+      // on_box_changed
       function (box) {
         self.on_box_changed(box);
       },

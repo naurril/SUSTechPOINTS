@@ -92,20 +92,24 @@ function ViewManager(
       document.documentElement.className == "theme-dark"
         ? new THREE.Color(0.0, 0.0, 0.0)
         : new THREE.Color(1.0, 1.0, 1.0);
-    view.zoom_ratio = 1.0; //useless for mainview
+    view.zoom_ratio = 1.0; //useless for mainview // not my comment
 
     let camera = new THREE.PerspectiveCamera(
-      65,
-      container.clientWidth / container.clientHeight,
-      1,
-      500
+      65, // fov
+      container.clientWidth / container.clientHeight, // aspect ratio
+      1, // near
+      500 // far
     );
+
+    // the initial position of the camera
     camera.position.x = 0;
     camera.position.z = 50;
     camera.position.y = 0;
-    camera.up.set(0, 0, 1);
+    camera.up.set(0, 0, 1); // the direction that is treated as upwards by the camera (z-axis in this case)
     camera.lookAt(0, 0, 0);
     camera.name = "main view camera";
+
+    // this is just setting properties in the view object of this function
     view.camera_perspective = camera;
     view.camera = camera;
 
@@ -147,11 +151,15 @@ function ViewManager(
     //cameraOrthoHelper.visible=true;
     //scene.add( cameraOrthoHelper );
 
+    // this is the sphere that identifies the centre of rotation
     const geometry = new THREE.SphereGeometry(0.5, 64, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     let sphere = new THREE.Mesh(geometry, material);
     view.scene.add(sphere);
+
     view.sphere = sphere;
+
+    // the render function for the view being created by this function
     view.render = function () {
       console.log("render mainview.");
 
@@ -196,6 +204,8 @@ function ViewManager(
 
       //console.log(left,bottom, width, height);
 
+      // below are computer graphics things
+      // you can see a basic definition here : https://registry.khronos.org/webgl/specs/latest/1.0/#5.14.4
       this.renderer.setViewport(left, bottom, width, height);
       this.renderer.setScissor(left, bottom, width, height);
       this.renderer.setClearColor(view.backgroundColor);
