@@ -253,8 +253,8 @@ function World(data, sceneName, frame, coordinatesOffset, on_preload_finished){
     
     this.on_subitem_preload_finished = function(on_preload_finished){
         if (this.preloaded()){
-            
-            logger.log(`finished preloading ${this.frameInfo.scene} ${this.frameInfo.frame}`);
+
+            logger.log(`finished preloading folder ${this.frameInfo.scene}, scene ${this.frameInfo.frame}`);
 
             this.calcTransformMatrix();
 

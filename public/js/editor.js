@@ -112,7 +112,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     this.data.set_webglScene(this.scene, this.mainScene);
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: false,
       preserveDrawingBuffer: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -158,9 +158,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     );
     //this.controlGui = this.init_gui();
 
-    this.axis = new THREE.AxesHelper(1);
+    // Move axis helper to view.js...
+    // this.axisHelper = new THREE.AxesHelper(2);
+    // this.scene.add(this.axisHelper);
+    const geometry = new THREE.SphereGeometry(0.25, 64, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    let origin_sphere = new THREE.Mesh(geometry, material);
 
-    this.scene.add(this.axis);
+    this.scene.add(origin_sphere);
 
     window.addEventListener(
       "resize",
