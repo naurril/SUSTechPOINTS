@@ -26,7 +26,7 @@ def convert_pcd(las: laspy.LasData, road_pts: np.ndarray, filename: str) -> None
     pcd = o3d.geometry.PointCloud()
     
     las_xyz = las.xyz
-    las_xyz -= road_pts[road_pts.shape[0] // 2, :] # Center point cloud
+    # las_xyz -= road_pts[road_pts.shape[0] // 2, :] # Center point cloud
     
     pcd.points = o3d.utility.Vector3dVector(las_xyz)
     print("Points loaded.")
