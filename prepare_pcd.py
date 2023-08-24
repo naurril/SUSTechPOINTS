@@ -4,6 +4,7 @@ import gen_traj
 import argparse
 import open3d as o3d
 import numpy as np
+import matplotlib
 
 import os
 import sys
@@ -25,23 +26,43 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))
 
 
 def convert_pcd(las: laspy.LasData, filename: str) -> None:
+
+    # LiDAR data on a road should not have any RGB colors
+    # KITTI data should not have an intensity field attached to it
+    is_road = False
+
+    # Determine type of input file
+    try:
+        _ = las.red
+        _ = las.green
+        _ = las.blue
+    except AttributeError:
+        if not np.all(las.intensity) == 0:
+            is_road = True
+    
+    
     pcd = o3d.geometry.PointCloud()
-
+    # Assign points
     las_xyz = las.xyz
-
     pcd.points = o3d.utility.Vector3dVector(las_xyz)
 
-    import matplotlib
+    # Assign colors depending on the input file
+    if not is_road:
+        # Transfer RGB values from the already colored point cloud
+        las_rgb = np.vstack((las.red, las.green, las.blue)).T / 65535 # Normalize to [0, 1]
+        pcd.colors = o3d.utility.Vector3dVector(las_rgb)
+    else:
+        # Apply a gray colormap onto the road itself
+        las_intensity = las.intensity
+        
+        # Normalize intensity values to [0, 1], then assign RGB values
+        normalizer = matplotlib.colors.Normalize(
+            np.min(las_intensity), np.max(las_intensity))
+        las_rgb = matplotlib.cm.gray(normalizer(las_intensity))[:, :-1]
+        # cmap(las_intensity) returns RGBA, cut alpha channel
+        pcd.colors = o3d.utility.Vector3dVector(las_rgb)
 
-    las_intensity = las.intensity
-
-    # Normalize intensity values to [0, 1], then assign RGB values
-    normalizer = matplotlib.colors.Normalize(
-        np.min(las_intensity), np.max(las_intensity))
-    las_rgb = matplotlib.cm.gray(normalizer(las_intensity))[:, :-1]
-    # cmap(las_intensity) returns RGBA, cut alpha channel
-    pcd.colors = o3d.utility.Vector3dVector(las_rgb)
-
+    # Write the file
     output_folder = os.path.join(ROOT2, "data/two/lidar")
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -81,8 +102,6 @@ def write_pcd_to_lidar(las: laspy.LasData, filename: str, las_filename: str) -> 
     o3d.io.write_point_cloud(output_path, pcd, print_progress=True)
     print(f"\nDone!\nFile was saved to {output_path}.")
     return
-
-# Obtains raw las data that we will convert on
 
 
 def open_las(args: argparse.Namespace):
