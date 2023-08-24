@@ -42,20 +42,25 @@ def get_one_scene(s):
     scene_dir = os.path.join(root_dir, s)
     frames = os.listdir(os.path.join(scene_dir, "lidar"))
     las_files = None
-    # try:
-    #     las_files = os.listdir(os.path.join(scene_dir, "las_files"))
-    # except FileNotFoundError:
-    #     print("no las files")
+    try:
+        las_files = os.listdir(os.path.join(scene_dir, "las_files"))
+    except FileNotFoundError:
+        print("no las files")
 
-    # if las_files:
-    #     for file in las_files:
-    #         _, ext = os.path.splitext(file)
-    #         if ext != '.las':
-    #             continue
-    #         file_path = os.path.join(scene_dir, "las_files", file)
-    #         filenames = [f'{file}_converted.pcd']
-    #         if file not in frames and filename not in frames:
-    #             prepare_pcd.convert_for_server(file_path)
+    if las_files:
+        for file in las_files:
+            filename_cut, ext = os.path.splitext(os.path.basename(file))
+            if ext != '.las':
+                continue
+            
+            file_path = os.path.join(scene_dir, "las_files", file)
+            pcd_name = os.path.join(scene_dir, "lidar", f'{filename_cut}_converted.pcd')
+            
+            if not os.path.isfile(pcd_name):
+                prepare_pcd.convert_for_server(file_path)
+                json_name = os.path.join(scene_dir, "label", f'{filename_cut}_converted.json')
+                with open(json_name,'w') as f:
+                    json.dump([], f)
 
     frames = os.listdir(os.path.join(scene_dir, "lidar"))
     frames.sort()
