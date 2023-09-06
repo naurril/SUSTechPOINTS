@@ -589,7 +589,45 @@ if authcfg['global']['auth'] == 'yes':
         'tools.check_user_access.default': True,
         },
     }
+else:
+    for d in ['camera', 'lidar', 'radar', 'aux_camera', 'aux_lidar', 'lidar_pose', 'calib']:
+        root_config['/data/'+d] = {
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': dataset_cfg[d],
+        'tools.caching.on': True,
+        'tools.gzip.on': True,
+        'tools.etags.on': True,
+        'tools.etags.autotags': True,
+        'tools.response_headers.on': True,
+        'tools.response_headers.headers': [
+                 ('cache-control', 'public, max-age=604800')
+             ],
+        'tools.check_file_access.on': True,
+        'tools.check_file_access.default': True,
+      }
 
+    root_config['/data'] = {
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': datacfg['global']['rootdir'],
+        'tools.caching.on': True,
+        'tools.gzip.on': True,
+        'tools.etags.on': True,
+        'tools.etags.autotags': True,
+        'tools.response_headers.on': True,
+        'tools.response_headers.headers': [
+                 ('cache-control', 'public, max-age=604800')
+             ],
+        'tools.check_file_access.on': True,
+        'tools.check_file_access.default': True,
+      }
+  
+    api_config = {
+      '/':{
+        'tools.check_user_access.on': True,
+        'tools.check_user_access.default': True,
+        },
+    }
+    
 cherrypy.tree.mount(Root(), "/", root_config)
 cherrypy.tree.mount(Api(), "/api", api_config)
 
