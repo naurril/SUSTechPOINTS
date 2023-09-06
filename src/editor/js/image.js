@@ -1331,6 +1331,11 @@ function boxTo2dPoints (box, calib) {
 // points3d is length 4 row vector, homogeneous coordinates
 // returns 2d row vectors
 function points3dHomoToImage2d (points3d, calib, acceptPartial = false, saveMap, imageDx, imageDy) {
+
+  if (!calib || !calib.extrinsic) {
+    return null;
+  }
+  
   let imgpos = matmul(calib.extrinsic, points3d, 4);
   const posInCameraSpace = imgpos;
 

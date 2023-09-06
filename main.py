@@ -149,14 +149,14 @@ def build_dataset_cfgs():
   dir_org = datacfg['global']['dirorg'] if 'dirorg' in datacfg['global'] else 'by_scene'
   
   if dir_org == 'by_scene':
-    root = datacfg['global']['rootdir'] 
+    root = os.path.abspath(datacfg['global']['rootdir'])
     for d in ['lidar',  'label', 'camera', 'calib', 'aux_lidar', 'aux_camera', 'radar', 'desc', 'meta','label_fusion', 'lidar_pose']:
       dataset_cfg[d] = datacfg['global'][d] if d in datacfg['global'] else root
     dataset_cfg['root'] = root
     
   elif dir_org == 'by_data_folder':
 
-    root = datacfg['global']['rootdir'] 
+    root = os.path.abspath(datacfg['global']['rootdir'])
 
 
     for d in ['lidar',  'label', 'camera', 'calib', 'aux_lidar', 'aux_camera', 'radar', 'desc', 'meta','label_fusion', 'lidar_pose']:
