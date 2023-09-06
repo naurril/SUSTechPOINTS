@@ -102,6 +102,7 @@ if __name__=="__main__":
         stat[k] = {
             'size_mean': np.mean(obj_stat[k]['size'], axis=0).tolist(),
             'size_std': np.std(obj_stat[k]['size'], axis=0).tolist(),
+            'count': obj_stat[k]['size'].shape[0],
         }
 
     # save mean and std into a json file

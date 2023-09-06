@@ -22,22 +22,22 @@ export function FrameInfo (data, sceneMeta, sceneName, frame) {
   //         this.annotation_format = annotation_format;
   // };
   this.get_pcd_path = function () {
-    return 'data/' + this.scene + '/lidar/' + this.frame + this.sceneMeta.lidar_ext + '?token=' + window.pointsGlobalConfig.userToken;
+    return 'data/lidar/' + this.scene + '/lidar/' + this.frame + this.sceneMeta.lidar_ext + '?token=' + window.pointsGlobalConfig.userToken;
   };
   this.get_radar_path = function (name) {
-    return `data/${this.scene}/radar/${name}/${this.frame}${this.sceneMeta.radar_ext}?token=${window.pointsGlobalConfig.userToken}`;
+    return `data/radar/${this.scene}/radar/${name}/${this.frame}${this.sceneMeta.radar_ext}?token=${window.pointsGlobalConfig.userToken}`;
   };
   this.get_aux_lidar_path = function (name) {
-    return `data/${this.scene}/aux_lidar/${name}/${this.frame}${this.sceneMeta.radar_ext}?token=${window.pointsGlobalConfig.userToken}`;
+    return `data/aux_lidar/${this.scene}/aux_lidar/${name}/${this.frame}${this.sceneMeta.radar_ext}?token=${window.pointsGlobalConfig.userToken}`;
   };
 
   this.get_egopose_path = function () {
-    return `data/${this.scene}/lidar_pose/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
+    return `data/lidar_pose/${this.scene}/lidar_pose/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
   };
 
-  this.get_calib_path = function (sensortype, sensorname) {
-    return `data/${this.scene}/calib/${sensortype}/${sensorname}/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
-  };
+  // this.get_calib_path = function (sensortype, sensorname) {
+  //   return `data/calib/${this.scene}/calib/${sensortype}/${sensorname}/${this.frame}.json?token=${window.pointsGlobalConfig.userToken}`;
+  // };
 
   this.get_anno_path = function () {
     if (this.annotation_format === 'psr') {

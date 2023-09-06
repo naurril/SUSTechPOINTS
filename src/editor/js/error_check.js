@@ -1,9 +1,9 @@
 import { jsonrpc } from './jsonrpc.js';
 import { logger } from './log.js';
 
-function check3dLabels (scene) {
-  jsonrpc(`/api/check3dlabels?scene=${scene}`).then(ret => {
-    logger.setErrorsContent(ret);
+function check3dLabels (scene, objid='') {
+  jsonrpc(`/api/check3dlabels?scene=${scene}&objid=${objid}`).then(ret => {
+    logger.setErrorsContent(ret, objid);
   }).catch(reject => {
     logger.log('error check scene!');
   });

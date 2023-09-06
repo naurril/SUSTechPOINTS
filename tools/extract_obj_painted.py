@@ -21,7 +21,7 @@ parser.add_argument('--cameras', type=str, default='front,front_right,front_left
 parser.add_argument('--range', type=float, default=20, help="")
 parser.add_argument('--ground_level', type=float, default=0, help="")
 
-parser.set_defaults(mirror=True)
+parser.set_defaults(mirror=False)
 parser.add_argument('--mirror', action='store_true')
 parser.add_argument('--no-mirror', dest='mirror', action='store_false')
 
@@ -223,8 +223,7 @@ def proc_scene(scene_name):
         os.makedirs(output_path)
 
     for id,objtype in all_objids:
-
-        if not re.fullmatch(args.objids, id):
+        if not re.fullmatch(args.objids, str(id)):
             continue
 
         candidate_frames = sc.meta['frames']

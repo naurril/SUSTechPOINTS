@@ -11,8 +11,6 @@ parser = argparse.ArgumentParser(description='adjust ego pose')
 parser.add_argument('data', type=str, help="")
 parser.add_argument('--lidar', type=str, default="", help="")
 parser.add_argument('--scenes', type=str, default=".*", help="")
-parser.add_argument('--output', type=str, default='./output', help="")
-
 args = parser.parse_args()
 
 def draw_registration_result(source, target, transformation):
@@ -29,12 +27,14 @@ def draw_registration_result(source, target, transformation):
 
 def register_2_point_clouds(source, target, trans_init):
     """register 2 point clouds using ICP """
-    voxel_radius = [0.2, 0.1, 0.05]
-    max_iter = [50, 30, 14]
+    return trans_init
 
     if trans_init is None:
         trans_init = np.identity(4)
-    threshold = 0.1
+
+    trans_init_copy = copy.deepcopy(trans_init)
+
+    threshold = 0.05
 
     try:
         reg_p2p = o3d.pipelines.registration.registration_icp(
@@ -43,6 +43,10 @@ def register_2_point_clouds(source, target, trans_init):
             o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration=2000))
         
         # draw_registration_result(source, target, reg_p2p.transformation)
+        print(reg_p2p)
+
+        if reg_p2p.fitness < 0.5: # too little correspondences
+            return trans_init_copy
         return reg_p2p.transformation
     except:
         raise
@@ -51,8 +55,8 @@ def register_2_point_clouds(source, target, trans_init):
 
 def remove_objects(pts, objs):
     
-    # remove egocar head
-    filter = (pts[:,1] > 4) | (pts[:,1] < -4)
+    # remove egocar head & tail
+    filter = (pts[:,1] > 4) | (pts[:,1] < -4) | (pts[:,0] > 2) | (pts[:,0] < -2)
 
     for obj in objs:
         filter = filter & remove_box(pts[:, :3], obj, 0, 1.1) 

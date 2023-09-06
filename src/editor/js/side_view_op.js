@@ -742,6 +742,9 @@ class ProjectiveView {
         this.onMoved({ x: 0, y: -this.getMoveStep(event) });
         this.hideButtons(true);
         break;
+      case ' ':
+        this.onAutoShrink();
+        break;
       case 'a':
         if (event.ctrlKey) {
           break;

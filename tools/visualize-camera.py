@@ -9,7 +9,7 @@ import argparse
 import re
 
 parser = argparse.ArgumentParser(description='')        
-parser.add_argument('data_folder', type=str, default='./data', help="")
+parser.add_argument('data', type=str, default='./data', help="")
 parser.add_argument('scene', type=str, default='', help="")
 parser.add_argument('camera_type', type=str, default='', help="")
 parser.add_argument('camera', type=str, default='', help="")
@@ -17,8 +17,8 @@ parser.add_argument('output_folder', type=str, default='', help="")
 parser.add_argument('--line_width', type=int, default=1, help="")
 parser.add_argument('--radar', type=str, choices=['yes','no'],default='no', help="")
 parser.add_argument('--obj_type_filter', type=str, default='.*')
-parser.add_argument('--frame_filter', type=str, default='.*')
-parser.add_argument('--overwrite_file', type=str,  choices=['yes','no'], default='no')
+parser.add_argument('--frames', type=str, default='.*')
+parser.add_argument('--overwrite', type=str,  choices=['yes','no'], default='no')
 
 args = parser.parse_args()
 
@@ -26,14 +26,14 @@ args = parser.parse_args()
 ###############################
 # config 
 
-rootdir = os.path.join(args.data_folder, args.scene)
+rootdir = os.path.join(args.data, args.scene)
 camera_type = args.camera_type
 camera = args.camera
 linewidth = args.line_width  #box line width
 obj_type_filter = args.obj_type_filter
 
 targetdir = args.output_folder
-frame_filter = args.frame_filter
+frame_filter = args.frames
 
 
 target_folder =os.path.join(targetdir, args.scene, camera_type, camera)
@@ -244,11 +244,11 @@ for f in frames:
 
     print(frameid)
 
-    labels = []
+    label = []
     json_file = os.path.join(labelfolder, labelfile)
     if os.path.exists(json_file):
         with open(json_file) as tempfile:
-            labels  = json.load(tempfile)
+            label  = json.load(tempfile)
     else:
         print("label doen't exists")
 
@@ -277,7 +277,7 @@ for f in frames:
     imgcanvas = np.zeros(img.shape, dtype=img.dtype)
     imgcanvas_headplane = np.zeros(img.shape, dtype=img.dtype)
     color_index = 0
-    for l in labels:
+    for l in label['objs']:
         #color = get_color(l["obj_id"])
         obj_type = l['obj_type']
         if not re.fullmatch(args.obj_type_filter, obj_type):
@@ -366,7 +366,7 @@ for f in frames:
     
 
     target_file = os.path.join(target_folder, "{0:s}.jpg".format(frameid))
-    if os.path.exists(target_file) and args.overwrite_file == 'no':
+    if os.path.exists(target_file) and args.overwrite == 'no':
         print('file exists', target_file)
         continue
     else:

@@ -180,6 +180,10 @@ class PopupDialog extends MovableView {
     this.onExit = onexit;
     // this.ui.focus();
   }
+
+  visible () {
+    return this.ui.style.display === 'inherit'
+  }
 }
 
 export { PopupDialog, ResizableMoveableView, MovableView };

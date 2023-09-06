@@ -609,7 +609,7 @@ function BoxOp () {
     }
   };
 
-  this.interpolateAsync = async function (worldList, boxList, applyIndList) {
+  this.interpolateAsync = async function (worldList, boxList, applyIndList, ignoreEmpty) {
     // if annotator is not null, it's annotated by us algorithms
     const anns = boxList.map(b => (!b || b.annotator) ? null : b.world.annotation.ann_to_vector_global(b));
     console.log(anns);
@@ -643,15 +643,18 @@ function BoxOp () {
 
       if (!boxList[i]) {
         // create new box
-        const newBox = world.annotation.addBox(ann.position,
-          ann.scale,
-          ann.rotation,
-          objType,
-          objId,
-          objAttr);
-        newBox.annotator = 'i';
-        world.annotation.load_box(newBox);
-        world.annotation.setModified();
+        if (!ignoreEmpty || world.lidar.getBoxPointsNumber(ann) > window.editor.editorCfg.maxEmptyBoxPoints) {
+            const newBox = world.annotation.addBox(ann.position,
+            ann.scale,
+            ann.rotation,
+            objType,
+            objId,
+            objAttr);
+          newBox.annotator = 'i';
+          world.annotation.load_box(newBox);
+          world.annotation.setModified();
+        }
+        
       } else if (boxList[i].annotator) {
         // modify box attributes
         const b = ann;

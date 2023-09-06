@@ -264,7 +264,11 @@
 									<div class="menu-item" id="cm-interpolate-background">
 										<div class="menu-item-icon"></div>
 										<div class="menu-item-text">interpolate it in background</div>
-									</div>			
+									</div>
+									<div class="menu-item" id="cm-re-interpolate-background">
+										<div class="menu-item-icon"></div>
+										<div class="menu-item-text">re-interpolate all in background</div>
+									</div>	
 		
 									<div class="menu-item menu-seperator"></div>
 									<div class="menu-item" id="cm-select-as-ref">
@@ -657,6 +661,8 @@
 							<div class="menu-item-text">Int<u>e</u>rpolate</div>
 						</div>
 
+
+
 						<div class="menu-item" id="cm-auto-annotate">
 							<div class="menu-item-icon">							
 							</div>
@@ -710,7 +716,17 @@
 
 						<div class="menu-item" id="cm-reset-roll-pitch">
 							<div class="menu-item-icon"></div>
-							<div class="menu-item-text">Reset roll & pitch</div>
+							<div class="menu-item-text">Reset roll (x) & pitch (y)</div>
+						</div>
+
+						<div class="menu-item" id="cm-reset-yaw">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">Reset yaw (z)</div>
+						</div>
+
+						<div class="menu-item" id="cm-edit-attr">
+							<div class="menu-item-icon"></div>
+							<div class="menu-item-text">Edit attributes</div>
 						</div>
 
 						<div class="menu-item" id="cm-finalize">
@@ -735,6 +751,11 @@
 
 						<div class="menu-item" id="cm-sync-size">
 							<div class="menu-item-text">Sync size to all</div>
+						</div>
+						<div class="menu-item" id="cm-interpolate-all-others">
+							<div class="menu-item-icon">							
+							</div>
+							<div class="menu-item-text">Re-interpolate all others</div>
 						</div>
 
 						<div class="menu-item" id="cm-reset-size">
@@ -1049,7 +1070,7 @@
 
 					<div class="menu-item menu-seperator"></div>				
 				</div -->
-				<div id="object-track-wrapper" class="popup-window-wrapper" tabindex="-1">
+				<div id="object-track-wrapper" class="popup-window-wrapper">
 					<div id="view" class="non-selectable">
 						<div id="header">
 							<span id="title">
@@ -1057,18 +1078,16 @@
 							</span>
 							
 							<div id="buttons">
-								<div id="btn-restore" class="ui-button"  title="restore">
-									<!-- <span class="ui-icon ui-icon-trash"></span> -->
+								<!-- <div id="btn-restore" class="ui-button"  title="restore">
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
 										<rect x = 6 y = 6 width=12 height=12></rect>
 									</g></svg>
 								</div>
 								<div id="btn-maximize" class="ui-button"  title="maximize">
-									<!-- <span class="ui-icon ui-icon-trash"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>
 										<rect x = 4 y = 4 width=16 height=16></rect>
 									</g></svg>
-								</div>
+								</div> -->
 								<div id="btn-exit" class="ui-button"  title="exit">
 									<!-- <span class="ui-icon ui-icon-trash"></span> -->
 									<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="svg-button"><g>

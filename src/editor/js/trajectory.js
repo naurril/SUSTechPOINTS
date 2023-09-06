@@ -161,7 +161,16 @@ class Trajectory extends PopupDialog {
 
     let scale = Math.max(maxX - minX, maxY - minY);
 
-    if (scale === 0) { scale = 1; } else { scale = 800 / scale; } // svg view is 1000*1000
+    if (scale < 0.001){
+      scale = 0.001
+    }
+
+
+    if (scale === 0) { 
+      scale = 1; 
+    } else { 
+      scale = 800 / scale; 
+    } // svg view is 1000*1000
 
     this.posScale = scale;
     this.posTrans = {
@@ -182,22 +191,41 @@ class Trajectory extends PopupDialog {
     ];
   }
 
+  highlightOneTrack(frameid){
+    const svg = this.ui.querySelector('#svg-arrows');
+    const g = svg.querySelector(`#track-${frameid.replace('.', '-')}`);
+    if (g) {
+      g.setAttribute('class', 'one-track object-track-highlight-frame');
+    }
+    
+  }
+
+  unhighlightOneTrack(frameid){
+    const svg = this.ui.querySelector('#svg-arrows');
+    const g = svg.querySelector(`#track-${frameid.replace('.', '-')}`);
+    if (g) {
+      g.setAttribute('class', 'one-track');
+    }
+    
+  }
+
   drawOneTrace (x, y, orgX, orgY, theta, label, highlight) {
     const svg = this.ui.querySelector('#svg-arrows');
 
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.innerHTML = `<title>${label}</title>`;
     g.setAttribute('class', 'one-track');
+    g.setAttribute('id', `track-${label.replace('.', '-')}`);
 
     g.ondblclick = (e) => {
       if (this.funcOnExit) {
-        this.hide();
+        //this.hide();
         this.funcOnExit(label);
       }
     };
 
     if (highlight) {
-      g.setAttribute('class', 'one-track object-track-current-frame');
+      g.setAttribute('class', 'one-track object-track-highlight-frame');
     }
 
     svg.appendChild(g);

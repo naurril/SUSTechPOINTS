@@ -23,7 +23,8 @@ from cherrypy.lib import auth_digest
 from jinja2 import Environment, FileSystemLoader
 env = Environment(loader=FileSystemLoader('./'))
 
-import scene_reader
+# import scene_reader
+import dataset
 from tools  import check_labels as check
 from tools  import check_fusion_labels as check_fusion
 from cherrypy.process.plugins import Monitor
@@ -36,7 +37,6 @@ args = parser.parse_args()
 datacfg_file = 'conf/data.conf'
 datacfg = configparser.ConfigParser()
 datacfg.read(datacfg_file)
-print(datacfg['global']['rootdir'])
 
 
 usercfg_file = 'conf/user.conf'
@@ -140,9 +140,38 @@ from algos import pre_annotate as pre_annotate
 # sys.path.append(os.path.join(BASE_DIR, './tools'))
 # import tools.dataset_preprocess.crop_scene as crop_scene
 
-def prepare_dirs(path):
-    if not os.path.exists(path):
-            os.makedirs(path)
+
+
+def build_dataset_cfgs():
+  dataset_cfg={}
+
+
+  dir_org = datacfg['global']['dirorg'] if 'dirorg' in datacfg['global'] else 'by_scene'
+  
+  if dir_org == 'by_scene':
+    root = datacfg['global']['rootdir'] 
+    for d in ['lidar',  'label', 'camera', 'calib', 'aux_lidar', 'aux_camera', 'radar', 'desc', 'meta','label_fusion', 'lidar_pose']:
+      dataset_cfg[d] = datacfg['global'][d] if d in datacfg['global'] else root
+    dataset_cfg['root'] = root
+    
+  elif dir_org == 'by_data_folder':
+
+    root = datacfg['global']['rootdir'] 
+
+
+    for d in ['lidar',  'label', 'camera', 'calib', 'aux_lidar', 'aux_camera', 'radar', 'desc', 'meta','label_fusion', 'lidar_pose']:
+      dataset_cfg[d] = datacfg['global'][d] if d in datacfg['global'] else (root + '/' + d)
+    
+    dataset_cfg['root'] = root
+    
+  else:
+    print("data cfg error.")
+  
+  return dataset_cfg
+
+dataset_cfg = build_dataset_cfgs()
+
+dataset= dataset.Dataset(dataset_cfg)
 
             
 class Root(object):
@@ -152,7 +181,7 @@ class Root(object):
       return tmpl.render()
   
     def user(self, token=""):
-      tmpl = env.get_template('./build/index.html')
+      tmpl = env.get_template('./build/in`dex.html')
       return tmpl.render()
     # @cherrypy.expose
     # def icon(self):
@@ -210,9 +239,11 @@ class Api(object):
             logging.info("saving disabled for " + userid)
             return {'result':"fail", 'cause':"saving disabled for current user"}
 
-          logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
-          with open(os.path.join(datacfg['global']['rootdir'], scene, "label", frame+".json"),'w') as f:
-            json.dump(d, f, indent=2, sort_keys=True)
+          logging.info(userid +','+ scene +','+ frame +','+ 'saving') 
+
+          dataset.save_annotations(scene, frame, d)
+          # with open(os.path.join(datacfg['global']['rootdir'], scene, "label", frame+".json"),'w') as f:
+          #   json.dump(d, f, indent=2, sort_keys=True)
           
         return {'result':"success"}
       else:
@@ -258,8 +289,8 @@ class Api(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def check3dlabels(self, scene):
-      ck = check.LabelChecker(os.path.join(datacfg['global']['rootdir'], scene))
+    def check3dlabels(self, scene, objid):
+      ck = check.LabelChecker(dataset_cfg, scene, objid, './stat.json')
       ck.check()
       #print(ck.messages)
       return ck.messages
@@ -302,19 +333,19 @@ class Api(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def loadAnnotation(self, scene, frame):
-      return scene_reader.read_annotations(datacfg['global']['rootdir'], scene, frame)
+      return dataset.read_annotations(scene, frame)
 
 
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def load_image_annotation(self, scene, frame, camera_type, camera_name):
-      return scene_reader.read_image_annotations(datacfg['global']['rootdir'], scene, frame, camera_type, camera_name)
+      return dataset.read_image_annotations(scene, frame, camera_type, camera_name)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def load_all_image_annotation(self, scene, frame, cameras, aux_cameras):
-      return scene_reader.read_all_image_annotations(datacfg['global']['rootdir'], scene, frame, cameras, aux_cameras)
+      return dataset.read_all_image_annotations(scene, frame, cameras, aux_cameras)
 
 
     @cherrypy.expose    
@@ -341,10 +372,9 @@ class Api(object):
           logging.info("saving disabled for " + userid)
           return {'result':"fail", 'cause':"saving disabled for current user"}
 
-        logging.info(userid +','+ scene +','+ frame +','+ 'saved') 
-        prepare_dirs(os.path.join(datacfg['global']['rootdir'], scene, "label_fusion", d['cameraType'], d['cameraName']))
-        with open(os.path.join(datacfg['global']['rootdir'], scene, "label_fusion", d['cameraType'], d['cameraName'], frame+".json"),'w') as f:
-          json.dump(d, f, indent=2, sort_keys=True)
+        logging.info(userid +','+ scene +','+ frame +','+ 'saving') 
+
+        dataset.save_iamge_annotation(scene, frame, d['cameraType'], d['cameraName'], d)
           
         return {'result':"success"}
       else:
@@ -360,7 +390,7 @@ class Api(object):
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def load_calib(self, scene, frame):
-      return scene_reader.read_calib(datacfg['global']['rootdir'], scene, frame)
+      return dataset.read_calib(scene, frame)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
@@ -379,45 +409,10 @@ class Api(object):
       anns = list(map(lambda w:{
                       "scene": w["scene"],
                       "frame": w["frame"],
-                      "annotation":scene_reader.read_annotations(datacfg['global']['rootdir'], w["scene"], w["frame"])},
+                      "annotation":dataset.read_annotations(w["scene"], w["frame"])},
                       worldlist))
 
       return anns
-        
-
-    # @cherrypy.expose    
-    # @cherrypy.tools.json_out()
-    # def auto_adjust(self, scene, ref_frame, object_id, adj_frame):
-      
-    #   #os.chdir("./temp")
-    #   os.system("rm ./temp/src.pcd ./temp/tgt.pcd ./temp/out.pcd ./temp/trans.json")
-
-
-    #   tgt_pcd_file = "./data/"+scene +"/lidar/"+ref_frame+".pcd"
-    #   tgt_json_file = "./data/"+scene +"/label/"+ref_frame+".json"
-
-    #   src_pcd_file = "./data/"+scene +"/lidar/"+adj_frame+".pcd"      
-    #   src_json_file = "./data/"+scene +"/label/"+adj_frame+".json"
-
-    #   cmd = extract_object_exe +" "+ src_pcd_file + " " + src_json_file + " " + object_id + " " +"./temp/src.pcd"
-    #   print(cmd)
-    #   os.system(cmd)
-
-    #   cmd = extract_object_exe + " "+ tgt_pcd_file + " " + tgt_json_file + " " + object_id + " " +"./temp/tgt.pcd"
-    #   print(cmd)
-    #   os.system(cmd)
-
-    #   cmd = registration_exe + " ./temp/tgt.pcd ./temp/src.pcd ./temp/out.pcd ./temp/trans.json"
-    #   print(cmd)
-    #   os.system(cmd)
-
-    #   with open("./temp/trans.json", "r") as f:
-    #     trans = json.load(f)
-    #     print(trans)
-    #     return trans
-
-    #   return {}
-
 
 
     @cherrypy.expose    
@@ -436,66 +431,10 @@ class Api(object):
       }
 
 
-    # @cherrypy.expose    
-    # @cherrypy.tools.json_out()
-    # def loadtag(self, scene, frame):
-    #   file = "./data/"+scene +"/meta/"+frame+".json"
-    #   tag = None
-    #   if os.path.exists(file):
-    #     with open(file,'r') as f:
-    #       tag = json.load(f)
-      
-    #   return tag 
-
-
-
-    # @cherrypy.expose
-    # @cherrypy.tools.json_out()
-    # def savetag(self):
-
-    #   if args.save=='yes':
-
-
-    #     userid = get_user_id()
-    #     print(userid, 'saving tag')
-        
-    #     # cl = cherrypy.request.headers['Content-Length']
-    #     rawbody = cherrypy.request.body.readline().decode('UTF-8')
-    #     data = json.loads(rawbody)
-        
-    #     if 'editmeta' in usercfg[userid] and usercfg[userid]['editmeta'] == 'yes':
-
-    #         frame = data['frame'] #url_path[len(url_path)-1]        
-    #         scene = data['scene']# url_path[len(url_path)-3]
-
-    #         # if not os.path.exists(os.path.join('data',scene, 'meta')):
-    #         #     os.mkdir(os.path.join('data',scene, 'meta'))
-
-    #         if "overwrite" in data:
-    #             overwrite = data['overwrite']
-    #         else:
-    #             overwrite = True  #default to true
-            
-    #         if overwrite:
-    #             updated = tag.update_tag("./data", scene, frame, data['data'])
-    #         else:
-    #             updated = tag.add_tag("./data", scene, frame, data['data'])
-                
-    #         logging.info(userid+","+scene+","+frame+", saved tag.")
-    #         return {'result':"success", "data":updated}
-    #     else:
-    #         logging.info(userid+","+scene+","+frame+", saved tag rejected.")
-    #         return {'result':"fail", 'cause': 'not permited for user'}
-    #   else:
-        
-    #     print("saving disabled.")
-    #     return {'result':"fail", 'cause':"saving tag disabled"}
-
-
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def scenemeta(self, scene):
-      meta = scene_reader.get_one_scene(datacfg['global']['rootdir'], scene)
+      meta = dataset.get_one_scene(scene)
       return meta
 
     @cherrypy.expose    
@@ -511,105 +450,17 @@ class Api(object):
       else:
         scenes = ".*"
 
-      return scene_reader.get_all_scene_desc(datacfg['global']['rootdir'], scenes)
+      return dataset.get_all_scene_desc(scenes)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def queryFrames(self, scene, objtype, objattr):
-      return self.get_frames_by_objtype(os.path.join(datacfg['global']['rootdir'],scene), objtype, objattr)
-
-    def get_frames_by_objtype(self, path, objtype, objattr):
-
-      objtypes = objtype.split(",") if objtype else []
-      label_folder = os.path.join(path, "label")
-      if not os.path.isdir(label_folder):
-        return []
-        
-      files = os.listdir(label_folder)      
-      files.sort()
-      files = filter(lambda x: x.split(".")[-1]=="json", files)
-
-      print('query', objtypes, objattr)
-
-      def contain_objs(f):
-          if  not os.path.exists(f):
-            return False
-          with open(f) as fd:
-            try:
-              ann = json.load(fd)
-              if 'objs' in ann:
-                boxes = ann['objs']
-              else:
-                boxes = ann
-
-              for b in boxes:
-                if objtypes and not b['obj_type'] in objtypes:
-                  continue
-                  
-                if objattr and (not 'obj_attr' in b  or not objattr in b['obj_attr']):
-                  continue
-              
-                return True
-
-            except:
-              print(f, 'load failed')
-              return False
-
-          return False
-
-      files = filter(lambda f: contain_objs(os.path.join(path, "label", f)), files)
-      frames = map(lambda x: os.path.splitext(x)[0], files)
-
-      return list(frames)
+      return dataset.get_frames_by_objtype(scene, objtype, objattr)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
     def objs_of_scene(self, scene):
-      return self.get_all_objs(os.path.join(datacfg['global']['rootdir'],scene))
-
-    def get_all_objs(self, path):
-      label_folder = os.path.join(path, "label")
-      if not os.path.isdir(label_folder):
-        return []
-        
-      files = os.listdir(label_folder)
-
-      files = filter(lambda x: x.split(".")[-1]=="json", files)
-
-
-      def file_2_objs(f):
-          if  not os.path.exists(f):
-            return []
-          with open(f) as fd:
-              ann = json.load(fd)
-              if 'objs' in ann:
-                boxes = ann['objs']
-              else:
-                boxes = ann
-              objs = [x for x in map(lambda b: {"category":b["obj_type"], "id": b["obj_id"]}, boxes)]
-              return objs
-
-      boxes = map(lambda f: file_2_objs(os.path.join(path, "label", f)), files)
-
-      # the following map makes the category-id pairs unique in scene
-      all_objs={}
-      for x in boxes:
-          for o in x:
-              
-              k = str(o["category"])+"-"+str(o["id"])
-
-              if all_objs.get(k):
-                all_objs[k]['count']= all_objs[k]['count']+1
-              else:
-                all_objs[k]= {
-                  "category": o["category"],
-                  "id": o["id"],
-                  "count": 1
-                }
-
-      return [x for x in  all_objs.values()]
-
-
+      return dataset.get_all_objs(scene)
 
 
 cherrypy.config.update("./conf/server.conf")
@@ -624,36 +475,55 @@ if authcfg['global']['auth'] == 'yes':
 
 
 root_config = {
-  '/':{
-  'tools.sessions.on': True,
-  'tools.staticdir.root': os.path.abspath(os.getcwd()),
-  },
+  # '/':{
+  # 'tools.sessions.on': True,
+  # 'tools.staticdir.root': os.path.abspath(os.getcwd()),
+  # },
 
   '/static':{
     'tools.staticdir.on': True,
     'tools.staticdir.dir': './build/static',
+    'tools.staticdir.root': os.path.abspath(os.getcwd()),
   },
 
   '/editor':{
     'tools.staticdir.on': True,
     'tools.staticdir.dir':"./build/editor",
+    'tools.staticdir.root': os.path.abspath(os.getcwd()),
   },
 
   '/help':{
     'tools.staticdir.on': True,
     'tools.staticdir.dir':"./help",
+    'tools.staticdir.root': os.path.abspath(os.getcwd()),
   }
 }
 
 
-root_config['/data'] = {
-      'tools.staticdir.on': True,
-      'tools.staticdir.dir': datacfg['global']['rootdir'],
-    }
+# root_config['/data'] = {
+#       'tools.staticdir.on': True,
+#       'tools.staticdir.dir': datacfg['global']['rootdir'],
+#     }
 api_config = {}
 
 if authcfg['global']['auth'] == 'yes':
   if authcfg['global']['method'] == 'password':
+    for d in ['camera', 'lidar', 'radar', 'aux_camera', 'aux_lidar', 'lidar_pose', 'calib']:
+        root_config['/data/'+d] = {
+          'tools.staticdir.on': True,
+          'tools.staticdir.dir': dataset_cfg[d],
+          'tools.caching.on': True,
+
+          'tools.auth_digest.on': True,
+          'tools.auth_digest.realm': 'localhost',
+          'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain(usercfg["users"]),
+          'tools.auth_digest.key': authcfg['password']['key'],
+          'tools.auth_digest.accept_charset': 'UTF-8',
+          
+          'tools.check_file_access.on': True,
+          'tools.check_file_access.default': True,
+
+        }
     root_config['/data'] = {
         'tools.staticdir.on': True,
         'tools.staticdir.dir': datacfg['global']['rootdir'],
@@ -682,6 +552,22 @@ if authcfg['global']['auth'] == 'yes':
         },
     }
   else: #token
+    for d in ['camera', 'lidar', 'radar', 'aux_camera', 'aux_lidar', 'lidar_pose', 'calib']:
+        root_config['/data/'+d] = {
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': dataset_cfg[d],
+        'tools.caching.on': True,
+        'tools.gzip.on': True,
+        'tools.etags.on': True,
+        'tools.etags.autotags': True,
+        'tools.response_headers.on': True,
+        'tools.response_headers.headers': [
+                 ('cache-control', 'public, max-age=604800')
+             ],
+        'tools.check_file_access.on': True,
+        'tools.check_file_access.default': True,
+      }
+
     root_config['/data'] = {
         'tools.staticdir.on': True,
         'tools.staticdir.dir': datacfg['global']['rootdir'],
@@ -703,7 +589,45 @@ if authcfg['global']['auth'] == 'yes':
         'tools.check_user_access.default': True,
         },
     }
+else:
+    for d in ['camera', 'lidar', 'radar', 'aux_camera', 'aux_lidar', 'lidar_pose', 'calib']:
+        root_config['/data/'+d] = {
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': dataset_cfg[d],
+        'tools.caching.on': True,
+        'tools.gzip.on': True,
+        'tools.etags.on': True,
+        'tools.etags.autotags': True,
+        'tools.response_headers.on': True,
+        'tools.response_headers.headers': [
+                 ('cache-control', 'public, max-age=604800')
+             ],
+        'tools.check_file_access.on': True,
+        'tools.check_file_access.default': True,
+      }
 
+    root_config['/data'] = {
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': datacfg['global']['rootdir'],
+        'tools.caching.on': True,
+        'tools.gzip.on': True,
+        'tools.etags.on': True,
+        'tools.etags.autotags': True,
+        'tools.response_headers.on': True,
+        'tools.response_headers.headers': [
+                 ('cache-control', 'public, max-age=604800')
+             ],
+        'tools.check_file_access.on': True,
+        'tools.check_file_access.default': True,
+      }
+  
+    api_config = {
+      '/':{
+        'tools.check_user_access.on': True,
+        'tools.check_user_access.default': True,
+        },
+    }
+    
 cherrypy.tree.mount(Root(), "/", root_config)
 cherrypy.tree.mount(Api(), "/api", api_config)
 

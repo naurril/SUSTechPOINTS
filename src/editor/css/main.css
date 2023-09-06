@@ -7,9 +7,9 @@
 	--window-background-color: #222222;
 	--widget-color: gray;
 	--highlight-background-color: darkgray;
-	--highlight-color: yellow;
+	--highlight-color: yellow;	
 	--highlight-color-editor: #ffff0020;
-
+	
 	--highlight-background-transparent-color: #aaaaaa44;
 }
 
@@ -667,9 +667,14 @@ canvas {
 	overflow: hidden; */
 }
 
-#batch-box-editor .selected {
+#batch-box-editor .selected  {
 	background-color: var(--highlight-color-editor);
 	color:var(--highlight-color);
+	
+}
+
+#batch-box-editor .selected .box-info  {
+	background-color: green;
 }
 
 #batch-box-editor .v-buttons-wrapper {
@@ -898,6 +903,22 @@ td {
 
 
 /* trajectory */
+
+#object-track-wrapper {
+	width: 0%;
+	height: 0%;
+	display: none;
+}
+
+
+#object-track-wrapper #view {
+	left: 400px;
+	top: 400px;
+	height: 400px; /*60%;*/
+	width: 600px; /*60%; */
+}
+
+
 #object-track-svg {
 	width: 100%;
 	height:100%;
@@ -934,10 +955,10 @@ td {
 }
 
 
-.object-track-current-frame {
-	stroke: purple;
+.object-track-highlight-frame {
+	stroke: greenyellow;
+	stroke-width: 3px;
 }
-
 .one-track:hover {
 	color: yellow;
 	stroke: yellow;
@@ -1024,6 +1045,7 @@ td {
 	display: inherit;
 }
 
+
 #log-wrapper #view {
 	left: 400px;
 	top: 400px;
@@ -1046,6 +1068,15 @@ td {
 
 .log-object-frame-id{
 	cursor: pointer;
+}
+
+.log-object-frame-id-selected{
+	color: var(--highlight-color);
+}
+
+.log-object-frame-id-deleted{
+	color: var(--highlight-color);
+	text-decoration: line-through;
 }
 
 #move-handle-wrapper {
@@ -1087,3 +1118,9 @@ td {
 }
 
 
+.svg-box {
+	color: green;
+	stroke: green;
+	stroke-width: 1px;	
+	fill: #00ff0022;
+}
