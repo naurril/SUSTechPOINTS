@@ -17,7 +17,10 @@ class EgoPose {
   loadEgoPose () {
     const path = this.world.frameInfo.get_egopose_path();
     loadjson(path).then(ret => {
-      this.lidarPose = ret.lidarPose;
+      if (ret && ret.lidarPose) {
+        this.lidarPose = ret.lidarPose;
+      }
+      
 
       // console.log(this.world.frameInfo.frame, "egopose", "loaded");
       this.preloaded = true;
