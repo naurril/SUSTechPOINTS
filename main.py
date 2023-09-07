@@ -272,7 +272,52 @@ class Root(object):
 
       return [x for x in  all_objs.values()]
 
+# Maybe temporary: Override server.conf for compatibility with lab PC.
+# With server.conf, it does work with Firefox and Chrome (incognito tab).
+path = os.path.abspath(os.path.dirname(__file__))
+config = {
+  'global' : {
+    'server.socket_host' : '127.0.0.1',
+    'server.socket_port' : 8081,
+  },
+  
+  '/': {
+    'tools.sessions.on': True,
+    'tools.staticdir.root': path
+  },
+  
+  '/static' : {
+    'tools.staticdir.on'            : True,
+    'tools.staticdir.dir'           : os.path.join(path, 'public'),
+    'tools.staticdir.content_types' : {'html': 'application/octet-stream', 'css': 'text/css', 'js' : 'text/javascript' }
+  },
+
+  '/data': {
+    'tools.staticdir.on' : True,
+    'tools.staticdir.dir' : "./data"
+  },
+
+  '/temp' : {
+    'tools.staticdir.on': True,
+    'tools.staticdir.dir' : "./temp"
+  },
+
+  '/views' : {
+    'tools.staticdir.on' : True,
+    'tools.staticdir.dir' : "./views",
+    'auth.require' : []
+  },
+
+  '/assets' : {
+    'tools.staticdir.on' : True,
+    'tools.staticdir.dir' : "./   assets"
+  }
+}
+
+
 if __name__ == '__main__':
-    cherrypy.quickstart(Root(), '/', config="server.conf")
+    # cherrypy.quickstart(Root(), '/', config="server.conf")
+    cherrypy.quickstart(Root(), '/', config=config)
 else:
-    application = cherrypy.Application(Root(), '/', config="server.conf")
+    # application = cherrypy.Application(Root(), '/', config="server.conf")
+    application = cherrypy.Application(Root(), '/', config=config)

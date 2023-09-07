@@ -95,10 +95,10 @@ function ViewManager(
     view.zoom_ratio = 1.0; //useless for mainview // not my comment
 
     let camera = new THREE.PerspectiveCamera(
-      65, // fov
-      container.clientWidth / container.clientHeight, // aspect ratio
-      1, // near
-      500 // far
+      65,
+      container.clientWidth / container.clientHeight,
+      1,
+      800
     );
 
     // the initial position of the camera
@@ -118,7 +118,7 @@ function ViewManager(
       65,
       container.clientWidth / container.clientHeight,
       1,
-      500
+      800
     );
     camera.position.x = -1000;
     camera.position.z = -1000;
@@ -151,20 +151,30 @@ function ViewManager(
     //cameraOrthoHelper.visible=true;
     //scene.add( cameraOrthoHelper );
 
-    // this is the sphere that identifies the centre of rotation
-    const geometry = new THREE.SphereGeometry(0.5, 64, 32);
+    // Define a sphere representing the user's center of rotation
+    const geometry = new THREE.SphereGeometry(0.25, 64, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     let sphere = new THREE.Mesh(geometry, material);
     view.scene.add(sphere);
-
     view.sphere = sphere;
 
-    // the render function for the view being created by this function
+    // Define the axis, at the center of rotation
+    let axisHelper = new THREE.AxesHelper(3);
+    view.scene.add(axisHelper);
+    view.axisHelper = axisHelper;
+
+
     view.render = function () {
       console.log("render mainview.");
 
       this.sphere.position.set(
         this.orbit.target.x,
+        this.orbit.target.y,
+        this.orbit.target.z
+      );
+
+      this.axisHelper.position.set(
+        this.orbit.target.x, 
         this.orbit.target.y,
         this.orbit.target.z
       );
@@ -180,7 +190,7 @@ function ViewManager(
     };
 
     view.renderAll = function () {
-      console.log("render mainview.");
+      console.log("render all.");
       if (this.active) {
         //this.switch_camera(false);
         this.renderWithCamera(this.camera);

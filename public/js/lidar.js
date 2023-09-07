@@ -65,16 +65,6 @@ function Lidar(sceneMeta, world, frameInfo) {
   this.preload = function (on_preload_finished) {
     this.on_preload_finished = on_preload_finished;
 
-    console.log("in lidar.js, preload(), file path is", this.frameInfo.get_pcd_path())
-    const filename  = this.frameInfo.get_pcd_path()
-    const extension = filename.slice(filename.length-4,filename.length)
-    console.log(extension)
-
-    if (extension === '.las') {
-        this._afterPreload()
-        return
-    }
-
     var loader = new PCDLoader();
 
     var _self = this;
@@ -91,6 +81,7 @@ function Lidar(sceneMeta, world, frameInfo) {
           _self.points_parse_time - _self.create_time,
           "ms"
         );
+
         // if (_self.frameInfo.transform_matrix){
 
         //     var arr = position;
