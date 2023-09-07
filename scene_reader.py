@@ -1,6 +1,7 @@
 
 import os
 import json
+import prepare_pcd
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(this_dir, "data")
@@ -39,11 +40,32 @@ def get_one_scene(s):
     }
 
     scene_dir = os.path.join(root_dir, s)
+    frames = os.listdir(os.path.join(scene_dir, "lidar"))
+    las_files = None
+    try:
+        las_files = os.listdir(os.path.join(scene_dir, "las_files"))
+    except FileNotFoundError:
+        print("no las files")
+
+    if las_files:
+        for file in las_files:
+            filename_cut, ext = os.path.splitext(os.path.basename(file))
+            if ext != '.las':
+                continue
+            
+            file_path = os.path.join(scene_dir, "las_files", file)
+            pcd_name = os.path.join(scene_dir, "lidar", f'{filename_cut}_converted.pcd')
+            
+            if not os.path.isfile(pcd_name):
+                prepare_pcd.convert_for_server(file_path)
+                json_name = os.path.join(scene_dir, "label", f'{filename_cut}_converted.json')
+                with open(json_name,'w') as f:
+                    json.dump([], f)
 
     frames = os.listdir(os.path.join(scene_dir, "lidar"))
-    
-    #print(s, frames)
     frames.sort()
+
+    print(frames)
 
     scene["lidar_ext"]="pcd"
     for f in frames:
@@ -51,6 +73,7 @@ def get_one_scene(s):
         filename, fileext = os.path.splitext(f)
         scene["frames"].append(filename)
         scene["lidar_ext"] = fileext
+    
 
     # point_transform_matrix=[]
 
