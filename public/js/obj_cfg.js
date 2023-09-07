@@ -16,6 +16,12 @@ class ObjectCategory {
   }
 
   // default categories from the original
+
+  // size here, referred to as scale in other places in the code, seems to be the dimensions
+  // of the box in the x,y and z directions
+  // you can see it in the labels, changing the scale changes the size of the box
+  // this here seems to be the default size, but the auto annotation always maps the box to some points
+  // so I can't know for sure until I figure out how to make the tool stop auto annotating stuff
   obj_type_map = {
     Car: {
       color: "#86af49",
