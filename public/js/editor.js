@@ -2667,10 +2667,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
   };
 
   this.add_global_obj_type = function () {
+    console.log("add_global_obj_type called")
     var self = this;
     var sheet = window.document.styleSheets[1];
 
     let obj_type_map = globalObjectCategory.obj_type_map;
+    console.log(globalObjectCategory)
+
+    console.log(obj_type_map)
 
     for (var o in obj_type_map) {
       var rule =

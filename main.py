@@ -35,6 +35,12 @@ class Root(object):
     def index(self, scene="", frame=""):
       tmpl = env.get_template('index.html')
       return tmpl.render()
+    
+    @cherrypy.expose
+    def create_labels(self, scene="", frame=""):
+      tmpl = env.get_template('create_labels.html')
+      return tmpl.render()
+  
   
     @cherrypy.expose
     def icon(self):
@@ -289,7 +295,7 @@ config = {
   '/static' : {
     'tools.staticdir.on'            : True,
     'tools.staticdir.dir'           : os.path.join(path, 'public'),
-    'tools.staticdir.content_types' : {'html': 'application/octet-stream', 'css': 'text/css', 'js' : 'text/javascript' }
+    'tools.staticdir.content_types' : {'html': 'application/octet-stream', 'css': 'text/css', 'js' : 'text/javascript', 'json' : 'application/json' }
   },
 
   '/data': {

@@ -1,6 +1,21 @@
 // size is the dimension of the object in x/y/z axis, with unit meter.
-
+import { additional_labels } from "./additional_labels.js";
 class ObjectCategory {
+  constructor() {
+    // keep the defaults that are above
+    // add more to a json file
+    // combine the two
+    // have a color picker for the color
+    // figure out what the size is for
+    console.log("ObjectCategory constructor called")
+    console.log(additional_labels)
+    this.obj_type_map = {
+      ...this.obj_type_map,
+      ...additional_labels
+    }
+  }
+
+  // default categories from the original
   obj_type_map = {
     Car: {
       color: "#86af49",
@@ -86,8 +101,6 @@ class ObjectCategory {
     Unknown4: { color: "#008888", size: [4.5, 1.8, 1.5] },
     Unknown5: { color: "#008888", size: [4.5, 1.8, 1.5] },
   };
-
-  constructor() {}
 
   popularCategories = [
     "Car",
