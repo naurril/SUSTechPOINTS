@@ -159,18 +159,17 @@ function ViewManager(
     view.scene.add(axisHelper);
     view.axisHelper = axisHelper;
 
-
     view.render = function () {
       console.log("render mainview.");
 
       this.sphere.position.set(
-        this.orbit.target.x, 
+        this.orbit.target.x,
         this.orbit.target.y,
         this.orbit.target.z
-      )
+      );
 
       this.axisHelper.position.set(
-        this.orbit.target.x, 
+        this.orbit.target.x,
         this.orbit.target.y,
         this.orbit.target.z
       );
