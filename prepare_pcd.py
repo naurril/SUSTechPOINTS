@@ -1,6 +1,4 @@
 import laspy
-import file_tools
-import gen_traj
 import argparse
 import open3d as o3d
 import numpy as np
@@ -10,8 +8,12 @@ import os
 import sys
 from pathlib import Path
 
+import tkinter as tk
+from tkinter import Tk
+from tkinter import filedialog
+
 '''
-Converts a .las file to .pcd and then shifts it to local.
+Converts a .las file to .pcd for the annotation tool, though temporary.
 '''
 
 # Global variables for file I/O
@@ -156,7 +158,7 @@ def convert_for_server(filename: str):
 
 
 def main():
-    args = file_tools.parse_cmdline_args()
+    args = parse_cmdline_args()
     las, las_filename_cut = open_las(args)
 
     convert_pcd(las, las_filename_cut)
