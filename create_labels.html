@@ -1,14 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create Lables</title>
-</head>
-<body>
-    <div>
-        Hello create labels pls
-    </div>
+    <link href="./public/css/create_label.css" rel="stylesheet">
+  </head> 
+  <body>
+    <div>Hello create labels pls</div>
     <a href="/">go home</a>
-</body>
+    <form id="create-label-form">
+      <div class="label-input">
+        <label for="label-name-input">Name</label>
+        <input id="label-name-input" type="text" placeholder="Label name" />
+      </div>
+
+      <div class="label-input">
+        <label for="label-color-input">Color</label>
+        <input id="label-color-input" type="color" placeholder="#000000" />
+      </div>
+
+      <div class="label-input">
+        <label for="label-x-input">Scale x</label>
+        <input id="label-x-input" type="text" placeholder="1.0" />
+      </div>
+
+      <div class="label-input">
+        <label for="label-y-input">Scale y</label>
+        <input id="label-y-input" type="text" placeholder="1.0" />
+      </div>
+
+      <div class="label-input">
+        <label for="label-z-input">Scale z</label>
+        <input id="label-z-input" type="text" placeholder="1.0" />
+      </div>
+    </form>
+  </body>
 </html>
