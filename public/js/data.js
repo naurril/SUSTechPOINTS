@@ -5,8 +5,23 @@ import { logger } from "./log.js";
 class Data {
   constructor(cfg) {
     this.cfg = cfg;
+    console.log("data constructor called");
   }
 
+  // gets the names of folders from the backend
+  // a scene is in a folder
+  // see get_all_scene_desc in main.py
+  // below is an example of the response object sent by the backend 
+
+  /* <-- can collapse object in vscode
+    {
+      ".DS_Store": null,
+      "example": null,
+      "example2": null,
+      "example3": null,
+      "example4": null
+  }
+  */
   async readSceneList() {
     const req = new Request("/get_all_scene_desc");
     let init = {
@@ -24,7 +39,8 @@ class Data {
         }
       })
       .then((ret) => {
-        console.log(ret);
+        console.log("successful request to scene desc /get_all_scene_desc");
+        console.log("response is: ", ret);
         this.sceneDescList = ret;
         return ret;
       })
@@ -39,7 +55,7 @@ class Data {
 
   // multiple world support
   // place world by a offset so they don't overlap
-  dbg = new Debug();
+  dbg = new Debug(); // for counting the current number of memory allocations
 
   worldGap = 1000.0;
   worldList = [];
@@ -102,6 +118,8 @@ class Data {
   offsetList = [[0, 0, 0]];
   lastSeedOffset = [0, 0, 0];
   offsetsAliveCount = 0;
+
+  // called when creating a world
   allocateOffset() {
     // we need to make sure the first frame loaded in a scene
     // got to locate in [0,0,0]
@@ -142,15 +160,25 @@ class Data {
     let ret = this.offsetList.pop();
     this.offsetsAliveCount++;
 
+    console.log({
+      file: "data.js",
+      function: "allocationOffset",
+      offsetsAliveCount: this.offsetsAliveCount,
+      offsetList: this.offsetList,
+    });
+
     return ret;
   }
 
+  // called when deleting a world
   returnOffset(offset) {
     this.offsetList.push(offset);
     this.offsetsAliveCount--;
   }
 
   deleteDistantWorlds(world) {
+    // checks which worlds are "disposable" compared to the current world and deletes them
+    // deletion is done by updating the offset list (returnOffset) and calling deleteAll() on the world
     let currentWorldIndex = world.frameInfo.frame_index;
 
     let disposable = (w) => {
@@ -176,6 +204,7 @@ class Data {
   }
 
   deleteOtherWorldsExcept = function (keepScene) {
+    // deletes all worlds except the one which has the scene as "keepScene"
     // release resources if scene changed
     this.worldList.forEach((w) => {
       if (w.frameInfo.scene != keepScene) {
@@ -204,6 +233,7 @@ class Data {
     if (this.refEgoPose[sceneName]) delete this.refEgoPose[sceneName];
   }
 
+  // preloads a couple of scenes starting from the currentWorld
   forcePreloadScene(sceneName, currentWorld) {
     //this.deleteOtherWorldsExcept(sceneName);
     let meta = currentWorld.sceneMeta;
@@ -220,6 +250,7 @@ class Data {
     logger.log(`${endIndex - startIndex} frames created`);
   }
 
+  // calls force preload scene
   preloadScene(sceneName, currentWorld) {
     // clean other scenes.
     this.deleteOtherWorldsExcept(sceneName);
@@ -230,6 +261,7 @@ class Data {
     this.forcePreloadScene(sceneName, currentWorld);
   }
 
+  // checks which worlds need to be created, and does it
   _doPreload(sceneName, startIndex, endIndex) {
     let meta = this.getMetaBySceneName(sceneName);
 
@@ -274,6 +306,8 @@ class Data {
   }
 
   webglScene = null;
+  // webglScene, and webglMainScene are both the same 
+  // when this is called from editor.js
   set_webglScene = function (scene, mainScene) {
     this.webglScene = scene;
     this.webglMainScene = mainScene;
@@ -412,6 +446,158 @@ class Data {
     return this.getMetaBySceneName(this.world.frameInfo.scene);
   }
 
+  // can refer in main.py and scene_reader.py
+  // a scene is a folder in the data folder
+  // a frame is a lidar file in the scene/lidar directory
+  // the backend trys to read all directories and subdirectories (calib/camera, calib/radar, etc)
+  // there are other directories like radar, aux_lidar which are not given in the example data
+  // there is an ego_pose directory which is commented out, maybe that means ref_ego_pose is no longer used
+  // but I'm not sure yet
+  // this doesn't seem to get the labels for the frames
+  // below is the response object from the backend, after reading the example folder
+  // as we can see (refer to the backend code), this supports only a single lidar extension (.pcd, .las, etc)
+
+  /* <--- can collapse the object in vscode
+  {
+    "file": "editor.js",
+    "function": "this.scene_changed",
+    "message": "meta is the following object",
+    "meta": {
+        "scene": "example",
+        "frames": [
+            "000950",
+            "000965",
+            "000970",
+            "000975"
+        ],
+        "lidar_ext": ".pcd",
+        "camera_ext": ".jpg",
+        "radar_ext": ".pcd",
+        "aux_lidar_ext": ".pcd",
+        "boxtype": "psr",
+        "camera": [
+            "right",
+            "left",
+            "front"
+        ],
+        "calib": {
+            "camera": {
+                "front": {
+                    "extrinsic": [
+                        -0.9994466143126584,
+                        0.033033376071303994,
+                        -0.003906559137689193,
+                        0.20487898588180542,
+                        0.0025198193977806005,
+                        -0.0419178508124942,
+                        -0.9991178830816032,
+                        0.0013696063542738557,
+                        -0.033167991334523576,
+                        -0.9985748293686324,
+                        0.04181141593201179,
+                        -0.10943480581045151,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "intrinsic": [
+                        1210.062981,
+                        0,
+                        1022.429903,
+                        0,
+                        1205.850714,
+                        792.541644,
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                "left": {
+                    "extrinsic_ok": [
+                        0.000795916642330613,
+                        -0.9994847331424607,
+                        0.03208792189972302,
+                        -0.5,
+                        0.05182623470216488,
+                        -0.03200358149726322,
+                        -0.9981431821977967,
+                        0.0013696063542738557,
+                        0.998655800520527,
+                        0.002457434941619845,
+                        0.05177405817794394,
+                        -0.10943480581045151,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "extrinsic": [
+                        -0.03938450368827373,
+                        -0.9972116065404,
+                        0.06338669142921338,
+                        0.12484878301620483,
+                        0.05021894746218786,
+                        -0.06533114111429145,
+                        -0.9965991668251053,
+                        -0.1844022274017334,
+                        0.9979613811090176,
+                        -0.036067350634868045,
+                        0.05265195184571092,
+                        -0.39436036348342896,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "intrinsic": [
+                        1210.062981,
+                        0,
+                        1022.429903,
+                        0,
+                        1205.850714,
+                        792.541644,
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                "right": {
+                    "extrinsic": [
+                        0.03564000242115317,
+                        0.9978643295462211,
+                        -0.05474093574913458,
+                        0.10951525717973709,
+                        -0.009726211086240999,
+                        -0.054426799113952706,
+                        -0.998470392328243,
+                        -0.003179325256496668,
+                        -0.9993173625257024,
+                        0.03611790909618268,
+                        0.007765667852400182,
+                        -0.39152929186820984,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "intrinsic": [
+                        1210.062981,
+                        0,
+                        1022.429903,
+                        0,
+                        1205.850714,
+                        792.541644,
+                        0,
+                        0,
+                        1
+                    ]
+                }
+            }
+        }
+    }
+}
+*/
   readSceneMetaData(sceneName) {
     let self = this;
     return new Promise(function (resolve, reject) {
@@ -422,7 +608,7 @@ class Data {
 
         if (this.status == 200) {
           let sceneMeta = JSON.parse(this.responseText);
-          self.meta[sceneName] = sceneMeta;
+          self.meta[sceneName] = sceneMeta; // sets the metadata for the given scene (folder) in the meta object of "this"
           resolve(sceneMeta);
         }
       };

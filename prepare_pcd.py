@@ -41,7 +41,11 @@ def convert_pcd(las: laspy.LasData, filename: str) -> None:
         _ = las.green
         _ = las.blue
     except AttributeError:
-        if not np.all(las.intensity) == 0:
+        if not np.all(las.intensity):
+            print(".las file has intensity but no rgb")
+            is_road = True
+        else:
+            # literally no info in las file??
             is_road = True
     
     
@@ -93,8 +97,14 @@ def write_pcd_to_lidar(las: laspy.LasData, filename: str, las_filename: str) -> 
         _ = las.green
         _ = las.blue
     except AttributeError:
-        if not np.all(las.intensity) == 0:
+        if not np.all(las.intensity):
+            print(".las file has intensity but no rgb")
             is_road = True
+        else:
+            # literally no info in las file??
+            is_road = True
+    except Exception as e:
+        pass
     
     pcd = o3d.geometry.PointCloud()
     las_xyz = las.xyz
