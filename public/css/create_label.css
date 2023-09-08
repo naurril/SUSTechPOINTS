@@ -1,7 +1,5 @@
 .label-input {
-    display: flex;
-    justify-content: space-between;
-    width: 60%;
+    display: block;
     margin: 0.5rem;
 }
   
