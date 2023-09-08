@@ -31,4 +31,11 @@ for folder in data_dirs:
     except FileNotFoundError:
         print(f"No .las files found in this folder.\n")
         continue
+    except NotADirectoryError:
+        print(f"No .las files found in this folder.\n")
+        continue
+    except Exception as e:
+        print(e)
+        print("Error when converting las files\n")
+        continue
     print(f"Done converting for {folder}\n")
