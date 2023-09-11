@@ -166,6 +166,11 @@ class Root(object):
     def load_annotation(self, scene, frame):
       return scene_reader.read_annotations(scene, frame)
 
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def load_labels(self):
+      return scene_reader.read_labels()
+
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
