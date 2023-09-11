@@ -162,13 +162,13 @@ function ViewManager(
     let axisHelper = new THREE.AxesHelper(3);
     view.scene.add(axisHelper);
     view.axisHelper = axisHelper;
-    let axisVisible = true;
+    view.axisVisible = true;
 
     const hideButton = document.getElementById("hide-axis-button");
     hideButton.onclick = (event) => {
-      event.preventDefault
+      event.preventDefault();
       if (view.axisVisible) {
-        view.axisVisible = false
+        view.axisVisible = false;
         view.scene.remove(sphere);
         view.scene.remove(axisHelper);
         view.render()
