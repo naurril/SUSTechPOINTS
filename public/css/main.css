@@ -615,6 +615,16 @@ dynamic set obj-type css has higher priority than this one.
 	display: none;
 }
 
+#hide-axis-button {
+	cursor: pointer;
+	background-color: var(--widget-background-color);
+	padding-left: 0;
+	padding-right: 0;
+	border: none;
+	color:var(--font-color);
+	padding: 2px;
+}
+
 .ui-button {
 	background-color: var(--widget-background-color);
 	padding-left: 0;
