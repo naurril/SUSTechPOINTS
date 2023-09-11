@@ -625,6 +625,10 @@ dynamic set obj-type css has higher priority than this one.
 	padding: 2px;
 }
 
+#hide-axis-button:hover {
+	background-color: var(--highlight-background-color);	
+}
+
 .ui-button {
 	background-color: var(--widget-background-color);
 	padding-left: 0;
