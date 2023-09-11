@@ -164,17 +164,28 @@ function ViewManager(
     view.axisHelper = axisHelper;
     view.axisVisible = true;
 
+        // Move axis helper to view.js...
+    // this.axisHelper = new THREE.AxesHelper(2);
+    // this.scene.add(this.axisHelper);
+    const originGeometry = new THREE.SphereGeometry(0.25, 64, 32);
+    const originMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    let origin_sphere = new THREE.Mesh(originGeometry, originMaterial);
+
+    view.scene.add(origin_sphere);
+
     const hideButton = document.getElementById("hide-axis-button");
     hideButton.onclick = (event) => {
       event.preventDefault();
       if (view.axisVisible) {
         view.axisVisible = false;
         view.scene.remove(sphere);
+        view.scene.remove(origin_sphere);
         view.scene.remove(axisHelper);
         view.render()
       } else {
         view.axisVisible = true
         view.scene.add(sphere);
+        view.scene.add(origin_sphere);
         view.scene.add(axisHelper);
         view.render()
       }
