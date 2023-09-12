@@ -1,3 +1,5 @@
 {
-    "label_from_json": { "color": "#008888", "size": [4.5, 1.8, 1.5] }
+  "label_from_json": { "color": "#008888", "size": [4.5, 1.8, 1.5] },
+  "new": { "color": "#da173f", "size": [1, 1, 1] },
+  "another one": { "color": "#da173f", "size": [12, 1, 1] }
 }

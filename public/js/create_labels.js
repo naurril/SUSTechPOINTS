@@ -20,4 +20,18 @@ async function addLabel(event) {
         console.log(y)
         console.log(z)
     }
+
+    const body = {
+        name, color, x, y, z
+    }
+
+    const res = await fetch('/save_label', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    })
+    const data = await res.json() 
+    console.log(data)
 }
