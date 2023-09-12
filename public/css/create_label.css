@@ -1,5 +1,29 @@
-.label-input {
-    display: block;
-    margin: 0.5rem;
+/* Center the form container both horizontally and vertically */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* This ensures it takes up the full viewport width */
+  height: 50vh;
 }
-  
+
+.form-group {
+  padding: 20px;
+}
+
+div > label {
+  margin-right: 10px;
+}
+
+#annotate-button-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
+}
+
+#annotate-button {
+    align-self: flex-end;
+}
+

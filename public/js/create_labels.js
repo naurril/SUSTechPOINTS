@@ -1,6 +1,13 @@
 const form = document.getElementById("create-label-form")
 form?.addEventListener("submit", addLabel)
 
+const annotateButton = document.getElementById("annotate-button")
+console.log(annotateButton)
+annotateButton?.addEventListener('click', (event) => {
+    event.preventDefault()
+    window.location.href = '/'
+})
+
 async function addLabel(event) {
     event.preventDefault()
     const name = document.getElementById("label-name-input").value
@@ -34,4 +41,6 @@ async function addLabel(event) {
     })
     const data = await res.json() 
     console.log(data)
+
+    alert('Label Added!')
 }
