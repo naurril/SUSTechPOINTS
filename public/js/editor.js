@@ -98,10 +98,23 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     );
 
     // adding an onclick listener to the button on top
-    const create_labels_button = document.getElementById("create-labels-button")
-    create_labels_button.addEventListener('click', (event) => {
+    const createLabelsButton = document.getElementById("create-labels-button")
+    createLabelsButton.addEventListener('click', (event) => {
       event.preventDefault()
       window.location.href = '/create_labels'
+    })
+
+    const labelModeSelect = document.getElementById("label-mode")
+    // just ui nice to have
+    let modeVal = localStorage.getItem('mode')
+    if (modeVal != 'rural' && modeVal != 'urban') {
+      modeVal = 'rural'
+    }
+    labelModeSelect.value = modeVal
+    labelModeSelect.addEventListener('change', async (event) => {
+      event.preventDefault()
+      localStorage.setItem('mode', event.target.value)
+      self.add_global_obj_type()
     })
 
     // the header where you can select the scene, frame, save and settings
@@ -2702,7 +2715,14 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
 
   this.add_global_obj_type = async function () {
     console.log("add_global_obj_type called")
-    const labels = await globalObjectCategory.get_labels_from_backend()
+    
+    let mode = localStorage.getItem('mode')
+    console.log(mode, 'local')
+    if (mode !== 'rural' && mode !== 'urban') {
+      mode = document.getElementById("label-mode").value;
+      localStorage.setItem('mode', mode)
+    }
+    const labels = await globalObjectCategory.get_labels_from_backend(mode)
     console.log("loaded labels");
     console.log(labels);
     globalObjectCategory.set_labels(labels)

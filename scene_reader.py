@@ -252,8 +252,8 @@ def read_annotations(scene, frame):
     else:
       return {}
 
-def read_labels():
-    filename = os.path.join(this_dir, "labels.json")
+def read_rural_labels():
+    filename = os.path.join(this_dir, "rural_labels.json")
     if (os.path.isfile(filename)):
       with open(filename,"r") as f:
         labels = json.load(f)  
@@ -261,8 +261,34 @@ def read_labels():
     else:
       return []
 
-def save_label(label):
-    filename = os.path.join(this_dir, "labels.json")
+def read_urban_labels():
+    filename = os.path.join(this_dir, "urban_labels.json")
+    if (os.path.isfile(filename)):
+      with open(filename,"r") as f:
+        labels = json.load(f)  
+        return labels
+    else:
+      return []
+
+def save_rural_label(label):
+    filename = os.path.join(this_dir, "rural_labels.json")
+    curLabels = dict()
+    if (os.path.isfile(filename)):
+      with open(filename,"r") as f:
+        curLabels = json.load(f)
+
+    print(curLabels)
+    print(type(curLabels))
+    for k in label:
+        curLabels[k] = label[k]
+
+    with open(filename, 'w') as outfile:
+        json.dump(curLabels, outfile)
+    
+    return label
+
+def save_urban_label(label):
+    filename = os.path.join(this_dir, "urban_labels.json")
     curLabels = dict()
     if (os.path.isfile(filename)):
       with open(filename,"r") as f:
