@@ -97,6 +97,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
       this
     );
 
+    // adding an onclick listener to the button on top
+    const create_labels_button = document.getElementById("create-labels-button")
+    create_labels_button.addEventListener('click', (event) => {
+      event.preventDefault()
+      window.location.href = '/create_labels'
+    })
+
     // the header where you can select the scene, frame, save and settings
     // it changes when you select an object, idk how yet
     this.header = new Header(
