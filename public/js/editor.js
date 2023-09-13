@@ -2693,8 +2693,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     }
   };
 
-  this.add_global_obj_type = function () {
+  this.add_global_obj_type = async function () {
     console.log("add_global_obj_type called")
+    const labels = await globalObjectCategory.get_labels_from_backend()
+    console.log("loaded labels");
+    console.log(labels);
+    globalObjectCategory.set_labels(labels)
+    
     var self = this;
     var sheet = window.document.styleSheets[1];
 
