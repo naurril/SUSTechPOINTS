@@ -31,8 +31,8 @@ class ObjectCategory {
     "BicycleRider",
   ];
 
-  async get_labels_from_backend() {
-    const res = await fetch("/load_labels");
+  async get_labels_from_backend(mode) {
+    const res = await fetch(`/load_${mode}_labels`);
     if (!res.ok) {
       console.log(res);
       alert("failed to get labels from backend");
@@ -44,7 +44,6 @@ class ObjectCategory {
 
   set_labels(labels) {
     this.obj_type_map = {
-      ...this.obj_type_map,
       ...labels,
     };
   }

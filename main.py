@@ -167,12 +167,17 @@ class Root(object):
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
-    def load_labels(self):
-      return scene_reader.read_labels()
+    def load_rural_labels(self):
+      return scene_reader.read_rural_labels()
+
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def load_urban_labels(self):
+      return scene_reader.read_urban_labels()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def save_label(self):
+    def save_rural_label(self):
       rawbody = cherrypy.request.body.readline().decode('UTF-8')
       data = json.loads(rawbody)
       print(data)
@@ -183,7 +188,22 @@ class Root(object):
         "size" : [data["x"], data["y"], data["z"]]
       }
       
-      return scene_reader.save_label(label)
+      return scene_reader.save_rural_label(label)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def save_urban_label(self):
+      rawbody = cherrypy.request.body.readline().decode('UTF-8')
+      data = json.loads(rawbody)
+      print(data)
+
+      label = dict()
+      label[data["name"]] = {
+        "color" : data["color"],
+        "size" : [data["x"], data["y"], data["z"]]
+      }
+      
+      return scene_reader.save_urban_label(label)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
