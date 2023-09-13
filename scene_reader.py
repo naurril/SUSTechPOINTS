@@ -250,7 +250,33 @@ def read_annotations(scene, frame):
         #print(ann)          
         return ann
     else:
+      return {}
+
+def read_labels():
+    filename = os.path.join(this_dir, "labels.json")
+    if (os.path.isfile(filename)):
+      with open(filename,"r") as f:
+        labels = json.load(f)  
+        return labels
+    else:
       return []
+
+def save_label(label):
+    filename = os.path.join(this_dir, "labels.json")
+    curLabels = dict()
+    if (os.path.isfile(filename)):
+      with open(filename,"r") as f:
+        curLabels = json.load(f)
+
+    print(curLabels)
+    print(type(curLabels))
+    for k in label:
+        curLabels[k] = label[k]
+
+    with open(filename, 'w') as outfile:
+        json.dump(curLabels, outfile)
+    
+    return label
 
 def read_ego_pose(scene, frame):
     filename = os.path.join(root_dir, scene, "ego_pose", frame+".json")

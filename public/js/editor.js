@@ -97,6 +97,13 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
       this
     );
 
+    // adding an onclick listener to the button on top
+    const create_labels_button = document.getElementById("create-labels-button")
+    create_labels_button.addEventListener('click', (event) => {
+      event.preventDefault()
+      window.location.href = '/create_labels'
+    })
+
     // the header where you can select the scene, frame, save and settings
     // it changes when you select an object, idk how yet
     this.header = new Header(
@@ -2693,11 +2700,20 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     }
   };
 
-  this.add_global_obj_type = function () {
+  this.add_global_obj_type = async function () {
+    console.log("add_global_obj_type called")
+    const labels = await globalObjectCategory.get_labels_from_backend()
+    console.log("loaded labels");
+    console.log(labels);
+    globalObjectCategory.set_labels(labels)
+    
     var self = this;
     var sheet = window.document.styleSheets[1];
 
     let obj_type_map = globalObjectCategory.obj_type_map;
+    console.log(globalObjectCategory)
+
+    console.log(obj_type_map)
 
     for (var o in obj_type_map) {
       var rule =

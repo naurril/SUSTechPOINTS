@@ -35,6 +35,12 @@ class Root(object):
     def index(self, scene="", frame=""):
       tmpl = env.get_template('index.html')
       return tmpl.render()
+    
+    @cherrypy.expose
+    def create_labels(self, scene="", frame=""):
+      tmpl = env.get_template('create_labels.html')
+      return tmpl.render()
+  
   
     @cherrypy.expose
     def icon(self):
@@ -152,7 +158,6 @@ class Root(object):
     def auto_annotate(self, scene, frame):
       print("auto annotate ", scene, frame)
       return pre_annotate.annotate_file('./data/{}/lidar/{}.pcd'.format(scene,frame))
-      
 
 
     @cherrypy.expose    
@@ -160,6 +165,25 @@ class Root(object):
     def load_annotation(self, scene, frame):
       return scene_reader.read_annotations(scene, frame)
 
+    @cherrypy.expose    
+    @cherrypy.tools.json_out()
+    def load_labels(self):
+      return scene_reader.read_labels()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def save_label(self):
+      rawbody = cherrypy.request.body.readline().decode('UTF-8')
+      data = json.loads(rawbody)
+      print(data)
+
+      label = dict()
+      label[data["name"]] = {
+        "color" : data["color"],
+        "size" : [data["x"], data["y"], data["z"]]
+      }
+      
+      return scene_reader.save_label(label)
 
     @cherrypy.expose    
     @cherrypy.tools.json_out()
@@ -289,7 +313,7 @@ config = {
   '/static' : {
     'tools.staticdir.on'            : True,
     'tools.staticdir.dir'           : os.path.join(path, 'public'),
-    'tools.staticdir.content_types' : {'html': 'application/octet-stream', 'css': 'text/css', 'js' : 'text/javascript' }
+    'tools.staticdir.content_types' : {'html': 'application/octet-stream', 'css': 'text/css', 'js' : 'text/javascript', 'json' : 'application/json' }
   },
 
   '/data': {

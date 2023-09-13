@@ -191,7 +191,6 @@ function ViewManager(
       }
     }
 
-
     view.render = function () {
       console.log("render mainview.");
 
@@ -202,7 +201,7 @@ function ViewManager(
       );
 
       this.axisHelper.position.set(
-        this.orbit.target.x, 
+        this.orbit.target.x,
         this.orbit.target.y,
         this.orbit.target.z
       );

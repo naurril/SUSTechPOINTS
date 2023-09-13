@@ -9,5 +9,5 @@ tools/pypcd
 temp*/
 .DS_Store
 converted/
-
+scripts/
 todo

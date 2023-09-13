@@ -615,7 +615,7 @@ dynamic set obj-type css has higher priority than this one.
 	display: none;
 }
 
-#hide-axis-button {
+.top-menu-button {
 	cursor: pointer;
 	background-color: var(--widget-background-color);
 	padding-left: 0;
@@ -625,7 +625,7 @@ dynamic set obj-type css has higher priority than this one.
 	padding: 2px;
 }
 
-#hide-axis-button:hover {
+.top-menu-button:hover {
 	background-color: var(--highlight-background-color);	
 }
 
