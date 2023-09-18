@@ -230,6 +230,16 @@ class OrbitControls extends EventDispatcher {
 				// restrict radius to be between desired limits
 				spherical.radius = Math.max( scope.minDistance, Math.min( scope.maxDistance, spherical.radius ) );
 
+				if (wasZoomed) {
+
+					// from https://discourse.threejs.org/t/orbit-controls-zooming-limits/3148/12
+					let cameraWorldDir = new Vector3()
+					scope.object.getWorldDirection(cameraWorldDir)
+					if (spherical.radius <= 0.25) {
+						scope.target.add(cameraWorldDir.multiplyScalar(0.1));
+					}
+					wasZoomed = false;
+				}
 				// move target to panned location
 
 				if ( scope.enableDamping === true ) {
@@ -237,6 +247,22 @@ class OrbitControls extends EventDispatcher {
 					scope.target.addScaledVector( panOffset, scope.dampingFactor );
 
 				} else {
+					// if you want to debug
+					// console.log('pan offset, ',panOffset)
+					// console.log('sphereical radius', spherical.radius)
+
+					if (spherical.radius < 1.5) {
+						panOffset.x *= 10;
+						panOffset.y *= 10;
+						panOffset.z *= 10;
+					}
+
+					// if it is very zoomed in, this is equivalent to multiplying it by 100
+					if (spherical.radius < 0.25) {
+						panOffset.x *= 10;
+						panOffset.y *= 10;
+						panOffset.z *= 10;
+					}
 
 					scope.target.add( panOffset );
 
@@ -342,6 +368,7 @@ class OrbitControls extends EventDispatcher {
 		let scale = 1;
 		const panOffset = new Vector3();
 		let zoomChanged = false;
+		let wasZoomed = false;
 
 		const rotateStart = new Vector2();
 		const rotateEnd = new Vector2();
@@ -468,6 +495,7 @@ class OrbitControls extends EventDispatcher {
 			if ( scope.object.isPerspectiveCamera ) {
 
 				scale /= dollyScale;
+				wasZoomed = true;
 
 			} else if ( scope.object.isOrthographicCamera ) {
 
@@ -486,9 +514,13 @@ class OrbitControls extends EventDispatcher {
 
 		function dollyIn( dollyScale ) {
 
+			console.log("zooming in")
+
 			if ( scope.object.isPerspectiveCamera ) {
 
+				console.log(scope.object.position)
 				scale *= dollyScale;
+				wasZoomed = true
 
 			} else if ( scope.object.isOrthographicCamera ) {
 
