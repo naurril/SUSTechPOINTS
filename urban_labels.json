@@ -4,5 +4,5 @@
     "size": [4.5, 1.8, 1.5],
     "attr": ["door open", "trunk open"]
   },
-  "TrafficBarrier": { "color": "#ff0000", "size": [1.5, 0.3, 1.2] },
+  "TrafficBarrier": { "color": "#ff0000", "size": [1.5, 0.3, 1.2] }
 }
