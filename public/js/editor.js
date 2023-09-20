@@ -98,24 +98,24 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     );
 
     // adding an onclick listener to the button on top
-    const createLabelsButton = document.getElementById("create-labels-button")
-    createLabelsButton.addEventListener('click', (event) => {
-      event.preventDefault()
-      window.location.href = '/create_labels'
-    })
+    const createLabelsButton = document.getElementById("create-labels-button");
+    createLabelsButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.location.href = "/create_labels";
+    });
 
-    const labelModeSelect = document.getElementById("label-mode")
+    const labelModeSelect = document.getElementById("label-mode");
     // just ui nice to have
-    let modeVal = localStorage.getItem('mode')
-    if (modeVal != 'rural' && modeVal != 'urban') {
-      modeVal = 'rural'
+    let modeVal = localStorage.getItem("mode");
+    if (modeVal != "rural" && modeVal != "urban") {
+      modeVal = "rural";
     }
-    labelModeSelect.value = modeVal
-    labelModeSelect.addEventListener('change', async (event) => {
-      event.preventDefault()
-      localStorage.setItem('mode', event.target.value)
-      self.add_global_obj_type()
-    })
+    labelModeSelect.value = modeVal;
+    labelModeSelect.addEventListener("change", async (event) => {
+      event.preventDefault();
+      localStorage.setItem("mode", event.target.value);
+      self.add_global_obj_type();
+    });
 
     // the header where you can select the scene, frame, save and settings
     // it changes when you select an object, idk how yet
@@ -206,7 +206,6 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
       (event) => this.handleFastToolEvent(event)
     );
     //this.controlGui = this.init_gui();
-
 
     window.addEventListener(
       "resize",
@@ -2714,39 +2713,44 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
   };
 
   this.add_global_obj_type = async function () {
-    console.log("add_global_obj_type called")
-    
-    let mode = localStorage.getItem('mode')
-    console.log(mode, 'local')
-    if (mode !== 'rural' && mode !== 'urban') {
+    console.log("add_global_obj_type called");
+
+    let mode = localStorage.getItem("mode");
+    console.log(mode, "local");
+    if (mode !== "rural" && mode !== "urban") {
       mode = document.getElementById("label-mode").value;
-      localStorage.setItem('mode', mode)
+      localStorage.setItem("mode", mode);
     }
-    const labels = await globalObjectCategory.get_labels_from_backend(mode)
+    let otherMode = mode === "rural" ? "urban" : "rural";
+    const labels = await globalObjectCategory.get_labels_from_backend(mode);
+    const otherLabels = await globalObjectCategory.get_labels_from_backend(
+      otherMode
+    );
     console.log("loaded labels");
     console.log(labels);
-    globalObjectCategory.set_labels(labels)
-    
+    globalObjectCategory.set_labels(labels);
+    globalObjectCategory.set_all_labels({ ...labels, ...otherLabels });
     var self = this;
     var sheet = window.document.styleSheets[1];
 
     let obj_type_map = globalObjectCategory.obj_type_map;
-    console.log(globalObjectCategory)
+    let all_type_map = globalObjectCategory.all_type_map;
+    console.log(globalObjectCategory);
 
-    console.log(obj_type_map)
+    console.log(obj_type_map);
 
-    for (var o in obj_type_map) {
+    for (var o in all_type_map) {
       var rule =
         "." +
         o +
         "{color:" +
-        obj_type_map[o].color +
+        all_type_map[o].color +
         ";" +
         "stroke:" +
-        obj_type_map[o].color +
+        all_type_map[o].color +
         ";" +
         "fill:" +
-        obj_type_map[o].color +
+        all_type_map[o].color +
         "22" +
         ";" +
         "}";

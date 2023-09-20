@@ -514,11 +514,14 @@ class OrbitControls extends EventDispatcher {
 
 		function dollyIn( dollyScale ) {
 
-			console.log("zooming in")
+			// if you want to debug
+			// console.log("zooming in")
 
 			if ( scope.object.isPerspectiveCamera ) {
 
-				console.log(scope.object.position)
+				// if you want to debug
+				// console.log(scope.object.position)
+
 				scale *= dollyScale;
 				wasZoomed = true
 

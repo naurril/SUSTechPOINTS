@@ -16,8 +16,9 @@ class ObjectCategory {
   // you can see it in the labels, changing the scale changes the size of the box
   // this here seems to be the default size, but the auto annotation always maps the box to some points
   // so I can't know for sure until I figure out how to make the tool stop auto annotating stuff
-  obj_type_map = {
-  };
+  obj_type_map = {};
+
+  all_type_map = {};
 
   popularCategories = [
     "Car",
@@ -44,6 +45,12 @@ class ObjectCategory {
 
   set_labels(labels) {
     this.obj_type_map = {
+      ...labels,
+    };
+  }
+
+  set_all_labels(labels) {
+    this.all_type_map = {
       ...labels,
     };
   }
@@ -91,6 +98,8 @@ class ObjectCategory {
   }
 
   get_color_by_category(category) {
+    console.log('color', category)
+    console.log('info', this.get_obj_cfg_by_type(category))
     let target_color_hex = parseInt(
       "0x" + this.get_obj_cfg_by_type(category).color.slice(1)
     );
@@ -105,7 +114,9 @@ class ObjectCategory {
   get_obj_cfg_by_type(name) {
     if (this.obj_type_map[name]) {
       return this.obj_type_map[name];
-    } else {
+    } else if (this.all_type_map[name]){
+      return this.all_type_map[name];
+    }else {
       return this.obj_type_map["Unknown"];
     }
   }
