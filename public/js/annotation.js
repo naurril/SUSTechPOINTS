@@ -93,6 +93,8 @@ function Annotation(sceneMeta, world, frameInfo) {
     this.remove_all_boxes();
   };
   this.boxToAnn = function (box) {
+    // this is where it converts the boxes to annotations
+    console.log("boxToAnn called")
     let ann = {
       psr: {
         position: {
@@ -114,12 +116,15 @@ function Annotation(sceneMeta, world, frameInfo) {
       obj_type: box.obj_type,
       obj_id: String(box.obj_track_id),
       obj_attr: box.obj_attr,
+      creation_mode: box.creation_mode
       //vertices: vertices,
     };
     return ann;
   };
 
   this.toBoxAnnotations = function () {
+    // this is where it goes through all boxes and converts them into annotations
+    console.log("to box annotations called")
     let anns = this.boxes.map((b) => {
       //var vertices = psr_to_xyz(b.position, b.scale, b.rotation);
       let ann = this.boxToAnn(b);
@@ -351,6 +356,8 @@ function Annotation(sceneMeta, world, frameInfo) {
     track_id,
     obj_attr
   ) {
+    // this is where it creates the box, we can set different properties
+    // on the object here
     let mesh = this.new_bbox_cube(
       parseInt(
         "0x" + globalObjectCategory.get_obj_cfg_by_type(obj_type).color.slice(1)
@@ -372,6 +379,7 @@ function Annotation(sceneMeta, world, frameInfo) {
     mesh.obj_type = obj_type;
     mesh.obj_attr = obj_attr;
     mesh.obj_local_id = this.get_new_box_local_id();
+    mesh.creation_mode = localStorage.getItem("mode")
 
     mesh.world = this.world;
 
@@ -382,6 +390,12 @@ function Annotation(sceneMeta, world, frameInfo) {
     */
 
   this.add_box = function (pos, scale, rotation, obj_type, track_id, obj_attr) {
+    // I assume this is just for the drawing of the box, so ig shouldn't add a label here
+    // but maybe useful to set a property here idk
+
+    // this is where it adds the box to this.boxes
+    // we can set properties on the box in createCuboid
+    console.log("add box called in annotation")
     let mesh = this.createCuboid(
       pos,
       scale,
@@ -390,6 +404,8 @@ function Annotation(sceneMeta, world, frameInfo) {
       track_id,
       obj_attr
     );
+
+    console.log(this.boxes)
 
     this.boxes.push(mesh);
     this.sort_boxes();
@@ -612,6 +628,8 @@ function Annotation(sceneMeta, world, frameInfo) {
 
   this.createOneBoxByAnn = function (annotation) {
     let b = annotation;
+    console.log("create on box by ann called")
+    console.log(annotation)
 
     let mesh = this.createCuboid(
       b.psr.position,

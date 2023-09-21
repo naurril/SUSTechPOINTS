@@ -2042,6 +2042,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name = "editor") {
     obj_track_id,
     obj_attr
   ) {
+    console.log("add box was called in editor.js")
     let box = this.data.world.annotation.add_box(
       pos,
       scale,

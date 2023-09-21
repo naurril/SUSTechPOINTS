@@ -86,6 +86,9 @@ function doSaveWorldList(worldList, done) {
   }
 
   console.log(worldList.length, "frames");
+  // this is where it prepares the data to send to the server to save
+  // I actually need to edit the box itself on creation so that we can 
+  // convert the mode to annotation later
   let ann = worldList.map((w) => {
     return {
       scene: w.frameInfo.scene,
