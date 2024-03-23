@@ -43,9 +43,9 @@ var Header=function(ui, data, cfg, onSceneChanged, onFrameChanged, onObjectSelec
         for (let scene in sceneDescList)
         {
             if (data.sceneDescList[scene])
-                scene_selector_str += "<option value="+scene +">"+scene + " - " +data.sceneDescList[scene].scene + "</option>";
+                scene_selector_str += `<option value="${scene}">${scene} - ${data.sceneDescList[scene].scene}</option>`;
             else
-                scene_selector_str += "<option value="+scene +">"+scene+ "</option>";
+                scene_selector_str += `<option value="${scene}">${scene}</option>`;
         }
 
         this.ui.querySelector("#scene-selector").innerHTML = scene_selector_str;

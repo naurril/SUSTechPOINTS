@@ -31,19 +31,15 @@ class ObjectIdManager
     setObjdIdListOptions()
     {
         let objSelOptions = this.objectList.map(function(c){
-            return "<option value="+c.id+">"+String(c.id) +"-"+ c.category+"</option>";
+            return `<option value="${c.id}">${c.id}-${c.category}</option>`;
           }).reduce(function(x,y){return x+y;},
                     "<option>--object--</option>");
         document.getElementById("object-selector").innerHTML = objSelOptions;
 
 
         let objIdsOptions = this.objectList.map(function(c){
-            return "<option value="+c.id+">"+c.category+"</option>";
-        }).reduce(function(x,y){return x+y;}, 
-                        //"<option value='auto'></option><option value='new'></option>");
-                        //"<option value='new'>suggest a new id</option>"
-                        ""
-                        );
+            return `<option value="${c.id}">${c.id}-${c.category}</option>`;
+        }).reduce(function(x,y){return x+y;}, "");
 
         document.getElementById("obj-ids-of-scene").innerHTML = objIdsOptions;
     }

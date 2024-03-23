@@ -1,6 +1,6 @@
 
 import * as THREE from './lib/three.module.js';
-import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, array_as_vector_index_range, vector_range, euler_angle_to_rotate_matrix_3by3} from "./util.js"
+import { matmul, euler_angle_to_rotate_matrix, transpose, psr_to_xyz, array_as_vector_range, vector_range} from "./util.js"
 import { PCDLoader } from './lib/PCDLoader.js';
 import {globalObjectCategory} from './obj_cfg.js';
 
@@ -15,6 +15,15 @@ function Lidar(sceneMeta, world, frameInfo){
 
     this.points = null;
     this.points_load_time = 0;
+
+    this.map_intesity_to_color = function(intensity){
+        intensity *= this.data.cfg.point_brightness / 255; 
+        intensity = Math.min(1, Math.max(0, intensity));
+        const r = Math.max(0, (intensity - 0.5) * 2);
+        const g = Math.max(1 - Math.abs(intensity - 0.5) * 2);
+        const b = Math.max(0, (0.5 - intensity) * 2);
+        return [r, g, b];
+    }
 
     this.remove_high_ponts = function(pcd, z){
         let position = [];
@@ -113,57 +122,24 @@ function Lidar(sceneMeta, world, frameInfo){
                 if ( normal.length > 0 ) 
                     geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normal, 3 ) );
                 
-                let color = pcd.color;
-                if ( color.length == 0 ) {
-                    color = []
+                if ( pcd.color.length == 0 ) {
 
                     // by default we set all points to same color
-                    for (let i =0; i< position.length; ++i){                                
-                        color.push(_self.data.cfg.point_brightness);                                
-                    }
-
+                    pcd.color = new Array(position.length).fill(_self.data.cfg.point_brightness);
 
                     // if enabled intensity we color points by intensity.
                     if (_self.data.cfg.color_points=="intensity" && pcd.intensity.length>0){
                         // map intensity to color
-                        for (var i =0; i< pcd.intensity.length; ++i){
-                            let intensity = pcd.intensity[i];
-                            intensity *= 8;
-                            
-                            if (intensity > 1)
-                                intensity = 1.0;
-                            
-                            
-                            //color.push( 2 * Math.abs(0.5-intensity));
-                            
-                            color[i*3] =  intensity;
-                            color[i*3+1] = intensity;
-                            color[i*3+2] = 1 - intensity; 
-                        }
+                        pcd.color = pcd.intensity.map(intensity=>_self.map_intesity_to_color(intensity)).flat();
                     }
-
-                    // save color, in case color needs to be restored.
-                    pcd.color = color;
                 }
 
-                geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(color, 3 ) );
+                geometry.setAttribute( 'color', new THREE.Float32BufferAttribute(pcd.color, 3 ) );
 
                 geometry.computeBoundingSphere();
                 // build material
 
                 var material = new THREE.PointsMaterial( { size: _self.data.cfg.point_size, vertexColors: THREE.VertexColors } );
-
-                /*
-                
-                if ( color.length > 0 ) {
-                    material.vertexColors = color;
-                } else {
-                    //material.color.setHex(0xffffff);
-                    material.color.r = 0.6;
-                    material.color.g = 0.6;
-                    material.color.b = 0.6;
-                }
-                */
 
                 //material.size = 2;
                 material.sizeAttenuation = false;
@@ -307,18 +283,10 @@ function Lidar(sceneMeta, world, frameInfo){
         if (this.data.cfg.color_points=="intensity" && this.pcd.intensity.length>0){
             // by intensity
             for (var i =0; i< this.pcd.intensity.length; ++i){
-                let intensity = this.pcd.intensity[i];
-                intensity *= 8;
-                
-                if (intensity > 1)
-                    intensity = 1.0;
-                
-                
-                //color.push( 2 * Math.abs(0.5-intensity));
-                
-                color[i*3] =  intensity;
-                color[i*3+1] = intensity;
-                color[i*3+2] = 1 - intensity; 
+                const [r, g, b] = this.map_intesity_to_color(this.pcd.intensity[i]);
+                color[i*3] = r;
+                color[i*3+1] = g;
+                color[i*3+2] = b;
             }
         }
         else
@@ -1169,24 +1137,16 @@ function Lidar(sceneMeta, world, frameInfo){
     this.reset_box_points_color = function(box){
         let color = this.points.geometry.getAttribute("color").array;
         let indices = this._get_points_index_of_box(this.points, box, 1.0);
-        if (this.data.cfg.color_points=="intensity")
-        {        
-            
+        if (this.data.cfg.color_points=="intensity") {        
             indices.forEach((i)=>{
-                let intensity = this.pcd.intensity[i];
-                intensity *= 8;
-                
-                if (intensity > 1)
-                    intensity = 1.0;
-
-                color[i*3] =  intensity;
-                color[i*3+1] = intensity;
-                color[i*3+2] = 1 - intensity; 
+                const [r, g, b] = this.map_intesity_to_color(this.pcd.intensity[i]);
+                color[i*3] = r;
+                color[i*3+1] = g;
+                color[i*3+2] = b;
             });
                 
         }
-        else
-        {
+        else {
             indices.forEach((i)=>{
                 color[i*3] =  this.data.cfg.point_brightness;
                 color[i*3+1] = this.data.cfg.point_brightness;

@@ -957,7 +957,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         }
 
         var frame_selector_str = meta.frames.map(function(f){
-            return "<option value="+f+">"+f + "</option>";
+            return `<option value="${f}">${f}</option>`;
         }).reduce(function(x,y){return x+y;}, "<option>--frame--</option>");
 
         this.editorUi.querySelector("#frame-selector").innerHTML = frame_selector_str;
@@ -2603,8 +2603,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
         // obj type selector
         var options = "";
-        for (var o in obj_type_map){
-            options += '<option value="'+o+'" class="' +o+ '">'+o+ '</option>';        
+        for (var o in obj_type_map){   
+            options += `<option value="${o}" class="${o}">${o}</option>`
         }
 
         this.editorUi.querySelector("#floating-things #object-category-selector").innerHTML = options;
