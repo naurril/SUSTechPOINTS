@@ -1,6 +1,6 @@
 import * as THREE from './lib/three.module.js';
 import { PCDLoader } from './lib/PCDLoader.js';
-import { OrbitControls } from './lib/OrbitControls.js';
+import { ArcballControls } from './lib/ArcballControls.js';
 import { SelectionBox } from './lib/SelectionBox.js';
 import { SelectionHelper } from './lib/SelectionHelper.js';
 
@@ -44,7 +44,7 @@ function init() {
     camera.lookAt( 0, 0, 0 );
 
     
-    controls = new OrbitControls( camera, renderer.domElement );
+    controls = new ArcballControls( camera, renderer.domElement );
     controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
     
     container = document.createElement( 'container' );
