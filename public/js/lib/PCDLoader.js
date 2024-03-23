@@ -279,21 +279,26 @@ PCDLoader.prototype = {
 			// 	return true;
 		}
 
+		var intensity_index = PCDheader.fields.findIndex(n=>n==="intensity");
+		// if intensity field not found, try reflectance
+		if (intensity_index < 0){
+			intensity_index = PCDheader.fields.findIndex(n=>n==="reflectance");
+			PCDheader.offset.intensity = PCDheader.offset.reflectance;
+		}
+		var intensity_type = "F";
+		var intensity_size = 4;
+
+		if (intensity_index >= 0){
+			intensity_type = PCDheader.type[intensity_index];
+			intensity_size = PCDheader.size[intensity_index];
+		}
+		var offset = PCDheader.offset;
+
 
 		if ( PCDheader.data === 'ascii' || PCDheader.data === 'ascill') {
 
-			var offset = PCDheader.offset;
 			var pcdData = textData.substr( PCDheader.headerLen );
 			var lines = pcdData.split( '\n' );
-
-			var intensity_index = PCDheader.fields.findIndex(n=>n==="intensity");
-			var intensity_type = "F";
-			var intensity_size = 4;
-
-			if (intensity_index >= 0){
-				intensity_type = PCDheader.type[intensity_index];
-				intensity_size = PCDheader.size[intensity_index];
-			}
 
 			for ( var i = 0, l = lines.length; i < l; i ++ ) {
 
@@ -353,26 +358,14 @@ PCDLoader.prototype = {
 			}
 
 		}
-
-		// binary
-
-		if ( PCDheader.data === 'binary_compressed' ) {
+		
+		else if ( PCDheader.data === 'binary_compressed' ) {
 
 			var sizes = new Uint32Array( data.slice( PCDheader.headerLen, PCDheader.headerLen + 8 ) );
 			var compressedSize = sizes[ 0 ];
 			var decompressedSize = sizes[ 1 ];
 			var decompressed = decompressLZF( new Uint8Array( data, PCDheader.headerLen + 8, compressedSize ), decompressedSize );
 			var dataview = new DataView( decompressed.buffer );
-			
-			var offset = PCDheader.offset;
-			var intensity_index = PCDheader.fields.findIndex(n=>n==="intensity");
-			var intensity_type = "F";
-			var intensity_size = 4;
-
-			if (intensity_index >= 0){
-				intensity_type = PCDheader.type[intensity_index];
-				intensity_size = PCDheader.size[intensity_index];
-			}
 
 			let size = {};
 			
@@ -445,16 +438,6 @@ PCDLoader.prototype = {
 		else if ( PCDheader.data === 'binary' ) {
 
 			var dataview = new DataView( data, PCDheader.headerLen );
-			var offset = PCDheader.offset;
-
-			var intensity_index = PCDheader.fields.findIndex(n=>n==="intensity");
-			var intensity_type = "F";
-			var intensity_size = 4;
-
-			if (intensity_index >= 0){
-				intensity_type = PCDheader.type[intensity_index];
-				intensity_size = PCDheader.size[intensity_index];
-			}
 
 			let x_index = PCDheader.fields.findIndex(n=>n==="x");
 			let x_size = 4;
