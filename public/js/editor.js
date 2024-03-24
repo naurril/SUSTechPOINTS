@@ -482,8 +482,8 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         this.data.world.lidar.cancel_highlight(box);
         this.floatLabelManager.restore_all();
         
-        this.viewManager.mainView.save_orbit_state(box.scale);
-        this.viewManager.mainView.orbit.reset();
+        this.viewManager.mainView.save_arcball_state(box.scale);
+        this.viewManager.mainView.arcball.reset();
     };
 
     this.focusOnSelectedBox = function(box){
@@ -494,17 +494,17 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             this.data.world.lidar.highlight_box_points(box);
             
             this.floatLabelManager.hide_all();
-            this.viewManager.mainView.orbit.saveState();
+            this.viewManager.mainView.arcball.saveState();
 
             //this.viewManager.mainView.camera.position.set(this.selected_box.position.x+this.selected_box.scale.x*3, this.selected_box.position.y+this.selected_box.scale.y*3, this.selected_box.position.z+this.selected_box.scale.z*3);
 
             let posG = this.data.world.lidarPosToScene(box.position);
-            this.viewManager.mainView.orbit.target.x = posG.x;
-            this.viewManager.mainView.orbit.target.y = posG.y;
-            this.viewManager.mainView.orbit.target.z = posG.z;
+            this.viewManager.mainView.arcball.target.x = posG.x;
+            this.viewManager.mainView.arcball.target.y = posG.y;
+            this.viewManager.mainView.arcball.target.z = posG.z;
 
-            this.viewManager.mainView.restore_relative_orbit_state(box.scale);
-            this.viewManager.mainView.orbit.update();
+            this.viewManager.mainView.restore_relative_arcball_state(box.scale);
+            this.viewManager.mainView.arcball.update();
 
             this.render();
             box.in_highlight=true;
@@ -905,7 +905,7 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
     // this.animate= function() {
     //     let self=this;
     //     requestAnimationFrame( function(){self.animate();} );
-    //     this.viewManager.mainView.orbit_orth.update();
+    //     this.viewManager.mainView.arcball_orth.update();
     // };
 
 
@@ -933,9 +933,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
             targetPos.z = 50;
 
         let pos = this.data.world.lidarPosToScene(targetPos);
-        this.viewManager.mainView.orbit.object.position.set(pos.x, pos.y, pos.z);  //object is camera
-        this.viewManager.mainView.orbit.target.set(pos.x, pos.y, 0);
-        this.viewManager.mainView.orbit.update(); 
+        this.viewManager.mainView.arcball.object.position.set(pos.x, pos.y, pos.z);  //object is camera
+        this.viewManager.mainView.arcball.target.set(pos.x, pos.y, 0);
+        this.viewManager.mainView.arcball.update(); 
         this.render();
     };
 
@@ -2287,9 +2287,9 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
 
     // this.centerMainView =function(){
     //     let offset = this.data.world.coordinatesOffset;
-    //     this.viewManager.mainView.orbit.target.x += offset[0];
-    //     this.viewManager.mainView.orbit.target.y += offset[1];
-    //     this.viewManager.mainView.orbit.target.z += offset[2];        
+    //     this.viewManager.mainView.arcball.target.x += offset[0];
+    //     this.viewManager.mainView.arcball.target.y += offset[1];
+    //     this.viewManager.mainView.arcball.target.z += offset[2];        
     // };
 
     this.on_load_world_finished= function(world){
@@ -2331,15 +2331,15 @@ function Editor(editorUi, wrapperUi, editorCfg, data, name="editor"){
         
         this.mainViewOffset = world.coordinatesOffset;
         
-        this.viewManager.mainView.orbit.target.x += newOffset[0];
-        this.viewManager.mainView.orbit.target.y += newOffset[1];
-        this.viewManager.mainView.orbit.target.z += newOffset[2];
+        this.viewManager.mainView.arcball.target.x += newOffset[0];
+        this.viewManager.mainView.arcball.target.y += newOffset[1];
+        this.viewManager.mainView.arcball.target.z += newOffset[2];
 
         this.viewManager.mainView.camera.position.x += newOffset[0];
         this.viewManager.mainView.camera.position.y += newOffset[1];
         this.viewManager.mainView.camera.position.z += newOffset[2];
 
-        this.viewManager.mainView.orbit.update();
+        this.viewManager.mainView.arcball.update();
         
     };
 
