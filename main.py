@@ -35,37 +35,6 @@ class Root(object):
     def index(self, scene="", frame=""):
       tmpl = env.get_template('index.html')
       return tmpl.render()
-  
-    @cherrypy.expose
-    def icon(self):
-      tmpl = env.get_template('test_icon.html')
-      return tmpl.render()
-
-    @cherrypy.expose
-    def ml(self):
-      tmpl = env.get_template('test_ml.html')
-      return tmpl.render()
-  
-    @cherrypy.expose
-    def reg(self):
-      tmpl = env.get_template('registration_demo.html')
-      return tmpl.render()
-
-    @cherrypy.expose
-    def view(self, file):
-      tmpl = env.get_template('view.html')
-      return tmpl.render()
-
-    # @cherrypy.expose
-    # def saveworld(self, scene, frame):
-
-    #   # cl = cherrypy.request.headers['Content-Length']
-    #   rawbody = cherrypy.request.body.readline().decode('UTF-8')
-
-    #   with open("./data/"+scene +"/label/"+frame+".json",'w') as f:
-    #     f.write(rawbody)
-      
-    #   return "ok"
 
     @cherrypy.expose
     def saveworldlist(self):
