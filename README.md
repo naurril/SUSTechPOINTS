@@ -1,7 +1,7 @@
 # SUSTechPOINTS: Point Cloud 3D Bounding Box Annotation Tool For Autonomous Driving
 
-### Main UI
-![screenshot](./doc/main-ui.png)
+### System UI
+![screenshot](./doc/system-ui.png)
 
 ### Automatic yaw angle (z-axis) prediction.
 ![auto-rotate](./doc/auto-rotate.gif)
@@ -10,7 +10,7 @@
 
 semi-auto-annotation
 
-![batch-mode](./doc/auto-anno-car.gif)
+![batch-mode](./doc/auto-anno-bike.gif)
 
 ## Features
 
